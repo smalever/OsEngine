@@ -8,5 +8,6 @@ namespace OsEngine.Robots.MyBots
 {
     internal class SetkaBollinger
     {
+        //sdtghse
     }
 }
