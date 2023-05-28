@@ -947,9 +947,6 @@
     </Compile>
     <Compile Include="Robots\BotFactory.cs" />
     <Compile Include="Robots\CounterTrend\ClusterCountertrend.cs" />
-    <Compile Include="Robots\MyBots\IlanMartin.cs" />
-    <Compile Include="Robots\MyBots\MartinBollinger.cs" />
-    <Compile Include="Robots\MyBots\MartinSMA.cs" />
     <Compile Include="Robots\OnScriptIndicators\GridSample.cs" />
     <Compile Include="Robots\Engines\CandleEngine.cs" />
     <Compile Include="Robots\Engines\ClusterEngine.cs" />
@@ -1743,6 +1740,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Market\Servers\Huobi\FuturesSwap\Entities\" />
+    <Folder Include="Robots\MyBots\" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\generateButton.png" />
