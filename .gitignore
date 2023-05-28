@@ -3,6 +3,7 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+
 # User-specific files
 *.suo
 *.user
@@ -287,6 +288,3 @@ __pycache__/
 # Cake - Uncomment if you are using it
 # tools/**
 # !tools/packages.config
-/project/OsEngine/Robots/MyBots/SetkaBollinger.cs
-/project/OsEngine/Robots/MyBots/SetkaBollinger.cs
-/project/OsEngine.sln
