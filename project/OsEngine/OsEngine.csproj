@@ -950,10 +950,6 @@
     <Compile Include="Robots\MyBots\IlanMartin.cs" />
     <Compile Include="Robots\MyBots\MartinBollinger.cs" />
     <Compile Include="Robots\MyBots\MartinSMA.cs" />
-    <Compile Include="Robots\MyBots\NetSma.cs" />
-    <Compile Include="Robots\MyBots\PairTrade.cs" />
-    <Compile Include="Robots\MyBots\PriceChanelFix.cs" />
-    <Compile Include="Robots\MyBots\TwoLegsBot.cs" />
     <Compile Include="Robots\OnScriptIndicators\GridSample.cs" />
     <Compile Include="Robots\Engines\CandleEngine.cs" />
     <Compile Include="Robots\Engines\ClusterEngine.cs" />
