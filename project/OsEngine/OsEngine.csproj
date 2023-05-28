@@ -1652,7 +1652,6 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
-    <Compile Include="Robots\MyBots\testKlass.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
