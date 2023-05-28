@@ -8,5 +8,7 @@ namespace OsEngine.Robots.MyBots
 {
     class test
     {
+        // тратата 
+
     }
 }
