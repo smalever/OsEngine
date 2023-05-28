@@ -287,3 +287,6 @@ __pycache__/
 # Cake - Uncomment if you are using it
 # tools/**
 # !tools/packages.config
+/project/OsEngine/Robots/MyBots/SetkaBollinger.cs
+/project/OsEngine/Robots/MyBots/SetkaBollinger.cs
+/project/OsEngine.sln
