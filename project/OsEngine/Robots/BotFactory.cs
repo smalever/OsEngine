@@ -36,6 +36,7 @@ namespace OsEngine.Robots
         public static List<string> GetNamesStrategy()
         {
             List<string> result = new List<string>();
+            /*
             result.Add("SmaScreener");
             result.Add("Fisher");
             result.Add("Engine");
@@ -74,6 +75,7 @@ namespace OsEngine.Robots
             result.Add("PriceChannelVolatility");
             result.Add("RsiTrade");
             result.Add("RviTrade");
+            */
             result.AddRange(BotsWithAttribute.Keys);
 
             List<string> resultTrue = new List<string>();
@@ -114,7 +116,7 @@ namespace OsEngine.Robots
                 bot = CreateScriptStrategyByName(nameClass, name, startProgram);
                 return bot;
             }
-
+            /*
             if (nameClass == "SmaScreener")
             {
                 bot = new SmaScreener(name, startProgram);
@@ -270,6 +272,7 @@ namespace OsEngine.Robots
             {
                 bot = new PairTraderSpreadSma(name, startProgram);
             }
+            */
             if (BotsWithAttribute.ContainsKey(nameClass))
             {
                 Type botType = BotsWithAttribute[nameClass];
