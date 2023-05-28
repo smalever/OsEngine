@@ -950,7 +950,6 @@
     <Compile Include="Robots\MyBots\IlanMartin.cs" />
     <Compile Include="Robots\MyBots\MartinBollinger.cs" />
     <Compile Include="Robots\MyBots\MartinSMA.cs" />
-    <Compile Include="Robots\MyBots\SmaTestBot.cs" />
     <Compile Include="Robots\OnScriptIndicators\GridSample.cs" />
     <Compile Include="Robots\Engines\CandleEngine.cs" />
     <Compile Include="Robots\Engines\ClusterEngine.cs" />
