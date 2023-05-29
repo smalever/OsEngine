@@ -947,10 +947,11 @@
     </Compile>
     <Compile Include="Robots\BotFactory.cs" />
     <Compile Include="Robots\CounterTrend\ClusterCountertrend.cs" />
-    <Compile Include="Robots\MyBots\IlanMartin.cs" />
-    <Compile Include="Robots\MyBots\MartinBollinger.cs" />
-    <Compile Include="Robots\MyBots\MartinSMA.cs" />
-    <Compile Include="Robots\MyBots\SmaTestBot.cs" />
+    <Compile Include="OsaExtension\MyBots\IlanMartin.cs" />
+    <Compile Include="OsaExtension\MyBots\MartinBollinger.cs" />
+    <Compile Include="OsaExtension\MyBots\MartinSMA.cs" />
+    <Compile Include="OsaExtension\MyBots\meshOnSMA.cs" />
+    <Compile Include="OsaExtension\MyBots\SmaTestBot.cs" />
     <Compile Include="Robots\OnScriptIndicators\GridSample.cs" />
     <Compile Include="Robots\Engines\CandleEngine.cs" />
     <Compile Include="Robots\Engines\ClusterEngine.cs" />
