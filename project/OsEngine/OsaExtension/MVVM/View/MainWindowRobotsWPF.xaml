@@ -9,9 +9,22 @@
         mc:Ignorable="d"
         Title=" Главное окно роботов WPF" Height="450" Width="800">
     <Grid>
-        <Button Content ="Вызвать список роботов осы"
-                Command="{Binding CommandGetListBot}" >
-            
-        </Button>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="23*"/>
+            <ColumnDefinition Width="57*"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Grid.ColumnSpan="2">
+            <Button Content ="Создать робота "
+                    Margin="5"
+                Command="{Binding CommandСreateBot}" >
+
+            </Button>
+            <Button 
+                Content="Сервер"
+                ToolTip="Соедениться с биржей"
+                Command="{Binding ComandServerConect}">
+            </Button>
+        </StackPanel>
+
     </Grid>
 </Window>
