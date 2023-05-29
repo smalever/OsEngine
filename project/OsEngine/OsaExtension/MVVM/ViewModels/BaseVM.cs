@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace OsEngine.OsaExtension.MVVM.ViewModels
 {
     /// <summary>
-    /// реализация интефейса INotifyPropertyChanged
+    /// реализация интерфейса INotifyPropertyChanged
     /// </summary>
     public abstract class BaseVM : INotifyPropertyChanged
     {
