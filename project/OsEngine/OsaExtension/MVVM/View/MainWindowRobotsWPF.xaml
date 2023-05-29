@@ -24,6 +24,11 @@
                 ToolTip="Соедениться с биржей"
                 Command="{Binding ComandServerConect}">
             </Button>
+            <TextBlock Text="{Binding Price}"
+                       FontSize="16"
+                       Margin="5">
+                
+            </TextBlock>
         </StackPanel>
 
     </Grid>
