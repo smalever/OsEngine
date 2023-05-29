@@ -528,7 +528,7 @@ namespace OsEngine
             }
         }
         /// <summary>
-        /// запускает окно WPF
+        /// запускает окно WPF (для роботов)
         /// </summary>
         private void ButtonRobotWPF_Click(object sender, RoutedEventArgs e)
         {

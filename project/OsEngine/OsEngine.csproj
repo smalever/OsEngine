@@ -829,6 +829,8 @@
     <Compile Include="Market\SupportTable\SupportTableUi.xaml.cs">
       <DependentUpon>SupportTableUi.xaml</DependentUpon>
     </Compile>
+    <Compile Include="OsaExtension\MVVM\Commands\DelegateCommand.cs" />
+    <Compile Include="OsaExtension\MVVM\ViewModels\BaseVM.cs" />
     <Compile Include="OsConverter\OsCandleConverterUi.xaml.cs">
       <DependentUpon>OsCandleConverterUi.xaml</DependentUpon>
     </Compile>
@@ -1745,9 +1747,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Market\Servers\Huobi\FuturesSwap\Entities\" />
-    <Folder Include="OsaExtension\MVVM\Commands\" />
     <Folder Include="OsaExtension\MVVM\Converters\" />
-    <Folder Include="OsaExtension\MVVM\ViewModels\" />
     <Folder Include="OsaExtension\MVVM\Views\" />
   </ItemGroup>
   <ItemGroup>
