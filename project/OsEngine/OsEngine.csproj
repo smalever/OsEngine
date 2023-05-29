@@ -1745,15 +1745,10 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Market\Servers\Huobi\FuturesSwap\Entities\" />
-<<<<<<< HEAD
-    <Folder Include="OsaExtension\Robots\SmaTestBot\Class Extension\" />
-    <Folder Include="OsaExtension\Robots\SmaTestBot\ViewSmaTestBot\" />
-=======
     <Folder Include="OsaExtension\MVVM\Commands\" />
     <Folder Include="OsaExtension\MVVM\Converters\" />
     <Folder Include="OsaExtension\MVVM\ViewModels\" />
     <Folder Include="OsaExtension\MVVM\Views\" />
->>>>>>> 8f2a9479a1e42ea467f6221390bbafdfea869841
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\generateButton.png" />
