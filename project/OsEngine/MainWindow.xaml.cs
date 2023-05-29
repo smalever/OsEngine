@@ -527,9 +527,25 @@ namespace OsEngine
                 // ignore
             }
         }
-
+        /// <summary>
+        /// запускает окно WPF
+        /// </summary>
         private void ButtonRobotWPF_Click(object sender, RoutedEventArgs e)
         {
+            try
+            {
+                Hide();
+                //RobotUi candleOneUi = new RobotUi();
+                //candleOneUi.ShowDialog();
+                Close();
+                ProccesIsWorked = false;
+                Thread.Sleep(5000);
+            }
+            catch (Exception error)
+            {
+                MessageBox.Show(error.ToString());
+            }
+            Process.GetCurrentProcess().Kill();
 
         }
     }
