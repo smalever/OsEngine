@@ -949,11 +949,6 @@
     </Compile>
     <Compile Include="Robots\BotFactory.cs" />
     <Compile Include="Robots\CounterTrend\ClusterCountertrend.cs" />
-    <Compile Include="OsaExtension\Robots\OldRobots\IlanMartin.cs" />
-    <Compile Include="OsaExtension\Robots\OldRobots\MartinBollinger.cs" />
-    <Compile Include="OsaExtension\Robots\OldRobots\MartinSMA.cs" />
-    <Compile Include="OsaExtension\Robots\meshOnSMA\meshOnSMA.cs" />
-    <Compile Include="OsaExtension\Robots\SmaTestBot\SmaTestBot.cs" />
     <Compile Include="Robots\OnScriptIndicators\GridSample.cs" />
     <Compile Include="Robots\Engines\CandleEngine.cs" />
     <Compile Include="Robots\Engines\ClusterEngine.cs" />

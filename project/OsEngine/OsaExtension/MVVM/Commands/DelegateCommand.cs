@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace OsEngine.Commands
+namespace OsEngine.OsaExtension.MVVM.Commands
 {
-    public class DelegateCommand : ICommand
+    internal class DelegateCommand : ICommand
     {
         public DelegateCommand(DelegateFunction function)
         {
