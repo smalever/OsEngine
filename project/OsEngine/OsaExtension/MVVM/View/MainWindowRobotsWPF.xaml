@@ -4,9 +4,14 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:OsEngine.OsaExtension.MVVM.View"
+        xmlns:vm="clr-namespace:OsEngine.OsaExtension.MVVM.ViewModels"
+        xmlns:int ="http://schemas.microsoft.com/xaml/behaviors" d:DataContext="{d:DesignInstance Type=vm:MainWindowRobWpfVM}"
         mc:Ignorable="d"
         Title=" Главное окно роботов WPF" Height="450" Width="800">
     <Grid>
-        
+        <Button Content ="Вызвать список роботов осы"
+                Command="{Binding CommandGetListBot}" >
+            
+        </Button>
     </Grid>
 </Window>

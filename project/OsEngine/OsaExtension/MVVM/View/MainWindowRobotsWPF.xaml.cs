@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OsEngine.OsaExtension.MVVM.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,6 +23,11 @@ namespace OsEngine.OsaExtension.MVVM.View
         public MainWindowRobotsWPF()
         {
             InitializeComponent();
+
+           vm = new MainWindowRobWpfVM();
+           DataContext = vm;
+
         }
+        MainWindowRobWpfVM vm;
     }
 }

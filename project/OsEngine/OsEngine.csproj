@@ -831,6 +831,7 @@
     </Compile>
     <Compile Include="OsaExtension\MVVM\Commands\DelegateCommand.cs" />
     <Compile Include="OsaExtension\MVVM\ViewModels\BaseVM.cs" />
+    <Compile Include="OsaExtension\MVVM\ViewModels\MainWindowRobWpfVM.cs" />
     <Compile Include="OsaExtension\MVVM\View\MainWindowRobotsWPF.xaml.cs">
       <DependentUpon>MainWindowRobotsWPF.xaml</DependentUpon>
     </Compile>
