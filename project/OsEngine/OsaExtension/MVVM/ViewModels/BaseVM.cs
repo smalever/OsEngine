@@ -1,8 +1,12 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace OsEngine.ViewModels
+namespace OsEngine.OsaExtension.MVVM.ViewModels
 {
     /// <summary>
     /// реализация интефейса INotifyPropertyChanged
