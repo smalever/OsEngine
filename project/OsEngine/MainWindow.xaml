@@ -24,6 +24,7 @@
             <Image x:Name="ImageGear" HorizontalAlignment="Left" Source="Images/MainWIndow/gear.png" Width="24" Height="24"/>
         </Button>
         <Button  x:Name="ButtonTesterLight" Content="Tester Light" Margin="324,105,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="91" Height="28" Click="ButtonTesterLight_Click"   />
-        <Button  x:Name="ButtonRobotLight" Content="Bot Station Light" Margin="448,171,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="146" Height="28" Click="ButtonRobotLight_Click" />
+        <Button  x:Name="ButtonRobotLight" Content="Bot Station Light" Margin="448,175,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="146" Height="28" Click="ButtonRobotLight_Click" />
+        <Button  x:Name="ButtonRobotWPF" Content="Bot WPF" Margin="448,100,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="146" Height="28" Click="ButtonRobotWPF_Click"  />
     </Grid>
 </Window>
