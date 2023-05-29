@@ -947,9 +947,11 @@
     </Compile>
     <Compile Include="Robots\BotFactory.cs" />
     <Compile Include="Robots\CounterTrend\ClusterCountertrend.cs" />
-    <Compile Include="Robots\MyBots\IlanMartin.cs" />
-    <Compile Include="Robots\MyBots\MartinBollinger.cs" />
-    <Compile Include="Robots\MyBots\MartinSMA.cs" />
+    <Compile Include="OsaExtension\Robots\OldRobots\IlanMartin.cs" />
+    <Compile Include="OsaExtension\Robots\OldRobots\MartinBollinger.cs" />
+    <Compile Include="OsaExtension\Robots\OldRobots\MartinSMA.cs" />
+    <Compile Include="OsaExtension\Robots\meshOnSMA\meshOnSMA.cs" />
+    <Compile Include="OsaExtension\Robots\SmaTestBot\SmaTestBot.cs" />
     <Compile Include="Robots\OnScriptIndicators\GridSample.cs" />
     <Compile Include="Robots\Engines\CandleEngine.cs" />
     <Compile Include="Robots\Engines\ClusterEngine.cs" />
@@ -1743,6 +1745,8 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Market\Servers\Huobi\FuturesSwap\Entities\" />
+    <Folder Include="OsaExtension\Robots\SmaTestBot\Class Extension\" />
+    <Folder Include="OsaExtension\Robots\SmaTestBot\ViewSmaTestBot\" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\generateButton.png" />
