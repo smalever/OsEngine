@@ -527,6 +527,11 @@ namespace OsEngine
                 // ignore
             }
         }
+
+        private void ButtonRobotWPF_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 
     public static class CriticalErrorHandler
