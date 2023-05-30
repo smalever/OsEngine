@@ -26,8 +26,16 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             
         }
 
+        /// <summary>
+        /// поле окна выбора инструмента
+        /// </summary>
+        public static ChengeEmitendWidow ChengeEmitendWidow = null;
+
         #region Property ==================================================================
 
+        /// <summary>
+        /// Сервер 
+        /// </summary>
         public IServer Server
         {
             get => _server;
@@ -74,6 +82,24 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         #region Commands ===========================================================
 
+
+        private DelegateCommand _commandSelectSecurity;
+        public DelegateCommand CommandSelectSecurity
+        {
+            get
+            {
+                if (_commandSelectSecurity == null)
+                {
+                    _commandSelectSecurity = new DelegateCommand(SelectSecurity);
+                }
+                return _commandSelectSecurity;
+            }
+        }
+        #endregion
+
+
+        //public event GridRobotVM.selectedSecurity OnSelectedSecurity;
+
         private DelegateCommand comandServerConect;
         public DelegateCommand ComandServerConect
         {
@@ -104,9 +130,30 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
         }
 
-        #endregion
-
         #region Metods ============================================================
+
+        /// <summary>
+        /// выбрать бумагу
+        /// </summary>
+        void SelectSecurity(object o)
+        {
+            if (MainWindowRobWpfVM.ChengeEmitendWidow != null)
+            {
+                return;
+            }
+            MainWindowRobWpfVM.ChengeEmitendWidow = new ChengeEmitendWidow();
+            MainWindowRobWpfVM.ChengeEmitendWidow.ShowDialog();
+            MainWindowRobWpfVM.ChengeEmitendWidow = null;
+            if (_server != null)
+            {
+                if (_server.ServerType == ServerType.Binance
+                    || _server.ServerType == ServerType.BinanceFutures)
+                {
+                    // IsChekCurrency = true;
+                }
+                //else IsChekCurrency = false;
+            }
+        }
 
         /// <summary>
         ///  подключиться к серверу
@@ -122,8 +169,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             //_server.NewBidAscIncomeEvent += _server_NewBidAscIncomeEvent;
             //_server.ConnectStatusChangeEvent += _server_ConnectStatusChangeEvent;            
         }
-
- 
 
         /// <summary>
         ///  отключиться от сервера 
@@ -178,9 +223,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
            
         }
+        public delegate void selectedSecurity();
+        public event selectedSecurity OnSelectedSecurity;
 
 
- 
+
 
         #endregion
     }

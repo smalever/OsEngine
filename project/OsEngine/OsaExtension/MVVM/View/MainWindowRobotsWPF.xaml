@@ -5,9 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:OsEngine.OsaExtension.MVVM.View"
         xmlns:vm="clr-namespace:OsEngine.OsaExtension.MVVM.ViewModels"
-        xmlns:int ="http://schemas.microsoft.com/xaml/behaviors" d:DataContext="{d:DesignInstance Type=vm:MainWindowRobWpfVM}"
+        xmlns:int ="http://schemas.microsoft.com/xaml/behaviors" 
         mc:Ignorable="d"
         Title=" Главное окно роботов WPF" Height="450" Width="800">
+    <!--d:DataContext="{d:DesignInstance Type=vm:MainWindowRobWpfVM}"-->
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="23*"/>
@@ -22,7 +23,14 @@
             <Button 
                 Content="Сервер"
                 ToolTip="Соедениться с биржей"
-                Command="{Binding ComandServerConect}">
+                Command="{Binding ComandServerConect}"
+                Margin="5">
+            </Button>
+            <Button 
+                Content="Выбрать бумагe"
+                ToolTip="подаисаться на бумагу"
+                Command="{Binding CommandSelectSecurity}"
+                Margin="5">
             </Button>
             <TextBlock Text="{Binding Price}"
                        FontSize="16"
