@@ -13,7 +13,8 @@
             </Button>
         </StatusBar>
         <Label Content=" цена бумаги " FontSize="32" 
-               Margin="5" Width="210" Height="58"   />
+               Margin="5" Width="210" Height="58" 
+               VerticalAlignment="Top"/>
         <TextBlock Text="{Binding Price}"
                        FontSize="32"
                        Margin="5"
