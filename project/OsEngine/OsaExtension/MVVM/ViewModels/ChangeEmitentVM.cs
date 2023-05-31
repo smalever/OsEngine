@@ -20,9 +20,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
     /// </summary>
     public class ChangeEmitentVM : BaseVM
     {
-        public ChangeEmitentVM()
+        public ChangeEmitentVM(IRobotVM rob)
         {
-            //  _robot = robot;
+             _robot = rob;
 
             Init();
         }

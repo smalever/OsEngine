@@ -12,10 +12,10 @@ namespace OsEngine.OsaExtension.MVVM.View
     public partial class ChengeEmitendWidow : Window
     {          
 
-        public ChengeEmitendWidow()
+        public ChengeEmitendWidow(IRobotVM robot)
         {
             InitializeComponent();
-            DataContext = new ChangeEmitentVM();
+            DataContext = new ChangeEmitentVM(robot);
         }
     }
 }
