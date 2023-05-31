@@ -844,6 +844,9 @@
     <Compile Include="OsaExtension\MVVM\View\MainWindowRobotsWPF.xaml.cs">
       <DependentUpon>MainWindowRobotsWPF.xaml</DependentUpon>
     </Compile>
+    <Compile Include="OsaExtension\MVVM\View\TestRobot.xaml.cs">
+      <DependentUpon>TestRobot.xaml</DependentUpon>
+    </Compile>
     <Compile Include="OsaExtension\Robots\meshOnSMA\meshOnSMA.cs" />
     <Compile Include="OsaExtension\Robots\OldRobots\IlanMartin.cs" />
     <Compile Include="OsaExtension\Robots\OldRobots\MartinBollinger.cs" />
@@ -1450,6 +1453,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="OsaExtension\MVVM\View\MainWindowRobotsWPF.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="OsaExtension\MVVM\View\TestRobot.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

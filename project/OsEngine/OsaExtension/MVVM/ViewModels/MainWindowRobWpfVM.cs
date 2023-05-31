@@ -32,7 +32,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         public static ChengeEmitendWidow ChengeEmitendWidow = null;
 
         #region Property ==================================================================
-        public ObservableCollection<EnvelopTrend> Robots { get; set; } = new ObservableCollection<EnvelopTrend>();
+        public ObservableCollection<IRobotVM> Robots { get; set; } = new ObservableCollection<IRobotVM>();
 
         #endregion
 
@@ -88,7 +88,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             
             string name = "EnvelopTrend";
 
-            EnvelopTrend bot = new EnvelopTrend(name, StartProgram.IsOsTrader);
+            //EnvelopTrend bot = new EnvelopTrend(name, StartProgram.IsOsTrader);
+            var bot = new TestRobVM();
 
             Robots.Add(bot);
             //Bot = bot;

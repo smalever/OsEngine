@@ -8,12 +8,9 @@
         xmlns:int ="http://schemas.microsoft.com/xaml/behaviors" 
         mc:Ignorable="d"
         Title=" Главное окно роботов WPF" Height="450" Width="800">
-    <!--d:DataContext="{d:DesignInstance Type=vm:MainWindowRobWpfVM}"-->
+   
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="23*"/>
-            <ColumnDefinition Width="57*"/>
-        </Grid.ColumnDefinitions>
+        
         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Grid.ColumnSpan="2">
             <Button Content ="Создать робота "
                     Margin="5"
@@ -25,19 +22,31 @@
                 ToolTip="Соедениться с биржей"
                 Command="{Binding ComandServerConect}"
                 Margin="5">
-            </Button>
-            <Button 
-                Content="Выбрать бумагe"
-                ToolTip="подаисаться на бумагу"
-                Command="{Binding CommandSelectSecurity}"
-                Margin="5">
-            </Button>
-            <TextBlock Text="{Binding Price}"
-                       FontSize="16"
-                       Margin="5">
-                
-            </TextBlock>
+            </Button>       
+   
         </StackPanel>
+        <TabControl ItemsSource="{Binding Robots}" Margin="0,35,0,-35">
+            <TabControl.Resources>
+                <DataTemplate DataType="{x:Type vm:TestRobVM}">
+                    <local:TestRobot>
+                        
+                    </local:TestRobot>
+                </DataTemplate>
+            </TabControl.Resources>
+
+            <TabControl.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding Header}"/>
+                        <!--<TextBlock Text="{Binding Header}"/>-->
+                        <TextBlock Text=" Робот 1  ">
+                           
+                        </TextBlock>
+                    </StackPanel>
+                </DataTemplate>
+
+            </TabControl.ItemTemplate>
+        </TabControl>
 
     </Grid>
 </Window>
