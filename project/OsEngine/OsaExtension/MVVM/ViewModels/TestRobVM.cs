@@ -31,8 +31,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             ObservableCollection<string> stringPortfolios = new ObservableCollection<string>();
             if (server == null)
             {
-                //RobotWindowVM.Log(Header, "GetStringPortfolios server == null ");
-                return stringPortfolios;
+               return stringPortfolios;
             }
             if (server.Portfolios == null)
             {
@@ -41,8 +40,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             foreach (Portfolio portf in server.Portfolios)
             {
-                //RobotWindowVM.Log(Header, "GetStringPortfolios  портфель =  " + portf.Number);
-                stringPortfolios.Add(portf.Number);
+               stringPortfolios.Add(portf.Number);
             }
             return stringPortfolios;
         }
