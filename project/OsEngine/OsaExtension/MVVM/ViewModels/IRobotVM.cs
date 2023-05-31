@@ -26,11 +26,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         public int NumberTab { get; set; }
 
         /// <summary>
-        /// название статегии 
-        /// </summary>
-        //public NameStrat NameStrat { get; set; }
-
-        /// <summary>
         /// событие подписки на бумагу
         /// </summary>
         public event MainWindowRobWpfVM.selectedSecurity OnSelectedSecurity;
@@ -42,7 +37,16 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         public ObservableCollection<string> StringPortfolios { get; set; }
 
+        /// <summary>
+        /// выбранная бумага
+        /// </summary>
         public Security SelectedSecurity { get; set; }
+ 
+        /// <summary>
+        /// метод сбора названий кошельков (бирж)
+        /// </summary>
+        public ObservableCollection<string> GetStringPortfolios(IServer server);
+
         /// <summary>
         /// список направления сделок 
         /// </summary>
@@ -54,9 +58,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         //public List<StepType> StepTypes { get; set; }
 
         /// <summary>
-        /// метод сбора названий кошельков (бирж)
+        /// название статегии 
         /// </summary>
-        public ObservableCollection<string> GetStringPortfolios(IServer server);
+        //public NameStrat NameStrat { get; set; }
 
     }
 }

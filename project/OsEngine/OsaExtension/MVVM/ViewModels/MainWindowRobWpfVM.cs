@@ -4,6 +4,7 @@ using OsEngine.Market.Servers;
 using OsEngine.OsaExtension.MVVM.Commands;
 using OsEngine.OsaExtension.MVVM.View;
 using OsEngine.OsTrader;
+using OsEngine.OsTrader.Gui;
 using OsEngine.OsTrader.Panels;
 using OsEngine.Robots.Trend;
 using System;
@@ -13,6 +14,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
+using System.Windows.Forms.Integration;
 
 namespace OsEngine.OsaExtension.MVVM.ViewModels
 {
@@ -86,19 +89,26 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             ServerMaster.ShowDialog(false);
         }
+        /// <summary>
+        /// поле содеражащие роботов
+        /// </summary>
+        private OsTraderMaster _botTradeMaster;
+        private WindowsFormsHost tabControl = new WindowsFormsHost();
 
         /// <summary>
         /// созание робота
         /// </summary>
-        void СreateBot(object o)
+        void СreateBot(object o) 
         {
-            
-            string name = "EnvelopTrend";
+            _botTradeMaster = new OsTraderMaster(StartProgram.IsOsTrader);
+            _botTradeMaster.CreateNewBot();
+
+            //string name = "EnvelopTrend";
 
             //EnvelopTrend bot = new EnvelopTrend(name, StartProgram.IsOsTrader);
-            var bot = new TestRobVM();
+            //var bot = new TestRobVM();
 
-            Robots.Add(bot);
+            //Robots.Add(bot);
             //Bot = bot;
 
             //NamSecuriti = bot.TabsSimple[0].Securiti.Name;

@@ -19,10 +19,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
     {
         public TestRobVM()
         { 
-            //ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;          
+                   
         }
 
-        public string NamSecuriti { get; set; }
         public string Header { get; set; }
         public int NumberTab { get; set; }
 
@@ -161,12 +160,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             //_server.NewBidAscIncomeEvent -= _server_NewBidAscIncomeEvent;
             //_server.ConnectStatusChangeEvent -= _server_ConnectStatusChangeEvent;
         }
-
-        private void ServerMaster_ServerCreateEvent(IServer server)
-        {
-           
-        }
-
+        /// <summary>
+        ///  трейды для тестов 
+        /// </summary>
         private void _server_NewTradeEvent(List<Trade> trades)
         {
             Trade trade = trades.Last();

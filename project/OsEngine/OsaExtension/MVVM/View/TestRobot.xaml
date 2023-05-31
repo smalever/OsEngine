@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Height="450" Width="800">
     <DockPanel>
-        <StatusBar DockPanel.Dock="Top" Margin="3">>
+        <StatusBar DockPanel.Dock="Top" Margin="3"> 
             <Button Content="Выбрать бумагу"
                     Command="{Binding CommandSelectSecurity}">
             </Button>
@@ -22,6 +22,9 @@
                    VerticalAlignment="Top">
 
         </TextBlock>
+        <WindowsFormsHost Name="Wind">
+            
+        </WindowsFormsHost>
 
     </DockPanel>
 </UserControl>
