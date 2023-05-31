@@ -19,9 +19,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
     {
         public TestRobVM()
         { 
-            ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;          
+            //ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;          
         }
-
 
         public string NamSecuriti { get; set; }
         public string Header { get; set; }
@@ -99,7 +98,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
         private decimal _price;
 
-
         /// <summary>
         /// робот
         /// </summary>
@@ -133,15 +131,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             MainWindowRobWpfVM.ChengeEmitendWidow = new ChengeEmitendWidow(this);
             MainWindowRobWpfVM.ChengeEmitendWidow.ShowDialog();
             MainWindowRobWpfVM.ChengeEmitendWidow = null;
-            if (_server != null)
-            {
-                if (_server.ServerType == ServerType.Binance
-                    || _server.ServerType == ServerType.BinanceFutures)
-                {
-                    // IsChekCurrency = true;
-                }
-                //else IsChekCurrency = false;
-            }
+  
         }
 
         /// <summary>
@@ -176,9 +166,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         private void ServerMaster_ServerCreateEvent(IServer server)
         {
-            if (_server == null) return;
-
-            _server.NewTradeEvent += _server_NewTradeEvent;
+           
         }
 
         private void _server_NewTradeEvent(List<Trade> trades)

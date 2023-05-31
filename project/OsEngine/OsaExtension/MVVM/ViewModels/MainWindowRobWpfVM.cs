@@ -32,6 +32,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         public static ChengeEmitendWidow ChengeEmitendWidow = null;
 
         #region Property ==================================================================
+
+        /// <summary>
+        /// Коллекция с роботами
+        /// </summary>
         public ObservableCollection<IRobotVM> Robots { get; set; } = new ObservableCollection<IRobotVM>();
 
         #endregion
@@ -42,6 +46,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         //public event GridRobotVM.selectedSecurity OnSelectedSecurity;
 
         private DelegateCommand comandServerConect;
+        /// <summary>
+        /// отправка метода для соединения с сервером
+        /// </summary>
         public DelegateCommand ComandServerConect
         {
             get
@@ -96,11 +103,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             //NamSecuriti = bot.TabsSimple[0].Securiti.Name;
 
-           
         }
         public delegate void selectedSecurity();
         public event selectedSecurity OnSelectedSecurity;
-
 
     }
 }

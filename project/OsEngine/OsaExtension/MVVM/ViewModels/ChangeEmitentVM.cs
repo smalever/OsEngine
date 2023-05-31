@@ -25,15 +25,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
              _robot = rob;
 
             Init();
-        }
-        //public ChangeEmitentVM(RobotBreakVM robot)
-        //{
-        //    _robot = robot;
-
-        //    Init();
-        //}
+        }   
 
         #region Свойства ===============================================================================
+
         public ObservableCollection<ExChenge> ExChanges { get; set; } = new ObservableCollection<ExChenge>();
         /// <summary>
         /// колекция классов бумаг на бирже 
@@ -56,6 +51,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private Emitent _selectedEmitent;
 
         #endregion
+
         #region Поля ===================================================================================
 
         /// <summary>
@@ -201,8 +197,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         #endregion
-
-
     }
 }
 
