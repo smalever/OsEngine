@@ -43,6 +43,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
             return stringPortfolios;
         }
+
         public Security SelectedSecurity
         {
             get => _selectedSecurity;
@@ -192,7 +193,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             });
         }
 
-        public event MainWindowRobWpfVM.selectedSecurity OnSelectedSecurity;
+        public event selectedSecurity OnSelectedSecurity;
 
     }
 }

@@ -36,12 +36,16 @@ namespace OsEngine.OsTrader
     public class OsTraderMaster
     {
         #region Static Part
-
+        /// <summary>
+        /// 
+        /// </summary>
         public static OsTraderMaster Master;
         public static AdminApiMaster ApiMaster;
 
         #endregion
-
+        /// <summary>
+        /// менеджер роотоов (конструктор) 
+        /// </summary>
         public OsTraderMaster(StartProgram startProgram)
         {
             NumberGen.GetNumberOrder(startProgram);

@@ -22,8 +22,13 @@
                 ToolTip="Соедениться с биржей"
                 Command="{Binding ComandServerConect}"
                 Margin="5">
-            </Button>       
-   
+            </Button>
+            <Button Content =" тестовый метод "
+                    Margin="5"
+                Command="{Binding CommandTest}" >
+
+            </Button>
+
         </StackPanel>
         <TabControl ItemsSource="{Binding Robots}" Margin="1,35,1,-35">
             <TabControl.Resources>

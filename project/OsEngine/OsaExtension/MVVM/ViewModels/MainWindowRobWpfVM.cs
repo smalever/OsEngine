@@ -80,6 +80,22 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 return commandСreateBot;
             }
         }
+        private DelegateCommand commandTest;
+
+        /// <summary>
+        /// делегат для создания ботов
+        /// </summary>
+        public DelegateCommand CommandTest
+        {
+            get
+            {
+                if (commandTest == null)
+                {
+                    commandTest = new DelegateCommand(TestMetod);
+                }
+                return commandTest;
+            }
+        }
         #endregion
 
         /// <summary>
@@ -93,16 +109,15 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// поле содеражащие роботов
         /// </summary>
         private OsTraderMaster _botTradeMaster;
-        private WindowsFormsHost tabControl = new WindowsFormsHost();
+       
 
         /// <summary>
         /// созание робота
         /// </summary>
-        void СreateBot(object o) 
+        void TestMetod(object o) 
         {
-            _botTradeMaster = new OsTraderMaster(StartProgram.IsOsTrader);
-            _botTradeMaster.CreateNewBot();
 
+            СreateBot();
             //string name = "EnvelopTrend";
 
             //EnvelopTrend bot = new EnvelopTrend(name, StartProgram.IsOsTrader);
@@ -114,6 +129,19 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             //NamSecuriti = bot.TabsSimple[0].Securiti.Name;
 
         }
+        /// <summary>
+        /// создать робота 
+        /// </summary>
+        void СreateBot(object o)
+        {
+            //СreateBot();
+        }
+        void СreateBot()
+        {
+            _botTradeMaster = new OsTraderMaster(StartProgram.IsOsTrader);
+            _botTradeMaster.CreateNewBot();
+        }
+
         public delegate void selectedSecurity();
         public event selectedSecurity OnSelectedSecurity;
 
