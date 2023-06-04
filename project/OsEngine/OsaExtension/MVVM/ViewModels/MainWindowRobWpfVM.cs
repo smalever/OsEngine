@@ -83,7 +83,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private DelegateCommand commandTest;
 
         /// <summary>
-        /// делегат для создания ботов
+        /// делегат для тестовых методов 
         /// </summary>
         public DelegateCommand CommandTest
         {

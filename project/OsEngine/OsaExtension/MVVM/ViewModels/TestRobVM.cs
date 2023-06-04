@@ -96,12 +96,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
         private decimal _price;
 
-        /// <summary>
-        /// робот
-        /// </summary>
-        public EnvelopTrend Bot { get; set; }
-
-
         private DelegateCommand _commandSelectSecurity;
         public DelegateCommand CommandSelectSecurity
         {
