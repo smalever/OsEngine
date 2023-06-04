@@ -115,18 +115,16 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         void TestMetod(object o) 
         {
-            var bots = _botTradeMaster.PanelsArray;
-            var rob = new TestRobVM();
-            rob.Header = bots[0].TabsSimple[0].TabName;
-            Robots.Add(rob);
+            var bots = _botTradeMaster.PanelsArray; // взяли из менеджера список панелей
+
+            var rob = new TestRobVM(); // создал экземпляр въюхи робота
+
+            rob.Header = bots[0].TabsSimple[0].TabName; // присвоил заголовку имя 
+
+            Robots.Add(rob);// отправил экземпляр в колекцию 
 
 
-
-            
-            //foreach (var bot in bots)
-            //{
-            //    Robots.Add(bot);
-            //};
+    
         }
         /// <summary>
         /// создать робота 
@@ -145,7 +143,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         void Init()
         {
             _botTradeMaster = new OsTraderMaster(StartProgram.IsOsTrader);
-
         }
 
         public delegate void selectedSecurity();
