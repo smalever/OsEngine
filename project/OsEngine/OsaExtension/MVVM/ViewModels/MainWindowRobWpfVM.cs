@@ -26,7 +26,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
     {
         public MainWindowRobWpfVM() 
         {
-                        
+            Init();
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// Коллекция с роботами
         /// </summary>
-        public ObservableCollection<IRobotVM> Robots { get; set; } = new ObservableCollection<IRobotVM>();
+        public ObservableCollection<BotPanel> Robots { get; set; } = new ObservableCollection<BotPanel>();
 
         #endregion
 
@@ -115,18 +115,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// созание робота
         /// </summary>
         void TestMetod(object o) 
-        {
-
-            СreateBot();
-            //string name = "EnvelopTrend";
-
-            //EnvelopTrend bot = new EnvelopTrend(name, StartProgram.IsOsTrader);
-            //var bot = new TestRobVM();
-
-            //Robots.Add(bot);
-            //Bot = bot;
-
-            //NamSecuriti = bot.TabsSimple[0].Securiti.Name;
+        {    
 
         }
         /// <summary>
@@ -134,12 +123,20 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         void СreateBot(object o)
         {
-            //СreateBot();
+            СreateBot();
         }
         void СreateBot()
         {
-            _botTradeMaster = new OsTraderMaster(StartProgram.IsOsTrader);
             _botTradeMaster.CreateNewBot();
+        }
+        void Init()
+        {
+            _botTradeMaster = new OsTraderMaster(StartProgram.IsOsTrader);
+            var bots = _botTradeMaster.PanelsArray;
+            foreach (var bot in bots)
+            {
+                Robots.Add(bot);
+            };
         }
 
         public delegate void selectedSecurity();
