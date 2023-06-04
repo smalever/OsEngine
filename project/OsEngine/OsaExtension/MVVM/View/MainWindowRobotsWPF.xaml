@@ -43,9 +43,7 @@
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="{Binding Header}"/>
-                        <TextBlock Text=" Робот 1  ">
-                           
-                        </TextBlock>
+                        
                     </StackPanel>
                 </DataTemplate>
 

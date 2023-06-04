@@ -47,20 +47,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         public ObservableCollection<string> GetStringPortfolios(IServer server);
 
-        /// <summary>
-        /// список направления сделок 
-        /// </summary>
-        //public List<Direction> Directions { get; set; }
-
-        /// <summary>
-        /// список типов расчета шага 
-        /// </summary>
-        //public List<StepType> StepTypes { get; set; }
-
-        /// <summary>
-        /// название статегии 
-        /// </summary>
-        //public NameStrat NameStrat { get; set; }
+ 
 
     }
 }

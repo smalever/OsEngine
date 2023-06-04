@@ -39,7 +39,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// Коллекция с роботами
         /// </summary>
-        public ObservableCollection<BotPanel> Robots { get; set; } = new ObservableCollection<BotPanel>();
+        public ObservableCollection<IRobotVM> Robots { get; set; } = new ObservableCollection<IRobotVM>();
 
         #endregion
 
@@ -109,14 +109,24 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// поле содеражащие роботов
         /// </summary>
         private OsTraderMaster _botTradeMaster;
-       
 
         /// <summary>
-        /// созание робота
+        /// для тестов 
         /// </summary>
         void TestMetod(object o) 
-        {    
+        {
+            var bots = _botTradeMaster.PanelsArray;
+            var rob = new TestRobVM();
+            rob.Header = bots[0].TabsSimple[0].TabName;
+            Robots.Add(rob);
 
+
+
+            
+            //foreach (var bot in bots)
+            //{
+            //    Robots.Add(bot);
+            //};
         }
         /// <summary>
         /// создать робота 
@@ -129,14 +139,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             _botTradeMaster.CreateNewBot();
         }
+        /// <summary>
+        /// инициализация менеджера управления роботами
+        /// </summary>
         void Init()
         {
             _botTradeMaster = new OsTraderMaster(StartProgram.IsOsTrader);
-            var bots = _botTradeMaster.PanelsArray;
-            foreach (var bot in bots)
-            {
-                Robots.Add(bot);
-            };
+
         }
 
         public delegate void selectedSecurity();
