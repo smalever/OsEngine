@@ -123,7 +123,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             Robots.Add(rob);// отправил экземпляр в колекцию 
 
-
+            /// FYUYFYF
     
         }
         /// <summary>
