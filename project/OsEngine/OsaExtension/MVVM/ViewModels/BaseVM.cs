@@ -28,5 +28,5 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             return true;
         }
     }
-    // КОМЕНТ 
+    
 }
