@@ -13,19 +13,23 @@
             </Button>
         </StatusBar>
         <Grid>
+            
             <Label Content=" цена бумаги " FontSize="32" 
                Margin="10,14,580,0" Width="210" Height="58" 
                VerticalAlignment="Top" RenderTransformOrigin="0.405,-0.948"/>
+            
             <TextBlock Text="{Binding Price}"
                        FontSize="32"
-                       Margin="240,18,445,0"
+                       Margin="240,18,385,0"
                    VerticalAlignment="Top" Height="50"/>
-            <Label Content=" имя робота " FontSize="32" 
+            
+            <Label Content=" имя вкладки " FontSize="32" 
                 Margin="10,85,580,0" Width="210" Height="58" 
                 VerticalAlignment="Top" RenderTransformOrigin="0.405,-0.948"/>
-            <TextBlock Text="{Binding NameBot}"
+            
+            <TextBlock Text="{Binding DescriptionBot}"
                        FontSize="32"
-                       Margin="255,85,430,278"
+                       Margin="240,85,325,278"
                        Height="50"/>
         </Grid>
         

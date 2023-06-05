@@ -25,6 +25,20 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         public string Header { get; set; }
         public int NumberTab { get; set; }
 
+        /// <summary>
+        /// описание бота 
+        /// </summary>
+        public string DescriptionBot
+        {
+            get => _descriptionBot;
+            set
+            {
+                _descriptionBot = value;
+                OnPropertyChanged(nameof(DescriptionBot));
+            }
+        }
+        private string _descriptionBot;
+
         public ObservableCollection<string> GetStringPortfolios(IServer server)
         {
             ObservableCollection<string> stringPortfolios = new ObservableCollection<string>();
@@ -160,9 +174,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void _server_NewTradeEvent(List<Trade> trades)
         {
-            Trade trade = trades.Last();
+            if (trades[0].SecurityNameCode == SelectedSecurity.Name)
+            {
+                Trade trade = trades.Last();
 
-            Price = trade.Price;
+                Price = trade.Price;
+            }  
         }
         private void StartSecuritiy(Security security)
         {

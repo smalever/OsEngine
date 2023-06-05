@@ -26,7 +26,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
     {
         public MainWindowRobWpfVM() 
         {
-            Init();
+            InitBotPanel();
+            InitSetingBotPanel();
         }
 
         /// <summary>
@@ -40,6 +41,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// Коллекция с роботами
         /// </summary>
         public ObservableCollection<IRobotVM> Robots { get; set; } = new ObservableCollection<IRobotVM>();
+
+        public ObservableCollection<BotPanel> botPanels { get; set; } = new ObservableCollection<BotPanel>();
+
 
         #endregion
 
@@ -115,15 +119,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         void TestMetod(object o) 
         {
-            List<BotPanel> bots = _botTradeMaster.PanelsArray; // взяли из менеджера список панелей
-
-            TestRobVM myrob = new TestRobVM(); // создал экземпляр въюхи робота
-
-            myrob.Header = bots[0].TabsSimple[0].TabName; // присвоил заголовку имя 
-
-            Robots.Add(myrob);// отправил экземпляр в колекцию 
-
-               
+   
         }
         /// <summary>
         /// создать робота 
@@ -139,9 +135,31 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// инициализация менеджера управления роботами
         /// </summary>
-        void Init()
+        void InitBotPanel()
         {
+            // инициализировали менеджер списока панелей
             _botTradeMaster = new OsTraderMaster(StartProgram.IsOsTrader);
+
+        }
+        /// <summary>
+        /// присвоили заголовкам  роботов WPF имена панелей осы
+        /// </summary>
+        void InitSetingBotPanel()
+        {
+
+            // список панелей с роботами
+            List<BotPanel> bots = _botTradeMaster.PanelsArray; // взяли из менеджера список панелей осы
+
+            foreach (BotPanel panel in bots) // пребрали все BotPanel осы
+            {
+                TestRobVM myrob = new TestRobVM(); // создал экземпляр въюхи WPF робота
+
+                myrob.Header = panel.NameStrategyUniq; ; // присвоил заголовку  робота WPF имя панели осы
+
+                //myrob.DescriptionBot = bots[1].NameStrategyUniq;
+
+                Robots.Add(myrob);// отправил экземпляр в колекцию с роботами WPF
+            }
         }
 
         public delegate void selectedSecurity();
