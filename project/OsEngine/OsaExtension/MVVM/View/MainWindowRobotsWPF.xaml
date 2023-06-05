@@ -1,0 +1,54 @@
+﻿<Window x:Class="OsEngine.OsaExtension.MVVM.View.MainWindowRobotsWPF"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:OsEngine.OsaExtension.MVVM.View"
+        xmlns:vm="clr-namespace:OsEngine.OsaExtension.MVVM.ViewModels"
+        xmlns:int ="http://schemas.microsoft.com/xaml/behaviors" 
+        mc:Ignorable="d"
+        Title=" Главное окно роботов WPF" Height="450" Width="800">
+   
+    <Grid>
+        
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Grid.ColumnSpan="2">
+            <Button Content ="Создать робота "
+                    Margin="5"
+                Command="{Binding CommandСreateBot}" >
+
+            </Button>
+            <Button 
+                Content="Сервер"
+                ToolTip="Соедениться с биржей"
+                Command="{Binding ComandServerConect}"
+                Margin="5">
+            </Button>
+            <Button Content =" тестовый метод "
+                    Margin="5"
+                Command="{Binding CommandTest}" >
+
+            </Button>
+
+        </StackPanel>
+        <TabControl ItemsSource="{Binding Robots}" Margin="1,35,1,-35">
+            <TabControl.Resources>
+                <DataTemplate DataType="{x:Type vm:TestRobVM}">
+                    <local:TestRobot>
+                        
+                    </local:TestRobot>
+                </DataTemplate>
+            </TabControl.Resources>
+
+            <TabControl.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding Header}"/>
+                        
+                    </StackPanel>
+                </DataTemplate>
+
+            </TabControl.ItemTemplate>
+        </TabControl>
+
+    </Grid>
+</Window>

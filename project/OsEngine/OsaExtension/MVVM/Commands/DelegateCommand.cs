@@ -7,7 +7,7 @@ using System.Windows.Input;
 
 namespace OsEngine.OsaExtension.MVVM.Commands
 {
-    internal class DelegateCommand : ICommand
+    public class DelegateCommand : ICommand
     {
         public DelegateCommand(DelegateFunction function)
         {
