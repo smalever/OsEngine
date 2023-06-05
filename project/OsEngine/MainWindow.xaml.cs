@@ -23,6 +23,7 @@ using OsEngine.OsOptimizer;
 using OsEngine.OsTrader.Gui;
 using OsEngine.PrimeSettings;
 using OsEngine.Layout;
+using OsEngine.OsaExtension.MVVM.View;
 
 namespace OsEngine
 {
@@ -535,8 +536,8 @@ namespace OsEngine
             try
             {
                 Hide();
-                //RobotUi candleOneUi = new RobotUi();
-                //candleOneUi.ShowDialog();
+                MainWindowRobotsWPF MainWin = new MainWindowRobotsWPF();
+                MainWin.ShowDialog();
                 Close();
                 ProccesIsWorked = false;
                 Thread.Sleep(5000);

@@ -36,11 +36,50 @@ namespace OsEngine.OsTrader
     public class OsTraderMaster
     {
         #region Static Part
-
+        /// <summary>
+        /// 
+        /// </summary>
         public static OsTraderMaster Master;
         public static AdminApiMaster ApiMaster;
 
         #endregion
+        /// <summary>
+        /// менеджер роотоов (конструктор) 
+        /// </summary>
+        public OsTraderMaster(StartProgram startProgram)
+        {
+            NumberGen.GetNumberOrder(startProgram);
+            _startProgram = startProgram;
+
+            if (_startProgram != StartProgram.IsTester)
+            {
+                ServerMaster.ActivateAutoConnection();
+            }
+
+            ServerMaster.LogMessageEvent += SendNewLogMessage;
+
+            _riskManager = new RiskManager.RiskManager("GlobalRiskManager", _startProgram);
+            _riskManager.RiskManagerAlarmEvent += _riskManager_RiskManagerAlarmEvent;
+            _riskManager.LogMessageEvent += SendNewLogMessage;
+
+            _log = new Log("Prime", _startProgram);
+            //_log.StartPaint(hostLogPrime);
+            _log.Listen(this);
+            //_hostLogPrime = hostLogPrime;
+
+            SendNewLogMessage(OsLocalization.Trader.Label1, LogMessageType.User);
+
+            Load();
+            //_tabBotNames.SelectionChanged += _tabBotControl_SelectionChanged;
+            ReloadRiskJournals();
+
+            Master = this;
+
+            if (_startProgram == StartProgram.IsOsTrader && PrimeSettingsMaster.AutoStartApi)
+            {
+                ApiMaster = new AdminApiMaster(Master);
+            }
+        }
 
         /// <summary>
         /// Create a robot manager
@@ -189,6 +228,7 @@ namespace OsEngine.OsTrader
 
             Load();
             _tabBotNames.SelectionChanged += _tabBotControl_SelectionChanged;
+            
             ReloadRiskJournals();
             
             Master = this;
@@ -221,6 +261,7 @@ namespace OsEngine.OsTrader
 
         /// <summary>
         /// Bots array
+        /// список панелей роботов 
         /// </summary>
         public List<BotPanel> PanelsArray;
 
