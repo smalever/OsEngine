@@ -115,16 +115,15 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         void TestMetod(object o) 
         {
-            var bots = _botTradeMaster.PanelsArray; // взяли из менеджера список панелей
+            List<BotPanel> bots = _botTradeMaster.PanelsArray; // взяли из менеджера список панелей
 
-            var rob = new TestRobVM(); // создал экземпляр въюхи робота
+            TestRobVM myrob = new TestRobVM(); // создал экземпляр въюхи робота
 
-            rob.Header = bots[0].TabsSimple[0].TabName; // присвоил заголовку имя 
+            myrob.Header = bots[0].TabsSimple[0].TabName; // присвоил заголовку имя 
 
-            Robots.Add(rob);// отправил экземпляр в колекцию 
+            Robots.Add(myrob);// отправил экземпляр в колекцию 
 
-            /// FYUYFYF
-    
+               
         }
         /// <summary>
         /// создать робота 
