@@ -830,7 +830,23 @@
       <DependentUpon>SupportTableUi.xaml</DependentUpon>
     </Compile>
     <Compile Include="OsaExtension\MVVM\Commands\DelegateCommand.cs" />
+    <Compile Include="OsaExtension\MVVM\Models\EmitClasses.cs" />
+    <Compile Include="OsaExtension\MVVM\Models\Emitent.cs" />
+    <Compile Include="OsaExtension\MVVM\Models\ExChenge.cs" />
     <Compile Include="OsaExtension\MVVM\ViewModels\BaseVM.cs" />
+    <Compile Include="OsaExtension\MVVM\ViewModels\ChangeEmitentVM.cs" />
+    <Compile Include="OsaExtension\MVVM\ViewModels\IRobotVM.cs" />
+    <Compile Include="OsaExtension\MVVM\ViewModels\MainWindowRobWpfVM.cs" />
+    <Compile Include="OsaExtension\MVVM\ViewModels\TestRobVM.cs" />
+    <Compile Include="OsaExtension\MVVM\View\ChengeEmitendWidow.xaml.cs">
+      <DependentUpon>ChengeEmitendWidow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="OsaExtension\MVVM\View\MainWindowRobotsWPF.xaml.cs">
+      <DependentUpon>MainWindowRobotsWPF.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="OsaExtension\MVVM\View\TestRobot.xaml.cs">
+      <DependentUpon>TestRobot.xaml</DependentUpon>
+    </Compile>
     <Compile Include="OsaExtension\Robots\meshOnSMA\meshOnSMA.cs" />
     <Compile Include="OsaExtension\Robots\OldRobots\IlanMartin.cs" />
     <Compile Include="OsaExtension\Robots\OldRobots\MartinBollinger.cs" />
@@ -1432,6 +1448,18 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="OsaExtension\MVVM\View\ChengeEmitendWidow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="OsaExtension\MVVM\View\MainWindowRobotsWPF.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="OsaExtension\MVVM\View\TestRobot.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="OsConverter\OsCandleConverterUi.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -1747,8 +1775,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Market\Servers\Huobi\FuturesSwap\Entities\" />
-    <Folder Include="OsaExtension\MVVM\Converters\" />
-    <Folder Include="OsaExtension\MVVM\Views\" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\generateButton.png" />
