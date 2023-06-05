@@ -831,11 +831,12 @@
     </Compile>
     <Compile Include="OsaExtension\MVVM\Commands\DelegateCommand.cs" />
     <Compile Include="OsaExtension\MVVM\ViewModels\BaseVM.cs" />
-    <Compile Include="OsaExtension\Robots\meshOnSMA\meshOnSMA.cs" />
+    <Compile Include="OsaExtension\Robots\NotWork\meshOnSMA\meshOnSMA.cs" />
     <Compile Include="OsaExtension\Robots\OldRobots\IlanMartin.cs" />
     <Compile Include="OsaExtension\Robots\OldRobots\MartinBollinger.cs" />
     <Compile Include="OsaExtension\Robots\OldRobots\MartinSMA.cs" />
-    <Compile Include="OsaExtension\Robots\SmaTestBot\SmaTestBot.cs" />
+    <Compile Include="OsaExtension\Robots\NotWork\SmaTestBot\SmaTestBot.cs" />
+    <Compile Include="OsaExtension\Robots\PairTrading.cs" />
     <Compile Include="OsConverter\OsCandleConverterUi.xaml.cs">
       <DependentUpon>OsCandleConverterUi.xaml</DependentUpon>
     </Compile>
