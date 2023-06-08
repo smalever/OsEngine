@@ -17,9 +17,9 @@ namespace OsEngine.OsaExtension.MVVM.View
     /// <summary>
     /// Логика взаимодействия для TestRobot.xaml
     /// </summary>
-    public partial class TestRobot : UserControl
+    public partial class BaseRobot : UserControl
     {
-        public TestRobot()
+        public BaseRobot()
         {
             InitializeComponent();
         }

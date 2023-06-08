@@ -122,7 +122,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
    
         }
         /// <summary>
-        /// создать робота 
+        /// создать робота кнопка на гл окне
         /// </summary>
         void СreateBot(object o)
         {
@@ -139,7 +139,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             // инициализировали менеджер списока панелей
             _botTradeMaster = new OsTraderMaster(StartProgram.IsOsTrader);
-
         }
         /// <summary>
         /// присвоили заголовкам  роботов WPF имена панелей осы
@@ -148,11 +147,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
 
             // список панелей с роботами
-            List<BotPanel> bots = _botTradeMaster.PanelsArray; // взяли из менеджера список панелей осы
+            List<BotPanel> listBots = _botTradeMaster.PanelsArray; // взяли из менеджера список панелей осы
 
-            foreach (BotPanel panel in bots) // пребрали все BotPanel осы
+            foreach (BotPanel panel in listBots) // пребрали все BotPanel осы
             {
-                TestRobVM myrob = new TestRobVM(); // создал экземпляр въюхи WPF робота
+                BaseBotbVM myrob = new BaseBotbVM(); // создал экземпляр въюхи WPF робота
 
                 myrob.Header = panel.NameStrategyUniq; ; // присвоил заголовку  робота WPF имя панели осы
 

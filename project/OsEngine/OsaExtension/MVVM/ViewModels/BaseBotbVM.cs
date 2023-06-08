@@ -15,9 +15,9 @@ using static OsEngine.OsaExtension.MVVM.ViewModels.MainWindowRobWpfVM;
 
 namespace OsEngine.OsaExtension.MVVM.ViewModels
 {
-    public class TestRobVM : BaseVM, IRobotVM
+    public class BaseBotbVM : BaseVM, IRobotVM
     {
-        public TestRobVM()
+        public BaseBotbVM()
         { 
                    
         }

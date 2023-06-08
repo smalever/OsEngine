@@ -837,15 +837,15 @@
     <Compile Include="OsaExtension\MVVM\ViewModels\ChangeEmitentVM.cs" />
     <Compile Include="OsaExtension\MVVM\ViewModels\IRobotVM.cs" />
     <Compile Include="OsaExtension\MVVM\ViewModels\MainWindowRobWpfVM.cs" />
-    <Compile Include="OsaExtension\MVVM\ViewModels\TestRobVM.cs" />
+    <Compile Include="OsaExtension\MVVM\ViewModels\BaseBotbVM.cs" />
     <Compile Include="OsaExtension\MVVM\View\ChengeEmitendWidow.xaml.cs">
       <DependentUpon>ChengeEmitendWidow.xaml</DependentUpon>
     </Compile>
     <Compile Include="OsaExtension\MVVM\View\MainWindowRobotsWPF.xaml.cs">
       <DependentUpon>MainWindowRobotsWPF.xaml</DependentUpon>
     </Compile>
-    <Compile Include="OsaExtension\MVVM\View\TestRobot.xaml.cs">
-      <DependentUpon>TestRobot.xaml</DependentUpon>
+    <Compile Include="OsaExtension\MVVM\View\BaseRobot.xaml.cs">
+      <DependentUpon>BaseRobot.xaml</DependentUpon>
     </Compile>
     <Compile Include="OsaExtension\Robots\meshOnSMA\meshOnSMA.cs" />
     <Compile Include="OsaExtension\Robots\OldRobots\IlanMartin.cs" />
@@ -1456,7 +1456,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="OsaExtension\MVVM\View\TestRobot.xaml">
+    <Page Include="OsaExtension\MVVM\View\BaseRobot.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
