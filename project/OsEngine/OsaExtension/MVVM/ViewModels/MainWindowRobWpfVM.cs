@@ -35,6 +35,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         public static ChengeEmitendWidow ChengeEmitendWidow = null;
 
+        /// <summary>
+        /// поле для списка BotPanel
+        /// </summary>
+        List<BotPanel> _listBots; 
+
         #region Property ==================================================================
 
         /// <summary>
@@ -42,8 +47,16 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         public ObservableCollection<IRobotVM> Robots { get; set; } = new ObservableCollection<IRobotVM>();
 
-        public ObservableCollection<BotPanel> botPanels { get; set; } = new ObservableCollection<BotPanel>();
-
+        public ObservableCollection<BotPanel> BotPanels 
+        {
+            get => _botPanels;
+            set
+            {
+                _botPanels = value;
+                OnPropertyChanged(nameof(BotPanels));
+            }
+        }         
+        private ObservableCollection<BotPanel> _botPanels = new ObservableCollection<BotPanel>();
 
         #endregion
 
@@ -112,7 +125,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// поле содеражащие роботов
         /// </summary>
-        private OsTraderMaster _botTradeMaster;
+        private OsTraderMaster _botTradeMaster = new OsTraderMaster(StartProgram.IsOsTrader);
+
 
         /// <summary>
         /// для тестов 
@@ -132,24 +146,22 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             _botTradeMaster.CreateNewBot();
         }
+
         /// <summary>
-        /// инициализация менеджера управления роботами
+        /// заполняем список BotPanel
         /// </summary>
         void InitBotPanel()
         {
-            // инициализировали менеджер списока панелей
-            _botTradeMaster = new OsTraderMaster(StartProgram.IsOsTrader);
+            _listBots = _botTradeMaster.PanelsArray;
         }
+
         /// <summary>
         /// присвоили заголовкам  роботов WPF имена панелей осы
         /// </summary>
         void InitSetingBotPanel()
-        {
+        {           
 
-            // список панелей с роботами
-            List<BotPanel> listBots = _botTradeMaster.PanelsArray; // взяли из менеджера список панелей осы
-
-            foreach (BotPanel panel in listBots) // пребрали все BotPanel осы
+            foreach (BotPanel panel in _listBots) // пребрали все BotPanel осы
             {
                 BaseBotbVM myrob = new BaseBotbVM(); // создал экземпляр въюхи WPF робота
 
@@ -158,6 +170,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 //myrob.DescriptionBot = bots[1].NameStrategyUniq;
 
                 Robots.Add(myrob);// отправил экземпляр в колекцию с роботами WPF
+
+                _botPanels.Add(panel); // перекладываю существующие BotPanel в  ObservableCollection<BotPanel>
             }
         }
 
