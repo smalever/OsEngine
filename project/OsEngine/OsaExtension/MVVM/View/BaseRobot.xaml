@@ -11,6 +11,10 @@
             <Button Content="Выбрать бумагу"
                     Command="{Binding CommandSelectSecurity}">
             </Button>
+            <Button Content="Удалить робота"
+                    Command="{Binding CommandDeleteBot}"
+                    CommandParameter="{Binding Header}">
+            </Button>
         </StatusBar>
         <Grid>
             

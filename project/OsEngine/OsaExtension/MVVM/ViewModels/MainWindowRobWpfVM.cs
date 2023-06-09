@@ -161,7 +161,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         void InitSetingBotPanel()
         {           
 
-            foreach (BotPanel panel in _listBots) // пребрали все BotPanel осы
+            foreach (BotPanel panel in _listBots) // перебрали все BotPanel осы
             {
                 BaseBotbVM myrob = new BaseBotbVM(); // создал экземпляр въюхи WPF робота
 

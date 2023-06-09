@@ -3,6 +3,8 @@ using OsEngine.Market;
 using OsEngine.Market.Servers;
 using OsEngine.OsaExtension.MVVM.Commands;
 using OsEngine.OsaExtension.MVVM.View;
+using OsEngine.OsTrader;
+using OsEngine.OsTrader.Panels;
 using OsEngine.Robots.Trend;
 using System;
 using System.Collections.Generic;
@@ -138,6 +140,35 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             MainWindowRobWpfVM.ChengeEmitendWidow.ShowDialog();
             MainWindowRobWpfVM.ChengeEmitendWidow = null;
   
+        }
+        private DelegateCommand _commandDeleteBot;
+        public DelegateCommand CommandDeleteBot
+        {
+            get
+            {
+                if (_commandDeleteBot == null)
+                {
+                    _commandDeleteBot = new DelegateCommand(DeleteBot);
+                }
+                return _commandDeleteBot;
+            }
+        }
+        void DeleteBot(object o)
+        {
+            string nameBot = (string)o;
+      
+            /// <summary>
+            /// поле для списка BotPanel
+            /// </summary>
+            List<BotPanel> ListBots = OsTraderMaster.Master.PanelsArray; 
+
+            foreach (BotPanel botpan in ListBots)
+            {
+                if (botpan.NameStrategyUniq == nameBot)
+                {
+                    OsTraderMaster.Master.DeleteActiv();
+                }
+            }
         }
 
         /// <summary>

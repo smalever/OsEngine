@@ -44,7 +44,7 @@ namespace OsEngine.OsTrader
 
         #endregion
         /// <summary>
-        /// менеджер роотоов (конструктор) 
+        /// менеджер роботов (конструктор) 
         /// </summary>
         public OsTraderMaster(StartProgram startProgram)
         {
