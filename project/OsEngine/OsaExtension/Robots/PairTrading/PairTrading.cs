@@ -33,21 +33,34 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
             TabCreate(BotTabType.Index);
             _tabIndex = TabsIndex[0];
             _tabIndex.SpreadChangeEvent += _tabIndex_SpreadChangeEvent;
-            //_tabIndex.CandleFinishedEvent += _tabIndex_CandleFinishedEvent;
+
 
             Regime = CreateParameter("Regime", "Off", new[] { "Off", "On" });
             VolumeInDollars = CreateParameter("VolumeInDollars", 50, 50.0m, 500, 10);
             //_lotEntrySize = CreateParameter("_lotEntrySize  ", 1m, 0.00001m, 100m, 0.00001m);
             //Volume2 = CreateParameter("Volume 2", 1, 1.0m, 50, 1);
 
-            // добавим боллинжер
+            // добавим боллинжер для входа
             BollingerEntryLength = CreateParameter("BollingerEntry Length", 720, 100, 10000, 20);
             BollingerEntryDeviation = CreateParameter("BollingerEntry Deviation", 3, 0.5m, 5, 0.1m);
-            _bollingerEntry = new Bollinger(name + "Bollinger", false);
+            _bollingerEntry = new Bollinger(name + "BollingerEntry", false);
             _bollingerEntry = (Bollinger)_tabIndex.CreateCandleIndicator(_bollingerEntry, "Prime");
+            _bollingerEntry.ColorUp =System.Drawing.Color.LightBlue;
+            _bollingerEntry.ColorDown =System.Drawing.Color.LightBlue;
             _bollingerEntry.Lenght = BollingerEntryLength.ValueInt;
             _bollingerEntry.Deviation = BollingerEntryDeviation.ValueDecimal;
             //_bollingerEntry.Save();
+
+            // добавим боллинжер для стопов
+            BollingerStopLength = CreateParameter("BollingerStop Length", 720, 100, 10000, 20);
+            BollingerStopDeviation = CreateParameter("BollingerStop Deviation", 4.2m, 0.5m, 5, 0.1m);
+            _bollingerStop = new Bollinger(name + "BollingerStop", false);
+            _bollingerStop = (Bollinger)_tabIndex.CreateCandleIndicator(_bollingerStop, "Prime");
+            _bollingerStop.ColorUp =System.Drawing.Color.Red;
+            _bollingerStop.ColorDown =System.Drawing.Color.Red;
+            _bollingerStop.Lenght = BollingerStopLength.ValueInt;
+            _bollingerStop.Deviation = BollingerStopDeviation.ValueDecimal;
+            //_bollingerStop.Save();
 
             // добавим MA центр болинжера
             _moving = new MovingAverage(name + "Moving", false);
@@ -59,8 +72,6 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
             //entryPositionPriceLevelLine = new LineHorisontal("entryPositionPriceLevelLine", "Prime", false)
             //{ Color = Color.YellowGreen, Value = 0, TimeEnd = DateTime.MaxValue };
             //_tabIndex.SetChartElement(entryPositionPriceLevelLine);
-
-
 
 
             #endregion конец подготовка вкладки ===================================
@@ -91,7 +102,10 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
             if (currentIndexPrice < bollingerLastPriceDown) { wereWeDownBollinger = true; }
 
             // надо ли открывать позы?
-            if (!indexIsSell || !indexIsBuy) { OpenPairPositions(); }
+            if (!indexIsSell && !indexIsBuy)
+            {
+                OpenPairPositions();
+            }
 
             // пересекли центр боллинжера с низу ? пора закрываться
             if (indexIsBuy && currentIndexPrice > bollingerLastPriceCenter)
@@ -249,13 +263,23 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
         /// объем второй бумаги
         /// </summary>
         private StrategyParameterDecimal Volume2;
+
         /// <summary>
         /// bollinger
-        /// боллинжер
+        /// боллинжер входа
         /// </summary>
         private Bollinger _bollingerEntry;
         private StrategyParameterDecimal BollingerEntryDeviation;
         private StrategyParameterInt BollingerEntryLength;
+
+        /// <summary>
+        /// bollinger
+        /// боллинжер стопа
+        /// </summary>
+        private Bollinger _bollingerStop;
+        private StrategyParameterDecimal BollingerStopDeviation;
+        private StrategyParameterInt BollingerStopLength;
+
         /// <summary>
         /// MA
         /// мувинг
