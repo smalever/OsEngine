@@ -7,21 +7,19 @@ using OsEngine.OsTrader.Panels.Attributes;
 using OsEngine.OsTrader.Panels.Tab;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+using System.Windows.Media.Media3D;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
-namespace OsEngine.OsaExtension.Robots
+
+namespace OsEngine.OsaExtension.Robots.PairTrading
 {
     [Bot("PairTrading")]
 
     internal class PairTrading : BotPanel
     {
 
-        public PairTrading(string name, StartProgram startProgram) : base(name, startProgram)
+        public PairTrading(string name, StartProgram startProgram)
+            : base(name, startProgram)
         {
             #region  подготовка вкладки ===================================
 
@@ -44,10 +42,22 @@ namespace OsEngine.OsaExtension.Robots
             // добавим боллинжер
             BollingerEntryLength = CreateParameter("BollingerEntry Length", 720, 100, 10000, 20);
             BollingerEntryDeviation = CreateParameter("BollingerEntry Deviation", 3, 0.5m, 5, 0.1m);
-            _bollingerEntry = IndicatorsFactory.CreateIndicatorByName("Bollinger", name + "Bollinger", false);
-            _bollingerEntry = (Aindicator)_tabIndex.CreateCandleIndicator(_bollingerEntry, "Prime");
-            _bollingerEntry.ParametersDigit[0].Value = BollingerEntryLength.ValueInt;
-            _bollingerEntry.ParametersDigit[1].Value = BollingerEntryDeviation.ValueDecimal;
+            _bollingerEntry = new Bollinger(name + "Bollinger", false);
+            _bollingerEntry = (Bollinger)_tabIndex.CreateCandleIndicator(_bollingerEntry, "Prime");
+            _bollingerEntry.Lenght = BollingerEntryLength.ValueInt;
+            _bollingerEntry.Deviation = BollingerEntryDeviation.ValueDecimal;
+            //_bollingerEntry.Save();
+
+            // добавим MA центр болинжера
+            _moving = new MovingAverage(name + "Moving", false);
+            _moving = (MovingAverage)_tabIndex.CreateCandleIndicator(_moving, "Prime");
+            _moving.Lenght = BollingerEntryLength.ValueInt;
+            _moving.ColorBase = System.Drawing.Color.Yellow;
+
+            //_bollingerEntry = IndicatorsFactory.CreateIndicatorByName("Bollinger", name + "Bollinger", false);
+            //_bollingerEntry = (Aindicator)_tabIndex.CreateCandleIndicator(_bollingerEntry, "Prime");
+            //_bollingerEntry.ParametersDigit[0].Value = BollingerEntryLength.ValueInt;
+            //_bollingerEntry.ParametersDigit[1].Value = BollingerEntryDeviation.ValueDecimal;
 
             //линия входа в позу
             //entryPositionPriceLevelLine = new LineHorisontal("entryPositionPriceLevelLine", "Prime", false)
@@ -71,41 +81,37 @@ namespace OsEngine.OsaExtension.Robots
         private void Trade(List<Candle> candles)
         {
             // значения переменных на сейчас
-            bollingerLastPriceUp = _bollingerEntry.DataSeries[0].Last;
-            bollingerLastPriceDown = _bollingerEntry.DataSeries[1].Last;
-            bollingerLastPriceCenter = _bollingerEntry.DataSeries[2].Last;
+
+            bollingerLastPriceUp = _bollingerEntry.ValuesUp[_bollingerEntry.ValuesUp.Count - 1];
+            bollingerLastPriceDown = _bollingerEntry.ValuesDown[_bollingerEntry.ValuesDown.Count - 1];
             bollingerSpread = bollingerLastPriceUp - bollingerLastPriceDown;
-            //currentIndexPrice = _tabIndex.PriceCenterMarketDepth;
+            moving = _moving.Values[_moving.Values.Count - 1];
+            bollingerLastPriceCenter = bollingerSpread / 2 + bollingerLastPriceDown;
+
+            //bollingerLastPriceUp = _bollingerEntry.DataSeries[0].Last;
+            //bollingerLastPriceDown = _bollingerEntry.DataSeries[1].Last;
+            //bollingerLastPriceCenter = _bollingerEntry.DataSeries[2].Last;
+            //bollingerSpread = bollingerLastPriceUp - bollingerLastPriceDown;
+            ////currentIndexPrice = _tabIndex.PriceCenterMarketDepth;
             currentIndexPrice = candles[candles.Count - 1].Close;
 
 
+            // были выше болинжера
+            if (currentIndexPrice > bollingerLastPriceUp) { wereWeUpBollinger = true; }
+            // были ниже болинжера
+            if (currentIndexPrice < bollingerLastPriceDown) { wereWeDownBollinger = true; }
 
             // надо ли открывать позы?
-            List<Position> pos1 = _tab1.PositionsOpenAll;
-            List<Position> pos2 = _tab2.PositionsOpenAll;
-            if (pos1 == null && pos1.Count == 0 || pos2 == null && pos2.Count == 0)
-            { OpenPairPositions(); }
+            if (!indexIsSell || !indexIsBuy) { OpenPairPositions(); }
 
-
-            // были выше болинжера
-            if (currentIndexPrice > bollingerLastPriceUp)
-            {
-                wereWeUpBollinger = true;
-            }
-            // были ниже болинжера
-            if (currentIndexPrice < bollingerLastPriceDown)
-            {
-                wereWeDownBollinger = true;
-            }
-
-            // пересекли центр боллинжера ? пора закрываться
-            if (buyIndex && currentIndexPrice < bollingerLastPriceCenter)
+            // пересекли центр боллинжера с низу ? пора закрываться
+            if (indexIsBuy && currentIndexPrice > bollingerLastPriceCenter)
             {
                 CloseAllPositions();
             }
 
-            // пересекли центр боллинжера ? пора закрываться
-            if (sellIndex && currentIndexPrice > bollingerLastPriceCenter)
+            // пересекли центр боллинжера с верху ? пора закрываться
+            if (indexIsSell && currentIndexPrice < bollingerLastPriceCenter)
             {
                 CloseAllPositions();
             }
@@ -126,7 +132,7 @@ namespace OsEngine.OsaExtension.Robots
                 _tab2.BuyAtMarket(_lotEntrySize.ValueDecimal);
 
                 wereWeUpBollinger = false;
-                sellIndex = true;
+                indexIsSell = true;
 
                 // нарисуем линию входа 
                 //entryPositionPriceLevelLine.Value = currentIndexPrice;
@@ -141,7 +147,7 @@ namespace OsEngine.OsaExtension.Robots
                 _tab1.BuyAtMarket(_lotEntrySize.ValueDecimal);
                 _tab2.SellAtMarket(_lotEntrySize.ValueDecimal);
                 wereWeDownBollinger = false;
-                buyIndex = true;
+                indexIsBuy = true;
 
                 // нарисуем линию входа 
                 //entryPositionPriceLevelLine.Value = currentIndexPrice;
@@ -152,18 +158,36 @@ namespace OsEngine.OsaExtension.Robots
 
         private void CloseAllPositions()
         {
-            List<Position> positions1 = _tab1.PositionsOpenAll;
-            List<Position> positions2 = _tab2.PositionsOpenAll;
+            //List<Position> positions1 = _tab1.PositionsOpenAll;
+            //List<Position> positions2 = _tab2.PositionsOpenAll;
 
-            if (positions1.Count != 0 && positions1[0].State == PositionStateType.Open)
+            foreach (Position position in _tab1.PositionsOpenAll)
             {
-                _tab1.CloseAtMarket(positions1[0], positions1[0].OpenVolume);
+                if (position.State == PositionStateType.Open)
+                {
+                    _tab1.CloseAtMarket(position, position.OpenVolume);
+                }
             }
 
-            if (positions2.Count != 0 && positions2[0].State == PositionStateType.Open)
+            foreach (Position position in _tab2.PositionsOpenAll)
             {
-                _tab2.CloseAtMarket(positions2[0], positions2[0].OpenVolume);
+                if (position.State == PositionStateType.Open)
+                {
+                    _tab2.CloseAtMarket(position, position.OpenVolume);
+                }
             }
+
+            //if (positions1.Count != 0 && positions1[0].State == PositionStateType.Open)
+            //{
+            //    _tab1.CloseAtMarket(positions1[0], positions1[0].OpenVolume);
+            //}
+            //if (positions2.Count != 0 && positions2[0].State == PositionStateType.Open)
+            //{
+            //    _tab2.CloseAtMarket(positions2[0], positions2[0].OpenVolume);
+            //}
+
+            indexIsSell = false;
+            indexIsBuy = false;
         }
 
         #endregion end TradeLogic ==============================
@@ -177,14 +201,14 @@ namespace OsEngine.OsaExtension.Robots
         {
             // если не разрешено торговать то возврат
             if (Regime.ValueString == "Off") { return; }
-
-            // ждем накопления свечек   для корректного расчета болинжера
-            if (_bollingerEntry.DataSeries[0].Values == null
-                || candles.Count < _bollingerEntry.ParametersDigit[0].Value + 2)
-            { return; }
-
+            // вкладки не готовы 
             if (_tab1.IsReadyToTrade == false || _tab2.IsReadyToTrade == false)
             { return; }
+
+            // ждем накопления свечек  для корректного расчета болинжера
+            if (candles.Count < BollingerEntryLength.ValueInt + 2)
+            { return; }
+
 
 
             Trade(candles);
@@ -239,14 +263,29 @@ namespace OsEngine.OsaExtension.Robots
         /// объем второй бумаги
         /// </summary>
         private StrategyParameterDecimal Volume2;
-
-
         /// <summary>
-        /// боллинжер 
+        /// bollinger
+        /// боллинжер
         /// </summary>
-        private Aindicator _bollingerEntry;
+        private Bollinger _bollingerEntry;
         private StrategyParameterDecimal BollingerEntryDeviation;
         private StrategyParameterInt BollingerEntryLength;
+        /// <summary>
+        /// MA
+        /// мувинг
+        /// </summary>
+        private MovingAverage _moving;
+        private decimal moving;
+
+
+        ///// <summary>
+        ///// боллинжер 
+        ///// </summary>
+        //private Aindicator _bollingerEntry;
+        //private StrategyParameterDecimal BollingerEntryDeviation;
+        //private StrategyParameterInt BollingerEntryLength;
+
+
 
         /// <summary>
         /// линия  цены входа на график 
@@ -291,11 +330,11 @@ namespace OsEngine.OsaExtension.Robots
         /// <summary>
         /// признак что продали индекс
         /// </summary>
-        bool sellIndex = false;
+        bool indexIsSell = false;
         /// <summary>
         /// признак что купили индекс
         /// </summary>
-        bool buyIndex = false;
+        bool indexIsBuy = false;
 
 
 
