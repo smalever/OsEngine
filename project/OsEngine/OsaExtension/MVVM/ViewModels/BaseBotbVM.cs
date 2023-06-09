@@ -160,13 +160,15 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             /// <summary>
             /// поле для списка BotPanel
             /// </summary>
-            List<BotPanel> ListBots = OsTraderMaster.Master.PanelsArray; 
-
-            foreach (BotPanel botpan in ListBots)
+            List<BotPanel> ListBots = OsTraderMaster.Master.PanelsArray;
+            int count = ListBots.Count;
+ 
+            for (int i = 0; i < count; i++)
             {
-                if (botpan.NameStrategyUniq == nameBot)
+                if (ListBots[i].NameStrategyUniq == nameBot)
                 {
-                    OsTraderMaster.Master.DeleteActiv();
+                    OsTraderMaster.Master.DeleteByNum(i);
+                    break;
                 }
             }
         }
