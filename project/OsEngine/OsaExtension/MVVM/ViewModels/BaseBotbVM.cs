@@ -153,12 +153,16 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 return _commandDeleteBot;
             }
         }
+
+        /// <summary>
+        /// удалить робота по имени вкладки 
+        /// </summary>
         void DeleteBot(object o)
         {
             string nameBot = (string)o;
       
             /// <summary>
-            /// поле для списка BotPanel
+            /// список BotPanels 
             /// </summary>
             List<BotPanel> ListBots = OsTraderMaster.Master.PanelsArray;
             int count = ListBots.Count;
