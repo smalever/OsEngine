@@ -34,7 +34,6 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
             _tabIndex = TabsIndex[0];
             _tabIndex.SpreadChangeEvent += _tabIndex_SpreadChangeEvent;
 
-
             Regime = CreateParameter("Regime", "Off", new[] { "Off", "On" });
             VolumeInDollars = CreateParameter("VolumeInDollars", 50, 50.0m, 500, 10);
             //_lotEntrySize = CreateParameter("_lotEntrySize  ", 1m, 0.00001m, 100m, 0.00001m);
@@ -45,8 +44,8 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
             BollingerEntryDeviation = CreateParameter("BollingerEntry Deviation", 3, 0.5m, 5, 0.1m);
             _bollingerEntry = new Bollinger(name + "BollingerEntry", false);
             _bollingerEntry = (Bollinger)_tabIndex.CreateCandleIndicator(_bollingerEntry, "Prime");
-            _bollingerEntry.ColorUp =System.Drawing.Color.LightBlue;
-            _bollingerEntry.ColorDown =System.Drawing.Color.LightBlue;
+            _bollingerEntry.ColorUp = System.Drawing.Color.LightBlue;
+            _bollingerEntry.ColorDown = System.Drawing.Color.LightBlue;
             _bollingerEntry.Lenght = BollingerEntryLength.ValueInt;
             _bollingerEntry.Deviation = BollingerEntryDeviation.ValueDecimal;
             //_bollingerEntry.Save();
@@ -56,8 +55,8 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
             BollingerStopDeviation = CreateParameter("BollingerStop Deviation", 4.2m, 0.5m, 5, 0.1m);
             _bollingerStop = new Bollinger(name + "BollingerStop", false);
             _bollingerStop = (Bollinger)_tabIndex.CreateCandleIndicator(_bollingerStop, "Prime");
-            _bollingerStop.ColorUp =System.Drawing.Color.Red;
-            _bollingerStop.ColorDown =System.Drawing.Color.Red;
+            _bollingerStop.ColorUp = System.Drawing.Color.Red;
+            _bollingerStop.ColorDown = System.Drawing.Color.Red;
             _bollingerStop.Lenght = BollingerStopLength.ValueInt;
             _bollingerStop.Deviation = BollingerStopDeviation.ValueDecimal;
             //_bollingerStop.Save();
@@ -185,7 +184,8 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
                     _tab2.CloseAtMarket(position, position.OpenVolume);
                 }
             }
-
+            wereWeDownBollinger = false;
+            wereWeUpBollinger = false;
             indexIsSell = false;
             indexIsBuy = false;
         }
