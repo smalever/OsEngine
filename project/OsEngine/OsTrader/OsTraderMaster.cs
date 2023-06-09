@@ -10,6 +10,8 @@ using OsEngine.Language;
 using OsEngine.Logging;
 using OsEngine.Market;
 using OsEngine.Market.Connectors;
+using OsEngine.Market.Servers;
+using OsEngine.Market.Servers.Hitbtc;
 using OsEngine.Market.Servers.Tester;
 using OsEngine.OsTrader.AdminPanelApi;
 using OsEngine.OsTrader.Panels;
@@ -186,6 +188,8 @@ namespace OsEngine.OsTrader
                     SendNewLogMessage($"{error.Message} {error.StackTrace}", LogMessageType.Error);
                 }
             }
+
+            ServerMaster.ClearPositionOnBoardEvent += ServerMaster_ClearPositionOnBoardEvent;
         }
 
         public static event System.Action CriticalErrorEvent;
@@ -237,6 +241,8 @@ namespace OsEngine.OsTrader
             {
                 ApiMaster = new AdminApiMaster(Master);
             }
+
+            ServerMaster.ClearPositionOnBoardEvent += ServerMaster_ClearPositionOnBoardEvent;
         }
 
         private WindowsFormsHost _hostLogPrime;
@@ -664,6 +670,292 @@ namespace OsEngine.OsTrader
         }
 
         #endregion
+
+        #region PositionOnBoard closing
+
+        private void ServerMaster_ClearPositionOnBoardEvent(string secName, Market.Servers.IServer server, string fullName)
+        {
+            // важно!!!!
+            // сервер должен работать и быть активным
+
+            if(server.ServerStatus != Market.Servers.ServerConnectStatus.Connect)
+            {
+                if (LogMessageEvent != null)
+                {
+                    LogMessageEvent(OsLocalization.Market.Label84, LogMessageType.Error);
+                }
+                return;
+            }
+
+            try
+            {
+                StopBotsWhoTradeSecurity(secName, server);
+                CanselOrdersWhithSecurity(secName, server);
+                DeleteOpenPositionsWhithSecurity(secName, server);
+                ClosePositionOnBoardWhithFakePoses(secName, server, fullName);
+            }
+            catch (Exception error)
+            {
+                if(LogMessageEvent != null)
+                {
+                    LogMessageEvent(error.ToString(), LogMessageType.Error);    
+                }
+            }
+        }
+
+        private void StopBotsWhoTradeSecurity(string secName, Market.Servers.IServer server)
+        {
+            for (int i = 0; i < PanelsArray.Count; i++)
+            {
+                BotPanel bot = PanelsArray[i];
+
+                List<BotTabSimple> botTabSimples = GetTabsSimpleWhithMySecurity(secName, server, bot);
+
+                if (botTabSimples != null &&
+                    botTabSimples.Count > 0)
+                {
+                    bot.OnOffEventsInTabs = false;
+                }
+            }
+        }
+
+        private void CanselOrdersWhithSecurity(string secName, Market.Servers.IServer server)
+        {
+
+            List<BotTabSimple> tabsWithMySecInAllBots = new List<BotTabSimple>();
+
+            for (int i = 0; i < PanelsArray.Count; i++)
+            {
+                BotPanel bot = PanelsArray[i];
+
+                List<BotTabSimple> botTabSimples = GetTabsSimpleWhithMySecurity(secName, server, bot);
+
+                if(botTabSimples != null &&
+                    botTabSimples.Count > 0)
+                {
+                    tabsWithMySecInAllBots.AddRange(botTabSimples);
+                }
+            }
+
+            for(int i = 0;i< tabsWithMySecInAllBots.Count;i++)
+            {
+
+                List<Position> poses = tabsWithMySecInAllBots[i].PositionsOpenAll;
+
+                for(int j = 0; poses != null && j < poses.Count; j++)
+                {
+                    if (poses[j].SecurityName == secName)
+                    {
+                        tabsWithMySecInAllBots[i].CloseAllOrderToPosition(poses[j]);
+                    }
+                }
+            }
+
+            try
+            {
+                Security sec = null;
+
+                if (tabsWithMySecInAllBots.Count > 1)
+                {
+                    sec = tabsWithMySecInAllBots[0].Securiti;
+                }
+
+                if(sec != null)
+                {
+                    AServer aServer = (AServer)server;
+                    aServer.ServerRealization.CancelAllOrdersToSecurity(sec);
+                }
+            }
+            catch
+            {
+                // ignore
+            }
+        }
+
+        private void DeleteOpenPositionsWhithSecurity(string secName, Market.Servers.IServer server)
+        {
+            List<BotTabSimple> tabsWithMySecInAllBots = new List<BotTabSimple>();
+
+            for (int i = 0; i < PanelsArray.Count; i++)
+            {
+                BotPanel bot = PanelsArray[i];
+
+                List<BotTabSimple> botTabSimples = GetTabsSimpleWhithMySecurity(secName, server, bot);
+
+                if (botTabSimples != null &&
+                    botTabSimples.Count > 0)
+                {
+                    tabsWithMySecInAllBots.AddRange(botTabSimples);
+                }
+            }
+
+            for (int i = 0; i < tabsWithMySecInAllBots.Count; i++)
+            {
+                if(tabsWithMySecInAllBots[i].PositionsOpenAll == null)
+                {
+                    continue;
+                }
+
+                List<Position> poses = new List<Position>();
+
+                poses.AddRange(tabsWithMySecInAllBots[i].PositionsOpenAll);
+
+                for (int j = 0; poses != null && j < poses.Count; j++)
+                {
+                    if (poses[j].SecurityName == secName)
+                    {
+                        tabsWithMySecInAllBots[i]._journal.DeletePosition(poses[j]);
+                    }
+                }
+            }
+        }
+
+        private void ClosePositionOnBoardWhithFakePoses(string secName, Market.Servers.IServer server, string fullName)
+        {
+            PositionOnBoard myPosOnBoards = null;
+
+            for(int i = 0;i < server.Portfolios.Count;i++)
+            {
+                Portfolio portf = server.Portfolios[i];
+
+                List<PositionOnBoard> posesInPortfolio = portf.GetPositionOnBoard();
+
+                for (int j = 0;j < posesInPortfolio.Count;j++)
+                {
+                    if (posesInPortfolio[j].SecurityNameCode == fullName)
+                    {
+                        myPosOnBoards = posesInPortfolio[j];
+                        break;
+                    }
+                }
+            }
+
+            if(myPosOnBoards == null)
+            {
+                return;
+            }
+
+            if(myPosOnBoards.ValueCurrent == 0)
+            {
+                return;
+            }
+
+            Security sec = GetSecurityFromTabs(secName, server);
+
+            if(sec == null)
+            {
+                return;
+            }
+
+            Order order = CreateOrderToClosePosition(secName, server, myPosOnBoards, sec);
+
+            server.ExecuteOrder(order);
+        }
+
+        private Order CreateOrderToClosePosition(string secName, Market.Servers.IServer server, PositionOnBoard pos, Security sec)
+        {
+            Order newOrder = new Order();
+
+            newOrder.NumberUser = NumberGen.GetNumberOrder(_startProgram);
+            newOrder.State = OrderStateType.Activ;
+            newOrder.Volume = Math.Abs(pos.ValueCurrent);
+            newOrder.Price = 0;
+            newOrder.TimeCreate = server.ServerTime;
+            newOrder.TypeOrder = OrderPriceType.Market;
+            newOrder.SecurityNameCode = secName;
+            newOrder.SecurityClassCode = sec.NameClass;
+            newOrder.PortfolioNumber = pos.PortfolioName;
+            newOrder.ServerType = server.ServerType;
+            newOrder.PositionConditionType = OrderPositionConditionType.Close;
+
+            if(pos.ValueCurrent > 0)
+            {
+                newOrder.Side = Side.Sell;
+            }
+            else
+            {
+                newOrder.Side = Side.Buy;
+            }
+
+            return newOrder;
+        }
+
+        private List<BotTabSimple> GetTabsSimpleWhithMySecurity(string secName, Market.Servers.IServer server, BotPanel bot)
+        {
+            List<BotTabSimple> botTabSimples = new List<BotTabSimple>();
+
+            if (bot.TabsSimple != null &&
+                bot.TabsSimple.Count > 0)
+            {
+                for (int i = 0; i < bot.TabsSimple.Count; i++)
+                {
+                    if (bot.TabsSimple[i].Connector.SecurityName == secName 
+                        && bot.TabsSimple[i].Connector.ServerType == server.ServerType)
+                    {
+                        botTabSimples.Add(bot.TabsSimple[i]);
+                    }
+                }
+
+                botTabSimples.AddRange(bot.TabsSimple);
+            }
+
+            if (bot.TabsScreener != null &&
+                bot.TabsScreener.Count > 0)
+            {
+                for (int j = 0; j < bot.TabsScreener.Count; j++)
+                {
+                    List<BotTabSimple> tabsInScreener = bot.TabsScreener[j].Tabs;
+
+                    for (int i = 0; tabsInScreener != null && i < tabsInScreener.Count; i++)
+                    {
+                        if (tabsInScreener[i].Connector.SecurityName == secName
+                            && tabsInScreener[i].Connector.ServerType == server.ServerType)
+                        {
+                            botTabSimples.Add(tabsInScreener[i]);
+                        }
+                    }
+                }
+            }
+
+            return botTabSimples;
+        }
+
+        private Security GetSecurityFromTabs(string secName, Market.Servers.IServer server)
+        {
+            List<BotTabSimple> tabsWithMySecInAllBots = new List<BotTabSimple>();
+
+            for (int i = 0; i < PanelsArray.Count; i++)
+            {
+                BotPanel bot = PanelsArray[i];
+
+                List<BotTabSimple> botTabSimples = GetTabsSimpleWhithMySecurity(secName, server, bot);
+
+                if (botTabSimples != null &&
+                    botTabSimples.Count > 0)
+                {
+                    tabsWithMySecInAllBots.AddRange(botTabSimples);
+                }
+            }
+
+            if(tabsWithMySecInAllBots == null || tabsWithMySecInAllBots.Count == 0)
+            {
+                return null;
+            }
+
+            Security sec = null;
+
+            if (tabsWithMySecInAllBots.Count > 1)
+            {
+                sec = tabsWithMySecInAllBots[0].Securiti;
+            }
+
+
+            return sec;
+        }
+
+
+        #endregion
+
 
         #region Journal
 
