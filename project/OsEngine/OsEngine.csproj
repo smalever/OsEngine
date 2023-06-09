@@ -834,24 +834,12 @@
     <Compile Include="OsaExtension\MVVM\Models\Emitent.cs" />
     <Compile Include="OsaExtension\MVVM\Models\ExChenge.cs" />
     <Compile Include="OsaExtension\MVVM\ViewModels\BaseVM.cs" />
-    <Compile Include="OsaExtension\MVVM\ViewModels\ChangeEmitentVM.cs" />
-    <Compile Include="OsaExtension\MVVM\ViewModels\IRobotVM.cs" />
-    <Compile Include="OsaExtension\MVVM\ViewModels\MainWindowRobWpfVM.cs" />
-    <Compile Include="OsaExtension\MVVM\ViewModels\TestRobVM.cs" />
-    <Compile Include="OsaExtension\MVVM\View\ChengeEmitendWidow.xaml.cs">
-      <DependentUpon>ChengeEmitendWidow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="OsaExtension\MVVM\View\MainWindowRobotsWPF.xaml.cs">
-      <DependentUpon>MainWindowRobotsWPF.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="OsaExtension\MVVM\View\TestRobot.xaml.cs">
-      <DependentUpon>TestRobot.xaml</DependentUpon>
-    </Compile>
     <Compile Include="OsaExtension\Robots\meshOnSMA\meshOnSMA.cs" />
     <Compile Include="OsaExtension\Robots\OldRobots\IlanMartin.cs" />
     <Compile Include="OsaExtension\Robots\OldRobots\MartinBollinger.cs" />
     <Compile Include="OsaExtension\Robots\OldRobots\MartinSMA.cs" />
-    <Compile Include="OsaExtension\Robots\SmaTestBot\SmaTestBot.cs" />
+    <Compile Include="OsaExtension\Robots\NotWork\SmaTestBot\SmaTestBot.cs" />
+    <Compile Include="OsaExtension\Robots\PairTrading.cs" />
     <Compile Include="OsConverter\OsCandleConverterUi.xaml.cs">
       <DependentUpon>OsCandleConverterUi.xaml</DependentUpon>
     </Compile>
