@@ -143,21 +143,14 @@ namespace OsEngine.Market.Servers.OKX
                 });
             }
 
-            _client.SetLeverage(security);
+            //_client.SetLeverage(security);
 
             _client._rateGateWebSocket.WaitToProceed();
 
             _client.SubscribleTrades(security);
             _client.SubscribleDepths(security);
-            _client.SubscriblePositions(security);
-
-            Thread checkOrdersWorkerPlace = new Thread(CheckOrdersWorkerPlace);
-            checkOrdersWorkerPlace.CurrentCulture = new CultureInfo("ru-RU");
-            checkOrdersWorkerPlace.IsBackground = true;
-            checkOrdersWorkerPlace.Name = "ConvertToTrade";
-            checkOrdersWorkerPlace.Start();
-
-            _client.SubscribleOrders(security);
+            //_client.SubscriblePositions(security);
+            //_client.SubscribleOrders(security);
         }
 
         #region Trade
@@ -212,54 +205,20 @@ namespace OsEngine.Market.Servers.OKX
                 MyOrderEvent(newOrder);
             }
 
-            OrdersToCheckMyTrades.Enqueue(newOrder);
-        }
 
-        ConcurrentQueue<Order> OrdersToCheckMyTrades = new ConcurrentQueue<Order>();
-
-        private object lockerMyTrades = new object();
-
-        private void CheckOrdersWorkerPlace()
-        {
-            while (true)
+            if (stateType == OrderStateType.Patrial ||
+                stateType == OrderStateType.Done)
             {
-                try
+                List<MyTrade> tradesInOrder = GenerateTradesToOrder(newOrder, 1);
+
+                for (int i = 0; i < tradesInOrder.Count; i++)
                 {
-                    if (OrdersToCheckMyTrades.IsEmpty == false)
-                    {
-                        new Task(() =>
-                        {
-                            Task.Delay(300);
-
-                            Order orderToCheck = null;
-
-                            if (OrdersToCheckMyTrades.TryDequeue(out orderToCheck))
-                            {
-                                List<MyTrade> tradesInOrder = GenerateTradesToOrder(orderToCheck, 1);
-
-                                for (int i = 0; i < tradesInOrder.Count; i++)
-                                {
-                                    lock (lockerMyTrades)
-                                    {
-                                        MyTradeEvent(tradesInOrder[i]);
-                                    }
-                                }
-                            }
-                        }).Start();
-
-                    }
-                    else
-                    {
-                        Thread.Sleep(200);
-                    }
-                }
-                catch (Exception error)
-                {
-                    SendLogMessage($"{error.Message} { error.StackTrace}", LogMessageType.Error);
-                    Thread.Sleep(1000);
+                    MyTradeEvent(tradesInOrder[i]);
                 }
             }
         }
+
+
 
         private RateGate _rateGateGenerateToTrate = new RateGate(1, TimeSpan.FromMilliseconds(300));
 
@@ -409,10 +368,10 @@ namespace OsEngine.Market.Servers.OKX
                     return;
                 }
 
-                trade.Price = Convert.ToDecimal(tradeRespone.data[0].px.Replace('.', ','));
+                trade.Price = tradeRespone.data[0].px.ToDecimal();
                 trade.Id = tradeRespone.data[0].tradeId;
                 trade.Time = TimeManager.GetDateTimeFromTimeStamp(Convert.ToInt64(tradeRespone.data[0].ts));
-                trade.Volume = Convert.ToDecimal(tradeRespone.data[0].sz.Replace('.', ','));
+                trade.Volume = tradeRespone.data[0].sz.ToDecimal();
                 if (tradeRespone.data[0].side.Equals("buy"))
                 {
                     trade.Side = Side.Buy;
@@ -584,7 +543,7 @@ namespace OsEngine.Market.Servers.OKX
                 {
                     PositionOnBoard newPortf = new PositionOnBoard();
                     newPortf.SecurityNameCode = portfs.data[0].details[i].ccy;
-                    newPortf.ValueBegin = portfs.data[0].details[i].cashBal.ToDecimal();
+                    newPortf.ValueBegin = portfs.data[0].details[i].availEq.ToDecimal();
                     newPortf.ValueCurrent = portfs.data[0].details[i].availEq.ToDecimal();
                     newPortf.ValueBlocked = portfs.data[0].details[i].frozenBal.ToDecimal();
 
