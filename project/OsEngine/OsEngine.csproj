@@ -834,7 +834,6 @@
     <Compile Include="OsaExtension\MVVM\Models\Emitent.cs" />
     <Compile Include="OsaExtension\MVVM\Models\ExChenge.cs" />
     <Compile Include="OsaExtension\MVVM\ViewModels\BaseVM.cs" />
-    <Compile Include="OsaExtension\Robots\meshOnSMA\meshOnSMA.cs" />
     <Compile Include="OsaExtension\Robots\OldRobots\IlanMartin.cs" />
     <Compile Include="OsaExtension\Robots\OldRobots\MartinBollinger.cs" />
     <Compile Include="OsaExtension\Robots\OldRobots\MartinSMA.cs" />
