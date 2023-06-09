@@ -36,8 +36,9 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
             //_tabIndex.CandleFinishedEvent += _tabIndex_CandleFinishedEvent;
 
             Regime = CreateParameter("Regime", "Off", new[] { "Off", "On" });
-            Volume1 = CreateParameter("Volume 1", 1, 1.0m, 50, 1);
-            Volume2 = CreateParameter("Volume 2", 1, 1.0m, 50, 1);
+            VolumeInDollars = CreateParameter("VolumeInDollars", 50, 50.0m, 500, 10);
+            //_lotEntrySize = CreateParameter("_lotEntrySize  ", 1m, 0.00001m, 100m, 0.00001m);
+            //Volume2 = CreateParameter("Volume 2", 1, 1.0m, 50, 1);
 
             // добавим боллинжер
             BollingerEntryLength = CreateParameter("BollingerEntry Length", 720, 100, 10000, 20);
@@ -54,18 +55,12 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
             _moving.Lenght = BollingerEntryLength.ValueInt;
             _moving.ColorBase = System.Drawing.Color.Yellow;
 
-            //_bollingerEntry = IndicatorsFactory.CreateIndicatorByName("Bollinger", name + "Bollinger", false);
-            //_bollingerEntry = (Aindicator)_tabIndex.CreateCandleIndicator(_bollingerEntry, "Prime");
-            //_bollingerEntry.ParametersDigit[0].Value = BollingerEntryLength.ValueInt;
-            //_bollingerEntry.ParametersDigit[1].Value = BollingerEntryDeviation.ValueDecimal;
-
             //линия входа в позу
             //entryPositionPriceLevelLine = new LineHorisontal("entryPositionPriceLevelLine", "Prime", false)
             //{ Color = Color.YellowGreen, Value = 0, TimeEnd = DateTime.MaxValue };
             //_tabIndex.SetChartElement(entryPositionPriceLevelLine);
 
 
-            _lotEntrySize = CreateParameter("_lotEntrySize  ", 1m, 0.00001m, 100m, 0.00001m);
 
 
             #endregion конец подготовка вкладки ===================================
@@ -87,12 +82,6 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
             bollingerSpread = bollingerLastPriceUp - bollingerLastPriceDown;
             moving = _moving.Values[_moving.Values.Count - 1];
             bollingerLastPriceCenter = bollingerSpread / 2 + bollingerLastPriceDown;
-
-            //bollingerLastPriceUp = _bollingerEntry.DataSeries[0].Last;
-            //bollingerLastPriceDown = _bollingerEntry.DataSeries[1].Last;
-            //bollingerLastPriceCenter = _bollingerEntry.DataSeries[2].Last;
-            //bollingerSpread = bollingerLastPriceUp - bollingerLastPriceDown;
-            ////currentIndexPrice = _tabIndex.PriceCenterMarketDepth;
             currentIndexPrice = candles[candles.Count - 1].Close;
 
 
@@ -123,13 +112,15 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
         private void OpenPairPositions()
         {
 
-
             // откроем на возврате за болинжер сверху
             if (currentIndexPrice < bollingerLastPriceUp
                 && wereWeUpBollinger)
             {
-                _tab1.SellAtMarket(_lotEntrySize.ValueDecimal);
-                _tab2.BuyAtMarket(_lotEntrySize.ValueDecimal);
+                _lotEntrySize = VolumeInDollars.ValueDecimal / _tab1.PriceCenterMarketDepth;
+                _tab1.SellAtMarket(_lotEntrySize);
+
+                _lotEntrySize = VolumeInDollars.ValueDecimal / _tab2.PriceCenterMarketDepth;
+                _tab2.BuyAtMarket(_lotEntrySize);
 
                 wereWeUpBollinger = false;
                 indexIsSell = true;
@@ -144,8 +135,12 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
             if (currentIndexPrice > bollingerLastPriceDown
                 && wereWeDownBollinger)
             {
-                _tab1.BuyAtMarket(_lotEntrySize.ValueDecimal);
-                _tab2.SellAtMarket(_lotEntrySize.ValueDecimal);
+                _lotEntrySize = VolumeInDollars.ValueDecimal / _tab1.PriceCenterMarketDepth;
+                _tab1.BuyAtMarket(_lotEntrySize);
+
+                _lotEntrySize = VolumeInDollars.ValueDecimal / _tab2.PriceCenterMarketDepth;
+                _tab2.SellAtMarket(_lotEntrySize);
+
                 wereWeDownBollinger = false;
                 indexIsBuy = true;
 
@@ -176,15 +171,6 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
                     _tab2.CloseAtMarket(position, position.OpenVolume);
                 }
             }
-
-            //if (positions1.Count != 0 && positions1[0].State == PositionStateType.Open)
-            //{
-            //    _tab1.CloseAtMarket(positions1[0], positions1[0].OpenVolume);
-            //}
-            //if (positions2.Count != 0 && positions2[0].State == PositionStateType.Open)
-            //{
-            //    _tab2.CloseAtMarket(positions2[0], positions2[0].OpenVolume);
-            //}
 
             indexIsSell = false;
             indexIsBuy = false;
@@ -258,7 +244,7 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
         /// <summary>
         /// объем первой бумаги
         /// </summary>
-        private StrategyParameterDecimal Volume1;
+        private StrategyParameterDecimal VolumeInDollars;
         /// <summary>
         /// объем второй бумаги
         /// </summary>
@@ -317,7 +303,7 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
         /// <summary>
         /// размер лота для входа
         /// </summary>
-        private StrategyParameterDecimal _lotEntrySize;
+        private decimal _lotEntrySize;
 
         /// <summary>
         /// признак что были выше верхнего болинжер
