@@ -2,14 +2,17 @@
 using OsEngine.Charts.CandleChart.Indicators;
 using OsEngine.Entity;
 using OsEngine.Indicators;
+using OsEngine.Language;
+using OsEngine.Logging;
 using OsEngine.OsTrader.Panels;
 using OsEngine.OsTrader.Panels.Attributes;
 using OsEngine.OsTrader.Panels.Tab;
 using System;
 using System.Collections.Generic;
+using System.Windows;
 using System.Windows.Media.Media3D;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
-
+using Line = OsEngine.Charts.CandleChart.Indicators.Line;
 
 namespace OsEngine.OsaExtension.Robots.PairTrading
 {
@@ -33,8 +36,10 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
             TabCreate(BotTabType.Index);
             _tabIndex = TabsIndex[0];
             _tabIndex.SpreadChangeEvent += _tabIndex_SpreadChangeEvent;
+            // надо сделать авто заполнение формулы спреда и самих бумаг при создании бота
+            _tabIndex.UserFormula = "A0/A1";
 
-            Regime = CreateParameter("Regime", "Off", new[] { "Off", "On" });
+            Regime = CreateParameter("Regime", "On", new[] { "Off", "On" });
             VolumeInDollars = CreateParameter("VolumeInDollars", 50, 50.0m, 500, 10);
             //_lotEntrySize = CreateParameter("_lotEntrySize  ", 1m, 0.00001m, 100m, 0.00001m);
             //Volume2 = CreateParameter("Volume 2", 1, 1.0m, 50, 1);
@@ -67,10 +72,19 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
             _moving.Lenght = BollingerEntryLength.ValueInt;
             _moving.ColorBase = System.Drawing.Color.Yellow;
 
-            //линия входа в позу
-            //entryPositionPriceLevelLine = new LineHorisontal("entryPositionPriceLevelLine", "Prime", false)
-            //{ Color = Color.YellowGreen, Value = 0, TimeEnd = DateTime.MaxValue };
-            //_tabIndex.SetChartElement(entryPositionPriceLevelLine);
+
+            //////линия верхнего стопа
+            ///
+            //_stopUpLevelLine = new Line(name + "_stopUpLevelLine", "Prime", false);
+            //_stopUpLevelLine = (Line)_tabIndex.CreateCandleIndicator(_stopUpLevelLine, "Prime");
+            //_stopUpLevelLine.ColorBase = System.Drawing.Color.Red;
+            ////_stopUpLevelLine.TimeEnd = DateTime.MaxValue;
+
+            //////линия нижнего стопа
+            //_stopDownLevelLine = new Line(name + "_stopDownLevelLine", "Prime", false);
+            //_stopDownLevelLine = (Line)_tabIndex.CreateCandleIndicator(_stopDownLevelLine, "Prime");
+            //_stopDownLevelLine.ColorBase = System.Drawing.Color.Red;
+            ////_stopDownLevelLine.TimeEnd = DateTime.MaxValue;
 
 
             #endregion конец подготовка вкладки ===================================
@@ -87,18 +101,18 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
         {
             // значения переменных на сейчас
 
-            bollingerLastPriceUp = _bollingerEntry.ValuesUp[_bollingerEntry.ValuesUp.Count - 1];
-            bollingerLastPriceDown = _bollingerEntry.ValuesDown[_bollingerEntry.ValuesDown.Count - 1];
-            bollingerSpread = bollingerLastPriceUp - bollingerLastPriceDown;
+            bollingerEntryLastPriceUp = _bollingerEntry.ValuesUp[_bollingerEntry.ValuesUp.Count - 1];
+            bollingerEntryLastPriceDown = _bollingerEntry.ValuesDown[_bollingerEntry.ValuesDown.Count - 1];
+            bollingerEntrySpread = bollingerEntryLastPriceUp - bollingerEntryLastPriceDown;
             moving = _moving.Values[_moving.Values.Count - 1];
-            bollingerLastPriceCenter = bollingerSpread / 2 + bollingerLastPriceDown;
+            bollingerEntryLastPriceCenter = bollingerEntrySpread / 2 + bollingerEntryLastPriceDown;
             currentIndexPrice = candles[candles.Count - 1].Close;
 
 
             // были выше болинжера
-            if (currentIndexPrice > bollingerLastPriceUp) { wereWeUpBollinger = true; }
+            if (currentIndexPrice > bollingerEntryLastPriceUp) { wereWeUpBollinger = true; }
             // были ниже болинжера
-            if (currentIndexPrice < bollingerLastPriceDown) { wereWeDownBollinger = true; }
+            if (currentIndexPrice < bollingerEntryLastPriceDown) { wereWeDownBollinger = true; }
 
             // надо ли открывать позы?
             if (!indexIsSell && !indexIsBuy)
@@ -107,13 +121,20 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
             }
 
             // пересекли центр боллинжера с низу ? пора закрываться
-            if (indexIsBuy && currentIndexPrice > bollingerLastPriceCenter)
+            if (indexIsBuy && currentIndexPrice > bollingerEntryLastPriceCenter)
             {
                 CloseAllPositions();
             }
 
             // пересекли центр боллинжера с верху ? пора закрываться
-            if (indexIsSell && currentIndexPrice < bollingerLastPriceCenter)
+            if (indexIsSell && currentIndexPrice < bollingerEntryLastPriceCenter)
+            {
+                CloseAllPositions();
+            }
+
+            // если ушли за стоп болинжер
+            if ((indexIsBuy && currentIndexPrice > stopUp)
+                || (indexIsSell && currentIndexPrice < stopDown))
             {
                 CloseAllPositions();
             }
@@ -126,7 +147,7 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
         {
 
             // откроем на возврате за болинжер сверху
-            if (currentIndexPrice < bollingerLastPriceUp
+            if (currentIndexPrice < bollingerEntryLastPriceUp
                 && wereWeUpBollinger)
             {
                 _lotEntrySize = VolumeInDollars.ValueDecimal / _tab1.PriceCenterMarketDepth;
@@ -137,15 +158,19 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
 
                 wereWeUpBollinger = false;
                 indexIsSell = true;
+                stopUp = _bollingerStop.ValuesUp[_bollingerStop.ValuesUp.Count - 1];
 
-                // нарисуем линию входа 
-                //entryPositionPriceLevelLine.Value = currentIndexPrice;
-                //entryPositionPriceLevelLine.Refresh();
+                SendNewLogMessage("stopUp " + stopUp.ToString(), LogMessageType.NoName);
+                //MessageBox.Show("stopUp " + stopUp.ToString());
+
+                // нарисуем линию стопа 
+                //_stopUpLevelLine.Value = stopUp;
+                //_stopUpLevelLine.Refresh();
 
             }
 
             // откроем на возврате за болинжер снизу
-            if (currentIndexPrice > bollingerLastPriceDown
+            if (currentIndexPrice > bollingerEntryLastPriceDown
                 && wereWeDownBollinger)
             {
                 _lotEntrySize = VolumeInDollars.ValueDecimal / _tab1.PriceCenterMarketDepth;
@@ -156,10 +181,14 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
 
                 wereWeDownBollinger = false;
                 indexIsBuy = true;
+                stopDown = _bollingerStop.ValuesDown[_bollingerStop.ValuesDown.Count - 1];
+
+                SendNewLogMessage("stopDown " + stopDown.ToString(), LogMessageType.NoName);
+                //MessageBox.Show("stopDown " + stopDown.ToString());
 
                 // нарисуем линию входа 
-                //entryPositionPriceLevelLine.Value = currentIndexPrice;
-                //entryPositionPriceLevelLine.Refresh();
+                //_stopDownLevelLine.Value = stopDown;
+                //_stopDownLevelLine.Refresh();
             }
         }
 
@@ -287,37 +316,32 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
         private MovingAverage _moving;
         private decimal moving;
 
-
-        ///// <summary>
-        ///// боллинжер 
-        ///// </summary>
-        //private Aindicator _bollingerEntry;
-        //private StrategyParameterDecimal BollingerEntryDeviation;
-        //private StrategyParameterInt BollingerEntryLength;
-
-
+        /// <summary>
+        /// линия  верхнего стопа 
+        /// </summary>
+        //private  Line _stopUpLevelLine;
 
         /// <summary>
-        /// линия  цены входа на график 
+        /// линия  нижнего стопа 
         /// </summary>
-        private LineHorisontal entryPositionPriceLevelLine;
-
+        //private Line _stopDownLevelLine;
+  
         /// <summary>
         /// цена верхнего болинжера
         /// </summary>
-        private decimal bollingerLastPriceUp;
+        private decimal bollingerEntryLastPriceUp;
         /// <summary>
         /// цена нижнего болинжера
         /// </summary>
-        private decimal bollingerLastPriceDown;
+        private decimal bollingerEntryLastPriceDown;
         /// <summary>
         /// цена центра болинжера
         /// </summary>
-        private decimal bollingerLastPriceCenter;
+        private decimal bollingerEntryLastPriceCenter;
         /// <summary>
         /// размах болинжера (от низа до верха, типа волатильность)
         /// </summary>
-        private decimal bollingerSpread;
+        private decimal bollingerEntrySpread;
 
         /// <summary>
         /// текущая цена индекса
@@ -345,6 +369,16 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
         /// признак что купили индекс
         /// </summary>
         bool indexIsBuy = false;
+
+        /// <summary>
+        /// стоп верхний
+        /// </summary>
+        private decimal stopUp= decimal.MaxValue;
+
+        /// <summary>
+        /// стоп нижний
+        /// </summary>
+        private decimal stopDown=decimal.MinValue;
 
 
 
