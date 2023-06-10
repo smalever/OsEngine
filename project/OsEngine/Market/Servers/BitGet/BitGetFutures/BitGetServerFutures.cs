@@ -10,6 +10,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -51,6 +52,8 @@ namespace OsEngine.Market.Servers.BitGet.BitGetFutures
         public List<IServerParameter> ServerParameters { get; set; }
         public DateTime ServerTime { get; set; }
 
+        private DateTime _lastConnectionStartTime = DateTime.MinValue;
+
         public void Connect()
         {
             IsDispose = false;
@@ -74,6 +77,7 @@ namespace OsEngine.Market.Servers.BitGet.BitGetFutures
                     CreateWebSocketConnection();
                     StartUpdatePortfolio();
                     ConnectEvent();
+                    _lastConnectionStartTime = DateTime.Now;
                 }
                 catch (Exception exeption)
                 {
@@ -92,6 +96,7 @@ namespace OsEngine.Market.Servers.BitGet.BitGetFutures
             try
             {
                 _ordersIsSubscrible = false;
+                _portfolioIsStarted = false;
                 _subscribledSecutiries.Clear();
                 DeleteWebscoektConnection();
             }
@@ -135,7 +140,7 @@ namespace OsEngine.Market.Servers.BitGet.BitGetFutures
         private bool IsDispose;
         private DateTime TimeToSendPing = DateTime.Now;
         private DateTime TimeToUprdatePortfolio = DateTime.Now;
-        private ConcurrentQueue<string> FIFOListWebSocketMessage;
+        private ConcurrentQueue<string> FIFOListWebSocketMessage = new ConcurrentQueue<string>();
         private RateGate rateGateSubscrible = new RateGate(1, TimeSpan.FromMilliseconds(100));
         private RateGate rateGateSendOrder = new RateGate(1, TimeSpan.FromMilliseconds(200));
         private RateGate rateGateCancelOrder = new RateGate(1, TimeSpan.FromMilliseconds(200));
@@ -218,7 +223,7 @@ namespace OsEngine.Market.Servers.BitGet.BitGetFutures
                 if (IsDispose == false)
                 {
                     IsDispose = true;
-                    SendLogMessage("Connection Close", LogMessageType.System);
+                    SendLogMessage("Connection Closed by ByBit", LogMessageType.System);
                     Dispose();
                 }
             }
@@ -232,14 +237,24 @@ namespace OsEngine.Market.Servers.BitGet.BitGetFutures
         {
             try
             {
-                if (FIFOListWebSocketMessage != null)
+                if (e == null)
                 {
-                    FIFOListWebSocketMessage.Enqueue(e.Message);
+                    return;
                 }
+                if (e.Message == null)
+                {
+                    return;
+                }
+                if (e.Message.Length == 4)
+                { // pong message
+                    return;
+                }
+
+                FIFOListWebSocketMessage.Enqueue(e.Message);
             }
-            catch (Exception ex)
+            catch (Exception error)
             {
-                SendLogMessage(ex.ToString(), LogMessageType.Error);
+                SendLogMessage(error.ToString(), LogMessageType.Error);
             }
         }
 
@@ -274,23 +289,16 @@ namespace OsEngine.Market.Servers.BitGet.BitGetFutures
 
             while (IsDispose == false)
             {
-                Thread.Sleep(1);
-
                 try
                 {
-                    if (FIFOListWebSocketMessage == null ||
-                        FIFOListWebSocketMessage.Count == 0)
+                    if (FIFOListWebSocketMessage.IsEmpty)
                     {
+                        Thread.Sleep(1);
                         continue;
                     }
 
                     string message;
                     FIFOListWebSocketMessage.TryDequeue(out message);
-
-                    if (message.Equals("pong"))
-                    {
-                        continue;
-                    }
 
                     ResponseWebSocketMessageSubscrible SubscribleState = JsonConvert.DeserializeAnonymousType(message, new ResponseWebSocketMessageSubscrible());
 
@@ -298,10 +306,14 @@ namespace OsEngine.Market.Servers.BitGet.BitGetFutures
                     {
                         if (SubscribleState.code.Equals("0") == false)
                         {
+                            SendLogMessage("WebSocket listener error", LogMessageType.Error);
                             SendLogMessage(SubscribleState.code + "\n" +
                                 SubscribleState.msg, LogMessageType.Error);
 
-                            Dispose();
+                            if(_lastConnectionStartTime.AddMinutes(5) > DateTime.Now)
+                            { // если на старте вёб-сокета проблемы, то надо его перезапускать
+                                Dispose();
+                            }
                         }
 
                         continue;
@@ -312,6 +324,11 @@ namespace OsEngine.Market.Servers.BitGet.BitGetFutures
 
                         if (action.arg != null)
                         {
+                            if (action.arg.channel.Equals("orders"))
+                            {
+                                UpdateOrder(message);
+                                continue;
+                            }
                             if (action.arg.channel.Equals("books15"))
                             {
                                 UpdateDepth(message);
@@ -320,11 +337,6 @@ namespace OsEngine.Market.Servers.BitGet.BitGetFutures
                             if (action.arg.channel.Equals("trade"))
                             {
                                 UpdateTrade(message);
-                                continue;
-                            }
-                            if (action.arg.channel.Equals("orders"))
-                            {
-                                UpdateOrder(message);
                                 continue;
                             }
                         }
@@ -349,7 +361,7 @@ namespace OsEngine.Market.Servers.BitGet.BitGetFutures
         {
             while (IsDispose == false)
             {
-                Thread.Sleep(100);
+                Thread.Sleep(1000);
 
                 if (webSocket != null &&
                     (webSocket.State == WebSocketState.Open ||
@@ -413,9 +425,19 @@ namespace OsEngine.Market.Servers.BitGet.BitGetFutures
                 newOrder.SecurityNameCode = item.instId; //.Replace("_SPBL", "")
                 newOrder.TimeCallBack = TimeManager.GetDateTimeFromTimeStamp(Convert.ToInt64(item.cTime));
 
-                if (!item.clOrdId.Equals(String.Empty) == true)
+                if (string.IsNullOrEmpty(item.clOrdId))
+                {
+                    return;
+                }
+
+                try
                 {
                     newOrder.NumberUser = Convert.ToInt32(item.clOrdId);
+                }
+                catch
+                {
+                    SendLogMessage("order with strange num: " + item.clOrdId, LogMessageType.Error);
+                    return;
                 }
 
                 newOrder.NumberMarket = item.ordId.ToString();
@@ -425,8 +447,6 @@ namespace OsEngine.Market.Servers.BitGet.BitGetFutures
                 newOrder.Price = item.px.Replace('.', ',').ToDecimal();
                 newOrder.ServerType = ServerType.BitGetFutures;
                 newOrder.PortfolioNumber = "BitGetFutures";
-
-
 
                 if (stateType == OrderStateType.Done ||
                     stateType == OrderStateType.Patrial)
@@ -443,11 +463,7 @@ namespace OsEngine.Market.Servers.BitGet.BitGetFutures
                     myTrade.Side = item.side.Equals("buy") ? Side.Buy : Side.Sell;
 
                     MyTradeEvent(myTrade);
-
-
                     newOrder.Price = item.fillPx.Replace('.', ',').ToDecimal();
-
-                    CreateQueryPortfolio(false);
                 }
 
                 MyOrderEvent(newOrder);
@@ -455,7 +471,9 @@ namespace OsEngine.Market.Servers.BitGet.BitGetFutures
             }
         }
 
-        private void UpdatePorfolio(string json, bool IsUpdateValueBegin)
+        private bool _portfolioIsStarted = false;
+
+        private void UpdatePorfolio(string json)
         {
             ResponseRestMessage<List<RestMessageAccount>> assets = JsonConvert.DeserializeAnonymousType(json, new ResponseRestMessage<List<RestMessageAccount>>());
             var Positions = CreateQueryPositions();
@@ -476,7 +494,7 @@ namespace OsEngine.Market.Servers.BitGet.BitGetFutures
                     ValueCurrent = assets.data[i].available.ToDecimal()
                 };
 
-                if (IsUpdateValueBegin)
+                if (_portfolioIsStarted == false)
                 {
                     pos.ValueBegin = assets.data[i].available.ToDecimal();
                 }
@@ -488,22 +506,22 @@ namespace OsEngine.Market.Servers.BitGet.BitGetFutures
             {
                 for (int i = 0; i < Positions.data.Count; i++)
                 {
-                    var pos = new PositionOnBoard()
+                    PositionOnBoard pos = new PositionOnBoard();
+                    pos.PortfolioName = "BitGetFutures";
+                    pos.SecurityNameCode = Positions.data[i].symbol + "_" + Positions.data[i].holdSide;
+                    pos.ValueBlocked = Positions.data[i].openDelegateCount.ToDecimal();
+                    pos.ValueCurrent = Positions.data[i].total.ToDecimal();
+                   
+                    if (_portfolioIsStarted == false)
                     {
-                        PortfolioName = "BitGetFutures",
-                        SecurityNameCode = Positions.data[i].symbol + "_" + Positions.data[i].holdSide,
-                        ValueBlocked = Positions.data[i].locked.ToDecimal(),
-                        ValueCurrent = Positions.data[i].available.ToDecimal()
-                    };
-
-                    if (IsUpdateValueBegin)
-                    {
-                        pos.ValueBegin = Positions.data[i].available.ToDecimal();
+                        pos.ValueBegin = Positions.data[i].total.ToDecimal();
                     }
 
                     portfolio.SetNewPosition(pos);
                 }
             }
+
+            _portfolioIsStarted = true;
 
             PortfolioEvent(new List<Portfolio> { portfolio });
         }
@@ -626,7 +644,7 @@ namespace OsEngine.Market.Servers.BitGet.BitGetFutures
 
         public void GetPortfolios()
         {
-            CreateQueryPortfolio(true);
+            CreateQueryPortfolio();
         }
 
         public void GetSecurities()
@@ -683,11 +701,11 @@ namespace OsEngine.Market.Servers.BitGet.BitGetFutures
         {
             while (IsDispose == false)
             {
-                Thread.Sleep(100);
+                Thread.Sleep(1000);
 
                 if (TimeToUprdatePortfolio.AddSeconds(30) < DateTime.Now)
                 {
-                    CreateQueryPortfolio(false);
+                    CreateQueryPortfolio();
                     TimeToUprdatePortfolio = DateTime.Now;
                 }
 
@@ -708,7 +726,7 @@ namespace OsEngine.Market.Servers.BitGet.BitGetFutures
                 marginCoin = "USDT",
             });
 
-            CreatePrivateQuery("/api/mix/v1/order/cancel-symbol-orders", Method.POST, null, jsonRequest);
+            CreatePrivateQueryOrders("/api/mix/v1/order/cancel-symbol-orders", Method.POST.ToString(), null, jsonRequest);
         }
 
         public void GetOrdersState(List<Order> orders)
@@ -732,8 +750,8 @@ namespace OsEngine.Market.Servers.BitGet.BitGetFutures
                 orderId = order.NumberMarket
             });
 
-            IRestResponse response = CreatePrivateQuery("/api/mix/v1/order/cancel-order", Method.POST, null, jsonRequest);
-            string JsonResponse = response.Content;
+            HttpResponseMessage response = CreatePrivateQueryOrders("/api/mix/v1/order/cancel-order", Method.POST.ToString(), null, jsonRequest);
+            string JsonResponse = response.Content.ReadAsStringAsync().Result;
 
             ResponseRestMessage<object> stateResponse = JsonConvert.DeserializeAnonymousType(JsonResponse, new ResponseRestMessage<object>());
 
@@ -795,8 +813,8 @@ namespace OsEngine.Market.Servers.BitGet.BitGetFutures
                 clientOid = order.NumberUser
             });
 
-            IRestResponse responseMessage = CreatePrivateQuery("/api/mix/v1/order/placeOrder", Method.POST, null, jsonRequest);
-            string JsonResponse = responseMessage.Content;
+            HttpResponseMessage responseMessage = CreatePrivateQueryOrders("/api/mix/v1/order/placeOrder", Method.POST.ToString(), null, jsonRequest);
+            string JsonResponse = responseMessage.Content.ReadAsStringAsync().Result;
 
             ResponseRestMessage<object> stateResponse = JsonConvert.DeserializeAnonymousType(JsonResponse, new ResponseRestMessage<object>());
 
@@ -843,7 +861,9 @@ namespace OsEngine.Market.Servers.BitGet.BitGetFutures
         #endregion
 
         #region Querys
-        private void CreateQueryPortfolio(bool IsUpdateValueBegin)
+
+
+        private void CreateQueryPortfolio()
         {
             try
             {
@@ -856,7 +876,7 @@ namespace OsEngine.Market.Servers.BitGet.BitGetFutures
                 {
                     if (stateResponse.code.Equals("00000") == true)
                     {
-                        UpdatePorfolio(json, IsUpdateValueBegin);
+                        UpdatePorfolio(json);
                     }
                     else
                     {
@@ -1020,9 +1040,7 @@ namespace OsEngine.Market.Servers.BitGet.BitGetFutures
 
         private IRestResponse CreatePrivateQuery(string path, Method method, string queryString, string body)
         {
-            string requestStr = path;
-
-            RestRequest requestRest = new RestRequest(requestStr, method);
+            RestRequest requestRest = new RestRequest(path, method);
 
             string timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString();
             string signature = GenerateSignature(timestamp, method.ToString(), path, queryString, body, SeckretKey);
@@ -1038,6 +1056,31 @@ namespace OsEngine.Market.Servers.BitGet.BitGetFutures
             IRestResponse response = client.Execute(requestRest);
 
             return response;
+        }
+
+        private HttpResponseMessage CreatePrivateQueryOrders(string path, string method, string queryString, string body)
+        {
+            string requestPath = path;
+            string url = $"{BaseUrl}{requestPath}";
+            string timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString();
+            string signature = GenerateSignature(timestamp, method, requestPath, queryString, body, SeckretKey);
+
+            HttpClient httpClient = new HttpClient();
+
+            httpClient.DefaultRequestHeaders.Add("ACCESS-KEY", PublicKey);
+            httpClient.DefaultRequestHeaders.Add("ACCESS-SIGN", signature);
+            httpClient.DefaultRequestHeaders.Add("ACCESS-TIMESTAMP", timestamp);
+            httpClient.DefaultRequestHeaders.Add("ACCESS-PASSPHRASE", Passphrase);
+            httpClient.DefaultRequestHeaders.Add("X-CHANNEL-API-CODE", "6yq7w");
+
+            if (method.Equals("POST"))
+            {
+                return httpClient.PostAsync(url, new StringContent(body, Encoding.UTF8, "application/json")).Result;
+            }
+            else
+            {
+                return httpClient.GetAsync(url).Result;
+            }
         }
 
         #endregion
