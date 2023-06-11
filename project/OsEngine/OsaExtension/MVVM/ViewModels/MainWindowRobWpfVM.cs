@@ -130,7 +130,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             ServerMaster.ShowDialog(false);
         }
 
-
         /// <summary>
         /// для тестов 
         /// </summary>
@@ -145,8 +144,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             _master.CreateNewBot();            
         }
-    
-
 
         public delegate void selectedSecurity();
         public event selectedSecurity OnSelectedSecurity;
