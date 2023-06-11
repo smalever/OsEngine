@@ -174,7 +174,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     OsTraderMaster.Master.DeleteByNum(i);
                     break;
                 }
-            }
+            }            
         }
 
         /// <summary>

@@ -830,6 +830,7 @@
       <DependentUpon>SupportTableUi.xaml</DependentUpon>
     </Compile>
     <Compile Include="OsaExtension\MVVM\Commands\DelegateCommand.cs" />
+    <Compile Include="OsaExtension\MVVM\Models\BotPanelsManager.cs" />
     <Compile Include="OsaExtension\MVVM\Models\EmitClasses.cs" />
     <Compile Include="OsaExtension\MVVM\Models\Emitent.cs" />
     <Compile Include="OsaExtension\MVVM\Models\ExChenge.cs" />
