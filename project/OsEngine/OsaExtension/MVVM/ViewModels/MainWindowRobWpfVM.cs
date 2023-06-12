@@ -26,7 +26,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
     {
         public MainWindowRobWpfVM() 
         {
-            Init();
+            //BotPanelsManager tabManager = new BotPanelsManager();
+            _master = OsTraderMaster.Master;
         }
 
         /// <summary>
