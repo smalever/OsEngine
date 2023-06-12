@@ -33,7 +33,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
 
         private void _master_BotDeleteEvent(BotPanel obj)
         {
-            
+            CreateBotWPF();
         }
 
         private void _master_BotCreateEvent(BotPanel obj)
@@ -56,7 +56,9 @@ namespace OsEngine.OsaExtension.MVVM.Models
             {
                 BotPan.Add(ListBots[i]);
             }
+            
             MainWindowRobWpfVM.BotPanels = BotPan;
+
         }
     }
 }

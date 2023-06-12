@@ -48,7 +48,18 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// ВМ-ки роботов
         /// </summary>
-        public ObservableCollection<IRobotVM> Robots { get; set; } = new ObservableCollection<IRobotVM>();
+        public ObservableCollection<IRobotVM> Robots
+        { 
+            get
+            {                
+                return _robots;
+            }  
+            set
+            {
+                _robots = value;         
+            } 
+        }
+        private ObservableCollection<IRobotVM> _robots = new ObservableCollection<IRobotVM>();
 
         /// <summary>
         /// Коллекция с BotPanel осы
@@ -60,11 +71,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {     
                 _botPanels = value;
 
-
-                //MainWindowRobWpfVM wer = new MainWindowRobWpfVM();
-                //wer.OnPropertyChanged(nameof(BotPanels));
-                //wer.InitSetingBotPanel();
-                //OnPropertyChanged(nameof(BotPanels));
+                //OnPropertyChanged(nameof(BotPanels)); 
             }
         }         
         private static ObservableCollection<BotPanel> _botPanels = new ObservableCollection<BotPanel>();
@@ -155,6 +162,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         public void InitSetingBotPanel()
         {
             Robots.Clear();
+
             foreach (BotPanel panel in BotPanels) // перебрали все BotPanel осы
             {
                 BaseBotbVM myrob = new BaseBotbVM(); // создал экземпляр въюхи WPF робота
@@ -164,7 +172,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 //myrob.DescriptionBot = bots[1].NameStrategyUniq;
 
                 Robots.Add(myrob);// отправил экземпляр в колекцию с роботами WPF
-            }
+            }  
         }
 
         public delegate void selectedSecurity();
