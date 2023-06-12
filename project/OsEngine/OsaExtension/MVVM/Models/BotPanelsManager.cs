@@ -29,16 +29,19 @@ namespace OsEngine.OsaExtension.MVVM.Models
             _botTradeMaster.BotDeleteEvent += _master_BotDeleteEvent;
 
             CreateBotWPF();
+            InitSetingBotPanel();
         }
 
         private void _master_BotDeleteEvent(BotPanel obj)
         {
             CreateBotWPF();
+            InitSetingBotPanel();
         }
 
         private void _master_BotCreateEvent(BotPanel obj)
         {
             CreateBotWPF();
+            InitSetingBotPanel();
         }
 
         /// <summary>
@@ -59,6 +62,22 @@ namespace OsEngine.OsaExtension.MVVM.Models
             
             MainWindowRobWpfVM.BotPanels = BotPan;
 
+        }
+
+        public void InitSetingBotPanel()
+        {
+            MainWindowRobWpfVM.Robots.Clear();
+
+            foreach (BotPanel panel in MainWindowRobWpfVM.BotPanels) // перебрали все BotPanel осы
+            {
+                BaseBotbVM myrob = new BaseBotbVM(); // создал экземпляр въюхи WPF робота
+
+                myrob.Header = panel.NameStrategyUniq; ; // присвоил заголовку  робота WPF имя панели осы
+
+                //myrob.DescriptionBot = bots[1].NameStrategyUniq;
+
+                MainWindowRobWpfVM.Robots.Add(myrob);// отправил экземпляр в колекцию с роботами WPF
+            }
         }
     }
 }

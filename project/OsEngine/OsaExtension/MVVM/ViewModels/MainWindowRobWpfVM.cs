@@ -48,7 +48,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// ВМ-ки роботов
         /// </summary>
-        public ObservableCollection<IRobotVM> Robots
+        public static ObservableCollection<IRobotVM> Robots
         { 
             get
             {                
@@ -59,7 +59,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 _robots = value;         
             } 
         }
-        private ObservableCollection<IRobotVM> _robots = new ObservableCollection<IRobotVM>();
+        private static ObservableCollection<IRobotVM> _robots = new ObservableCollection<IRobotVM>();
 
         /// <summary>
         /// Коллекция с BotPanel осы
@@ -146,7 +146,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         void TestMetod(object o) 
         {
-            InitSetingBotPanel();
+            
         }
         /// <summary>
         /// создать робота кнопка на гл окне
