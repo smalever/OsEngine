@@ -61,7 +61,6 @@ namespace OsEngine.OsaExtension.MVVM.Models
             }
             
             MainWindowRobWpfVM.BotPanels = BotPan;
-
         }
 
         public void InitSetingBotPanel()
