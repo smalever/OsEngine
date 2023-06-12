@@ -48,7 +48,8 @@ namespace OsEngine.OsaExtension.MVVM.Models
         /// создать робота из BotPanel
         /// </summary>
         public void CreateBotWPF()
-        {
+        {//TODO: нужно изменить алгоритм добавления и удаления панелей по имени, что бы не переписывать весь список 
+
             List<BotPanel> ListBots = OsTraderMaster.Master.PanelsArray;
             int count = ListBots.Count;
 
@@ -63,8 +64,12 @@ namespace OsEngine.OsaExtension.MVVM.Models
             MainWindowRobWpfVM.BotPanels = BotPan;
         }
 
+        /// <summary>
+        /// инициализация полей BotPanel
+        /// </summary> 
         public void InitSetingBotPanel()
-        {
+        {//TODO: нужно изменить алгоритм добавления и удаления панелей по имени, что бы не переписывать весь список 
+
             MainWindowRobWpfVM.Robots.Clear();
 
             foreach (BotPanel panel in MainWindowRobWpfVM.BotPanels) // перебрали все BotPanel осы
@@ -73,7 +78,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
 
                 myrob.Header = panel.NameStrategyUniq; ; // присвоил заголовку  робота WPF имя панели осы
 
-                //myrob.DescriptionBot = bots[1].NameStrategyUniq;
+                myrob.DescriptionBot = panel.NameStrategyUniq;
 
                 MainWindowRobWpfVM.Robots.Add(myrob);// отправил экземпляр в колекцию с роботами WPF
             }

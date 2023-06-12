@@ -148,32 +148,14 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             
         }
+
         /// <summary>
         /// создать робота кнопка на гл окне
         /// </summary>
         void СreateBot(object o)
         {
             _master.CreateNewBot();            
-        }
-
-        /// <summary>
-        /// присвоили заголовкам  роботов WPF имена панелей осы
-        /// </summary>
-        public void InitSetingBotPanel()
-        {
-            Robots.Clear();
-
-            foreach (BotPanel panel in BotPanels) // перебрали все BotPanel осы
-            {
-                BaseBotbVM myrob = new BaseBotbVM(); // создал экземпляр въюхи WPF робота
-
-                myrob.Header = panel.NameStrategyUniq; ; // присвоил заголовку  робота WPF имя панели осы
-
-                //myrob.DescriptionBot = bots[1].NameStrategyUniq;
-
-                Robots.Add(myrob);// отправил экземпляр в колекцию с роботами WPF
-            }  
-        }
+        }   
 
         public delegate void selectedSecurity();
         public event selectedSecurity OnSelectedSecurity;
