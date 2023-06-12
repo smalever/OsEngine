@@ -1,18 +1,11 @@
-﻿using OsEngine.Charts.CandleChart.Elements;
-using OsEngine.Charts.CandleChart.Indicators;
+﻿using OsEngine.Charts.CandleChart.Indicators;
 using OsEngine.Entity;
-using OsEngine.Indicators;
-using OsEngine.Language;
 using OsEngine.Logging;
 using OsEngine.OsTrader.Panels;
 using OsEngine.OsTrader.Panels.Attributes;
 using OsEngine.OsTrader.Panels.Tab;
 using System;
 using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Media.Media3D;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
-using Line = OsEngine.Charts.CandleChart.Indicators.Line;
 
 namespace OsEngine.OsaExtension.Robots.PairTrading
 {
@@ -217,6 +210,8 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
             wereWeUpBollinger = false;
             indexIsSell = false;
             indexIsBuy = false;
+            stopUp = decimal.MaxValue; 
+            stopDown = decimal.MinValue;
         }
 
         #endregion end TradeLogic ==============================
@@ -325,7 +320,7 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
         /// линия  нижнего стопа 
         /// </summary>
         //private Line _stopDownLevelLine;
-  
+
         /// <summary>
         /// цена верхнего болинжера
         /// </summary>
@@ -373,12 +368,12 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
         /// <summary>
         /// стоп верхний
         /// </summary>
-        private decimal stopUp= decimal.MaxValue;
+        private decimal stopUp = decimal.MaxValue;
 
         /// <summary>
         /// стоп нижний
         /// </summary>
-        private decimal stopDown=decimal.MinValue;
+        private decimal stopDown = decimal.MinValue;
 
 
 
