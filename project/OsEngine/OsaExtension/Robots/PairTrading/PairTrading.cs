@@ -126,11 +126,17 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
             }
 
             // если ушли за стоп болинжер
-            if ((indexIsBuy && currentIndexPrice > stopUp)
-                || (indexIsSell && currentIndexPrice < stopDown))
+            if (indexIsSell && currentIndexPrice > stopUp) 
             {
+                SendNewLogMessage("happened stop Up " + stopUp.ToString(), LogMessageType.NoName);
                 CloseAllPositions();
             }
+            if (indexIsBuy && currentIndexPrice < stopDown)
+            {
+                SendNewLogMessage("happened stop Down " + stopDown.ToString(), LogMessageType.NoName);
+                CloseAllPositions();
+            }
+
 
 
 
@@ -210,7 +216,7 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
             wereWeUpBollinger = false;
             indexIsSell = false;
             indexIsBuy = false;
-            stopUp = decimal.MaxValue; 
+            stopUp = decimal.MaxValue;
             stopDown = decimal.MinValue;
         }
 
