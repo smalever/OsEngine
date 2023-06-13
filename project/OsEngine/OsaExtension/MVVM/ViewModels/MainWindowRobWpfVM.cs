@@ -39,7 +39,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         public static ChengeEmitendWidow ChengeEmitendWidow = null;
 
-  
+        /// <summary>
+        /// поле менеджера роботов
+        /// </summary>        
         OsTraderMaster _master = new OsTraderMaster(StartProgram.IsOsTrader);
 
         #region Property ==================================================================
