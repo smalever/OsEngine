@@ -15,7 +15,7 @@
                     Command="{Binding CommandDeleteBot}"
                     CommandParameter="{Binding Header}">
             </Button>
-            <Button Content="УПараметры робота"
+            <Button Content="Параметры робота"
                     Command="{Binding CommandIndividualParamsBot}"
                     CommandParameter="{Binding Header}">
             </Button>
