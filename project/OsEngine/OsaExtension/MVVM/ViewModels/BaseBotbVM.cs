@@ -170,9 +170,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             for (int i = 0; i < count; i++)
             {
                 if (ListBots[i].NameStrategyUniq == nameBot )
-                {
-                    //OsTraderMaster osTraderMaster = new OsTraderMaster(StartProgram.IsOsTrader);
-                    //osTraderMaster._activPanel = ListBots[i];
+                {                    
+                    OsTraderMaster.Master._activPanel = ListBots[i];
                     OsTraderMaster.Master.BotShowParametrsDialog();
                     break;
                 }
