@@ -112,6 +112,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
         private decimal _price;
 
+        /// <summary>
+        /// список BotPanels 
+        /// </summary>
+        List<BotPanel> ListBots = OsTraderMaster.Master.PanelsArray;
+
         private DelegateCommand _commandSelectSecurity;
         public DelegateCommand CommandSelectSecurity
         {
@@ -141,6 +146,35 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             MainWindowRobWpfVM.ChengeEmitendWidow = null;
   
         }
+
+        private DelegateCommand _individualParamsBot;
+        public DelegateCommand CommandIndividualParamsBot
+        {
+            get
+            {
+                if (_individualParamsBot == null)
+                {
+                    _individualParamsBot = new DelegateCommand(ParamsBot);
+                }
+                return _individualParamsBot;
+            }
+        }
+        void ParamsBot(object o)
+        {
+            string nameBot = (string)o;
+
+            int count = ListBots.Count;
+
+            for (int i = 0; i < count; i++)
+            {
+                if (ListBots[i].NameStrategyUniq == nameBot)
+                {
+                    OsTraderMaster.Master.BotShowParametrsDialog();
+                    break;
+                }
+            }
+        }
+
         private DelegateCommand _commandDeleteBot;
         public DelegateCommand CommandDeleteBot
         {
@@ -160,11 +194,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         void DeleteBot(object o)
         {
             string nameBot = (string)o;
-      
-            /// <summary>
-            /// список BotPanels 
-            /// </summary>
-            List<BotPanel> ListBots = OsTraderMaster.Master.PanelsArray;
+  
             int count = ListBots.Count;
  
             for (int i = 0; i < count; i++)
