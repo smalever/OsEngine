@@ -2,6 +2,7 @@
 using OsEngine.Market;
 using OsEngine.Market.Servers;
 using OsEngine.OsaExtension.MVVM.Commands;
+using OsEngine.OsaExtension.MVVM.Models;
 using OsEngine.OsaExtension.MVVM.View;
 using OsEngine.OsTrader;
 using OsEngine.OsTrader.Panels;
@@ -159,6 +160,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 return _individualParamsBot;
             }
         }
+       
         void ParamsBot(object o)
         {
             string nameBot = (string)o;
@@ -167,8 +169,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             for (int i = 0; i < count; i++)
             {
-                if (ListBots[i].NameStrategyUniq == nameBot)
+                if (ListBots[i].NameStrategyUniq == nameBot )
                 {
+                    //OsTraderMaster osTraderMaster = new OsTraderMaster(StartProgram.IsOsTrader);
+                    //osTraderMaster._activPanel = ListBots[i];
                     OsTraderMaster.Master.BotShowParametrsDialog();
                     break;
                 }
