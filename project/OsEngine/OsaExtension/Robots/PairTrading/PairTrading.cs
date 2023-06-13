@@ -4,8 +4,10 @@ using OsEngine.Logging;
 using OsEngine.OsTrader.Panels;
 using OsEngine.OsTrader.Panels.Attributes;
 using OsEngine.OsTrader.Panels.Tab;
+using ru.micexrts.cgate.message;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace OsEngine.OsaExtension.Robots.PairTrading
 {
@@ -46,7 +48,7 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
             _bollingerEntry.ColorDown = System.Drawing.Color.LightBlue;
             _bollingerEntry.Lenght = BollingerEntryLength.ValueInt;
             _bollingerEntry.Deviation = BollingerEntryDeviation.ValueDecimal;
-            //_bollingerEntry.Save();
+            _bollingerEntry.Save();
 
             // добавим боллинжер для стопов
             BollingerStopLength = CreateParameter("BollingerStop Length", 720, 100, 10000, 20);
@@ -57,7 +59,7 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
             _bollingerStop.ColorDown = System.Drawing.Color.Red;
             _bollingerStop.Lenght = BollingerStopLength.ValueInt;
             _bollingerStop.Deviation = BollingerStopDeviation.ValueDecimal;
-            //_bollingerStop.Save();
+            _bollingerStop.Save();
 
             // добавим MA центр болинжера
             _moving = new MovingAverage(name + "Moving", false);
@@ -82,6 +84,13 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
 
             #endregion конец подготовка вкладки ===================================
 
+
+
+            // на будующее создавать список нужных полей для вывода его в обзорную  вьюшку
+            //List<String> listForOut = new List<String>();
+
+            //listForOut.Add(bollingerEntryLastPriceUp.ToString());
+            //listForOut.Add(moving.ToString());
 
 
 
@@ -126,7 +135,7 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
             }
 
             // если ушли за стоп болинжер
-            if (indexIsSell && currentIndexPrice > stopUp) 
+            if (indexIsSell && currentIndexPrice > stopUp)
             {
                 SendNewLogMessage("happened stop Up " + stopUp.ToString(), LogMessageType.NoName);
                 CloseAllPositions();
@@ -149,18 +158,22 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
             if (currentIndexPrice < bollingerEntryLastPriceUp
                 && wereWeUpBollinger)
             {
-                _lotEntrySize = VolumeInDollars.ValueDecimal / _tab1.PriceCenterMarketDepth;
+                _lotEntrySize = СalculationVolumePosition(_tab1, VolumeInDollars.ValueDecimal);
+                //_lotEntrySize = VolumeInDollars.ValueDecimal / _tab1.PriceCenterMarketDepth;
                 _tab1.SellAtMarket(_lotEntrySize);
+                PrinTextDebug("размер лота _tab1.SellAtMarket " + _lotEntrySize);
 
-                _lotEntrySize = VolumeInDollars.ValueDecimal / _tab2.PriceCenterMarketDepth;
+                _lotEntrySize = СalculationVolumePosition(_tab2, VolumeInDollars.ValueDecimal);
+                //_lotEntrySize = VolumeInDollars.ValueDecimal / _tab2.PriceCenterMarketDepth;
                 _tab2.BuyAtMarket(_lotEntrySize);
+                PrinTextDebug("размер лота _tab2.SellAtMarket " + _lotEntrySize);
 
                 wereWeUpBollinger = false;
                 indexIsSell = true;
                 stopUp = _bollingerStop.ValuesUp[_bollingerStop.ValuesUp.Count - 1];
 
                 SendNewLogMessage("stopUp " + stopUp.ToString(), LogMessageType.NoName);
-                //MessageBox.Show("stopUp " + stopUp.ToString());
+                PrinTextDebug("stopUp " + stopUp.ToString());
 
                 // нарисуем линию стопа 
                 //_stopUpLevelLine.Value = stopUp;
@@ -172,18 +185,24 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
             if (currentIndexPrice > bollingerEntryLastPriceDown
                 && wereWeDownBollinger)
             {
-                _lotEntrySize = VolumeInDollars.ValueDecimal / _tab1.PriceCenterMarketDepth;
+                _lotEntrySize = СalculationVolumePosition(_tab1, VolumeInDollars.ValueDecimal);
+                //_lotEntrySize = VolumeInDollars.ValueDecimal / _tab1.PriceCenterMarketDepth;
                 _tab1.BuyAtMarket(_lotEntrySize);
+                PrinTextDebug("размер лота _tab1.BuyAtMarket " + _lotEntrySize);
 
-                _lotEntrySize = VolumeInDollars.ValueDecimal / _tab2.PriceCenterMarketDepth;
+
+                _lotEntrySize = СalculationVolumePosition(_tab2, VolumeInDollars.ValueDecimal);
+                //_lotEntrySize = VolumeInDollars.ValueDecimal / _tab2.PriceCenterMarketDepth;
                 _tab2.SellAtMarket(_lotEntrySize);
+                PrinTextDebug("размер лота _tab2.BuyAtMarket " + _lotEntrySize);
+
 
                 wereWeDownBollinger = false;
                 indexIsBuy = true;
                 stopDown = _bollingerStop.ValuesDown[_bollingerStop.ValuesDown.Count - 1];
 
                 SendNewLogMessage("stopDown " + stopDown.ToString(), LogMessageType.NoName);
-                //MessageBox.Show("stopDown " + stopDown.ToString());
+                PrinTextDebug("stopDown " + stopDown.ToString());
 
                 // нарисуем линию входа 
                 //_stopDownLevelLine.Value = stopDown;
@@ -243,6 +262,47 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
 
             Trade(candles);
         }
+
+        /// <summary>
+        /// пересчитывает значение с вкладки BotTabSimple _tabSimp из долларов decimal baks в необходимое количество монет 
+        /// </summary>
+        /// <param name="_tabSimp"> вкладка </param>
+        private decimal СalculationVolumePosition(BotTabSimple _tabSimp, decimal baks)
+        {
+            if (_tabSimp.StartProgram == StartProgram.IsTester)
+            {
+                return Rounding(baks / _tabSimp.PriceCenterMarketDepth, _tabSimp.Securiti.DecimalsVolume);
+            }
+            if (_tabSimp.IsConnected && _tabSimp.StartProgram == StartProgram.IsOsTrader)
+            {
+                return Rounding(baks / _tabSimp.PriceCenterMarketDepth, _tabSimp.Securiti.DecimalsVolume);
+
+            }
+            else return 0;
+        }
+
+        /// <summary>
+        /// округляет decimal value до int numbers чисел после запятой
+        /// </summary>
+        public decimal Rounding(decimal value, int numbers)
+        {
+            return decimal.Round(value, numbers, MidpointRounding.ToEven);
+            //return chah;
+        }
+
+        /// <summary>
+        /// вывод в дебаг текста 
+        /// </summary>
+        public static void PrinTextDebug(string text, string secondLine = "")
+        {
+            string Time = DateTime.Now.ToString("hh:mm:ss:ffff");
+            string str = Time + " \n " 
+                + text + " \n "
+                + secondLine + " " + "\n";
+            Debug.WriteLine(str);
+        }
+
+
 
         private void _tab1_CandleFinishedEvent(List<Candle> list)
         {
