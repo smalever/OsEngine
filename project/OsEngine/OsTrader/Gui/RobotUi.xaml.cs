@@ -198,9 +198,12 @@ namespace OsEngine.OsTrader.Gui
             _strategyKeeper.BotSellMarket(volume);
         }
 
-// manual control of the position
-// ручное управление позицией
+        // manual control of the position
+        // ручное управление позицией
 
+        /// <summary>
+        /// индивидуальные настройки торговли робота
+        /// </summary>
         private void ButtonStrategIndividualSettings_Click(object sender, RoutedEventArgs e)
         {
             _strategyKeeper.BotIndividualSettings();

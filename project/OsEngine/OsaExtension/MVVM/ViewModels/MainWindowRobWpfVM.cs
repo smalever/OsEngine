@@ -2,6 +2,7 @@
 using OsEngine.Market;
 using OsEngine.Market.Servers;
 using OsEngine.OsaExtension.MVVM.Commands;
+using OsEngine.OsaExtension.MVVM.Models;
 using OsEngine.OsaExtension.MVVM.View;
 using OsEngine.OsTrader;
 using OsEngine.OsTrader.Gui;
@@ -15,6 +16,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 
 namespace OsEngine.OsaExtension.MVVM.ViewModels
@@ -23,10 +25,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
     /// VM для главного окна с роботами WPF
     /// </summary>
     public class MainWindowRobWpfVM : BaseVM
-    {
+    { 
+
         public MainWindowRobWpfVM() 
         {
-            Init();
+            BotPanelsManager tabManager = new BotPanelsManager();
+            _master = OsTraderMaster.Master;
+            
         }
 
         /// <summary>
@@ -34,12 +39,44 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         public static ChengeEmitendWidow ChengeEmitendWidow = null;
 
+        /// <summary>
+        /// поле менеджера роботов
+        /// </summary>        
+        OsTraderMaster _master = new OsTraderMaster(StartProgram.IsOsTrader);
+
         #region Property ==================================================================
 
+
         /// <summary>
-        /// Коллекция с роботами
+        /// ВМ-ки роботов
         /// </summary>
-        public ObservableCollection<IRobotVM> Robots { get; set; } = new ObservableCollection<IRobotVM>();
+        public static ObservableCollection<IRobotVM> Robots
+        { 
+            get
+            {                
+                return _robots;
+            }  
+            set
+            {
+                _robots = value;         
+            } 
+        }
+        private static ObservableCollection<IRobotVM> _robots = new ObservableCollection<IRobotVM>();
+
+        /// <summary>
+        /// Коллекция с BotPanel осы
+        /// </summary>
+        public static ObservableCollection<BotPanel> BotPanels 
+        {
+            get => _botPanels;
+            set
+            {     
+                _botPanels = value;
+
+                //OnPropertyChanged(nameof(BotPanels)); 
+            }
+        }         
+        private static ObservableCollection<BotPanel> _botPanels = new ObservableCollection<BotPanel>();
 
         #endregion
 
@@ -105,45 +142,22 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             ServerMaster.ShowDialog(false);
         }
-        /// <summary>
-        /// поле содеражащие роботов
-        /// </summary>
-        private OsTraderMaster _botTradeMaster;
 
         /// <summary>
         /// для тестов 
         /// </summary>
         void TestMetod(object o) 
         {
-            var bots = _botTradeMaster.PanelsArray; // взяли из менеджера список панелей
-
-            var rob = new TestRobVM(); // создал экземпляр въюхи робота
-
-            rob.Header = bots[0].TabsSimple[0].TabName; // присвоил заголовку имя 
-
-            Robots.Add(rob);// отправил экземпляр в колекцию 
-
-            /// FYUYFYF
-    
+            
         }
+
         /// <summary>
-        /// создать робота 
+        /// создать робота кнопка на гл окне
         /// </summary>
         void СreateBot(object o)
         {
-            СreateBot();
-        }
-        void СreateBot()
-        {
-            _botTradeMaster.CreateNewBot();
-        }
-        /// <summary>
-        /// инициализация менеджера управления роботами
-        /// </summary>
-        void Init()
-        {
-            _botTradeMaster = new OsTraderMaster(StartProgram.IsOsTrader);
-        }
+            _master.CreateNewBot();            
+        }   
 
         public delegate void selectedSecurity();
         public event selectedSecurity OnSelectedSecurity;
