@@ -32,7 +32,7 @@
         </StackPanel>
         <TabControl ItemsSource="{Binding Robots}" Margin="1,35,1,-35">
             <TabControl.Resources>
-                <DataTemplate DataType="{x:Type vm:BaseBotbVM}">
+                <DataTemplate DataType="{x:Type vm:BaseBotVM}">
                     <local:BaseRobot>
                         
                     </local:BaseRobot>

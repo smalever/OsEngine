@@ -838,7 +838,7 @@
     <Compile Include="OsaExtension\MVVM\ViewModels\ChangeEmitentVM.cs" />
     <Compile Include="OsaExtension\MVVM\ViewModels\IRobotVM.cs" />
     <Compile Include="OsaExtension\MVVM\ViewModels\MainWindowRobWpfVM.cs" />
-    <Compile Include="OsaExtension\MVVM\ViewModels\BaseBotbVM.cs" />
+    <Compile Include="OsaExtension\MVVM\ViewModels\BaseBotVM.cs" />
     <Compile Include="OsaExtension\MVVM\View\ChengeEmitendWidow.xaml.cs">
       <DependentUpon>ChengeEmitendWidow.xaml</DependentUpon>
     </Compile>
