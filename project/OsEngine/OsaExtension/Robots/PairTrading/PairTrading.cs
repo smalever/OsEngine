@@ -12,7 +12,6 @@ using System.Diagnostics;
 namespace OsEngine.OsaExtension.Robots.PairTrading
 {
     [Bot("PairTrading")]
-
     internal class PairTrading : BotPanel
     {
 
@@ -31,7 +30,7 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
             TabCreate(BotTabType.Index);
             _tabIndex = TabsIndex[0];
             _tabIndex.SpreadChangeEvent += _tabIndex_SpreadChangeEvent;
-            // надо сделать авто заполнение формулы спреда и самих бумаг при создании бота
+            // todo: надо сделать авто заполнение формулы спреда и самих бумаг при создании бота
             _tabIndex.UserFormula = "A0/A1";
 
             Regime = CreateParameter("Regime", "On", new[] { "Off", "On" });
@@ -86,7 +85,7 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
 
 
 
-            // на будующее создавать список нужных полей для вывода его в обзорную  вьюшку
+            // todo: на будующее создавать список нужных полей для вывода его в обзорную  вьюшку
             //List<String> listForOut = new List<String>();
 
             //listForOut.Add(bollingerEntryLastPriceUp.ToString());

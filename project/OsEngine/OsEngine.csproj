@@ -847,6 +847,7 @@
     <Compile Include="OsaExtension\MVVM\View\TestRobot.xaml.cs">
       <DependentUpon>TestRobot.xaml</DependentUpon>
     </Compile>
+    <Compile Include="OsaExtension\Robots\InterstockArbitrage\InterstockArbitrage.cs" />
     <Compile Include="OsaExtension\Robots\meshOnSMA\meshOnSMA.cs" />
     <Compile Include="OsaExtension\Robots\OldRobots\IlanMartin.cs" />
     <Compile Include="OsaExtension\Robots\OldRobots\MartinBollinger.cs" />
