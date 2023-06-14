@@ -103,7 +103,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// инициализация свойст робота 
         /// </summary>
-        void InitPropertiesBot()
+        void InitPropertiesBot() // TODO: КОРЯВО РАБОТАЕТ 
         {         
             int count = ListBotPanels.Count;
 
