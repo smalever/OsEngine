@@ -65,7 +65,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
         }
 
         /// <summary>
-        /// инициализация полей BotPanel
+        /// инициализация полей BotPanel ////
         /// </summary> 
         public void InitSetingBotPanel()
         {//TODO: нужно изменить алгоритм добавления и удаления панелей по имени, что бы не переписывать весь список 
