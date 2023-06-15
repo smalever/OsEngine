@@ -848,10 +848,12 @@
     <Compile Include="OsaExtension\MVVM\View\BaseRobot.xaml.cs">
       <DependentUpon>BaseRobot.xaml</DependentUpon>
     </Compile>
+    <Compile Include="OsaExtension\Robots\InterstockArbitrage\InterstockArbitrage.cs" />
     <Compile Include="OsaExtension\Robots\meshOnSMA\meshOnSMA.cs" />
     <Compile Include="OsaExtension\Robots\OldRobots\IlanMartin.cs" />
     <Compile Include="OsaExtension\Robots\OldRobots\MartinBollinger.cs" />
     <Compile Include="OsaExtension\Robots\OldRobots\MartinSMA.cs" />
+    <Compile Include="OsaExtension\Robots\OldRobots\TwoLegsBot.cs" />
     <Compile Include="OsaExtension\Robots\PairTrading\PairTrading.cs" />
     <Compile Include="OsConverter\OsCandleConverterUi.xaml.cs">
       <DependentUpon>OsCandleConverterUi.xaml</DependentUpon>
@@ -969,6 +971,7 @@
     <Compile Include="Robots\AutoTestBots\TestBotConnectionParams.xaml.cs">
       <DependentUpon>TestBotConnectionParams.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Robots\AutoTestBots\TestBotOpenAndCanselOrders.cs" />
     <Compile Include="Robots\BotFactory.cs" />
     <Compile Include="Robots\CounterTrend\ClusterCountertrend.cs" />
     <Compile Include="Robots\OnScriptIndicators\GridSample.cs" />
