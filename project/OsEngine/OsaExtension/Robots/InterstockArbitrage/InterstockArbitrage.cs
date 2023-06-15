@@ -40,11 +40,6 @@ namespace OsEngine.OsaExtension.Robots.InterstockArbitrage
 
 
 
-
-
-
-
-
         #region TradeLogic ==============================
         private void Trade()
         {
