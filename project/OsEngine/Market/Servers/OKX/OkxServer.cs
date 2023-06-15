@@ -11,6 +11,8 @@ using System.Net.Http;
 using System.Threading;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
+using OsEngine.Market.Servers.Hitbtc;
+using System.Diagnostics;
 
 namespace OsEngine.Market.Servers.OKX
 {
@@ -53,7 +55,6 @@ namespace OsEngine.Market.Servers.OKX
 
         public void Connect()
         {
-            marketDepthSupports.Clear();
             if (_client == null)
             {
                 _client = new OkxClient(
@@ -78,6 +79,8 @@ namespace OsEngine.Market.Servers.OKX
 
         public void Dispose()
         {
+            _subscribledSecurities.Clear();
+
             if (_client != null)
             {
                 _client.Dispose();
@@ -126,31 +129,25 @@ namespace OsEngine.Market.Servers.OKX
             }
         }
 
+        private List<Security> _subscribledSecurities = new List<Security>();
+
         public void Subscrible(Security security)
         {
-
-            var support = marketDepthSupports.Find(sup => sup.SecurityNameCode.Equals(security.Name));
-
-            if (support == null)
+            for(int i = 0;i < _subscribledSecurities.Count;i++)
             {
-                marketDepthSupports.Add(new MarketDepth()
+                if (_subscribledSecurities[i].Name ==  security.Name 
+                    && _subscribledSecurities[i].NameClass == security.NameClass)
                 {
-                     SecurityNameCode = security.Name,
-                      Asks = new List<MarketDepthLevel>(),
-                       Bids = new List<MarketDepthLevel>(),
-                        Time = DateTime.UtcNow
-
-                });
+                    return;
+                }
             }
 
-            //_client.SetLeverage(security);
+            _subscribledSecurities.Add(security);
 
             _client._rateGateWebSocket.WaitToProceed();
 
             _client.SubscribleTrades(security);
             _client.SubscribleDepths(security);
-            //_client.SubscriblePositions(security);
-            //_client.SubscribleOrders(security);
         }
 
         #region Trade
@@ -217,8 +214,6 @@ namespace OsEngine.Market.Servers.OKX
                 }
             }
         }
-
-
 
         private RateGate _rateGateGenerateToTrate = new RateGate(1, TimeSpan.FromMilliseconds(300));
 
@@ -338,7 +333,7 @@ namespace OsEngine.Market.Servers.OKX
 
         public void GetOrdersState(List<Order> orders)
         {
-            _client.GetOrdersState(orders);
+            
         }
 
         public void SendOrder(Order order)
@@ -350,11 +345,12 @@ namespace OsEngine.Market.Servers.OKX
 
         #region Ticks
 
-        private object newTradelocked = new object();
+        private string _newTradelocked = "okxNewTradesLocker";
+
         private void _client_NewTradesEvent(TradeResponse tradeRespone)
         {
 
-            lock (newTradelocked)
+            lock (_newTradelocked)
             {
                 if (tradeRespone.data == null)
                 {
@@ -372,6 +368,7 @@ namespace OsEngine.Market.Servers.OKX
                 trade.Id = tradeRespone.data[0].tradeId;
                 trade.Time = TimeManager.GetDateTimeFromTimeStamp(Convert.ToInt64(tradeRespone.data[0].ts));
                 trade.Volume = tradeRespone.data[0].sz.ToDecimal();
+
                 if (tradeRespone.data[0].side.Equals("buy"))
                 {
                     trade.Side = Side.Buy;
@@ -392,7 +389,7 @@ namespace OsEngine.Market.Servers.OKX
 
         private List<MarketDepth> _depths;
 
-        private object _depthLocker = new object();
+        private string _depthLocker = "okxNewMdLocker";
 
         private void _client_UpdateMarketDepth(DepthResponse depthResponse)
         {
@@ -411,41 +408,40 @@ namespace OsEngine.Market.Servers.OKX
                         return;
                     }
 
-                    var needDepth = _depths.Find(depth => depth.SecurityNameCode == depthResponse.arg.instId);
+                    string secName = depthResponse.arg.instId;
+
+                    var needDepth = _depths.Find(depth => depth.SecurityNameCode == secName);
 
                     if (needDepth == null)
                     {
                         needDepth = new MarketDepth();
-                        needDepth.SecurityNameCode = depthResponse.arg.instId;
+                        needDepth.SecurityNameCode = secName;
                         _depths.Add(needDepth);
                     }
+
 
                     List<MarketDepthLevel> ascs = new List<MarketDepthLevel>();
                     List<MarketDepthLevel> bids = new List<MarketDepthLevel>();
 
                     for (int i = 0; i < depthResponse.data[0].asks.Count; i++)
                     {
-                        ascs.Add(new MarketDepthLevel()
-                        {
-                            Ask =
-                                depthResponse.data[0].asks[i][1].ToString().ToDecimal()
-                            ,
-                            Price =
-                                depthResponse.data[0].asks[i][0].ToString().ToDecimal()
+                        MarketDepthLevel level = new MarketDepthLevel();
 
-                        });
+                        level.Ask = depthResponse.data[0].asks[i][1].ToString().ToDecimal();
+
+                        level.Price = depthResponse.data[0].asks[i][0].ToString().ToDecimal();
+                        ascs.Add(level);
                     }
 
                     for (int i = 0; i < depthResponse.data[0].bids.Count; i++)
                     {
-                        bids.Add(new MarketDepthLevel()
-                        {
-                            Bid =
-                                depthResponse.data[0].bids[i][1].ToString().ToDecimal()
-                            ,
-                            Price =
-                                depthResponse.data[0].bids[i][0].ToString().ToDecimal()
-                        });
+                        MarketDepthLevel level = new MarketDepthLevel();
+
+                        level.Bid = depthResponse.data[0].bids[i][1].ToString().ToDecimal();
+
+                        level.Price = depthResponse.data[0].bids[i][0].ToString().ToDecimal();
+
+                        bids.Add(level);
                     }
 
                     needDepth.Asks = ascs;
@@ -458,7 +454,7 @@ namespace OsEngine.Market.Servers.OKX
                         return;
                     }
 
-                    needDepth = RefreshDepthSupport(needDepth, depthResponse.arg.instId);
+                    //needDepth = RefreshDepthSupport(needDepth, depthResponse.arg.instId);
 
                     if (MarketDepthEvent != null)
                     {
@@ -508,6 +504,7 @@ namespace OsEngine.Market.Servers.OKX
         }
 
         List<Portfolio> _portfolios = new List<Portfolio>();
+
         private void _client_UpdatePortfolio(PorfolioResponse portfs)
         {
             _client_NewPortfolio(portfs);
@@ -543,8 +540,8 @@ namespace OsEngine.Market.Servers.OKX
                 {
                     PositionOnBoard newPortf = new PositionOnBoard();
                     newPortf.SecurityNameCode = portfs.data[0].details[i].ccy;
-                    newPortf.ValueBegin = portfs.data[0].details[i].availEq.ToDecimal();
-                    newPortf.ValueCurrent = portfs.data[0].details[i].availEq.ToDecimal();
+                    newPortf.ValueBegin = portfs.data[0].details[i].availBal.ToDecimal();
+                    newPortf.ValueCurrent = portfs.data[0].details[i].availBal.ToDecimal();
                     newPortf.ValueBlocked = portfs.data[0].details[i].frozenBal.ToDecimal();
 
 
@@ -590,6 +587,7 @@ namespace OsEngine.Market.Servers.OKX
             {
                 SecurityResponceItem item = securityResponce.data[i];
 
+                Security security = new Security();
 
                 SecurityType securityType = SecurityType.CurrencyPair;
 
@@ -598,8 +596,16 @@ namespace OsEngine.Market.Servers.OKX
                     securityType = SecurityType.Futures;
                 }
 
+                security.Lot = item.minSz.ToDecimal();
 
-                Security security = new Security();
+                string volStep = item.minSz.Replace(',', '.');
+
+                if (volStep != null
+                        && volStep.Length > 0 &&
+                        volStep.Split('.').Length > 1)
+                {
+                    security.DecimalsVolume = volStep.Split('.')[1].Length;
+                }
 
                 if (securityType == SecurityType.CurrencyPair)
                 {
@@ -614,10 +620,9 @@ namespace OsEngine.Market.Servers.OKX
                     security.NameClass = "SWAP";
                 }
 
-
                 security.NameId = item.instId;
                 security.SecurityType = securityType;
-                security.Lot = item.lotSz.ToDecimal();
+
                 security.PriceStep = item.tickSz.ToDecimal();
                 security.PriceStepCost = security.PriceStep;
 
@@ -729,51 +734,5 @@ namespace OsEngine.Market.Servers.OKX
 
         #endregion
 
-        #region AgreegateMarketDepth
-
-        private List<MarketDepth> marketDepthSupports = new List<MarketDepth>();
-        private MarketDepth RefreshDepthSupport(MarketDepth depth, string SecName)
-        {
-            var FullDepth = marketDepthSupports.Find(depth => depth.SecurityNameCode.Equals(SecName));
-            try
-            {
-
-
-                for (int i = 0; i < depth.Asks.Count && i <= 40; i++)
-                {
-                    if (FullDepth.Asks.Count < i + 1)
-                    {
-                        FullDepth.Asks.Add(depth.Asks[i]);
-                    }
-                    else
-                    {
-                        FullDepth.Asks[i] = depth.Asks[i];
-                    }
-                }
-
-                for (int i = 0; i < depth.Bids.Count && i <= 40; i++)
-                {
-                    if (FullDepth.Bids.Count < i + 1)
-                    {
-                        FullDepth.Bids.Add(depth.Bids[i]);
-                    }
-                    else
-                    {
-                        FullDepth.Bids[i] = depth.Bids[i];
-                    }
-
-                }
-
-                FullDepth.Time = depth.Time;
-            }
-            catch (Exception exeption)
-            {
-                SendLogMessage(exeption.StackTrace + " " + exeption.Message, LogMessageType.Error);
-            }
-
-            return FullDepth;
-        }
-
-        #endregion
     }
 }
