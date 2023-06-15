@@ -847,10 +847,12 @@
     <Compile Include="OsaExtension\MVVM\View\TestRobot.xaml.cs">
       <DependentUpon>TestRobot.xaml</DependentUpon>
     </Compile>
+    <Compile Include="OsaExtension\Robots\InterstockArbitrage\InterstockArbitrage.cs" />
     <Compile Include="OsaExtension\Robots\meshOnSMA\meshOnSMA.cs" />
     <Compile Include="OsaExtension\Robots\OldRobots\IlanMartin.cs" />
     <Compile Include="OsaExtension\Robots\OldRobots\MartinBollinger.cs" />
     <Compile Include="OsaExtension\Robots\OldRobots\MartinSMA.cs" />
+    <Compile Include="OsaExtension\Robots\OldRobots\TwoLegsBot.cs" />
     <Compile Include="OsaExtension\Robots\PairTrading\PairTrading.cs" />
     <Compile Include="OsConverter\OsCandleConverterUi.xaml.cs">
       <DependentUpon>OsCandleConverterUi.xaml</DependentUpon>
