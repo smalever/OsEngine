@@ -42,79 +42,59 @@ namespace OsEngine.OsaExtension.Robots.InterstockArbitrage
 
         #region TradeLogic ==============================
         private void Trade()
+
         {
             // знаки после запятой приравняем
-            decimal numberOfDigits1 = _tab1.Securiti.DecimalsVolume;
-            decimal numberOfDigits2 = _tab2.Securiti.DecimalsVolume;
-
-            if (numberOfDigits1 > numberOfDigits2)
+            if (_tab1.Securiti.DecimalsVolume != _tab2.Securiti.DecimalsVolume)
             {
-                numberOfDigits1 = numberOfDigits2;
-            }
-            if (numberOfDigits2 > numberOfDigits1)
-            {
-                numberOfDigits2 = numberOfDigits1;
+                SendNewLogMessage("_tab1.Securiti.DecimalsVolume " + _tab1.Securiti.DecimalsVolume
+                    + '\n'
+                    + "_tab2.Securiti.DecimalsVolume " + _tab2.Securiti.DecimalsVolume
+                    + '\n'
+                    + "number of characters DIFFERENTLY !!! "
+                    + '\n'
+                    , LogMessageType.NoName
+                    );
+                return;
             }
 
-            decimal _lotEntrySize = СalculationVolumePosition(_tab1, VolumeInDollars.ValueDecimal);
+
+
+
+
+            //_tab1.Securiti.PriceStep != _tab2.Securiti.PriceStep
+            //decimal numberOfDigits1 = _tab1.Securiti.DecimalsVolume;
+            //decimal numberOfDigits2 = _tab2.Securiti.DecimalsVolume;
+            //if (numberOfDigits1 > numberOfDigits2)
+            //{
+            //    numberOfDigits1 = numberOfDigits2;
+            //}
+            //if (numberOfDigits2 > numberOfDigits1)
+            //{
+            //    numberOfDigits2 = numberOfDigits1;
+            //}
+            //decimal _lotEntrySize = СalculationVolumePosition(_tab1, VolumeInDollars.ValueDecimal);
             //_tab1.SellAtMarket(_lotEntrySize);
             //PrinTextDebug("размер лота _tab1.SellAtMarket " + _lotEntrySize);
-
-            decimal price1sell = _tab1.PriceBestAsk;
-            decimal price2buy = _tab2.PriceBestBid;
             // buy1 > sell2
-            decimal spread = price2buy - price1sell;
-
-            if (spread > 0.00001m)
-            {
+            //decimal spread = _tab2.PriceBestBid - _tab2.PriceBestBid;
+            //if (spread > 0.00001m)
+            //{
                 //PrinTextDebug("spread " + spread + '\n'
                 //    + " price1sell " + price1sell);
-
-
                 // buy price1
                 // sell price2
                 //_tab1.BuyAtLimit(_lotEntrySize, _tab1.PriceBestAsk);
                 //_tab2.SellAtLimit(_lotEntrySize, _tab2.PriceBestBid);
-
-
-                SendNewLogMessage("_lotEntrySize " + _lotEntrySize
-                    + '\n'
-                    + " _tab1.BuyAtLimit " + price1sell
-                    + '\n'
-                    + " _tab2.SellAtLimit " + price2buy
-                    + '\n'
-                    + " spread " + spread, LogMessageType.NoName
-                    );
-            }
-
-
-
-
-            price1sell = _tab1.PriceBestAsk;
-            price2buy = _tab2.PriceBestBid;
-            // buy < sell
-            spread = price1sell - price2buy;
-
-            if (spread > 0.00001m)
-            {
-                // buy  price2
-                // sell price1
-                //_tab1.SellAtLimit(_lotEntrySize, _tab1.PriceBestBid);
-                //_tab2.BuyAtLimit(_lotEntrySize, _tab2.PriceBestAsk);
-
-
-                SendNewLogMessage("_lotEntrySize " + _lotEntrySize
-                    + '\n'
-                    + " SellAtLimit " + price1sell
-                    + '\n'
-                    + " _tab2.SellAtLimit " + price2buy
-                    + '\n'
-                    + " spread " + spread, LogMessageType.NoName
-                    );
-
-
-            }
-
+                //SendNewLogMessage("_lotEntrySize " + _lotEntrySize
+                //    + '\n'
+                //    + " _tab1.BuyAtLimit " + price1sell
+                //    + '\n'
+                //    + " _tab2.SellAtLimit " + price2buy
+                //    + '\n'
+                //    + " spread " + spread, LogMessageType.NoName
+                //    );
+            //}
 
 
 
@@ -129,43 +109,27 @@ namespace OsEngine.OsaExtension.Robots.InterstockArbitrage
 
         #region Methods ==============================
 
-        private void _tab1_BestBidAskChangeEvent(decimal arg1, decimal arg2)
+        private void _tab1_BestBidAskChangeEvent(decimal currentBestBid, decimal currentBestAsk)
         {
             // если не разрешено торговать то возврат
             if (Regime.ValueString == "Off") { return; }
             // вкладки не готовы 
             if (_tab1.IsReadyToTrade == false || _tab2.IsReadyToTrade == false)
             { return; }
-
-
             Trade();
         }
 
 
-        private void _tab2_BestBidAskChangeEvent(decimal arg1, decimal arg2)
+        private void _tab2_BestBidAskChangeEvent(decimal currentBestBid, decimal currentBestAsk)
         {
             // если не разрешено торговать то возврат
             if (Regime.ValueString == "Off") { return; }
             // вкладки не готовы 
             if (_tab1.IsReadyToTrade == false || _tab2.IsReadyToTrade == false)
             { return; }
-
-
             Trade();
         }
 
-        //private void _tabIndex_SpreadChangeEvent(List<Candle> candles)
-        //{
-        //    // если не разрешено торговать то возврат
-        //    if (Regime.ValueString == "Off") { return; }
-        //    // вкладки не готовы 
-        //    if (_tab1.IsReadyToTrade == false || _tab2.IsReadyToTrade == false)
-        //    { return; }
-
-
-        //    Trade(candles);
-
-        //}
 
         /// <summary>
         /// пересчитывает значение с вкладки BotTabSimple _tabSimp из долларов decimal baks в необходимое количество монет 
