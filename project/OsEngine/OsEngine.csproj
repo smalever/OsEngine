@@ -855,6 +855,10 @@
     <Compile Include="OsaExtension\Robots\OldRobots\MartinSMA.cs" />
     <Compile Include="OsaExtension\Robots\OldRobots\TwoLegsBot.cs" />
     <Compile Include="OsaExtension\Robots\PairTrading\PairTrading.cs" />
+    <Compile Include="OsaExtension\Robots\ParabolTrell\ParaboTrel.cs" />
+    <Compile Include="OsaExtension\Robots\ParabolTrell\ParaboTrelUi.xaml.cs">
+      <DependentUpon>ParaboTrelUi.xaml</DependentUpon>
+    </Compile>
     <Compile Include="OsConverter\OsCandleConverterUi.xaml.cs">
       <DependentUpon>OsCandleConverterUi.xaml</DependentUpon>
     </Compile>
@@ -1463,6 +1467,10 @@
     <Page Include="OsaExtension\MVVM\View\BaseRobot.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="OsaExtension\Robots\ParabolTrell\ParaboTrelUi.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="OsConverter\OsCandleConverterUi.xaml">
       <SubType>Designer</SubType>

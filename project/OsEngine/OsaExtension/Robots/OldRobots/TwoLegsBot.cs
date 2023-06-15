@@ -454,7 +454,6 @@ public class TwoLegsBot : BotPanel
             decimal chah = decimal.Round(value, N, MidpointRounding.ToEven);
             return chah;
         }
-
         /// <summary>
         ///  запрос децимал бумаги для расчета объема сделки по монете 
         /// </summary>
@@ -514,7 +513,6 @@ public class TwoLegsBot : BotPanel
             }
             else return 0;
         }
-
         /// <summary>
         /// расчитывает количество в процентах от свободных в портфеле в квотиремой (баксов)
         /// </summary>

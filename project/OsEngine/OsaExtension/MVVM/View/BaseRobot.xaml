@@ -9,7 +9,8 @@
     <DockPanel>
         <StatusBar DockPanel.Dock="Top" Margin="3">
             <Button Content="Выбрать бумагу"
-                    Command="{Binding CommandSelectSecurity}">
+                    Command="{Binding CommandSelectSecurity}"
+                    CommandParameter="{Binding Header}">
             </Button>
             <Button Content="Удалить робота"
                     Command="{Binding CommandDeleteBot}"
@@ -21,25 +22,32 @@
             </Button>
         </StatusBar>
         <Grid>
-            
+
             <Label Content=" цена бумаги " FontSize="32" 
                Margin="10,14,580,0" Width="210" Height="58" 
                VerticalAlignment="Top" RenderTransformOrigin="0.405,-0.948"/>
-            
+
             <TextBlock Text="{Binding Price}"
                        FontSize="32"
                        Margin="240,18,385,0"
                    VerticalAlignment="Top" Height="50"/>
-            
+
             <Label Content=" имя вкладки " FontSize="32" 
                 Margin="10,85,580,0" Width="210" Height="58" 
                 VerticalAlignment="Top" RenderTransformOrigin="0.405,-0.948"/>
-            
+
             <TextBlock Text="{Binding DescriptionBot}"
                        FontSize="32"
                        Margin="240,85,325,278"
                        Height="50"/>
+            <Label Content=" бумага " FontSize="32" 
+               Margin="10,157,580,198" Width="210" Height="58"/>
+
+            <TextBlock Text="{Binding NameSecurityBot}"
+                       FontSize="32"
+                       Margin="225,157,400,0"
+                   VerticalAlignment="Top" Height="50"/>
         </Grid>
-        
+
     </DockPanel>
 </UserControl>
