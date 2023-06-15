@@ -35,7 +35,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             if (NameSecurityBot == null)
             {
-                InitPropertiesBot(); // todo: для теста 
+                InitPropertiBot(); // todo: для теста 
             }
             if (NameSecurityBot != null)
             {
@@ -101,9 +101,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         List<BotPanel> ListBotPanels = OsTraderMaster.Master.PanelsArray;
 
         /// <summary>
-        /// инициализация свойст робота 
+        /// инициализация свойств робота 
         /// </summary>
-        void InitPropertiesBot() // TODO: КОРЯВО РАБОТАЕТ 
+        void InitPropertiBot() // TODO: КОРЯВО РАБОТАЕТ  при смене бумаги в роботе (надо вызывать при смене)
         {         
             int count = ListBotPanels.Count;
 

@@ -9,11 +9,11 @@
         mc:Ignorable="d"
         Title=" Главное окно роботов WPF" Height="450" Width="800">
    
-    <Grid>
+    <Grid Margin="3">
         
         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Grid.ColumnSpan="2">
             <Button Content ="Создать робота "
-                    Margin="5"
+                    Margin="3"
                 Command="{Binding CommandСreateBot}" >
 
             </Button>
