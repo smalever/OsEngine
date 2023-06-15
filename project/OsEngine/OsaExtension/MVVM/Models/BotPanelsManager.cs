@@ -29,19 +29,19 @@ namespace OsEngine.OsaExtension.MVVM.Models
             _botTradeMaster.BotDeleteEvent += _master_BotDeleteEvent;
 
             CreateBotWPF();
-            InitRobotsIsBotPanel();
+            InitSetingBotPanel();
         }
 
         private void _master_BotDeleteEvent(BotPanel obj)
         {
             CreateBotWPF();
-            InitRobotsIsBotPanel();
+            InitSetingBotPanel();
         }
 
         private void _master_BotCreateEvent(BotPanel obj)
         {
             CreateBotWPF();
-            InitRobotsIsBotPanel();
+            InitSetingBotPanel();
         }
 
         /// <summary>
@@ -67,16 +67,18 @@ namespace OsEngine.OsaExtension.MVVM.Models
         /// <summary>
         /// инициализация полей BotPanel
         /// </summary> 
-        public void InitRobotsIsBotPanel()
+        public void InitSetingBotPanel()
         {//TODO: нужно изменить алгоритм добавления и удаления панелей по имени, что бы не переписывать весь список 
 
             MainWindowRobWpfVM.Robots.Clear();
 
             foreach (BotPanel panel in MainWindowRobWpfVM.BotPanels) // перебрали все BotPanel осы
             {
-                BaseBotVM myrob = new BaseBotVM(); // создал экземпляр въюхи WPF робота
+                BaseBotbVM myrob = new BaseBotbVM(); // создал экземпляр въюхи WPF робота
 
                 myrob.Header = panel.NameStrategyUniq; ; // присвоил заголовку  робота WPF имя панели осы
+
+                myrob.DescriptionBot = panel.NameStrategyUniq;
 
                 MainWindowRobWpfVM.Robots.Add(myrob);// отправил экземпляр в колекцию с роботами WPF
             }
