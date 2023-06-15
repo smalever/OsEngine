@@ -289,3 +289,4 @@ __pycache__/
 # tools/**
 # !tools/packages.config
 /project/OsEngine/bin/
+/project/OsEngine/bin/Debug/OsEngine.exe
