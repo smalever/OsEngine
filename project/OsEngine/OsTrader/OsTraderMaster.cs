@@ -274,7 +274,7 @@ namespace OsEngine.OsTrader
         /// <summary>
         /// The bot to which the interface is currently connected
         /// </summary>
-        private BotPanel _activPanel;
+        public BotPanel _activPanel;
 
         /// <summary>
         /// Load robots with saved names
