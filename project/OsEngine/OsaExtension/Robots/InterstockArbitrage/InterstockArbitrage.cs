@@ -80,20 +80,20 @@ namespace OsEngine.OsaExtension.Robots.InterstockArbitrage
             //decimal spread = _tab2.PriceBestBid - _tab2.PriceBestBid;
             //if (spread > 0.00001m)
             //{
-                //PrinTextDebug("spread " + spread + '\n'
-                //    + " price1sell " + price1sell);
-                // buy price1
-                // sell price2
-                //_tab1.BuyAtLimit(_lotEntrySize, _tab1.PriceBestAsk);
-                //_tab2.SellAtLimit(_lotEntrySize, _tab2.PriceBestBid);
-                //SendNewLogMessage("_lotEntrySize " + _lotEntrySize
-                //    + '\n'
-                //    + " _tab1.BuyAtLimit " + price1sell
-                //    + '\n'
-                //    + " _tab2.SellAtLimit " + price2buy
-                //    + '\n'
-                //    + " spread " + spread, LogMessageType.NoName
-                //    );
+            //PrinTextDebug("spread " + spread + '\n'
+            //    + " price1sell " + price1sell);
+            // buy price1
+            // sell price2
+            //_tab1.BuyAtLimit(_lotEntrySize, _tab1.PriceBestAsk);
+            //_tab2.SellAtLimit(_lotEntrySize, _tab2.PriceBestBid);
+            //SendNewLogMessage("_lotEntrySize " + _lotEntrySize
+            //    + '\n'
+            //    + " _tab1.BuyAtLimit " + price1sell
+            //    + '\n'
+            //    + " _tab2.SellAtLimit " + price2buy
+            //    + '\n'
+            //    + " spread " + spread, LogMessageType.NoName
+            //    );
             //}
 
 
