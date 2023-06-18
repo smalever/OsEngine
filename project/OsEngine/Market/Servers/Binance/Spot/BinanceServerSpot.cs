@@ -684,6 +684,11 @@ namespace OsEngine.Market.Servers.Binance.Spot
 
             foreach (var sec in pairs.symbols)
             {
+                if(sec.status != "TRADING")
+                {
+                    continue;
+                }
+
                 Security security = new Security();
                 security.Name = sec.symbol;
                 security.NameFull = sec.symbol;
@@ -692,14 +697,13 @@ namespace OsEngine.Market.Servers.Binance.Spot
                 security.SecurityType = SecurityType.CurrencyPair;
                 security.Exchange = ServerType.Binance.ToString();
                 // sec.filters[1] - минимальный объем равный цена * объем
-                security.Lot = 1;
+
                 security.PriceStep = sec.filters[0].tickSize.ToDecimal();
                 security.PriceStepCost = security.PriceStep;
 
                 security.PriceLimitLow = sec.filters[0].minPrice.ToDecimal();
                 security.PriceLimitHigh = sec.filters[0].maxPrice.ToDecimal();
                 
-
                 if (security.PriceStep < 1)
                 {
                     string prStep = security.PriceStep.ToString(CultureInfo.InvariantCulture);
@@ -715,8 +719,10 @@ namespace OsEngine.Market.Servers.Binance.Spot
                    sec.filters[1].minQty != null)
                 {
                     decimal minQty = sec.filters[1].minQty.ToDecimal();
-                    security.MinTradeAmount = minQty;
+                   
+                    security.Lot = minQty;
                     string qtyInStr = minQty.ToStringWithNoEndZero().Replace(",", ".");
+
                     if(qtyInStr.Split('.').Length > 1)
                     {
                         security.DecimalsVolume = qtyInStr.Split('.')[1].Length;
