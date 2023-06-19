@@ -7,6 +7,7 @@ using OsEngine.OsaExtension.MVVM.View;
 using OsEngine.OsTrader;
 using OsEngine.OsTrader.Panels;
 using OsEngine.Robots.Trend;
+using OsEngine.OsTrader.Panels.Tab;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -30,7 +31,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             server.NewTradeEvent += Server_NewTradeEvent;           
         }
-
+        /// <summary>
+        /// пришел трейд 
+        /// </summary>
         private void Server_NewTradeEvent(List<Trade> trades)
         {
             if (NameSecurityBot == null)
@@ -47,6 +50,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 }
             }    
         }
+        #region Свойства =========================================================
 
         public string Header { get; set; }
         public int NumberTab { get; set; }
@@ -62,7 +66,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 _securityBot = value;
                 OnPropertyChanged(nameof(NameSecurityBot));
                 OnPropertyChanged(nameof(Header));
-  
+
             }
         }
         private string _securityBot = null;
@@ -98,7 +102,22 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// список BotPanels 
         /// </summary>
-        List<BotPanel> ListBotPanels = OsTraderMaster.Master.PanelsArray;
+        public List<BotPanel> ListBotPanels
+        {
+            get => _listBotPanels;
+            set
+            {
+                _listBotPanels = value;
+                OnPropertyChanged(nameof(ListBotPanels));
+            }
+        }
+        private List<BotPanel> _listBotPanels = OsTraderMaster.Master.PanelsArray;
+
+        #endregion  end Свойства =========================================================
+
+        // List<BotPanel> ListBotPanels = OsTraderMaster.Master.PanelsArray;
+
+        ObservableCollection<Position> PositionsOpenAll = new ObservableCollection<Position>();
 
         /// <summary>
         /// инициализация свойств робота 
@@ -113,10 +132,20 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
 
                     DescriptionBot = ListBotPanels[i].NameStrategyUniq;
-                    NameSecurityBot = ListBotPanels[i].TabsSimple[0].Securiti.Name;
+                    //NameSecurityBot = ListBotPanels[i].TabsSimple[0].Securiti.Name;
+                    GetTabSimpl(ListBotPanels[i]);
 
                 }
             }
+        }
+        // TODO: собрать вкладки в таблицу 
+        void GetTabSimpl(BotPanel bot)
+        {
+            foreach (var TabsSimple in bot.TabsSimple)
+            {
+                NameSecurityBot = TabsSimple.Securiti.Name;
+                var qwe = TabsSimple.PositionsOpenAll;
+            }                 
         }
 
         private DelegateCommand _commandSelectSecurity;

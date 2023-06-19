@@ -1554,8 +1554,8 @@ namespace OsEngine.OsaExtension.Robots.ParabolTrell
             ChekReActivator(trade);
             if (_tab.PositionsOpenAll.Count != 0)
             {
-                Profit = ((EfficiencyRatio)_eR).Values[((EfficiencyRatio)_eR).Values.Count - 1]; // для просмотра значения переменной в окне 
-                //Profit = _tab.PositionsLast.ProfitPortfolioPunkt;
+                //Profit = ((EfficiencyRatio)_eR).Values[((EfficiencyRatio)_eR).Values.Count - 1]; // для просмотра значения переменной в окне 
+                Profit = _tab.PositionsLast.ProfitPortfolioPunkt;
                 To_stop_profit();
             }
         }
