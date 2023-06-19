@@ -115,7 +115,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         #endregion  end Свойства =========================================================
 
-        // List<BotPanel> ListBotPanels = OsTraderMaster.Master.PanelsArray;
 
         ObservableCollection<Position> PositionsOpenAll = new ObservableCollection<Position>();
 
