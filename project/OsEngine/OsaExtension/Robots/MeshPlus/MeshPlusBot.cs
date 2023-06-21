@@ -1,21 +1,10 @@
-﻿using OsEngine.Alerts;
-using OsEngine.Charts.CandleChart.Elements;
-using OsEngine.Charts.CandleChart.Indicators;
+﻿
 using OsEngine.Entity;
-using OsEngine.Indicators;
-using OsEngine.Logging;
-using OsEngine.OsaExtension.MVVM.ViewModels;
-using OsEngine.OsaExtension.MyBots.meshOnSMA;
 using OsEngine.OsTrader.Panels;
 using OsEngine.OsTrader.Panels.Attributes;
 using OsEngine.OsTrader.Panels.Tab;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.IO;
-using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Windows.Forms.DataVisualization.Charting;
 
 namespace OsEngine.OsaExtension.Robots.MeshPlus
@@ -24,10 +13,21 @@ namespace OsEngine.OsaExtension.Robots.MeshPlus
     [Bot("MeshPlusBot")]
     public class MeshPlusBot : BotPanel
     {
+        private BotTabSimple _tab;
+
         public MeshPlusBot(string name, StartProgram startProgram) : base(name, startProgram)
         {
+            TabCreate(BotTabType.Simple);
+            _tab = TabsSimple[0];
+
+            // параметры 
+
+            IsOn = CreateParameter("IsOn", false, "Входные");
+            VolumeInBaks = CreateParameter("Объем позиции в $ ", 11, 7, 7, 5, "Входные");
+            PartsInput = CreateParameter("Сколько частей на вход", 2, 1, 10, 1, "Входные"); // набирать позицию столькими частями 
 
         }
+
 
         public override string GetNameStrategyType()
         {
@@ -38,5 +38,13 @@ namespace OsEngine.OsaExtension.Robots.MeshPlus
         {
            
         }
+        #region Свойства ===============================================
+
+        private StrategyParameterBool IsOn; // включение робота
+        private StrategyParameterInt VolumeInBaks; // объем позиции в баксах
+        private StrategyParameterInt PartsInput; // количество частей на вход в объем позиции 
+
+        #endregion  end Свойства ===============================================
+
     }
 }
