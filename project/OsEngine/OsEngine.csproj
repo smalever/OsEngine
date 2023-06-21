@@ -839,6 +839,7 @@
     <Compile Include="OsaExtension\MVVM\ViewModels\ChangeEmitentVM.cs" />
     <Compile Include="OsaExtension\MVVM\ViewModels\IRobotVM.cs" />
     <Compile Include="OsaExtension\MVVM\ViewModels\MainWindowRobWpfVM.cs" />
+    <Compile Include="OsaExtension\MVVM\ViewModels\MeshPlusVM.cs" />
     <Compile Include="OsaExtension\MVVM\View\ChengeEmitendWidow.xaml.cs">
       <DependentUpon>ChengeEmitendWidow.xaml</DependentUpon>
     </Compile>
@@ -848,8 +849,12 @@
     <Compile Include="OsaExtension\MVVM\View\BaseRobot.xaml.cs">
       <DependentUpon>BaseRobot.xaml</DependentUpon>
     </Compile>
+    <Compile Include="OsaExtension\MVVM\View\MeshPlusUI.xaml.cs">
+      <DependentUpon>MeshPlusUI.xaml</DependentUpon>
+    </Compile>
     <Compile Include="OsaExtension\Robots\InterstockArbitrage\InterstockArbitrage.cs" />
     <Compile Include="OsaExtension\Robots\meshOnSMA\meshOnSMA.cs" />
+    <Compile Include="OsaExtension\Robots\MeshPlus\MeshPlusBot.cs" />
     <Compile Include="OsaExtension\Robots\OldRobots\IlanMartin.cs" />
     <Compile Include="OsaExtension\Robots\OldRobots\MartinBollinger.cs" />
     <Compile Include="OsaExtension\Robots\OldRobots\MartinSMA.cs" />
@@ -1465,6 +1470,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="OsaExtension\MVVM\View\BaseRobot.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="OsaExtension\MVVM\View\MeshPlusUI.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
