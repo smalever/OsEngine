@@ -137,13 +137,16 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 }
             }
         }
-        // TODO: собрать вкладки в таблицу 
+        // TODO: ПЕРЕДать данные  вкладки в свойства
         void GetTabSimpl(BotPanel bot)
         {
             foreach (var TabsSimple in bot.TabsSimple)
             {
-                NameSecurityBot = TabsSimple.Securiti.Name;
-                var qwe = TabsSimple.PositionsOpenAll;
+                if (TabsSimple.Securiti != null)
+                {
+                    NameSecurityBot = TabsSimple.Securiti.Name;
+                    var qwe = TabsSimple.PositionsOpenAll;
+                } 
             }                 
         }
 
