@@ -13,15 +13,15 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Forms.DataVisualization.Charting;
 using static OsEngine.OsaExtension.MVVM.ViewModels.MainWindowRobWpfVM;
 
-namespace OsEngine.OsaExtension.Robots.MeshPlus
+namespace OsEngine.OsaExtension.Robots.Forbreakdown
 {
 
-    [Bot("MeshPlusBot")]
-    public class MeshPlusBot : BotPanel
+    [Bot("Forbreakdown")]
+    public class Forbreakdown : BotPanel
     {
         private BotTabSimple _tab;
 
-        public MeshPlusBot(string name, StartProgram startProgram) : base(name, startProgram)
+        public Forbreakdown(string name, StartProgram startProgram) : base(name, startProgram)
         {
             TabCreate(BotTabType.Simple);
             _tab = TabsSimple[0];
@@ -29,7 +29,7 @@ namespace OsEngine.OsaExtension.Robots.MeshPlus
             _tab.BestBidAskChangeEvent += _tab_BestBidAskChangeEvent;// для  работы в рынке 
 
             _tab.CandleFinishedEvent += _tab_CandleFinishedEvent;// для  работы в тестере 
-            
+
 
             // параметры 
 
@@ -47,10 +47,10 @@ namespace OsEngine.OsaExtension.Robots.MeshPlus
 
         private void _tab_CandleFinishedEvent(List<Candle> candles)
         {
-            _marketPriceSecur = candles[candles.Count-1].Close;
-            if (StartProgram == StartProgram.IsOsTrader)  return; 
+            _marketPriceSecur = candles[candles.Count - 1].Close;
+            if (StartProgram == StartProgram.IsOsTrader) return;
 
-            if (IsOn.ValueBool == false)  return;
+            if (IsOn.ValueBool == false) return;
 
             TradeLogic();
 
@@ -108,7 +108,7 @@ namespace OsEngine.OsaExtension.Robots.MeshPlus
         }
         public override string GetNameStrategyType()
         {
-            return nameof(MeshPlusBot);
+            return nameof(Forbreakdown);
         }
 
         public override void ShowIndividualSettingsDialog()
@@ -147,7 +147,7 @@ namespace OsEngine.OsaExtension.Robots.MeshPlus
             get => _marketPriceSecur;
             set
             {
-                _marketPriceSecur = value;                
+                _marketPriceSecur = value;
             }
         }
         private decimal _marketPriceSecur;
@@ -156,3 +156,4 @@ namespace OsEngine.OsaExtension.Robots.MeshPlus
 
     }
 }
+

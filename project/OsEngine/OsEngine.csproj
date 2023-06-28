@@ -852,6 +852,7 @@
     <Compile Include="OsaExtension\MVVM\View\MeshPlusUI.xaml.cs">
       <DependentUpon>MeshPlusUI.xaml</DependentUpon>
     </Compile>
+    <Compile Include="OsaExtension\Robots\Forbreakdown\Forbreakdown.cs" />
     <Compile Include="OsaExtension\Robots\InterstockArbitrage\InterstockArbitrage.cs" />
     <Compile Include="OsaExtension\Robots\meshOnSMA\meshOnSMA.cs" />
     <Compile Include="OsaExtension\Robots\MeshPlus\MeshPlusBot.cs" />
