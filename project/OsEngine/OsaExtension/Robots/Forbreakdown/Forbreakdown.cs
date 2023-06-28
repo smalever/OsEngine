@@ -1,4 +1,5 @@
 ﻿
+using OsEngine.Charts.CandleChart.Indicators;
 using OsEngine.Entity;
 using OsEngine.Logging;
 using OsEngine.OsaExtension.MVVM.Models;
@@ -9,6 +10,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
+using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Forms.DataVisualization.Charting;
 using static OsEngine.OsaExtension.MVVM.ViewModels.MainWindowRobWpfVM;
@@ -35,10 +38,12 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
 
             IsOn = CreateParameter("IsOn", false, "Входные");
             StepType = CreateParameter("Типа шага сетки", "Punkt", new[] { "Punkt", "Percent" }, "Входные");
-            StepLevel = CreateParameter("Шаг между уровнями ", 10m, 10, 100, 10, "Входные");
+            StepLevel = CreateParameter("Шаг между входами ", 10m, 10, 100, 10, "Входные");
             VolumeInBaks = CreateParameter("Объем позиции в $ ", 11, 7, 7, 5, "Входные");
             PartsInput = CreateParameter("Сколько частей на вход", 2, 1, 10, 1, "Входные"); // набирать позицию столькими частями 
+            VolumeFactor = CreateParameter("Увелич обем входа шага ", 0m, 0, 2, 0.1m, "Входные");
 
+            Load();
         }
 
 
@@ -77,6 +82,17 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
             GetStepLevel();
 
         }
+
+        /// <summary>
+        /// закрытие всех позиций по маркету 
+        /// </summary>
+        public void ClosePosicion() 
+        {
+            if (_tab.PositionsOpenAll.Count != 0)
+            {
+                _tab.CloseAllAtMarket();
+            }
+        }
         /// <summary>
         /// расчитывает растояние между уровнями 
         /// </summary>
@@ -97,6 +113,55 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
 
         #region сервис ============ 
 
+        /// <summary>
+        /// сохранить настройки в файл
+        /// </summary>
+        public void Save()
+        {
+            try
+            {
+                using (StreamWriter writer = new StreamWriter(@"Engine\" + NameStrategyUniq + @"SettingsBot.txt", false)
+                    )
+                {
+                    writer.WriteLine(StartPoint);
+                    writer.WriteLine(StopPoint);
+         
+                    writer.Close();
+                }
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Операция прервана, т.к. в одном из полей недопустимое значение.");
+                return;
+            }
+        }
+
+        /// <summary>
+        /// загрузить настройки из файла
+        /// </summary>
+        private void Load()
+        {
+            if (!File.Exists(@"Engine\" + NameStrategyUniq + @"SettingsBot.txt"))
+            {
+                return;
+            }
+            try
+            {
+                using (StreamReader reader = new StreamReader(@"Engine\" + NameStrategyUniq + @"SettingsBot.txt"))
+                {
+                    StartPoint = Convert.ToDecimal(reader.ReadLine());
+                    StopPoint = Convert.ToDecimal(reader.ReadLine());
+          
+                    reader.Close();
+                }
+            }
+            catch (Exception)
+            {
+                // отправить в лог
+                SendNewLogMessage(" Настройки робота из файла не загружены  ", LogMessageType.NoName);
+            }
+        }
+
         private void UserClickOnButtonEvent() // нажал на кнопку в панели параметров 
         {
 
@@ -113,7 +178,8 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
 
         public override void ShowIndividualSettingsDialog()
         {
-
+            ForbreakdownUI ui = new ForbreakdownUI(this);
+            ui.Show();
         }
         /// <summary>
         /// вывод в дебаг текста 
@@ -137,7 +203,13 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
         private StrategyParameterString StepType; // режим расчета шага сетки 
         private StrategyParameterDecimal StepLevel; // шаг между уровнями 
         private StrategyParameterInt VolumeInBaks; // объем позиции в баксах
+        private StrategyParameterDecimal VolumeFactor; //  увеличение объема позиции на вход 
         private StrategyParameterInt PartsInput; // количество частей на вход в объем позиции 
+
+        // настройки робота публичные
+
+        public decimal StartPoint;
+        public decimal StopPoint;
 
         /// <summary>
         /// Рыночная цена бумаги 

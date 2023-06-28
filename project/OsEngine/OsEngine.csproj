@@ -853,6 +853,9 @@
       <DependentUpon>MeshPlusUI.xaml</DependentUpon>
     </Compile>
     <Compile Include="OsaExtension\Robots\Forbreakdown\Forbreakdown.cs" />
+    <Compile Include="OsaExtension\Robots\Forbreakdown\ForbreakdownUI.xaml.cs">
+      <DependentUpon>ForbreakdownUI.xaml</DependentUpon>
+    </Compile>
     <Compile Include="OsaExtension\Robots\InterstockArbitrage\InterstockArbitrage.cs" />
     <Compile Include="OsaExtension\Robots\meshOnSMA\meshOnSMA.cs" />
     <Compile Include="OsaExtension\Robots\MeshPlus\MeshPlusBot.cs" />
@@ -1475,6 +1478,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="OsaExtension\MVVM\View\MeshPlusUI.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="OsaExtension\Robots\Forbreakdown\ForbreakdownUI.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
