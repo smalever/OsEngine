@@ -29,7 +29,7 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
             TabCreate(BotTabType.Simple);
             _tab = TabsSimple[0];
 
-            _tab.BestBidAskChangeEvent += _tab_BestBidAskChangeEvent;// для  работы в рынке 
+            _tab.BestBidAskChangeEvent += _tab_BestBidAskChangeEvent;//  логика для  рынке 
 
             _tab.CandleFinishedEvent += _tab_CandleFinishedEvent;// для  работы в тестере 
 

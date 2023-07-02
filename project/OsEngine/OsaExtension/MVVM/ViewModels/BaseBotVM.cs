@@ -27,6 +27,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             
         }
 
+        /// <summary>
+        /// создан сервер 
+        /// </summary>
         private void ServerMaster_ServerCreateEvent(IServer server)
         {
             server.NewTradeEvent += Server_NewTradeEvent;           

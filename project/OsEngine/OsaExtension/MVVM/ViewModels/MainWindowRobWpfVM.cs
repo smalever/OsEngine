@@ -28,10 +28,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
     { 
 
         public MainWindowRobWpfVM() 
-        {
-            BotPanelsManager tabManager = new BotPanelsManager();
-            _master = OsTraderMaster.Master;
-            
+        {            
+            //_master = OsTraderMaster.Master;
+            _master.BotCreateEvent += _master_BotCreateEvent;
+            _master.BotDeleteEvent += _master_BotDeleteEvent;
+            InitBot();
+
         }
 
         /// <summary>
@@ -39,13 +41,23 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         public static ChengeEmitendWidow ChengeEmitendWidow = null;
 
-        /// <summary>
-        /// поле менеджера роботов
-        /// </summary>        
-        OsTraderMaster _master = new OsTraderMaster(StartProgram.IsOsTrader);
+
 
         #region Property ==================================================================
 
+        /// <summary>
+        /// св менеджера роботов
+        /// </summary>   
+        public OsTraderMaster ManagerBot
+        { 
+            get => _master;
+            set
+            {
+                _master = value;
+                OnPropertyChanged(nameof(ManagerBot));
+            }
+        }
+        OsTraderMaster _master = new OsTraderMaster(StartProgram.IsOsTrader);
 
         /// <summary>
         /// ВМ-ки роботов
@@ -63,21 +75,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
         private static ObservableCollection<IRobotVM> _robots = new ObservableCollection<IRobotVM>();
 
-        /// <summary>
-        /// Коллекция с BotPanel осы
-        /// </summary>
-        public static ObservableCollection<BotPanel> BotPanels 
-        {
-            get => _botPanels;
-            set
-            {     
-                _botPanels = value;
-
-                //OnPropertyChanged(nameof(BotPanels)); 
-            }
-        }         
-        private static ObservableCollection<BotPanel> _botPanels = new ObservableCollection<BotPanel>();
-
+  
         #endregion
 
         #region Commands ===========================================================
@@ -135,6 +133,37 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
         #endregion
 
+        #region  Методы =====================================================
+
+        private void InitBot()
+        {
+            List<BotPanel> ListBots = ManagerBot.PanelsArray;
+            int count = ListBots.Count;
+            if (count == 0) return;
+            /*  если есть BotPanel бежим по ним и
+             *  создаем ВМ для этой вкладки (робота осы) 
+             */
+            foreach (BotPanel panel in ListBots) // перебрали все BotPanel осы
+            {
+                BaseBotVM myrob = new BaseBotVM(); // создал экземпляр въюхи WPF робота
+
+                myrob.Header = panel.NameStrategyUniq; ; // присвоил заголовку  робота WPF имя панели осы
+
+                Robots.Add(myrob);// отправил экземпляр в колекцию с роботами WPF
+            }
+
+        }
+
+        private void _master_BotDeleteEvent(BotPanel bot)
+        {
+
+        }
+
+        private void _master_BotCreateEvent(BotPanel bot)
+        {
+
+        }
+
         /// <summary>
         ///  подключение к серверу 
         /// </summary>
@@ -146,9 +175,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// для тестов 
         /// </summary>
-        void TestMetod(object o) 
+        void TestMetod(object o)
         {
-            
+
         }
 
         /// <summary>
@@ -156,8 +185,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         void СreateBot(object o)
         {
-            _master.CreateNewBot();            
-        }   
+            _master.CreateNewBot();
+        }
+
+        #endregion конец  Методы ==============================================
+
 
         public delegate void selectedSecurity();
         public event selectedSecurity OnSelectedSecurity;
