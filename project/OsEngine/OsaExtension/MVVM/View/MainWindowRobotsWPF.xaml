@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:OsEngine.OsaExtension.MVVM.View"
-        xmlns:vm="clr-namespace:OsEngine.OsaExtension.MVVM.ViewModels"
+        xmlns:vm="clr-namespace:OsEngine.OsaExtension.Robots.Forbreakdown"
         xmlns:int ="http://schemas.microsoft.com/xaml/behaviors" 
         mc:Ignorable="d"
         Title=" Главное окно роботов WPF" Height="450" Width="800">
@@ -32,7 +32,7 @@
         </StackPanel>
         <TabControl ItemsSource="{Binding Robots}" Margin="1,35,1,-35">
             <TabControl.Resources>
-                <DataTemplate DataType="{x:Type vm:BaseBotVM}">
+                <DataTemplate DataType="{x:Type vm:ForBreakdownVM}">
                     <local:BaseRobot>
                         
                     </local:BaseRobot>

@@ -4,6 +4,7 @@ using OsEngine.Market.Servers;
 using OsEngine.OsaExtension.MVVM.Commands;
 using OsEngine.OsaExtension.MVVM.Models;
 using OsEngine.OsaExtension.MVVM.View;
+using OsEngine.OsaExtension.Robots.Forbreakdown;
 using OsEngine.OsTrader;
 using OsEngine.OsTrader.Gui;
 using OsEngine.OsTrader.Panels;
@@ -149,7 +150,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
              */
             foreach (BotPanel panel in ListBotsOsen) // перебрали все BotPanel осы
             {
-                BaseBotVM myrob = new BaseBotVM(); // создал экземпляр въюхи WPF робота
+                ForBreakdownVM myrob = new ForBreakdownVM(); // создал экземпляр въюхи WPF робота
 
                 myrob.Header = panel.NameStrategyUniq; // присвоил заголовку  робота WPF имя панели осы
              

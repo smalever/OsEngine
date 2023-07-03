@@ -855,6 +855,7 @@
     <Compile Include="OsaExtension\Robots\Forbreakdown\ForbreakdownUI.xaml.cs">
       <DependentUpon>ForbreakdownUI.xaml</DependentUpon>
     </Compile>
+    <Compile Include="OsaExtension\Robots\Forbreakdown\ForBreakdownVM.cs" />
     <Compile Include="OsaExtension\Robots\InterstockArbitrage\InterstockArbitrage.cs" />
     <Compile Include="OsaExtension\Robots\meshOnSMA\meshOnSMA.cs" />
     <Compile Include="OsaExtension\Robots\MeshPlus\MeshPlusBot.cs" />
