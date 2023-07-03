@@ -7,6 +7,7 @@ using OsEngine.OsaExtension.MVVM.View;
 using OsEngine.OsTrader;
 using OsEngine.OsTrader.Gui;
 using OsEngine.OsTrader.Panels;
+using OsEngine.OsTrader.Panels.Tab;
 using OsEngine.Robots.Trend;
 using System;
 using System.Collections.Generic;
@@ -32,8 +33,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             //_master = OsTraderMaster.Master;
             _master.BotCreateEvent += _master_BotCreateEvent;
             _master.BotDeleteEvent += _master_BotDeleteEvent;
-            InitBot();
 
+            CreateVM_Bot();
+            
         }
 
         /// <summary>
@@ -135,24 +137,27 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         #region  Методы =====================================================
 
-        private void InitBot()
+  
+        public void CreateVM_Bot()
         {
-            List<BotPanel> ListBots = ManagerBot.PanelsArray;
-            int count = ListBots.Count;
+            List<BotPanel> ListBotsOsen = ManagerBot.PanelsArray;
+            int count = ListBotsOsen.Count;
             if (count == 0) return;
-            /*  если есть BotPanel бежим по ним и
+
+            /*  если есть список BotPanel бежим по нему и
              *  создаем ВМ для этой вкладки (робота осы) 
              */
-            foreach (BotPanel panel in ListBots) // перебрали все BotPanel осы
+            foreach (BotPanel panel in ListBotsOsen) // перебрали все BotPanel осы
             {
                 BaseBotVM myrob = new BaseBotVM(); // создал экземпляр въюхи WPF робота
 
-                myrob.Header = panel.NameStrategyUniq; ; // присвоил заголовку  робота WPF имя панели осы
+                myrob.Header = panel.NameStrategyUniq; // присвоил заголовку  робота WPF имя панели осы
+             
 
                 Robots.Add(myrob);// отправил экземпляр в колекцию с роботами WPF
             }
 
-        }
+        }  
 
         private void _master_BotDeleteEvent(BotPanel bot)
         {
@@ -162,7 +167,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private void _master_BotCreateEvent(BotPanel bot)
         {
 
-        }
+        }  
 
         /// <summary>
         ///  подключение к серверу 

@@ -20,11 +20,11 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
 {
 
     [Bot("Forbreakdown")]
-    public class Forbreakdown : BotPanel
+    public class ForBreakdown : BotPanel
     {
         private BotTabSimple _tab;
 
-        public Forbreakdown(string name, StartProgram startProgram) : base(name, startProgram)
+        public ForBreakdown(string name, StartProgram startProgram) : base(name, startProgram)
         {
             TabCreate(BotTabType.Simple);
             _tab = TabsSimple[0];
@@ -38,8 +38,10 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
 
             IsOn = CreateParameter("IsOn", false, "Входные");
             StepType = CreateParameter("Типа шага сетки", "Punkt", new[] { "Punkt", "Percent" }, "Входные");
-            StepLevel = CreateParameter("Шаг между входами ", 10m, 10, 100, 10, "Входные");
+            StepLevelProfit = CreateParameter("Шаг между выходами частей ", 10m, 10, 100, 10, "Выходные");
+            StepLevelInput = CreateParameter("Шаг между входами ", 10m, 10, 100, 10, "Входные");
             VolumeInBaks = CreateParameter("Объем позиции в $ ", 11, 7, 7, 5, "Входные");
+            PartsProfit = CreateParameter("Колич. частей на выход", 2, 1, 10, 1, "Выходные");// количество частей профита
             PartsInput = CreateParameter("Сколько частей на вход", 2, 1, 10, 1, "Входные"); // набирать позицию столькими частями 
             VolumeFactor = CreateParameter("Увелич обем входа шага ", 0m, 0, 2, 0.1m, "Входные");
 
@@ -101,11 +103,11 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
             decimal stepLevel = 0;
             if ("Punkt" == StepType.ValueString)
             {
-                stepLevel = StepLevel.ValueDecimal * _tab.Securiti.PriceStep;
+                stepLevel = StepLevelInput.ValueDecimal * _tab.Securiti.PriceStep;
             }
             else if ("Percent" == StepType.ValueString)
             {
-                stepLevel = StepLevel.ValueDecimal * MarketPriceSecur / 100;
+                stepLevel = StepLevelInput.ValueDecimal * MarketPriceSecur / 100;
                 stepLevel = Decimal.Round(stepLevel, _tab.Securiti.Decimals);
             }
             return stepLevel;
@@ -123,6 +125,7 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
                 using (StreamWriter writer = new StreamWriter(@"Engine\" + NameStrategyUniq + @"SettingsBot.txt", false)
                     )
                 {
+                    writer.WriteLine(ProfitPoint);
                     writer.WriteLine(StartPoint);
                     writer.WriteLine(StopPoint);
          
@@ -149,6 +152,7 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
             {
                 using (StreamReader reader = new StreamReader(@"Engine\" + NameStrategyUniq + @"SettingsBot.txt"))
                 {
+                    ProfitPoint = Convert.ToDecimal(reader.ReadLine());
                     StartPoint = Convert.ToDecimal(reader.ReadLine());
                     StopPoint = Convert.ToDecimal(reader.ReadLine());
           
@@ -173,12 +177,12 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
         }
         public override string GetNameStrategyType()
         {
-            return nameof(Forbreakdown);
+            return nameof(ForBreakdown);
         }
 
         public override void ShowIndividualSettingsDialog()
         {
-            ForbreakdownUI ui = new ForbreakdownUI(this);
+            ForBreakdownUI ui = new ForBreakdownUI(this);
             ui.Show();
         }
         /// <summary>
@@ -201,13 +205,17 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
 
         private StrategyParameterBool IsOn; // включение робота
         private StrategyParameterString StepType; // режим расчета шага сетки 
-        private StrategyParameterDecimal StepLevel; // шаг между уровнями 
+        private StrategyParameterDecimal StepLevelProfit; // шаг между шагами выхода
+        private StrategyParameterDecimal StepLevelInput; // шаг между уровнями входа   
         private StrategyParameterInt VolumeInBaks; // объем позиции в баксах
         private StrategyParameterDecimal VolumeFactor; //  увеличение объема позиции на вход 
+        private StrategyParameterInt PartsProfit; // количество частей на вход из позиции 
         private StrategyParameterInt PartsInput; // количество частей на вход в объем позиции 
+       
 
         // настройки робота публичные
 
+        public decimal ProfitPoint;
         public decimal StartPoint;
         public decimal StopPoint;
 

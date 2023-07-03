@@ -1,4 +1,4 @@
-﻿<Window x:Class="OsEngine.OsaExtension.Robots.Forbreakdown.ForbreakdownUI"
+﻿<Window x:Class="OsEngine.OsaExtension.Robots.Forbreakdown.ForBreakdownUI"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -29,13 +29,13 @@
             Name="Label_1"
             Content="цена начала набора позиции" 
             HorizontalAlignment="Left" 
-            Margin="25,21,0,0" VerticalAlignment="Top" 
+            Margin="20,73,0,0" VerticalAlignment="Top" 
             Width="185"/>
 
         <TextBox 
             Name="TextBox_StartPoint"
             HorizontalAlignment="Left" 
-            Margin="215,14,0,0" 
+            Margin="210,66,0,0" 
             TextWrapping="Wrap" 
             VerticalAlignment="Top" 
             Width="155" 
@@ -43,7 +43,7 @@
         <Label
             Name="Label_3"
             Width="152"
-            Margin="58,59,0,0"
+            Margin="53,111,0,0"
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
             Content="цена стопа (закрытия) " />
@@ -51,9 +51,23 @@
             x:Name="TextBox_StopPoint"
             Width="140"
             Height="29"
-            Margin="215,53,0,0"
+            Margin="210,105,0,0"
             HorizontalAlignment="Left"
             VerticalAlignment="Top"/>
+        <Label 
+            x:Name="Label_Profit"
+            Content="цена профита (выход)" 
+            HorizontalAlignment="Left" 
+            Margin="20,38,0,0" VerticalAlignment="Top" 
+            Width="185"/>
+        <TextBox 
+            x:Name="TextBox_ProfitPoint"
+            HorizontalAlignment="Left" 
+            Margin="210,31,0,0" 
+            TextWrapping="Wrap" 
+            VerticalAlignment="Top" 
+            Width="155" 
+            Height="30"/>
 
     </Grid>
 </Window>

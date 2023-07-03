@@ -851,7 +851,7 @@
     <Compile Include="OsaExtension\MVVM\View\MeshPlusUI.xaml.cs">
       <DependentUpon>MeshPlusUI.xaml</DependentUpon>
     </Compile>
-    <Compile Include="OsaExtension\Robots\Forbreakdown\Forbreakdown.cs" />
+    <Compile Include="OsaExtension\Robots\Forbreakdown\ForBreakdown.cs" />
     <Compile Include="OsaExtension\Robots\Forbreakdown\ForbreakdownUI.xaml.cs">
       <DependentUpon>ForbreakdownUI.xaml</DependentUpon>
     </Compile>

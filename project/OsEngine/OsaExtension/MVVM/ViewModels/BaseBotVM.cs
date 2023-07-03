@@ -34,6 +34,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             server.NewTradeEvent += Server_NewTradeEvent;           
         }
+
         /// <summary>
         /// пришел трейд 
         /// </summary>
@@ -125,29 +126,25 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// инициализация свойств робота 
         /// </summary>
         void InitPropertiBot() // TODO: КОРЯВО РАБОТАЕТ  при смене бумаги в роботе (надо вызывать при смене)
-        {         
+        {
             int count = ListBotPanels.Count;
 
             for (int i = 0; i < count; i++)
             {
                 if (ListBotPanels[i].NameStrategyUniq == Header)
                 {
-
-                    DescriptionBot = ListBotPanels[i].NameStrategyUniq;
-                    //NameSecurityBot = ListBotPanels[i].TabsSimple[0].Securiti.Name;
-                    GetTabSimpl(ListBotPanels[i]);
-
+                    GetTabSimplSecurName(ListBotPanels[i]);
                 }
             }
         }
         // TODO: ПЕРЕДать данные  вкладки в свойства
-        void GetTabSimpl(BotPanel bot)
+        void GetTabSimplSecurName(BotPanel bot)
         {
             foreach (var TabsSimple in bot.TabsSimple)
             {
                 if (TabsSimple.Securiti != null)
                 {
-                    NameSecurityBot = TabsSimple.Securiti.Name;
+                    NameSecurityBot = TabsSimple.Connector.SecurityName;
                     var qwe = TabsSimple.PositionsOpenAll;
                 } 
             }                 
