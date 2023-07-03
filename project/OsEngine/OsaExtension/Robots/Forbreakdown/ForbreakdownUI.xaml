@@ -58,8 +58,8 @@
             x:Name="Label_Profit"
             Content="цена профита (выход)" 
             HorizontalAlignment="Left" 
-            Margin="20,38,0,0" VerticalAlignment="Top" 
-            Width="185"/>
+            Margin="53,34,0,0" VerticalAlignment="Top" 
+            Width="150"/>
         <TextBox 
             x:Name="TextBox_ProfitPoint"
             HorizontalAlignment="Left" 
