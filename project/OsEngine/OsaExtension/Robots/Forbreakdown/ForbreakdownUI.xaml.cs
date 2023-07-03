@@ -41,7 +41,7 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
             _strategy.ProfitPoint =Convert.ToDecimal(TextBox_ProfitPoint.Text);
             _strategy.StartPoint = Convert.ToDecimal(TextBox_StartPoint.Text);
             _strategy.StopPoint = Convert.ToDecimal(TextBox_StopPoint.Text);
-
+            _strategy.CalcPoint();
             _strategy.Save();
             Close();
         }

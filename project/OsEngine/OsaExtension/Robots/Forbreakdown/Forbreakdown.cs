@@ -22,7 +22,46 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
     [Bot("Forbreakdown")]
     public class ForBreakdown : BotPanel
     {
+        #region Свойства и Поля ===============================================
+        /// <summary>
+        /// цена входа расчетная
+        /// </summary>
+        decimal _rpicePointIn = 0;
+
         private BotTabSimple _tab;
+
+        private StrategyParameterBool IsOn; // включение робота
+        private StrategyParameterString StepType; // режим расчета шага сетки 
+        private StrategyParameterDecimal StepLevelProfit; // шаг между шагами выхода
+        private StrategyParameterDecimal StepLevelInput; // шаг между уровнями входа   
+        private StrategyParameterInt VolumeInBaks; // объем позиции в баксах
+        private StrategyParameterDecimal VolumeFactor; //  увеличение объема позиции на вход 
+        private StrategyParameterInt PartsProfit; // количество частей на вход из позиции 
+        private StrategyParameterInt PartsInput; // количество частей на вход в объем позиции 
+
+
+        // настройки робота публичные
+
+        public decimal ProfitPoint = 0;
+        public decimal StartPoint = 0;
+        public decimal StopPoint = 0;
+
+        /// <summary>
+        /// Рыночная цена бумаги 
+        /// </summary>
+        public decimal MarketPriceSecur
+        {
+            get => _marketPriceSecur;
+            set
+            {
+                _marketPriceSecur = value;
+            }
+        }
+        private decimal _marketPriceSecur;
+
+        #endregion  end Свойства ===============================================
+
+   
 
         public ForBreakdown(string name, StartProgram startProgram) : base(name, startProgram)
         {
@@ -33,7 +72,10 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
 
             _tab.CandleFinishedEvent += _tab_CandleFinishedEvent;// для  работы в тестере 
 
+            _tab.PositionClosingSuccesEvent += _tab_PositionClosingSuccesEvent; // для обнуления и выклчения 
 
+
+            _tab.OrderUpdateEvent += _tab_OrderUpdateEvent; // для логики 
             // параметры 
 
             IsOn = CreateParameter("IsOn", false, "Входные");
@@ -48,19 +90,33 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
             Load();
         }
 
-
         #region Методы =========================================================
 
+        /// <summary>
+        /// отработал ордер 
+        /// </summary>
+        private void _tab_OrderUpdateEvent(Order order)
+        {
+            CalculateProfitPoint();
+            CalculatePointIn();
+            Save();
+        }
+
+        private void _tab_PositionClosingSuccesEvent(Position position)
+        {
+            // изменть значения переменных 
+            IsOn.ValueBool = false;
+            Save();
+        }
 
         private void _tab_CandleFinishedEvent(List<Candle> candles)
         {
             _marketPriceSecur = candles[candles.Count - 1].Close;
             if (StartProgram == StartProgram.IsOsTrader) return;
 
-            if (IsOn.ValueBool == false) return;
+            FollowPrice();
 
             TradeLogic();
-
         }
 
         /// <summary>
@@ -68,21 +124,213 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
         /// </summary>
         private void _tab_BestBidAskChangeEvent(decimal bid, decimal ask)
         {
-            _marketPriceSecur = ask;
+            MarketPriceSecur = ask;
 
             if (StartProgram == StartProgram.IsTester) return;
 
-            if (IsOn.ValueBool == false) return;
+            FollowPrice();
 
             TradeLogic();
 
         }
+
+        /// <summary>
+        ///  торговая логика 
+        /// </summary>
         private void TradeLogic()
         {
-            PrinTextDebag("TradeLogic запущен", "отработал ");
-            // SendNewLogMessage(" сообщение в лог " , LogMessageType.NoName);
-            GetStepLevel();
 
+            if (IsOn.ValueBool == false) return;
+            
+            if (StopPoint == 0) CalculateStopPoint();
+
+            if (_rpicePointIn == 0) CalculatePointIn();// расчитать точку входа впервые
+
+            if (ProfitPoint == 0) CalculateProfitPoint();
+
+            // PrinTextDebag("TradeLogic запущен", "отработал ");
+
+            // SendNewLogMessage(" сообщение в лог " , LogMessageType.NoName);
+
+        }
+
+        public void CalcPoint()
+        {
+            CalculateStopPoint();
+            CalculateProfitPoint();
+            CalculatePointIn();
+            Save();
+        }
+
+        /// <summary>
+        /// расчитать цену профита 
+        /// </summary>
+        private void CalculateProfitPoint()
+        {
+            if (_tab.PositionsOpenAll.Count == 0 )
+            {
+                ProfitPoint = StartPoint + GetStepLevel();
+            }
+            if (_tab.PositionsOpenAll.Count != 0 )
+            {
+                decimal priceLastTride = 0;
+
+                int sumTred = _tab.PositionsLast.MyTrades.Count; // количество трейдов в позиции
+                if (sumTred > 1)
+                {                   
+                    if (_tab.PositionsLast.MyTrades[sumTred - 1].Side == Side.Sell)
+                    {
+                        priceLastTride = _tab.PositionsLast.MyTrades[sumTred - 1].Price; // цена последнего трейда позиции
+                        ProfitPoint = priceLastTride + GetStepLevel();
+                    } 
+                }
+            }
+            PrinTextDebag("CalculateProfitPoint пересчитали  ", "ProfitPoint =" + ProfitPoint);
+            Save();
+        }
+
+        /// <summary>
+        /// расчитать цену стопа 
+        /// </summary>
+        private void CalculateStopPoint()
+        {
+            StopPoint = StartPoint - GetStepLevel() * PartsInput.ValueInt;
+            PrinTextDebag("CalculateStopPoint пересчитали  " + StopPoint , "StopPoint =" + StopPoint);
+            Save();
+        }
+
+        /// <summary>
+        /// следит за ценой 
+        /// </summary>
+        private void FollowPrice()
+        {
+            if (MarketPriceSecur <= _rpicePointIn)
+            {
+                RecruitingPosition();
+                CalculatePointIn();                
+            }
+            if ( MarketPriceSecur > ProfitPoint )
+            {
+                ClosePos();                
+            }
+            if (MarketPriceSecur <= StopPoint &&  StopPoint !=0 )
+            {
+                _tab.CloseAllAtMarket();
+            }
+        }
+
+        private void ClosePos()
+        {
+            if (_tab.PositionsOpenAll.Count == 0) return;
+            CalculateProfitPoint();
+            decimal volPos = _tab.PositionsLast.OpenVolume;
+            decimal volInput = Rounding((VolumeInBaks.ValueInt / MarketPriceSecur)
+                                / PartsInput.ValueInt, _tab.Securiti.DecimalsVolume);
+
+            int sumTred = _tab.PositionsLast.MyTrades.Count; // количество трейдов в позиции
+            if (sumTred > 2 && MarketPriceSecur > ProfitPoint)
+            {
+                decimal vol = Rounding(volPos / PartsProfit.ValueInt, _tab.Securiti.DecimalsVolume); // считаем объем 
+                if (vol <= volInput)
+                {
+                    _tab.SellAtMarket(volPos);
+                }
+                else
+                {
+                    _tab.SellAtMarketToPosition(_tab.PositionsLast, vol);
+                    CalculateProfitPoint();
+                }
+            }
+        }    
+
+        /// <summary>
+        ///  набирает позицию 
+        /// </summary>
+        private void RecruitingPosition()
+        {
+            if (IsOn.ValueBool == false) return;
+
+            if (FullVolume()) return;  // проверить набраный обем 
+            // TODO: проверить расчет обема на вход
+            decimal vol = 0;
+            vol = Rounding((VolumeInBaks.ValueInt / MarketPriceSecur)
+             / PartsInput.ValueInt, _tab.Securiti.DecimalsVolume); // считаем объем 
+
+            if (_tab.PositionsOpenAll.Count == 0 && vol !=0)
+            {
+                _tab.BuyAtMarket(vol);
+            }
+            if (_tab.PositionsOpenAll.Count != 0)
+            {
+                _tab.BuyAtMarketToPosition(_tab.PositionsLast, vol);
+            }
+            // TODO: надо придумать отключение повтороного набора позиции 
+        }
+
+        /// <summary>
+        /// проверяет набран ли весь  рабочий объем в позиции
+        /// </summary>
+        private bool FullVolume()
+        {
+            if (_tab.PositionsOpenAll.Count == 0)
+            {
+                return false;
+            }
+            if (_tab.PositionsOpenAll.Count != 0)
+            {
+                decimal volPos = _tab.PositionsLast.OpenVolume;
+                int decimalSecur = GetDecimalsVolumeSecur(_tab); // берем децимал монеты
+                decimal desiredVolmonet = Rounding(VolumeInBaks.ValueInt / MarketPriceSecur, decimalSecur); // считаем желаемый  объем в монетах
+                if (volPos <= desiredVolmonet)
+                {
+                    return false;
+                }
+            }
+  
+            return true;
+        }
+
+        /// <summary>
+        /// расчет точки набора позиции
+        /// </summary>
+        private decimal CalculatePointIn()
+        {
+            // берем цену старта  и вычисляем по шагу 
+            if (_tab.PositionsOpenAll.Count == 0)
+            {
+                _rpicePointIn = StartPoint - GetStepLevel();
+                
+            }
+            if (_tab.PositionsOpenAll.Count != 0) // берем цену открытия позиции и вычисляем по шагу 
+            {
+                // _rpicePointIn = _tab.PositionsLast.EntryPrice + GetStepLevel();   // цена открытия позиции
+                decimal priceLastTride = 0;
+    
+                int sumTred = _tab.PositionsLast.MyTrades.Count; // количество трейдов в позиции
+                if (sumTred != 0)
+                {
+                    priceLastTride = _tab.PositionsLast.MyTrades[sumTred - 1].Price; // цена последнего трейда позиции
+                    _rpicePointIn = priceLastTride - GetStepLevel();
+                }
+            }
+            PrinTextDebag("CalculatePointIn пересчитали  ", "_rpicePointIn =" + _rpicePointIn);
+            return _rpicePointIn;
+        }
+
+        /// <summary>
+        ///  запрос децимал бумаги для расчета объема сделки по монете 
+        /// </summary>
+        private int GetDecimalsVolumeSecur(BotTabSimple _tabSimp)
+        {
+            if (_tabSimp.IsConnected && _tabSimp.StartProgram == StartProgram.IsOsTrader)
+            {
+                return _tabSimp.Securiti.DecimalsVolume;
+            }
+            if (_tabSimp.StartProgram == StartProgram.IsTester)
+            {
+                return _tabSimp.Securiti.DecimalsVolume;
+            }
+            else return 0;
         }
 
         /// <summary>
@@ -95,6 +343,7 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
                 _tab.CloseAllAtMarket();
             }
         }
+
         /// <summary>
         /// расчитывает растояние между уровнями 
         /// </summary>
@@ -113,6 +362,17 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
             return stepLevel;
         }
 
+        /// <summary>
+        /// округляет децимал до n чисел после запятой
+        /// </summary>
+        public decimal Rounding(decimal vol, int n) // округляет децимал до n чисел после запятой
+        {
+            decimal value = vol;
+            int N = n;
+            decimal chah = decimal.Round(value, N, MidpointRounding.ToEven);
+            return chah;
+        }
+
         #region сервис ============ 
 
         /// <summary>
@@ -122,8 +382,8 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
         {
             try
             {
-                using (StreamWriter writer = new StreamWriter(@"Engine\" + NameStrategyUniq + @"SettingsBot.txt", false)
-                    )
+                using (StreamWriter writer = new StreamWriter(@"Engine\" + NameStrategyUniq + @"SettingsBot.txt", false) )
+
                 {
                     writer.WriteLine(ProfitPoint);
                     writer.WriteLine(StartPoint);
@@ -200,40 +460,7 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
 
         #endregion  конец Методы =========================================================
 
-        #region Свойства ===============================================
-
-
-        private StrategyParameterBool IsOn; // включение робота
-        private StrategyParameterString StepType; // режим расчета шага сетки 
-        private StrategyParameterDecimal StepLevelProfit; // шаг между шагами выхода
-        private StrategyParameterDecimal StepLevelInput; // шаг между уровнями входа   
-        private StrategyParameterInt VolumeInBaks; // объем позиции в баксах
-        private StrategyParameterDecimal VolumeFactor; //  увеличение объема позиции на вход 
-        private StrategyParameterInt PartsProfit; // количество частей на вход из позиции 
-        private StrategyParameterInt PartsInput; // количество частей на вход в объем позиции 
-       
-
-        // настройки робота публичные
-
-        public decimal ProfitPoint;
-        public decimal StartPoint;
-        public decimal StopPoint;
-
-        /// <summary>
-        /// Рыночная цена бумаги 
-        /// </summary>
-        public decimal MarketPriceSecur
-        {
-            get => _marketPriceSecur;
-            set
-            {
-                _marketPriceSecur = value;
-            }
-        }
-        private decimal _marketPriceSecur;
-
-        #endregion  end Свойства ===============================================
-
+    
     }
 }
 

@@ -259,7 +259,6 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
                 }
             }
         }
-
         #region ===== Сущностия для своего окна вызова инструмента(бумаги)
 
         public ObservableCollection<string> StringPortfolios { get; set; } = new ObservableCollection<string>();
