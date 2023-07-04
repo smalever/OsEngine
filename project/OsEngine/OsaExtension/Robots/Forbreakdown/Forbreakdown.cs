@@ -276,14 +276,13 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
             if (IsOn.ValueBool == false) return;
 
             if (FullVolume()) return;  // проверить набраный обем 
-            // TODO: проверить расчет обема на вход
             decimal vol = 0;
             vol = Rounding(VolumeInBaks.ValueInt / PartsInput.ValueInt / MarketPriceSecur
              , _tab.Securiti.DecimalsVolume); // считаем объем 
 
             if (_tab.PositionsOpenAll.Count == 0 && vol !=0)
             {
-                //if (_tab.PositionsLast.OpenActiv == true) return;
+                //if (_tab.PositionsOpenAll[0].OpenActiv == true) return;
                 _tab.BuyAtMarket(vol);
                 PrinTextDebag("RecruitingPosition ОТКРЫЛИ позицию ", "_rpicePointIn = " + _pricePointIn);
             }
