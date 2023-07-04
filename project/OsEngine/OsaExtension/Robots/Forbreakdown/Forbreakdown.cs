@@ -19,14 +19,14 @@ using static OsEngine.OsaExtension.MVVM.ViewModels.MainWindowRobWpfVM;
 namespace OsEngine.OsaExtension.Robots.Forbreakdown
 {
 
-    [Bot("Forbreakdown")]
+    [Bot("ForBreakdown")]
     public class ForBreakdown : BotPanel
     {
         #region Свойства и Поля ===============================================
         /// <summary>
         /// цена входа расчетная
         /// </summary>
-        decimal _rpicePointIn = 0;
+        decimal _pricePointIn = 0;
 
         private BotTabSimple _tab;
 
@@ -89,8 +89,6 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
             Load();
         }
 
-
-
         #region Методы =========================================================
 
         /// <summary>
@@ -111,6 +109,7 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
             // изменть значения переменных 
             IsOn.ValueBool = false;
             ProfitPoint = 0;
+            _pricePointIn = 0;
             // StartPoint = 0;
             StopPoint = 0;
 
@@ -151,8 +150,7 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
             
             if (StopPoint == 0) CalculateStopPoint();
 
-            //if (_rpicePointIn == 0) 
-            CalculatePointIn();// расчитать точку входа впервые
+            if (_pricePointIn == 0) CalculatePointIn();// расчитать точку входа впервые
 
             if (ProfitPoint == 0)  CalculateProfitPoint();
 
@@ -191,13 +189,13 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
                         if (_tab.PositionsLast.MyTrades[i].Side == Side.Sell)
                         {
                             decimal  tridepoint = _tab.PositionsLast.MyTrades[i].Price; // цена трейда позиции
-                            if (sellpoint < tridepoint)
+                            if (ProfitPoint < tridepoint)
                             {
                                 sellpoint = tridepoint;
                             }                            
                         }                  
                     }
-                    if (sellpoint > 0)
+                    if ( ProfitPoint < sellpoint)
                     {
                         ProfitPoint = sellpoint + GetStepLevelProfit();
                         PrinTextDebag("CalculateProfitPoint пересчитали  ", "ProfitPoint =" + ProfitPoint);
@@ -222,7 +220,7 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
         /// </summary>
         private void FollowPrice()
         {
-            if (MarketPriceSecur <= _rpicePointIn)
+            if (MarketPriceSecur <= _pricePointIn)
             {
                 RecruitingPosition();
                 if (IsOn.ValueBool == false) return;
@@ -255,12 +253,14 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
                 if (vol <= volInput)
                 {
                     //_tab.SellAtMarket(volPos);
+                    if (_tab.PositionsLast.OpenActiv == true) return;
                     _tab.CloseAllAtMarket();
                     PrinTextDebag("ClosePos закрыли остаток по профиту  ", "ProfitPoint =" + ProfitPoint);
                 }
                 else
                 {
                     //_tab.SellAtMarketToPosition(_tab.PositionsLast, vol);
+                    if (_tab.PositionsLast.OpenActiv == true) return;
                     _tab.CloseAtMarket(_tab.PositionsLast, vol);
                     PrinTextDebag("ClosePos закрыли часть по профиту  ", "ProfitPoint =" + ProfitPoint);
                     CalculateProfitPoint();
@@ -278,18 +278,20 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
             if (FullVolume()) return;  // проверить набраный обем 
             // TODO: проверить расчет обема на вход
             decimal vol = 0;
-            vol = Rounding((VolumeInBaks.ValueInt / MarketPriceSecur)
-             / PartsInput.ValueInt, _tab.Securiti.DecimalsVolume); // считаем объем 
+            vol = Rounding(VolumeInBaks.ValueInt / PartsInput.ValueInt / MarketPriceSecur
+             , _tab.Securiti.DecimalsVolume); // считаем объем 
 
             if (_tab.PositionsOpenAll.Count == 0 && vol !=0)
             {
+                //if (_tab.PositionsLast.OpenActiv == true) return;
                 _tab.BuyAtMarket(vol);
-                PrinTextDebag("RecruitingPosition ОТКРЫЛИ позицию ", "_rpicePointIn = " + _rpicePointIn);
+                PrinTextDebag("RecruitingPosition ОТКРЫЛИ позицию ", "_rpicePointIn = " + _pricePointIn);
             }
             if (_tab.PositionsOpenAll.Count != 0)
             {
+                if (_tab.PositionsLast.OpenActiv == true) return;
                 _tab.BuyAtMarketToPosition(_tab.PositionsLast, vol);
-                PrinTextDebag("RecruitingPosition добрвли позицию ", "_rpicePointIn = " + _rpicePointIn);                
+                PrinTextDebag("RecruitingPosition добрвли позицию ", "_rpicePointIn = " + _pricePointIn);                
             }
             CalculatePointIn();
             // TODO: надо придумать отключение повтороного набора позиции 
@@ -325,7 +327,7 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
             // берем цену старта  и вычисляем по шагу 
             if (_tab.PositionsOpenAll.Count == 0)
             {
-                _rpicePointIn = StartPoint - GetStepLevelInput();
+                _pricePointIn = StartPoint - GetStepLevelInput();
                 
             }
             if (_tab.PositionsOpenAll.Count != 0) // берем цену открытия позиции и вычисляем по шагу 
@@ -342,20 +344,24 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
                         if (_tab.PositionsLast.MyTrades[i].Side == Side.Buy)
                         {
                             decimal tridepoint = _tab.PositionsLast.MyTrades[i].Price; // цена трейда позиции
-                            if (buypoint < tridepoint)
+                            if ( buypoint == 0 && tridepoint !=0)
+                            {
+                                buypoint = tridepoint;
+                            }
+                            if ( tridepoint < buypoint)
                             {
                                 buypoint = tridepoint;
                             }
                         }
                     }
-                    if (buypoint > 0)
+                    if (_pricePointIn > buypoint)
                     {
-                        _rpicePointIn = buypoint - GetStepLevelInput();
+                        _pricePointIn = buypoint - GetStepLevelInput();
                     }
                 }
             }
-            PrinTextDebag("CalculatePointIn пересчитали  ", "_rpicePointIn =" + _rpicePointIn);
-            return _rpicePointIn;
+            PrinTextDebag("CalculatePointIn пересчитали  ", "_rpicePointIn =" + _pricePointIn);
+            return _pricePointIn;
         }
 
         /// <summary>
