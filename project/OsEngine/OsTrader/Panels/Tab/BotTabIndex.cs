@@ -3,11 +3,13 @@
  * Ваши права на использование кода регулируются данной лицензией http://o-s-a.net/doc/license_simple_engine.pdf
 */
 
+using OsEngine.Alerts;
 using OsEngine.Charts.CandleChart;
 using OsEngine.Entity;
 using OsEngine.Indicators;
 using OsEngine.Language;
 using OsEngine.Logging;
+using OsEngine.Market;
 using OsEngine.Market.Connectors;
 using System;
 using System.Collections.Generic;
@@ -36,6 +38,17 @@ namespace OsEngine.OsTrader.Panels.Tab
         }
 
         /// <summary>
+        /// source type
+        /// </summary>
+        public BotTabType TabType
+        {
+            get
+            {
+                return BotTabType.Index;
+            }
+        }
+
+        /// <summary>
         /// Program that created the robot
         /// </summary>
         private StartProgram _startProgram;
@@ -57,6 +70,13 @@ namespace OsEngine.OsTrader.Panels.Tab
         /// </summary>
         public void ShowDialog()
         {
+            if (ServerMaster.GetServers() == null ||
+                ServerMaster.GetServers().Count == 0)
+            {
+                SendNewLogMessage(OsLocalization.Market.Message1,LogMessageType.Error);
+                return;
+            }
+
             BotTabIndexUi ui = new BotTabIndexUi(this);
             ui.ShowDialog();
 
@@ -75,6 +95,11 @@ namespace OsEngine.OsTrader.Panels.Tab
         /// </summary>
         public void ShowIndexConnectorIndexDialog(int index)
         {
+            if(index >= Tabs.Count)
+            {
+                return;
+            }
+
             Tabs[index].ShowDialog(false);
             Save();
         }
@@ -236,6 +261,11 @@ namespace OsEngine.OsTrader.Panels.Tab
         }
 
         /// <summary>
+        /// Is the emulator enabled
+        /// </summary>
+        public bool EmulatorIsOn { get; set; }
+
+        /// <summary>
         /// Clear
         /// </summary>
         public void Clear()
@@ -371,6 +401,11 @@ namespace OsEngine.OsTrader.Panels.Tab
             for (int i = 0; Tabs != null && i < Tabs.Count; i++)
             {
                 Tabs[i].Delete();
+            }
+
+            if(TabDeletedEvent != null)
+            {
+                TabDeletedEvent();
             }
         }
 
@@ -1532,6 +1567,11 @@ namespace OsEngine.OsTrader.Panels.Tab
         /// New log message event
         /// </summary>
         public event Action<string, LogMessageType> LogMessageEvent;
+
+        /// <summary>
+        /// Source removed
+        /// </summary>
+        public event Action TabDeletedEvent;
 
         /// <summary>
         /// get chart information
