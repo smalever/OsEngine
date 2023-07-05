@@ -33,7 +33,7 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
             // todo: надо сделать авто заполнение формулы спреда и самих бумаг при создании бота
             _tabIndex.UserFormula = "A0/A1";
 
-            Regime = CreateParameter("Regime", "On", new[] { "Off", "On" });
+            Regime = CreateParameter("Regime", "Off", new[] { "Off", "On" });
             VolumeInDollars = CreateParameter("VolumeInDollars", 50, 50.0m, 500, 10);
             //_lotEntrySize = CreateParameter("_lotEntrySize  ", 1m, 0.00001m, 100m, 0.00001m);
             //Volume2 = CreateParameter("Volume 2", 1, 1.0m, 50, 1);
@@ -50,7 +50,7 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
             _bollingerEntry.Save();
 
             // добавим боллинжер для стопов
-            BollingerStopLength = CreateParameter("BollingerStop Length", 720, 100, 10000, 20);
+            BollingerStopLength = CreateParameter("BollingerStop Length", 1440, 100, 10000, 20);
             BollingerStopDeviation = CreateParameter("BollingerStop Deviation", 4.2m, 0.5m, 5, 0.1m);
             _bollingerStop = new Bollinger(name + "BollingerStop", false);
             _bollingerStop = (Bollinger)_tabIndex.CreateCandleIndicator(_bollingerStop, "Prime");
