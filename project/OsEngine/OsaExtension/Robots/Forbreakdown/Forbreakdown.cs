@@ -305,6 +305,7 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
 
                 _tab.BuyAtMarket(vol);               
                 PrinTextDebag("RecruitingPosition ОТКРЫЛИ позицию ", "_rpicePointIn = " + _pricePointIn);
+                CalculatePointIn();
                 return;
             }
             if (_tab.PositionsOpenAll.Count != 0)
