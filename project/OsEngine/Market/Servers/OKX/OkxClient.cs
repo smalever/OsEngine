@@ -21,7 +21,6 @@ namespace OsEngine.Market.Servers.OKX
         private string PublicKey;
         private string SeckretKey;
         private string Password;
-        private bool HedgeModeIsOn;
 
         private string _baseUrl = "https://www.okx.com/";
         private string _publicWebSocket = "wss://ws.okx.com:8443/ws/v5/public";
@@ -41,16 +40,17 @@ namespace OsEngine.Market.Servers.OKX
         #endregion
 
         //Задержка на подписку для вебсокетов
-
         public RateGate _rateGateWebSocket = new RateGate(1, TimeSpan.FromMilliseconds(500));
+        //Задержка на получения данных портфеля
+        public RateGate _rateGateGetBalance = new RateGate(1, TimeSpan.FromMilliseconds(500));
+        //Задержка на получения данных позиций
+        public RateGate _rateGateGetPositions = new RateGate(1, TimeSpan.FromMilliseconds(500));
 
-        public OkxClient(string PublicKey, string SeckretKey, string Password, bool HedgeModeIsOn)
+        public OkxClient(string PublicKey, string SeckretKey, string Password)
         {
             this.PublicKey = PublicKey;
             this.SeckretKey = SeckretKey;
             this.Password = Password;
-            this.HedgeModeIsOn = HedgeModeIsOn;
-
 
             Thread ThreadCleaningDoneOrders = new Thread(CleanDoneOrders);
             ThreadCleaningDoneOrders.CurrentCulture = new CultureInfo("ru-RU");
@@ -107,6 +107,7 @@ namespace OsEngine.Market.Servers.OKX
             Thread.Sleep(1000);
             try
             {
+                _clientPrivateBalanceAndOrders = null;
                 IsConnectedPositions = false;
                 _wsClientPositions.Closed -= new EventHandler(DisconnectPsoitonsChanel);
                 _wsClientPositions.MessageReceived -= new EventHandler<MessageReceivedEventArgs>(PushMessagePositions);
@@ -265,7 +266,7 @@ namespace OsEngine.Market.Servers.OKX
                 {
                     if (_wsClientPositions != null)
                     {
-                        if (order.SecurityNameCode.EndsWith("SWAP"))
+                        if (order.SecurityNameCode.Contains("SWAP"))
                         {
                             SendOrderSwap(order);
                         }
@@ -309,8 +310,6 @@ namespace OsEngine.Market.Servers.OKX
 
         private void SendOrderSwap(Order order)
         {
-
-
             var side = String.Empty;
             if (order.PositionConditionType == OrderPositionConditionType.Close)
             {
@@ -319,6 +318,7 @@ namespace OsEngine.Market.Servers.OKX
             else
             {
                 side = order.Side == Side.Buy ? "long" : "short";
+                //side = order.Side.ToString().ToLower();
             }
 
             OrderRequest<OrderRequestArgsSwap> orderRequest = new OrderRequest<OrderRequestArgsSwap>();
@@ -369,18 +369,26 @@ namespace OsEngine.Market.Servers.OKX
 
         #region Portfolio
 
+        DateTime _timeUpdatePortfolio;
+
         private void UpdatePortfolios()
         {
             Thread.Sleep(30000);
             while (true)
             {
-                Thread.Sleep(30000);
+                Thread.Sleep(1000);
                 try
                 {
+                    if(_timeUpdatePortfolio.AddSeconds(30) > DateTime.Now)
+                    {
+                        continue;
+                    }
+
+                    _timeUpdatePortfolio = DateTime.Now;
+
                     ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
                     var json = GetBalance();
-
 
                     if (json.StartsWith("{\"code\":\"0\"") == false)
                     {
@@ -389,9 +397,7 @@ namespace OsEngine.Market.Servers.OKX
 
                     PorfolioResponse portfolio = JsonConvert.DeserializeAnonymousType(json, new PorfolioResponse());
 
-
                     portfolio.data[0].details.AddRange(GeneratePositionToContracts());
-
 
                     if (UpdatePortfolio != null)
                     {
@@ -406,21 +412,22 @@ namespace OsEngine.Market.Servers.OKX
             }
         }
 
+        HttpClient _clientPrivateBalanceAndOrders = null;
+
         private string GetBalance()
         {
+            _rateGateGetBalance.WaitToProceed();
             var url = $"{_baseUrl}{"api/v5/account/balance"}";
-            using (var client = new HttpClient(new HttpInterceptor(PublicKey, SeckretKey, Password, null)))
+
+            var res = GetBalanseOrMyTradesRequest(url);
+            var contentStr = res.Content.ReadAsStringAsync().Result;
+
+            if (res.StatusCode != System.Net.HttpStatusCode.OK)
             {
-                var res = client.GetAsync(url).Result;
-                var contentStr = res.Content.ReadAsStringAsync().Result;
-
-                if (res.StatusCode != System.Net.HttpStatusCode.OK)
-                {
-                    SendLogMessage(contentStr, LogMessageType.Error);
-                }
-
-                return contentStr;
+                SendLogMessage(contentStr, LogMessageType.Error);
             }
+
+            return contentStr;
         }
 
         private List<PortdolioDetails> GeneratePositionToContracts()
@@ -464,20 +471,17 @@ namespace OsEngine.Market.Servers.OKX
 
         private string GetBlockBalance()
         {
-
+            _rateGateGetBalance.WaitToProceed();
             var url = $"{_baseUrl}{"api/v5/account/positions"}";
-            using (var client = new HttpClient(new HttpInterceptor(PublicKey, SeckretKey, Password, null)))
+            var res = GetBalanseOrMyTradesRequest(url);
+            var contentStr = res.Content.ReadAsStringAsync().Result;
+
+            if (res.StatusCode != System.Net.HttpStatusCode.OK)
             {
-                var res = client.GetAsync(url).Result;
-                var contentStr = res.Content.ReadAsStringAsync().Result;
-
-                if (res.StatusCode != System.Net.HttpStatusCode.OK)
-                {
-                    SendLogMessage(contentStr, LogMessageType.Error);
-                }
-
-                return contentStr;
+                SendLogMessage(contentStr, LogMessageType.Error);
             }
+
+            return contentStr;
         }
 
         public void GetPortfolios()
@@ -509,6 +513,22 @@ namespace OsEngine.Market.Servers.OKX
             catch (Exception error)
             {
                 SendLogMessage($"{error.Message} {error.StackTrace}", LogMessageType.Error);
+            }
+        }
+
+
+        private string _lockerBalanceGeter = "locker balance and orders geter";
+
+        public HttpResponseMessage GetBalanseOrMyTradesRequest(string url)
+        {
+            lock (_lockerBalanceGeter)
+            {
+                if (_clientPrivateBalanceAndOrders == null)
+                {
+                    _clientPrivateBalanceAndOrders = new HttpClient(new HttpInterceptor(PublicKey, SeckretKey, Password, null));
+                }
+
+                return _clientPrivateBalanceAndOrders.GetAsync(url).Result;
             }
         }
 
@@ -1361,14 +1381,8 @@ namespace OsEngine.Market.Servers.OKX
         {
             var dict = new Dictionary<string, string>();
 
-            if (HedgeModeIsOn == true)
-            {
-                dict["posMode"] = "long_short_mode";
-            }
-            if (HedgeModeIsOn == false)
-            {
-                dict["posMode"] = "net_mode";
-            }
+            dict["posMode"] = "long_short_mode";
+
             try
             {
                 string res = PushPositionMode(dict);

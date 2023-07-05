@@ -14,6 +14,11 @@ namespace OsEngine.OsTrader.Panels.Tab
     public interface IIBotTab
     {
         /// <summary>
+        /// source type
+        /// </summary>
+        BotTabType TabType { get; }
+
+        /// <summary>
         /// Remove tab and all child structures
         /// </summary>
         void Delete();
@@ -39,10 +44,25 @@ namespace OsEngine.OsTrader.Panels.Tab
         int TabNum { get; set; }
 
         /// <summary>
+        /// are events sent to the top from the tab?
+        /// </summary>
+        bool EventsIsOn { get; set; }
+
+        /// <summary>
+        /// are events sent to the top from the tab?
+        /// </summary>
+        bool EmulatorIsOn { get; set; }
+
+        /// <summary>
         /// Time of the last update of the candle
         /// </summary>
         DateTime LastTimeCandleUpdate { get; set; }
-        
+
+        /// <summary>
+        /// Source removed
+        /// </summary>
+        event Action TabDeletedEvent;
+
         /// <summary>
         /// New log message event
         /// </summary>

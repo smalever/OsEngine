@@ -258,6 +258,7 @@ namespace OsEngine.OsTrader
         private TabControl _tabBotTab;
         private ConnectorWorkType _typeWorkKeeper;
         private TextBox _textBoxLimitPrice;
+        private TextBox _textBoxVolume;
         private Grid _gridChartControlPanel;
 
         /// <summary>
@@ -471,7 +472,7 @@ namespace OsEngine.OsTrader
                 }
 
                 _activPanel.StartPaint(_gridChart, _hostChart, _hostGlass, _hostOpenDeals, _hostCloseDeals, _hostboxLog,
-                    _rectangleAroundChart, _hostAlerts, _tabBotTab, _textBoxLimitPrice, _gridChartControlPanel);
+                    _rectangleAroundChart, _hostAlerts, _tabBotTab, _textBoxLimitPrice, _gridChartControlPanel, _textBoxVolume);
 
                 _tabBotNames.SelectionChanged -= _tabBotControl_SelectionChanged;
 
@@ -1272,7 +1273,11 @@ namespace OsEngine.OsTrader
             else
             {
                 StartPaint();
-                _activPanel.MoveChartToTheRight();
+                if(_activPanel != null)
+                {
+                    _activPanel.MoveChartToTheRight();
+                }
+               
             }
         }
 
@@ -1286,7 +1291,7 @@ namespace OsEngine.OsTrader
                 if (_activPanel != null)
                 {
                     _activPanel.StartPaint(_gridChart, _hostChart, _hostGlass, _hostOpenDeals, _hostCloseDeals, _hostboxLog,
-                        _rectangleAroundChart, _hostAlerts, _tabBotTab, _textBoxLimitPrice, _gridChartControlPanel);
+                        _rectangleAroundChart, _hostAlerts, _tabBotTab, _textBoxLimitPrice, _gridChartControlPanel, _textBoxVolume);
                 }
 
                 ReloadRiskJournals();
@@ -1387,7 +1392,7 @@ namespace OsEngine.OsTrader
                         if (_activPanel != null)
                         {
                             _activPanel.StartPaint(_gridChart, _hostChart, _hostGlass, _hostOpenDeals, _hostCloseDeals, _hostboxLog,
-                                _rectangleAroundChart, _hostAlerts, _tabBotTab, _textBoxLimitPrice, _gridChartControlPanel);
+                                _rectangleAroundChart, _hostAlerts, _tabBotTab, _textBoxLimitPrice, _gridChartControlPanel, _textBoxVolume);
                         }
                     }
                 }

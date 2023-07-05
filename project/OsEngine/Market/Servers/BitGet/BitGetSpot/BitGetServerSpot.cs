@@ -139,6 +139,8 @@ namespace OsEngine.Market.Servers.BitGet.BitGetSpot
 
         private RateGate rateGateCancelOrder = new RateGate(1, TimeSpan.FromMilliseconds(200));
 
+        private RateGate rateGateGetMyTradeState = new RateGate(1, TimeSpan.FromMilliseconds(200));
+
         private DateTime TimeToSendPing = DateTime.Now;
 
         private DateTime TimeToUprdatePortfolio = DateTime.Now;
@@ -714,25 +716,42 @@ namespace OsEngine.Market.Servers.BitGet.BitGetSpot
 
                 if (item.status.Equals("online"))
                 {
-                    securities.Add(new Security()
-                    {
-                        Exchange = ServerType.BitGetSpot.ToString(),
-                        DecimalsVolume = Convert.ToInt32(item.quantityScale),
-                        Name = item.symbolName,
-                        NameFull = item.symbol,
-                        NameClass = item.quoteCoin,
-                        NameId = item.symbol,
-                        SecurityType = SecurityType.CurrencyPair,
-                        Decimals = Convert.ToInt32(item.priceScale),
-                        PriceStep = GetPriceStep(Convert.ToInt32(item.priceScale)),
-                        PriceStepCost = GetPriceStep(Convert.ToInt32(item.priceScale)),
-                        State = SecurityStateType.Activ,
-                        Lot = 1,
-                    });
+                    Security newSecurity = new Security();
+
+                    newSecurity.Exchange = ServerType.BitGetSpot.ToString();
+                    newSecurity.DecimalsVolume = Convert.ToInt32(item.quantityScale);
+                    newSecurity.Lot = GetPriceStep(Convert.ToInt32(item.quantityScale));
+                    newSecurity.Name = item.symbolName;
+                    newSecurity.NameFull = item.symbol;
+                    newSecurity.NameClass = item.quoteCoin;
+                    newSecurity.NameId = item.symbol;
+                    newSecurity.SecurityType = SecurityType.CurrencyPair;
+                    newSecurity.Decimals = Convert.ToInt32(item.priceScale);
+                    newSecurity.PriceStep = GetPriceStep(Convert.ToInt32(item.priceScale));
+                    newSecurity.PriceStepCost = newSecurity.PriceStep;
+                    newSecurity.State = SecurityStateType.Activ;
+                    securities.Add(newSecurity);
                 }
             }
 
             SecurityEvent(securities);
+        }
+
+        private decimal GetPriceStep(int ScalePrice)
+        {
+            if (ScalePrice == 0)
+            {
+                return 1;
+            }
+            string priceStep = "0,";
+            for (int i = 0; i < ScalePrice - 1; i++)
+            {
+                priceStep += "0";
+            }
+
+            priceStep += "1";
+
+            return Convert.ToDecimal(priceStep);
         }
 
         private void UpdateTrade(string message)
@@ -825,15 +844,38 @@ namespace OsEngine.Market.Servers.BitGet.BitGetSpot
 
             for (int i = 0; i < responseMyTrades.data.Count; i++)
             {
+                ResponseMyTrade responseT = responseMyTrades.data[i];
+
                 MyTrade myTrade = new MyTrade();
 
-                myTrade.Time = TimeManager.GetDateTimeFromTimeStamp(Convert.ToInt64(responseMyTrades.data[i].cTime));
-                myTrade.NumberOrderParent = responseMyTrades.data[i].orderId;
-                myTrade.NumberTrade = responseMyTrades.data[i].fillId.ToString();
-                myTrade.Volume = responseMyTrades.data[i].fillQuantity.Replace('.', ',').ToDecimal();
-                myTrade.Price = responseMyTrades.data[i].fillPrice.Replace('.', ',').ToDecimal();
-                myTrade.SecurityNameCode = responseMyTrades.data[i].symbol.ToUpper().Replace("_SPBL", "");
-                myTrade.Side = responseMyTrades.data[i].side.Equals("buy") ? Side.Buy : Side.Sell;
+                myTrade.Time = TimeManager.GetDateTimeFromTimeStamp(Convert.ToInt64(responseT.cTime));
+                myTrade.NumberOrderParent = responseT.orderId;
+                myTrade.NumberTrade = responseT.fillId.ToString();
+                myTrade.Price = responseT.fillPrice.ToDecimal();
+                myTrade.SecurityNameCode = responseT.symbol.ToUpper().Replace("_SPBL", "");
+                myTrade.Side = responseT.side.Equals("buy") ? Side.Buy : Side.Sell;
+
+
+                if (string.IsNullOrEmpty(responseT.feeCcy) == false
+                    && string.IsNullOrEmpty(responseT.fees) == false
+                    && responseT.fees.ToDecimal() != 0)
+                {// комиссия берёться в какой-то монете
+                    string comissionSecName = responseT.feeCcy;
+
+                    if (myTrade.SecurityNameCode.StartsWith("BGB")
+                        || myTrade.SecurityNameCode.StartsWith(comissionSecName))
+                    {
+                        myTrade.Volume = responseT.fillQuantity.ToDecimal() + responseT.fees.ToDecimal();
+                    }
+                    else
+                    {
+                        myTrade.Volume = responseT.fillQuantity.ToDecimal();
+                    }
+                }
+                else
+                {// не известная монета комиссии. Берём весь объём
+                    myTrade.Volume = responseT.fillQuantity.ToDecimal();
+                }
 
                 MyTradeEvent(myTrade);
             }
@@ -890,15 +932,11 @@ namespace OsEngine.Market.Servers.BitGet.BitGetSpot
                 newOrder.ServerType = ServerType.BitGetSpot;
                 newOrder.PortfolioNumber = "BitGetSpot";
 
-                
-
                 if (stateType == OrderStateType.Done ||
                     stateType == OrderStateType.Patrial)
                 {
                     // как только приходит ордер исполненный или частично исполненный триггер на запрос моего трейда по имени бумаги
                     CreateQueryMyTrade(newOrder.SecurityNameCode + "_SPBL", newOrder.NumberMarket);
-                    // как только приходит ордер исполненный или частично исполненный триггер на запрос портфеля
-                    CreateQueryPortfolio(false);
                 }
                 MyOrderEvent(newOrder);
             }
@@ -999,6 +1037,8 @@ namespace OsEngine.Market.Servers.BitGet.BitGetSpot
 
         private void CreateQueryMyTrade(string nameSec, string OrdId)
         {
+            rateGateGetMyTradeState.WaitToProceed();
+
             string json = JsonConvert.SerializeObject(new
             {
                 symbol = nameSec,
@@ -1180,23 +1220,7 @@ namespace OsEngine.Market.Servers.BitGet.BitGetSpot
             return 300;
         }
 
-        private decimal GetPriceStep(int ScalePrice)
-        {
-            if (ScalePrice == 0)
-            {
-                return 1;
-            }
-            string priceStep = "0,";
-            for (int i = 0; i < ScalePrice - 1; i++)
-            {
-                priceStep += "0";
-            }
-
-            priceStep += "1";
-
-            return Convert.ToDecimal(priceStep);
-
-        }
+     
 
         private OrderStateType GetOrderState(string orderStateResponse)
         {

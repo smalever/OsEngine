@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Text;
 using OsEngine.Market;
 
@@ -277,11 +276,7 @@ namespace OsEngine.Entity
 
             _volumeExecuteChange = true;
 
-            if (Volume != VolumeExecute)
-            {
-                State = OrderStateType.Patrial;
-            }
-            else
+            if (Volume == VolumeExecute)
             {
                 State = OrderStateType.Done;
             }

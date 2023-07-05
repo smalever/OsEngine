@@ -163,6 +163,17 @@ namespace OsEngine.OsTrader.Panels.Tab
         }
 
         /// <summary>
+        /// source type
+        /// </summary>
+        public BotTabType TabType
+        {
+            get
+            {
+                return BotTabType.Cluster;
+            }
+        }
+
+        /// <summary>
         /// Whether the submission of events to the top is enabled or not
         /// </summary>
         public bool EventsIsOn
@@ -260,6 +271,11 @@ namespace OsEngine.OsTrader.Panels.Tab
         }
 
         /// <summary>
+        /// Is the emulator enabled
+        /// </summary>
+        public bool EmulatorIsOn { get; set; }
+
+        /// <summary>
         /// Line step value
         /// </summary>
         public decimal LineStep
@@ -312,6 +328,11 @@ namespace OsEngine.OsTrader.Panels.Tab
             _chartMaster.Delete();
             _horizontalVolume.Delete();
             CandleConnector.Delete();
+
+            if(TabDeletedEvent != null)
+            {
+                TabDeletedEvent();
+            }
         }
 
         /// <summary>
@@ -574,6 +595,11 @@ namespace OsEngine.OsTrader.Panels.Tab
         /// New log message event
         /// </summary>
         public event Action<string, LogMessageType> LogMessageEvent;
+
+        /// <summary>
+        /// Source removed
+        /// </summary>
+        public event Action TabDeletedEvent;
 
         /// <summary>
         /// Get chart

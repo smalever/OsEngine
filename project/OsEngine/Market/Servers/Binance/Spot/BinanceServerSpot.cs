@@ -188,6 +188,11 @@ namespace OsEngine.Market.Servers.Binance.Spot
         {
             List<Candle> candles = new List<Candle>();
 
+            if(actualTime > endTime)
+            {
+                return null;
+            }
+
             actualTime = startTime;
 
             while (actualTime < endTime)
@@ -232,6 +237,18 @@ namespace OsEngine.Market.Servers.Binance.Spot
                 return null;
             }
 
+            for(int i = candles.Count-1;i >= 0;i--)
+            {
+                if (candles[i].TimeStart <= endTime)
+                {
+                    break;
+                }
+                if (candles[i].TimeStart > endTime)
+                {
+                    candles.RemoveAt(i);
+                }
+            }
+
             return candles;
         }
 
@@ -241,13 +258,17 @@ namespace OsEngine.Market.Servers.Binance.Spot
         /// </summary>
         public List<Trade> GetTickDataToSecurity(Security security, DateTime startTime, DateTime endTime, DateTime lastDate)
         {
-            endTime = endTime.AddDays(1);
+            if (lastDate > endTime)
+            {
+                return null;
+            }
 
             string markerDateTime = "";
 
             List<Trade> trades = new List<Trade>();
 
             DateTime startOver = startTime;
+
             long lastId = 0;
 
             while (true)
@@ -263,10 +284,35 @@ namespace OsEngine.Market.Servers.Binance.Spot
                 {
                     List<Trade> firstTrades = new List<Trade>();
 
+                    int countMinutesAddToFindFirstTrade = 0;
+                    int countDaysAddToFindFirstTrade = 0;
+
                     do
                     {
                         firstTrades = _client.GetTickHistoryToSecurity(security.Name, startOver, startOver.AddSeconds(60), 0);
-                        startOver.AddSeconds(60);
+                        startOver = startOver.AddSeconds(60);
+
+                        if((firstTrades == null || firstTrades.Count == 0) &&
+                            countMinutesAddToFindFirstTrade < 10)
+                        {
+                            countMinutesAddToFindFirstTrade++;
+                            startOver = startOver.AddMinutes(60);
+                        }
+                        else if ((firstTrades == null || firstTrades.Count == 0) &&
+                            countDaysAddToFindFirstTrade < 10)
+                        {
+                            countDaysAddToFindFirstTrade++;
+                            startOver = startOver.AddDays(1);
+                        }
+                        else if(firstTrades == null || firstTrades.Count == 0)
+                        {
+                            startOver = startOver.AddDays(30);
+                        }
+
+                        if (startOver >= endTime)
+                        {
+                            return null;
+                        }
                     }
                     while (firstTrades == null || firstTrades.Count == 0);
 
@@ -312,8 +358,17 @@ namespace OsEngine.Market.Servers.Binance.Spot
                 return null;
             }
 
-            while (trades.Last().Time >= endTime)
-                trades.Remove(trades.Last());
+            for (int i = trades.Count - 1; i >= 0; i--)
+            {
+                if (trades[i].Time <= endTime)
+                {
+                    break;
+                }
+                if (trades[i].Time > endTime)
+                {
+                    trades.RemoveAt(i);
+                }
+            }
 
 
             return trades;
@@ -477,11 +532,19 @@ namespace OsEngine.Market.Servers.Binance.Spot
                     needDepth.Asks = ascs;
                     needDepth.Bids = bids;
                     needDepth.Time = ServerTime;
-
+                   
                     if (needDepth.Time == DateTime.MinValue)
                     {
                         return;
                     }
+
+                    if(needDepth.Time == _lastTimeMd)
+                    {
+                        _lastTimeMd = _lastTimeMd.AddMilliseconds(1);
+                        needDepth.Time = _lastTimeMd;
+                    }
+
+                    _lastTimeMd = needDepth.Time;
 
                     if (MarketDepthEvent != null)
                     {
@@ -494,6 +557,8 @@ namespace OsEngine.Market.Servers.Binance.Spot
                 SendLogMessage(error.ToString(), LogMessageType.Error);
             }
         }
+
+        private DateTime _lastTimeMd = DateTime.MinValue;
 
         #region Портфели
 
@@ -543,6 +608,13 @@ namespace OsEngine.Market.Servers.Binance.Spot
 
                     if (neeedPortf == null)
                     {
+                        PositionOnBoard newPos = new PositionOnBoard();
+                        newPos.PortfolioName = portfolio.Number;
+                        newPos.SecurityNameCode = onePortf.a;
+                        newPos.ValueBegin = onePortf.f.ToDecimal();
+                        newPos.ValueCurrent = onePortf.f.ToDecimal();
+                        portfolio.SetNewPosition(newPos);
+
                         continue;
                     }
 
@@ -588,6 +660,7 @@ namespace OsEngine.Market.Servers.Binance.Spot
                 {
                     PositionOnBoard newPortf = new PositionOnBoard();
                     newPortf.SecurityNameCode = onePortf.asset;
+
                     newPortf.ValueBegin =
                         onePortf.free.ToDecimal();
                     newPortf.ValueCurrent =
@@ -684,6 +757,11 @@ namespace OsEngine.Market.Servers.Binance.Spot
 
             foreach (var sec in pairs.symbols)
             {
+                if(sec.status != "TRADING")
+                {
+                    continue;
+                }
+
                 Security security = new Security();
                 security.Name = sec.symbol;
                 security.NameFull = sec.symbol;
@@ -692,14 +770,13 @@ namespace OsEngine.Market.Servers.Binance.Spot
                 security.SecurityType = SecurityType.CurrencyPair;
                 security.Exchange = ServerType.Binance.ToString();
                 // sec.filters[1] - минимальный объем равный цена * объем
-                security.Lot = 1;
+
                 security.PriceStep = sec.filters[0].tickSize.ToDecimal();
                 security.PriceStepCost = security.PriceStep;
 
                 security.PriceLimitLow = sec.filters[0].minPrice.ToDecimal();
                 security.PriceLimitHigh = sec.filters[0].maxPrice.ToDecimal();
                 
-
                 if (security.PriceStep < 1)
                 {
                     string prStep = security.PriceStep.ToString(CultureInfo.InvariantCulture);
@@ -715,8 +792,10 @@ namespace OsEngine.Market.Servers.Binance.Spot
                    sec.filters[1].minQty != null)
                 {
                     decimal minQty = sec.filters[1].minQty.ToDecimal();
-                    security.MinTradeAmount = minQty;
+                   
+                    security.Lot = minQty;
                     string qtyInStr = minQty.ToStringWithNoEndZero().Replace(",", ".");
+
                     if(qtyInStr.Split('.').Length > 1)
                     {
                         security.DecimalsVolume = qtyInStr.Split('.')[1].Length;

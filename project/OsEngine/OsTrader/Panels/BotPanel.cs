@@ -25,7 +25,6 @@ using OsEngine.OsTrader.RiskManager;
 
 namespace OsEngine.OsTrader.Panels
 {
-
     /// <summary>
     /// types of tabs for the robot 
     /// </summary>
@@ -49,8 +48,12 @@ namespace OsEngine.OsTrader.Panels
         /// <summary>
         /// for trading a portfolio of instruments
         /// </summary>
-        Screener
+        Screener,
 
+        /// <summary>
+        ///  tab - for trading pairs
+        /// </summary>
+        Pair,
     }
 
     /// <summary>
@@ -134,11 +137,11 @@ namespace OsEngine.OsTrader.Panels
 
             for (int i = 0; _botTabs != null && i < _botTabs.Count; i++)
             {
-                if (_botTabs[i].GetType().Name == "BotTabSimple")
+                if (_botTabs[i].TabType == BotTabType.Simple)
                 {
                     journals.Add(((BotTabSimple)_botTabs[i]).GetJournal());
                 }
-                if (_botTabs[i].GetType().Name == "BotTabScreener")
+                else if (_botTabs[i].TabType == BotTabType.Screener)
                 {
                     List<Journal.Journal> journalsOnTab = ((BotTabScreener)_botTabs[i]).GetJournals();
 
@@ -150,7 +153,18 @@ namespace OsEngine.OsTrader.Panels
 
                     journals.AddRange(journalsOnTab);
                 }
+                else if (_botTabs[i].TabType == BotTabType.Pair)
+                {
+                    List<Journal.Journal> journalsOnTab = ((BotTabPair)_botTabs[i]).GetJournals();
 
+                    if (journalsOnTab == null ||
+                        journalsOnTab.Count == 0)
+                    {
+                        continue;
+                    }
+
+                    journals.AddRange(journalsOnTab);
+                }
 
             }
 
@@ -199,7 +213,7 @@ namespace OsEngine.OsTrader.Panels
         /// </summary> 
         public void StartPaint(Grid gridChart, WindowsFormsHost hostChart, WindowsFormsHost glass, WindowsFormsHost hostOpenDeals,
             WindowsFormsHost hostCloseDeals, WindowsFormsHost boxLog, Rectangle rectangle, WindowsFormsHost hostAlerts,
-            TabControl tabBotTab, TextBox textBoxLimitPrice, Grid gridChartControlPanel)
+            TabControl tabBotTab, TextBox textBoxLimitPrice, Grid gridChartControlPanel, TextBox textBoxVolume)
         {
             if (_isPainting)
             {
@@ -216,7 +230,7 @@ namespace OsEngine.OsTrader.Panels
             _hostAlerts = hostAlerts;
             _textBoxLimitPrice = textBoxLimitPrice;
             _gridChartControlPanel = gridChartControlPanel;
-
+            _textBoxVolume = textBoxVolume;
             try
             {
                 if (_tabBotTab == null)
@@ -227,9 +241,9 @@ namespace OsEngine.OsTrader.Panels
                 if (!_tabBotTab.Dispatcher.CheckAccess())
                 {
                     _tabBotTab.Dispatcher.Invoke(new Action<Grid, WindowsFormsHost, WindowsFormsHost, WindowsFormsHost,
-                    WindowsFormsHost, WindowsFormsHost, Rectangle, WindowsFormsHost, TabControl, TextBox, Grid>
+                    WindowsFormsHost, WindowsFormsHost, Rectangle, WindowsFormsHost, TabControl, TextBox, Grid, TextBox>
                     (StartPaint), gridChart, hostChart, glass, hostOpenDeals, hostCloseDeals,
-                    boxLog, rectangle, hostAlerts, tabBotTab, textBoxLimitPrice, gridChartControlPanel);
+                    boxLog, rectangle, hostAlerts, tabBotTab, textBoxLimitPrice, gridChartControlPanel,textBoxVolume);
                     return;
                 }
 
@@ -310,6 +324,7 @@ namespace OsEngine.OsTrader.Panels
                 _hostAlerts = null;
                 _textBoxLimitPrice = null;
                 _gridChartControlPanel = null;
+                _textBoxVolume = null;
 
                 _isPainting = false;
                 ReloadTab();
@@ -328,6 +343,7 @@ namespace OsEngine.OsTrader.Panels
         private Rectangle _rectangle;
         private WindowsFormsHost _hostAlerts;
         private TextBox _textBoxLimitPrice;
+        private TextBox _textBoxVolume;
         private Grid _gridChartControlPanel;
 
         /// <summary>
@@ -435,6 +451,12 @@ namespace OsEngine.OsTrader.Panels
                 {
                     _tabsCluster.Clear();
                     _tabsCluster = null;
+                }
+
+                if (_tabsPair != null)
+                {
+                    _tabsPair.Clear();
+                    _tabsPair = null;
                 }
 
                 if (_tabsScreener != null)
@@ -735,6 +757,10 @@ position => position.State != PositionStateType.OpeningFail
 
                 for (int i = 0; i < journals.Count; i++)
                 {
+                    if(journals[i] == null)
+                    {
+                        continue;
+                    }
                     if (journals[i].OpenPositions == null ||
                         journals[i].OpenPositions.Count == 0)
                     {
@@ -1285,6 +1311,18 @@ position => position.State != PositionStateType.OpeningFail
         private List<BotTabCluster> _tabsCluster = new List<BotTabCluster>();
 
         /// <summary>
+        /// pair tabs
+        /// </summary>
+        public List<BotTabPair> TabsPair
+        {
+            get
+            {
+                return _tabsPair;
+            }
+        }
+        private List<BotTabPair> _tabsPair = new List<BotTabPair>();
+
+        /// <summary>
         /// screener tabs
         /// </summary>
         public List<BotTabScreener> TabsScreener
@@ -1294,7 +1332,6 @@ position => position.State != PositionStateType.OpeningFail
                 return _tabsScreener;
             }
         }
-
         private List<BotTabScreener> _tabsScreener = new List<BotTabScreener>();
 
         /// <summary>
@@ -1361,6 +1398,11 @@ position => position.State != PositionStateType.OpeningFail
                 {
                     newTab = new BotTabCluster(nameTab, StartProgram);
                     _tabsCluster.Add((BotTabCluster)newTab);
+                }
+                else if (tabType == BotTabType.Pair)
+                {
+                    newTab = new BotTabPair(nameTab, StartProgram);
+                    _tabsPair.Add((BotTabPair)newTab);
                 }
                 else if (tabType == BotTabType.Screener)
                 {
@@ -1508,22 +1550,26 @@ position => position.State != PositionStateType.OpeningFail
 
                 ActivTab = _botTabs[tabNumber];
 
-                if (ActivTab.GetType().Name == "BotTabSimple")
+                if (ActivTab.TabType == BotTabType.Simple)
                 {
                     ((BotTabSimple)ActivTab).StartPaint(_gridChart, _hostChart, _hostGlass, _hostOpenDeals, _hostCloseDeals,
-                        _rectangle, _hostAlerts, _textBoxLimitPrice, _gridChartControlPanel);
+                        _rectangle, _hostAlerts, _textBoxLimitPrice, _gridChartControlPanel, _textBoxVolume);
                 }
-                else if (ActivTab.GetType().Name == "BotTabIndex")
+                else if (ActivTab.TabType == BotTabType.Index)
                 {
                     ((BotTabIndex)ActivTab).StartPaint(_gridChart, _hostChart, _rectangle);
                 }
-                else if (ActivTab.GetType().Name == "BotTabCluster")
+                else if (ActivTab.TabType == BotTabType.Cluster)
                 {
                     ((BotTabCluster)ActivTab).StartPaint(_hostChart, _rectangle);
                 }
-                else if (ActivTab.GetType().Name == "BotTabScreener")
+                else if (ActivTab.TabType == BotTabType.Screener)
                 {
                     ((BotTabScreener)ActivTab).StartPaint(_hostChart);
+                }
+                else if (ActivTab.TabType == BotTabType.Pair)
+                {
+                    ((BotTabPair)ActivTab).StartPaint(_hostChart);
                 }
             }
             catch (Exception error)
@@ -1609,6 +1655,10 @@ position => position.State != PositionStateType.OpeningFail
             for (int i = 0; TabsScreener != null && i < TabsScreener.Count; i++)
             {
                 TabsScreener[i].Clear();
+            }
+            for (int i = 0; TabsPair != null && i < TabsPair.Count; i++)
+            {
+                TabsPair[i].Clear();
             }
 
             if (_botTabs != null)
@@ -1748,48 +1798,18 @@ position => position.State != PositionStateType.OpeningFail
         {
             get
             {
-                for (int i = 0; _tabSimple != null && i < _tabSimple.Count; i++)
+                for (int i = 0; _botTabs != null && i < _botTabs.Count; i++)
                 {
-                    return _tabSimple[i].Connector.EventsIsOn;
-                }
-
-                for (int i = 0; _tabsIndex != null && i < _tabsIndex.Count; i++)
-                {
-                    return _tabsIndex[i].EventsIsOn;
-                }
-
-                for (int i = 0; _tabsCluster != null && i < _tabsCluster.Count; i++)
-                {
-                    return _tabsCluster[i].EventsIsOn;
-                }
-
-                for (int i = 0; _tabsScreener != null && i < _tabsScreener.Count; i++)
-                {
-                    return _tabsScreener[i].EventsIsOn;
+                    return _botTabs[i].EventsIsOn;
                 }
 
                 return false;
             }
             set
             {
-                for (int i = 0; _tabSimple != null && i < _tabSimple.Count; i++)
+                for (int i = 0; _botTabs != null && i < _botTabs.Count; i++)
                 {
-                    _tabSimple[i].Connector.EventsIsOn = value;
-                }
-
-                for (int i = 0; _tabsIndex != null && i < _tabsIndex.Count; i++)
-                {
-                    _tabsIndex[i].EventsIsOn = value;
-                }
-
-                for (int i = 0; _tabsCluster != null && i < _tabsCluster.Count; i++)
-                {
-                    _tabsCluster[i].EventsIsOn = value;
-                }
-
-                for (int i = 0; _tabsScreener != null && i < _tabsScreener.Count; i++)
-                {
-                    _tabsScreener[i].EventsIsOn = value;
+                    _botTabs[i].EventsIsOn = value;
                 }
             }
         }
@@ -1801,27 +1821,16 @@ position => position.State != PositionStateType.OpeningFail
         {
             get
             {
-                for (int i = 0; _tabSimple != null && i < _tabSimple.Count; i++)
+                for (int i = 0; _botTabs != null && i < _botTabs.Count; i++)
                 {
-                    return _tabSimple[i].EmulatorIsOn;
-                }
 
-                for (int i = 0; _tabsScreener != null && i < _tabsScreener.Count; i++)
-                {
-                    BotTabScreener bot = _tabsScreener[i];
-
-                    for (int i2 = 0; i2 < bot.Tabs.Count; i2++)
+                    if (_botTabs[i].TabType == BotTabType.Index
+                        || _botTabs[i].TabType == BotTabType.Cluster)
                     {
-                        try
-                        {
-                            return bot.Tabs[i2].EmulatorIsOn;
-                        }
-                        catch
-                        {
-                            // ignore. Не все вкладки запустились
-                        }
+                        continue;
                     }
-                    return bot.EmulatorIsOn;
+
+                    return _botTabs[i].EmulatorIsOn;
                 }
 
                 return false;
@@ -1833,34 +1842,9 @@ position => position.State != PositionStateType.OpeningFail
                     return;
                 }
 
-                for (int i = 0; _tabSimple != null && i < _tabSimple.Count; i++)
+                for (int i = 0; _botTabs != null && i < _botTabs.Count; i++)
                 {
-                    _tabSimple[i].EmulatorIsOn = value;
-                    _tabSimple[i].Connector.Save();
-                }
-
-                for (int i = 0; _tabsScreener != null && i < _tabsScreener.Count; i++)
-                {
-                    BotTabScreener bot = _tabsScreener[i];
-
-                    if (bot.EmulatorIsOn != value)
-                    {
-                        bot.EmulatorIsOn = value;
-                        bot.SaveSettings();
-                    }
-
-                    for (int i2 = 0; i2 < bot.Tabs.Count; i2++)
-                    {
-                        try
-                        {
-                            bot.Tabs[i2].EmulatorIsOn = value;
-                            bot.Tabs[i2].Connector.Save();
-                        }
-                        catch
-                        {
-                            // ignore. Не все вкладки запустились
-                        }
-                    }
+                    _botTabs[i].EmulatorIsOn = value;
                 }
             }
         }
