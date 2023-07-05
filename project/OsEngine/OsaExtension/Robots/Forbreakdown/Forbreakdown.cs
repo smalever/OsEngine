@@ -221,9 +221,17 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
         private void FollowPrice()
         {
             if (MarketPriceSecur <= _pricePointIn)
-            {
-                RecruitingPosition();
+            {                
                 if (IsOn.ValueBool == false) return;
+
+                List<Position> positions = _tab.PositionsOpenAll;
+                if (positions.Count > 0) 
+                {
+                    if (positions[0].OpenOrders[0].State == OrderStateType.Activ) return;
+                    if (positions[0].OpenOrders[0].State == OrderStateType.Patrial) return;
+                    if (positions[0].OpenOrders[0].State == OrderStateType.Pending) return;
+                }
+                RecruitingPosition();
                 //CalculatePointIn();                
             }
             if ( MarketPriceSecur > ProfitPoint )
@@ -273,22 +281,37 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
         /// </summary>
         private void RecruitingPosition()
         {
+            
             if (IsOn.ValueBool == false) return;
+
+            List<Position> position = _tab.PositionsOpenAll;
+            //if (positions[0].OpenOrders[0].State == OrderStateType.Activ) return;
 
             if (FullVolume()) return;  // проверить набраный обем 
             decimal vol = 0;
             vol = Rounding(VolumeInBaks.ValueInt / PartsInput.ValueInt / MarketPriceSecur
              , _tab.Securiti.DecimalsVolume); // считаем объем 
-
+  
             if (_tab.PositionsOpenAll.Count == 0 && vol !=0)
             {
-                //if (_tab.PositionsOpenAll[0].OpenActiv == true) return;
-                _tab.BuyAtMarket(vol);
+                List<Position> positions = _tab.PositionsOpenAll;
+                if (positions.Count > 0)
+                {
+                    if (positions[0].OpenOrders[0].State == OrderStateType.Activ) return;
+                    if (positions[0].OpenOrders[0].State == OrderStateType.Patrial) return;
+                    if (positions[0].OpenOrders[0].State == OrderStateType.Pending) return;
+                }
+                // if (_tab.PositionsOpenAll[0].OpenActiv == true) return;
+
+                _tab.BuyAtMarket(vol);               
                 PrinTextDebag("RecruitingPosition ОТКРЫЛИ позицию ", "_rpicePointIn = " + _pricePointIn);
+                return;
             }
             if (_tab.PositionsOpenAll.Count != 0)
             {
+                if (_tab.PositionsOpenAll[0].OpenActiv == true) return;
                 if (_tab.PositionsLast.OpenActiv == true) return;
+                if (position[0].OpenOrders[0].State == OrderStateType.Activ) return;
                 _tab.BuyAtMarketToPosition(_tab.PositionsLast, vol);
                 PrinTextDebag("RecruitingPosition добрвли позицию ", "_rpicePointIn = " + _pricePointIn);                
             }
