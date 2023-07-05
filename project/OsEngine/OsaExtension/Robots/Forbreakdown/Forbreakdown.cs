@@ -230,6 +230,8 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
                     if (positions[0].OpenOrders[0].State == OrderStateType.Activ) return;
                     if (positions[0].OpenOrders[0].State == OrderStateType.Patrial) return;
                     if (positions[0].OpenOrders[0].State == OrderStateType.Pending) return;
+                    if (positions[0].OpenOrders[0].State == OrderStateType.None) return;
+                    // if (positions[0].OpenOrders[0].State == OrderStateType.Patrial) return;
                 }
                 RecruitingPosition();
                 //CalculatePointIn();                
