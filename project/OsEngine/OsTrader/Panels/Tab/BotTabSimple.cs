@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Threading;
@@ -13,12 +12,10 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms.Integration;
-using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using OsEngine.Alerts;
 using OsEngine.Charts.CandleChart;
 using OsEngine.Charts.CandleChart.Elements;
-using OsEngine.Charts.CandleChart.Indicators;
 using OsEngine.Entity;
 using OsEngine.Indicators;
 using OsEngine.Language;
@@ -26,7 +23,6 @@ using OsEngine.Logging;
 using OsEngine.Market;
 using OsEngine.Market.Connectors;
 using OsEngine.Market.Servers;
-using OsEngine.Market.Servers.GateIo.Futures.Response;
 using OsEngine.Market.Servers.Optimizer;
 using OsEngine.Market.Servers.Tester;
 using OsEngine.OsTrader.Panels.Tab.Internal;
@@ -131,6 +127,17 @@ namespace OsEngine.OsTrader.Panels.Tab
         }
 
         /// <summary>
+        /// source type
+        /// </summary>
+        public BotTabType TabType 
+        {
+            get
+            {
+                return BotTabType.Simple;
+            } 
+        }
+
+        /// <summary>
         /// The connector has started the reconnection procedure
         /// </summary>
         /// <param name="securityName">security name</param>
@@ -159,12 +166,12 @@ namespace OsEngine.OsTrader.Panels.Tab
         /// Start drawing this robot
         /// </summary>
         public void StartPaint(Grid gridChart, WindowsFormsHost hostChart, WindowsFormsHost hostGlass, WindowsFormsHost hostOpenDeals,
-                     WindowsFormsHost hostCloseDeals, Rectangle rectangleChart, WindowsFormsHost hostAlerts, TextBox textBoxLimitPrice, Grid gridChartControlPanel)
+                     WindowsFormsHost hostCloseDeals, Rectangle rectangleChart, WindowsFormsHost hostAlerts, TextBox textBoxLimitPrice, Grid gridChartControlPanel, TextBox textBoxVolume)
         {
             try
             {
                 _chartMaster?.StartPaint(gridChart, hostChart, rectangleChart);
-                _marketDepthPainter?.StartPaint(hostGlass, textBoxLimitPrice);
+                _marketDepthPainter?.StartPaint(hostGlass, textBoxLimitPrice, textBoxVolume);
                 _journal?.StartPaint(hostOpenDeals, hostCloseDeals);
 
                 _alerts?.StartPaint(hostAlerts);
@@ -211,7 +218,38 @@ namespace OsEngine.OsTrader.Panels.Tab
         /// </summary>
 
         public bool IsCreatedByScreener { get; set; }
- 
+
+        /// <summary>
+        /// are events sent to the top from the tab?
+        /// </summary>
+        public bool EventsIsOn 
+        { 
+            get 
+            {
+                if(Connector == null)
+                {
+                    return false;
+                }
+
+                return Connector.EventsIsOn;
+            } 
+            set 
+            {
+                if (Connector == null)
+                {
+                    return;
+                }
+
+                if(Connector.EventsIsOn == value)
+                {
+                    return;
+                }
+
+                Connector.EventsIsOn = value;
+            } 
+        
+        }
+
         /// <summary>
         /// custom name robot
         /// пользовательское имя робота
@@ -364,6 +402,11 @@ namespace OsEngine.OsTrader.Panels.Tab
                 if (DeleteBotEvent != null)
                 {
                     DeleteBotEvent(TabNum);
+                }
+
+                if(TabDeletedEvent != null)
+                {
+                    TabDeletedEvent();
                 }
             }
             catch (Exception error)
@@ -627,6 +670,7 @@ namespace OsEngine.OsTrader.Panels.Tab
                 }
 
                 _connector.EmulatorIsOn = value;
+                _connector.Save();
 
                 if (EmulatorIsOnChangeStateEvent != null)
                 {
@@ -1310,7 +1354,7 @@ namespace OsEngine.OsTrader.Panels.Tab
 
                 if (price == 0)
                 {
-                    SetNewLogMessage(OsLocalization.Trader.Label62, LogMessageType.System);
+                    SetNewLogMessage(OsLocalization.Trader.Label290, LogMessageType.System);
                     return null;
                 }
 
@@ -1425,13 +1469,13 @@ namespace OsEngine.OsTrader.Panels.Tab
 
                 if (volume == 0)
                 {
-                    SetNewLogMessage(OsLocalization.Trader.Label63, LogMessageType.System);
+                    SetNewLogMessage(OsLocalization.Trader.Label63, LogMessageType.System); 
                     return null;
                 }
 
                 if (price == 0)
                 {
-                    SetNewLogMessage(OsLocalization.Trader.Label62, LogMessageType.System);
+                    SetNewLogMessage(OsLocalization.Trader.Label291, LogMessageType.System);
                     return null;
                 }
 
@@ -1672,7 +1716,7 @@ namespace OsEngine.OsTrader.Panels.Tab
 
                 if (price == 0)
                 {
-                    SetNewLogMessage(OsLocalization.Trader.Label62, LogMessageType.System);
+                    SetNewLogMessage(OsLocalization.Trader.Label290, LogMessageType.System);
                     return;
                 }
 
@@ -1759,7 +1803,7 @@ namespace OsEngine.OsTrader.Panels.Tab
 
                 if (price == 0)
                 {
-                    SetNewLogMessage(OsLocalization.Trader.Label62, LogMessageType.System);
+                    SetNewLogMessage(OsLocalization.Trader.Label291, LogMessageType.System);
                     return;
                 }
 
@@ -1855,7 +1899,7 @@ namespace OsEngine.OsTrader.Panels.Tab
 
                 if (price == 0)
                 {
-                    SetNewLogMessage(OsLocalization.Trader.Label62, LogMessageType.System);
+                    SetNewLogMessage(OsLocalization.Trader.Label291, LogMessageType.System);
                     return null;
                 }
 
@@ -1901,7 +1945,7 @@ namespace OsEngine.OsTrader.Panels.Tab
 
                 if (price == 0)
                 {
-                    SetNewLogMessage(OsLocalization.Trader.Label62, LogMessageType.System);
+                    SetNewLogMessage(OsLocalization.Trader.Label291, LogMessageType.System);
                     return null;
                 }
 
@@ -1993,7 +2037,7 @@ namespace OsEngine.OsTrader.Panels.Tab
 
                 if (price == 0)
                 {
-                    SetNewLogMessage(OsLocalization.Trader.Label62, LogMessageType.System);
+                    SetNewLogMessage(OsLocalization.Trader.Label290, LogMessageType.System);
                     return null;
                 }
 
@@ -2112,7 +2156,7 @@ namespace OsEngine.OsTrader.Panels.Tab
 
                 if (price == 0)
                 {
-                    SetNewLogMessage(OsLocalization.Trader.Label62, LogMessageType.System);
+                    SetNewLogMessage(OsLocalization.Trader.Label291, LogMessageType.System);
                     return null;
                 }
 
@@ -2434,7 +2478,7 @@ namespace OsEngine.OsTrader.Panels.Tab
 
                 if (price == 0)
                 {
-                    SetNewLogMessage(OsLocalization.Trader.Label62, LogMessageType.System);
+                    SetNewLogMessage(OsLocalization.Trader.Label291, LogMessageType.System);
                     return;
                 }
 
@@ -2665,6 +2709,12 @@ namespace OsEngine.OsTrader.Panels.Tab
                 }
                 decimal price = _connector.BestAsk;
 
+                if (price == 0)
+                {
+                    SetNewLogMessage(OsLocalization.Trader.Label290, LogMessageType.System);
+                    return;
+                }
+
                 if (position.Direction == Side.Buy)
                 {
                     if (!Connector.EmulatorIsOn)
@@ -2682,12 +2732,6 @@ namespace OsEngine.OsTrader.Panels.Tab
                     {
                         price = price + Securiti.PriceStep * 40;
                     }
-                }
-
-                if (price == 0)
-                {
-                    SetNewLogMessage(OsLocalization.Trader.Label62, LogMessageType.System);
-                    return;
                 }
 
                 if (_connector.MarketOrdersIsSupport)
@@ -3049,7 +3093,7 @@ namespace OsEngine.OsTrader.Panels.Tab
 
                 if (price == 0)
                 {
-                    SetNewLogMessage(OsLocalization.Trader.Label62, LogMessageType.System);
+                    SetNewLogMessage(OsLocalization.Trader.Label291, LogMessageType.System);
                     return null;
                 }
 
@@ -3098,7 +3142,7 @@ namespace OsEngine.OsTrader.Panels.Tab
 
                 if (price == 0)
                 {
-                    SetNewLogMessage(OsLocalization.Trader.Label62, LogMessageType.System);
+                    SetNewLogMessage(OsLocalization.Trader.Label291, LogMessageType.System);
                     return;
                 }
 
@@ -3168,7 +3212,7 @@ namespace OsEngine.OsTrader.Panels.Tab
 
                 if (price == 0)
                 {
-                    SetNewLogMessage(OsLocalization.Trader.Label62, LogMessageType.System);
+                    SetNewLogMessage(OsLocalization.Trader.Label291, LogMessageType.System);
                     return null;
                 }
 
@@ -3217,7 +3261,7 @@ namespace OsEngine.OsTrader.Panels.Tab
 
                 if (price == 0)
                 {
-                    SetNewLogMessage(OsLocalization.Trader.Label62, LogMessageType.System);
+                    SetNewLogMessage(OsLocalization.Trader.Label291, LogMessageType.System);
                     return;
                 }
 
@@ -4918,6 +4962,11 @@ namespace OsEngine.OsTrader.Panels.Tab
         /// Security for connector defined
         /// </summary>
         public event Action<Security> SecuritySubscribeEvent;
+
+        /// <summary>
+        /// Source removed
+        /// </summary>
+        public event Action TabDeletedEvent;
     }
 
     /// <summary>

@@ -207,7 +207,7 @@ namespace OsEngine.OsTrader.Panels
         {
             _panel.StartPaint(GridChart, ChartHostPanel, HostGlass, HostOpenPosition,
              HostClosePosition, HostBotLog, RectChart,
-             HostAllert, TabControlBotTab, TextBoxPrice, GridChartControlPanel);
+             HostAllert, TabControlBotTab, TextBoxPrice, GridChartControlPanel, TextBoxVolumeFast);
         }
 
         private BotPanel _panel;
@@ -464,12 +464,15 @@ namespace OsEngine.OsTrader.Panels
 
         private void buttonStrategManualSettings_Click(object sender, RoutedEventArgs e)
         {
-            if (_panel.ActivTab.GetType().Name != "BotTabSimple")
+            if (_panel.ActivTab.GetType().Name == "BotTabSimple")
             {
-                return;
+                ((BotTabSimple)_panel.ActivTab).ShowManualControlDialog();
+            }
+            else if (_panel.ActivTab.GetType().Name == "BotTabScreener")
+            {
+                ((BotTabScreener)_panel.ActivTab).ShowManualControlDialog();
             }
 
-            ((BotTabSimple)_panel.ActivTab).ShowManualControlDialog();
         }
 
         private void SendNewLogMessage(string message, LogMessageType type)

@@ -205,7 +205,18 @@ namespace OsEngine.OsTrader.Panels.Tab
             ReloadIndicatorsOnTabs();
 
             AddNewTabToWatch(this);
-            DeleteEvent += BotTabScreener_DeleteEvent;
+            this.TabDeletedEvent += BotTabScreener_DeleteEvent;
+        }
+
+        /// <summary>
+        /// source type
+        /// </summary>
+        public BotTabType TabType
+        {
+            get
+            {
+                return BotTabType.Screener;
+            }
         }
 
         /// <summary>
@@ -414,7 +425,7 @@ namespace OsEngine.OsTrader.Panels.Tab
                     writer.WriteLine(SecuritiesClass);
                     writer.WriteLine(TimeFrame);
                     writer.WriteLine(ServerType);
-                    writer.WriteLine(EmulatorIsOn);
+                    writer.WriteLine(_emulatorIsOn);
                     writer.WriteLine(CandleMarketDataType);
                     writer.WriteLine(CandleCreateMethodType);
                     writer.WriteLine(SetForeign);
@@ -464,7 +475,7 @@ namespace OsEngine.OsTrader.Panels.Tab
                     Enum.TryParse(reader.ReadLine(), out TimeFrame);
                     Enum.TryParse(reader.ReadLine(), out ServerType);
 
-                    EmulatorIsOn = Convert.ToBoolean(reader.ReadLine());
+                    _emulatorIsOn = Convert.ToBoolean(reader.ReadLine());
                     Enum.TryParse(reader.ReadLine(), out CandleMarketDataType);
                     Enum.TryParse(reader.ReadLine(), out CandleCreateMethodType);
 
@@ -525,13 +536,11 @@ namespace OsEngine.OsTrader.Panels.Tab
                 File.Delete(@"Engine\" + TabName + @"ScreenerTabSet.txt");
             }
 
-            if (DeleteEvent != null)
+            if(TabDeletedEvent != null)
             {
-                DeleteEvent();
+                TabDeletedEvent();
             }
         }
-
-        public event Action DeleteEvent;
 
         /// <summary>
         /// Get journal
@@ -588,7 +597,36 @@ namespace OsEngine.OsTrader.Panels.Tab
         /// <summary>
         /// Is the emulator enabled
         /// </summary>
-        public bool EmulatorIsOn;
+        public bool EmulatorIsOn
+        {
+            get
+            {
+                return _emulatorIsOn;
+            }
+            set
+            {
+                if(_emulatorIsOn == value)
+                {
+                    return;
+                }
+
+                for (int i = 0; Tabs != null && i < Tabs.Count; i++)
+                {
+                    try
+                    {
+                        Tabs[i].EmulatorIsOn = value;
+                    }
+                    catch
+                    {
+                        // ignore. Не все вкладки запустились
+                    }
+                }
+
+                _emulatorIsOn = value;
+                SaveSettings();
+            }
+        }
+        private bool _emulatorIsOn;
 
         /// <summary>
         /// Data type for calculating candles in a series of candles
@@ -757,7 +795,7 @@ namespace OsEngine.OsTrader.Panels.Tab
         {
             tab.Connector.PortfolioName = PortfolioName;
             tab.Connector.ServerType = ServerType;
-            tab.Connector.EmulatorIsOn = EmulatorIsOn;
+            tab.Connector.EmulatorIsOn = _emulatorIsOn;
             tab.Connector.CandleMarketDataType = CandleMarketDataType;
             tab.Connector.CandleCreateMethodType = CandleCreateMethodType;
             tab.Connector.SetForeign = SetForeign;
@@ -808,7 +846,7 @@ namespace OsEngine.OsTrader.Panels.Tab
             newTab.TimeFrameBuilder.TimeFrame = frame;
             newTab.Connector.PortfolioName = PortfolioName;
             newTab.Connector.ServerType = ServerType;
-            newTab.Connector.EmulatorIsOn = EmulatorIsOn;
+            newTab.Connector.EmulatorIsOn = _emulatorIsOn;
             newTab.Connector.CandleMarketDataType = CandleMarketDataType;
             newTab.Connector.CandleCreateMethodType = CandleCreateMethodType;
             newTab.Connector.SetForeign = SetForeign;
@@ -1260,6 +1298,23 @@ namespace OsEngine.OsTrader.Panels.Tab
 
         #endregion
 
+        #region Настройки сопровождения позиций
+
+        public void ShowManualControlDialog()
+        {
+            if(Tabs.Count == 0)
+            {
+                SendNewLogMessage(OsLocalization.Trader.Label231, LogMessageType.Error);
+                return;
+            }
+
+            Tabs[0].ShowManualControlDialog();
+            SuncFirstTab();
+        }
+
+        #endregion
+
+
         #region создание / удаление / хранение индикаторов
 
         /// <summary>
@@ -1470,23 +1525,54 @@ namespace OsEngine.OsTrader.Panels.Tab
         /// </summary>
         public void SuncFirstTab()
         {
-            if (Tabs.Count <= 1)
+            try
             {
-                return;
+                if (Tabs.Count <= 1)
+                {
+                    return;
+                }
+
+                BotTabSimple firstTab = Tabs[0];
+
+                for (int i = 1; i < Tabs.Count; i++)
+                {
+                    SyncTabsIndicators(firstTab, Tabs[i]);
+                    SyncTabsManualPositionControl(firstTab, Tabs[i]);
+                }
             }
-
-            BotTabSimple firstTab = Tabs[0];
-
-            for (int i = 1; i < Tabs.Count; i++)
+            catch (Exception error)
             {
-                SyncTabs(firstTab, Tabs[i]);
+                SendNewLogMessage(error.ToString(), LogMessageType.Error);
             }
+        }
+
+        private void SyncTabsManualPositionControl(BotTabSimple first, BotTabSimple second)
+        {
+            second.ManualPositionSupport.SecondToClose = first.ManualPositionSupport.SecondToClose;
+            second.ManualPositionSupport.SecondToOpen = first.ManualPositionSupport.SecondToOpen;
+            second.ManualPositionSupport.DoubleExitIsOn = first.ManualPositionSupport.DoubleExitIsOn;
+            second.ManualPositionSupport.DoubleExitSlipage = first.ManualPositionSupport.DoubleExitSlipage;
+            second.ManualPositionSupport.ProfitDistance = first.ManualPositionSupport.ProfitDistance;
+            second.ManualPositionSupport.ProfitIsOn = first.ManualPositionSupport.ProfitIsOn;
+            second.ManualPositionSupport.ProfitSlipage = first.ManualPositionSupport.ProfitSlipage;
+            second.ManualPositionSupport.SecondToCloseIsOn = first.ManualPositionSupport.SecondToCloseIsOn;
+            second.ManualPositionSupport.SecondToOpenIsOn = first.ManualPositionSupport.SecondToOpenIsOn;
+            second.ManualPositionSupport.SetbackToCloseIsOn = first.ManualPositionSupport.SetbackToCloseIsOn;
+            second.ManualPositionSupport.SetbackToClosePosition = first.ManualPositionSupport.SetbackToOpenPosition;
+            second.ManualPositionSupport.SetbackToOpenIsOn = first.ManualPositionSupport.SetbackToOpenIsOn;
+            second.ManualPositionSupport.SetbackToOpenPosition = first.ManualPositionSupport.SetbackToOpenPosition;
+            second.ManualPositionSupport.StopDistance = first.ManualPositionSupport.StopDistance;
+            second.ManualPositionSupport.StopIsOn = first.ManualPositionSupport.StopIsOn;
+            second.ManualPositionSupport.StopSlipage = first.ManualPositionSupport.StopSlipage;
+            second.ManualPositionSupport.TypeDoubleExitOrder = first.ManualPositionSupport.TypeDoubleExitOrder;
+            second.ManualPositionSupport.ValuesType = first.ManualPositionSupport.ValuesType;
+
         }
 
         /// <summary>
         /// синхронизировать две вкладки
         /// </summary>
-        private void SyncTabs(BotTabSimple first, BotTabSimple second)
+        private void SyncTabsIndicators(BotTabSimple first, BotTabSimple second)
         {
             List<IIndicator> indicatorsFirst = first.Indicators;
 
@@ -1917,6 +2003,10 @@ namespace OsEngine.OsTrader.Panels.Tab
         /// </summary>
         public event Action<Position, BotTabSimple> PositionSellAtStopActivateEvent;
 
+        /// <summary>
+        /// Source removed
+        /// </summary>
+        public event Action TabDeletedEvent;
     }
 
     /// <summary>

@@ -147,9 +147,9 @@ namespace OsEngine.Market.Servers.BitGet.BitGetFutures
         private DateTime TimeToSendPing = DateTime.Now;
         private DateTime TimeToUprdatePortfolio = DateTime.Now;
         private ConcurrentQueue<string> FIFOListWebSocketMessage = new ConcurrentQueue<string>();
-        private RateGate rateGateSubscrible = new RateGate(1, TimeSpan.FromMilliseconds(100));
-        private RateGate rateGateSendOrder = new RateGate(1, TimeSpan.FromMilliseconds(200));
-        private RateGate rateGateCancelOrder = new RateGate(1, TimeSpan.FromMilliseconds(200));
+        private RateGate rateGateSubscrible = new RateGate(1, TimeSpan.FromMilliseconds(150));
+        private RateGate rateGateSendOrder = new RateGate(1, TimeSpan.FromMilliseconds(250));
+        private RateGate rateGateCancelOrder = new RateGate(1, TimeSpan.FromMilliseconds(250));
 
         #endregion
 
@@ -537,6 +537,11 @@ namespace OsEngine.Market.Servers.BitGet.BitGetFutures
 
             trade.Price = responseTrade.data[0][1].ToDecimal();
             trade.Id = responseTrade.data[0][0];
+
+            if(trade.Id == null)
+            {
+                return;
+            }
             trade.Time = TimeManager.GetDateTimeFromTimeStamp(Convert.ToInt64(responseTrade.data[0][0]));
             trade.Volume = responseTrade.data[0][2].ToDecimal();
             trade.Side = responseTrade.data[0][3].Equals("buy") ? Side.Buy : Side.Sell;

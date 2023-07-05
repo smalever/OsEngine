@@ -377,6 +377,11 @@
       <DependentUpon>AwaitUi.xaml</DependentUpon>
     </Compile>
     <Compile Include="Entity\CandleConverter.cs" />
+    <Compile Include="Entity\CointegrationBuilder.cs" />
+    <Compile Include="Entity\ColorCustomDialog.xaml.cs">
+      <DependentUpon>ColorCustomDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Entity\CorrelationBuilder.cs" />
     <Compile Include="Entity\DataGridFactory.cs" />
     <Compile Include="Entity\DateTimeSelectionDialog.xaml.cs">
       <DependentUpon>DateTimeSelectionDialog.xaml</DependentUpon>
@@ -955,6 +960,13 @@
     <Compile Include="OsTrader\Panels\BotPanelChartUI.xaml.cs">
       <DependentUpon>BotPanelChartUI.xaml</DependentUpon>
     </Compile>
+    <Compile Include="OsTrader\Panels\Tab\BotTabPair.cs" />
+    <Compile Include="OsTrader\Panels\Tab\BotTabPairCommonSettingsUi.xaml.cs">
+      <DependentUpon>BotTabPairCommonSettingsUi.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="OsTrader\Panels\Tab\BotTabPairUi.xaml.cs">
+      <DependentUpon>BotTabPairUi.xaml</DependentUpon>
+    </Compile>
     <Compile Include="OsTrader\Panels\Tab\BotTabScreener.cs" />
     <Compile Include="OsTrader\Panels\Tab\BotTabScreenerUi.xaml.cs">
       <DependentUpon>BotTabScreenerUi.xaml</DependentUpon>
@@ -965,6 +977,13 @@
     <Compile Include="OsTrader\Panels\Tab\Internal\PositionOpenUi2.xaml.cs">
       <DependentUpon>PositionOpenUi2.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Robots\AutoTestBots\ServerTests\AllSecuritiesSubscribleTest.cs" />
+    <Compile Include="Robots\AutoTestBots\ServerTests\AServerTester.cs" />
+    <Compile Include="Robots\AutoTestBots\ServerTests\DataTest1_IntegrityOfData.cs" />
+    <Compile Include="Robots\AutoTestBots\ServerTests\DataTest2_StrangeRequests.cs" />
+    <Compile Include="Robots\AutoTestBots\ServerTests\MarketDepthTester.cs" />
+    <Compile Include="Robots\AutoTestBots\ServerTests\TestSpamEntity.cs" />
+    <Compile Include="Robots\AutoTestBots\ServerTests\SecuritiesTester.cs" />
     <Compile Include="Robots\AutoTestBots\TestBotCandlesComparison.cs" />
     <Compile Include="Robots\AutoTestBots\TestBotConnection.cs" />
     <Compile Include="Robots\AutoTestBots\TestBotConnectionParams.xaml.cs">
@@ -973,6 +992,7 @@
     <Compile Include="Robots\AutoTestBots\TestBotOpenAndCanselOrders.cs" />
     <Compile Include="Robots\BotFactory.cs" />
     <Compile Include="Robots\CounterTrend\ClusterCountertrend.cs" />
+    <Compile Include="Robots\Engines\EnginePair.cs" />
     <Compile Include="Robots\OnScriptIndicators\GridSample.cs" />
     <Compile Include="Robots\Engines\CandleEngine.cs" />
     <Compile Include="Robots\Engines\ClusterEngine.cs" />
@@ -1315,6 +1335,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Entity\ColorCustomDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Entity\DateTimeSelectionDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -1532,6 +1556,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="OsTrader\Panels\BotPanelChartUI.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="OsTrader\Panels\Tab\BotTabPairCommonSettingsUi.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="OsTrader\Panels\Tab\BotTabPairUi.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
