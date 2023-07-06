@@ -16,6 +16,7 @@ using System.Drawing;
 using OsEngine.Market;
 using OsEngine.Market.Servers.Tester;
 using OsEngine.Journal;
+using OsEngine.Logging;
 
 namespace OsEngine.OsTrader.Panels.Tab
 {
@@ -189,11 +190,6 @@ namespace OsEngine.OsTrader.Panels.Tab
             _pair.Tab2.PositionClosingSuccesEvent += Tab_PositionOpeningSuccesEvent;
 
             UpdatePositionsOnChart();
-
-            if(_pair.ShowTradePanelOnChart == false)
-            {
-                ButtonHideShowRightPanel_Click(null, null);
-            }
         }
 
         private void BotTabPairUi_Closed(object sender, EventArgs e)
@@ -287,8 +283,6 @@ namespace OsEngine.OsTrader.Panels.Tab
 
         private void ButtonHideShowRightPanel_Click(object sender, RoutedEventArgs e)
         {
-            bool showTradePanel = false;
-
             if (GridTradePanel.Width == 0)
             {
                 GridIndicatorsSettings.Visibility = Visibility.Visible;
@@ -297,7 +291,6 @@ namespace OsEngine.OsTrader.Panels.Tab
                 GridTradePanel.Width = 305;
                 ButtonHideShowRightPanel.Content = ">";
                 GreedChartPanel.Margin = new Thickness(0, 0, 308, 0);
-                showTradePanel = true;
             }
             else
             {
@@ -307,11 +300,6 @@ namespace OsEngine.OsTrader.Panels.Tab
                 GridTradePanel.Width = 0;
                 ButtonHideShowRightPanel.Content = "<";
                 GreedChartPanel.Margin = new Thickness(0, 0, 15, 0);
-            }
-
-            if(sender != null)
-            {
-                _pair.ShowTradePanelOnChart = showTradePanel;
             }
         }
 
@@ -700,7 +688,6 @@ namespace OsEngine.OsTrader.Panels.Tab
                 _chartCorrelation.Invoke(new Action(Server_TestingEndEvent));
                 return;
             }
-
             _chartSec1.StartPaint(null, HostSec1, null);
             _chartSec1.BindOn();
             _chartSec2.StartPaint(null, HostSec2, null);

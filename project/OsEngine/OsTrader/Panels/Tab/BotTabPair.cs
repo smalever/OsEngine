@@ -13,7 +13,6 @@ using System.IO;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using System.Threading;
-using OsEngine.Market;
 
 namespace OsEngine.OsTrader.Panels.Tab
 {
@@ -27,8 +26,8 @@ namespace OsEngine.OsTrader.Panels.Tab
         public BotTabPair(string name, StartProgram startProgram)
         {
             TabName = name;
-            StartProgram = startProgram;
-            StandartManualControl = new BotManualControl(name, null, StartProgram);
+            _startProgram = startProgram;
+            StandartManualControl = new BotManualControl(name, null, _startProgram);
 
             LoadStandartSettings();
             LoadPairs();
@@ -37,7 +36,7 @@ namespace OsEngine.OsTrader.Panels.Tab
         /// <summary>
         /// The program in which this source is running.
         /// </summary>
-        public StartProgram StartProgram;
+        StartProgram _startProgram;
 
         /// <summary>
         /// source type
@@ -121,11 +120,7 @@ namespace OsEngine.OsTrader.Panels.Tab
 
         public void Clear()
         {
-            for(int i = 0;i < Pairs.Count;i++)
-            {
-                Pairs[i].Tab1.Clear();
-                Pairs[i].Tab2.Clear();
-            }
+
         }
 
         /// <summary>
@@ -142,30 +137,6 @@ namespace OsEngine.OsTrader.Panels.Tab
                     if (File.Exists(@"Engine\" + TabName + @"StandartPairsSettings.txt"))
                     {
                         File.Delete(@"Engine\" + TabName + @"StandartPairsSettings.txt");
-                    }
-                }
-                catch
-                {
-                    // ignore
-                }
-
-                try
-                {
-                    if (File.Exists(@"Engine\" + TabName + @"StrategSettings.txt"))
-                    {
-                        File.Delete(@"Engine\" + TabName + @"StrategSettings.txt");
-                    }
-                }
-                catch
-                {
-                    // ignore
-                }
-
-                try
-                {
-                    if (File.Exists(@"Engine\" + TabName + @"PairsNamesToLoad.txt"))
-                    {
-                        File.Delete(@"Engine\" + TabName + @"PairsNamesToLoad.txt");
                     }
                 }
                 catch
@@ -275,37 +246,6 @@ namespace OsEngine.OsTrader.Panels.Tab
         /// </summary>
         public event Action TabDeletedEvent;
 
-        public List<string> SecuritiesActivated
-        {
-            get
-            {
-                if(Pairs.Count == 0)
-                {
-                    return null;
-                }
-
-                List<string> result = new List<string>();
-
-                for(int i = 0;i < Pairs.Count;i++)
-                {
-                    BotTabSimple tab1 = Pairs[i].Tab1;
-                    BotTabSimple tab2 = Pairs[i].Tab2;
-
-                    if(string.IsNullOrEmpty(tab1.Connector.SecurityName) == false)
-                    {
-                        result.Add(tab1.Connector.SecurityName);
-                    }
-
-                    if (string.IsNullOrEmpty(tab2.Connector.SecurityName) == false)
-                    {
-                        result.Add(tab2.Connector.SecurityName);
-                    }
-                }
-
-                return result;
-            }
-        }
-
         #endregion
 
         #region Common settings
@@ -390,7 +330,7 @@ namespace OsEngine.OsTrader.Panels.Tab
         /// </summary>
         public void SaveStandartSettings()
         {
-            if (StartProgram == StartProgram.IsOsOptimizer)
+            if (_startProgram == StartProgram.IsOsOptimizer)
             {
                 return;
             }
@@ -494,7 +434,7 @@ namespace OsEngine.OsTrader.Panels.Tab
                     }
                 }
 
-                PairToTrade pair = new PairToTrade(TabName + number, StartProgram);
+                PairToTrade pair = new PairToTrade(TabName + number, _startProgram);
                 pair.PairNum = number;
 
                 pair.Sec1Slippage = Sec1Slippage;
@@ -525,7 +465,6 @@ namespace OsEngine.OsTrader.Panels.Tab
                 pair.CointegrationPositionSideChangeEvent += Pair_CointegrationPositionSideChangeEvent;
                 pair.CorrelationChangeEvent += NewPair_CorrelationChangeEvent;
                 pair.CointegrationChangeEvent += Pair_CointegrationChangeEvent;
-                pair.LogMessageEvent += SendNewLogMessage;
 
                 if (PairToTradeCreateEvent != null)
                 {
@@ -585,7 +524,6 @@ namespace OsEngine.OsTrader.Panels.Tab
                         Pairs[i].CointegrationPositionSideChangeEvent -= Pair_CointegrationPositionSideChangeEvent;
                         Pairs[i].CorrelationChangeEvent -= NewPair_CorrelationChangeEvent;
                         Pairs[i].CointegrationChangeEvent -= Pair_CointegrationChangeEvent;
-                        Pairs[i].LogMessageEvent -= SendNewLogMessage;
                         Pairs[i].Delete();
                         Pairs.RemoveAt(i);
                         SavePairNames();
@@ -640,11 +578,10 @@ namespace OsEngine.OsTrader.Panels.Tab
                     while (reader.EndOfStream == false)
                     {
                         string pairName = reader.ReadLine();
-                        PairToTrade newPair = new PairToTrade(pairName, StartProgram);
+                        PairToTrade newPair = new PairToTrade(pairName, _startProgram);
                         newPair.CointegrationPositionSideChangeEvent += Pair_CointegrationPositionSideChangeEvent;
                         newPair.CorrelationChangeEvent += NewPair_CorrelationChangeEvent;
                         newPair.CointegrationChangeEvent += Pair_CointegrationChangeEvent;
-                        newPair.LogMessageEvent += SendNewLogMessage;
                         Pairs.Add(newPair);
                     }
 
@@ -793,116 +730,6 @@ namespace OsEngine.OsTrader.Panels.Tab
 
                 return result;
             }
-        }
-
-        #endregion
-
-        #region Automatic creation of trading pairs
-
-        /// <summary>
-        /// Make a list of previously created pairs
-        /// </summary>
-        public List<string> CreatedPairs
-        {
-            get
-            {
-                if(Pairs.Count == 0)
-                {
-                    return null;
-                }
-
-                List<string> createdPairs = new List<string>();
-
-                for(int i = 0;i < Pairs.Count; i++)
-                {
-                    if (string.IsNullOrEmpty(Pairs[i].Tab1.Connector.SecurityName) 
-                        || string.IsNullOrEmpty(Pairs[i].Tab2.Connector.SecurityName))
-                    {
-                        continue;
-                    }
-
-                    string name1 = Pairs[i].Tab1.Connector.SecurityName;
-                    string name2 = Pairs[i].Tab2.Connector.SecurityName;
-
-                    string resultNamePair = name1 + "_|_" + name2;
-                    createdPairs.Add(resultNamePair);
-                }
-
-                return createdPairs;
-            }
-        }
-
-        /// <summary>
-        /// Is this pair of securities in trade?
-        /// </summary>
-        public bool HaveThisPairInTrade(string sec1, string sec2, string secClass, TimeFrame timeFrame, ServerType serverType)
-        {
-            for(int i = 0;i < Pairs.Count;i++)
-            {
-                string curSecName1 = Pairs[i].Tab1.Connector.SecurityName;
-                string curSecName2 = Pairs[i].Tab2.Connector.SecurityName;
-                string curSecClass1 = Pairs[i].Tab1.Connector.SecurityClass;
-                string curSecClass2 = Pairs[i].Tab2.Connector.SecurityClass;
-
-                ServerType serverType1 = Pairs[i].Tab1.Connector.ServerType;
-                ServerType serverType2 = Pairs[i].Tab2.Connector.ServerType;
-
-                TimeFrame timeFrame1 = Pairs[i].Tab1.Connector.TimeFrame;
-                TimeFrame timeFrame2 = Pairs[i].Tab2.Connector.TimeFrame;
-
-                if(sec1 == curSecName1 &&
-                    sec2 == curSecName2 &&
-                    secClass == curSecClass1 &&
-                    secClass == curSecClass2 &&
-                    timeFrame == timeFrame1 &&
-                    timeFrame == timeFrame2 &&
-                    serverType == serverType1 &&
-                    serverType == serverType2)
-                {
-                    return true;
-                }
-
-                if (sec1 == curSecName2 &&
-                    sec2 == curSecName1 &&
-                    secClass == curSecClass2 &&
-                    secClass == curSecClass1 &&
-                    timeFrame == timeFrame2 &&
-                    timeFrame == timeFrame1 &&
-                    serverType == serverType2 &&
-                    serverType == serverType1)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Create a new pair according to the settings
-        /// </summary>
-        public void CreateNewPair(
-            string sec1, string sec2, string secClass, 
-            TimeFrame timeFrame, ServerType serverType,
-            ComissionType comissionType, decimal comissionValue)
-        {
-            CreatePair();
-
-            PairToTrade newPair = Pairs[Pairs.Count - 1];
-
-            newPair.Tab1.ComissionType = comissionType;
-            newPair.Tab1.ComissionValue = comissionValue;
-            newPair.Tab1.Connector.ServerType = serverType;
-            newPair.Tab1.Connector.TimeFrame = timeFrame;
-            newPair.Tab1.Connector.SecurityName = sec1;
-            newPair.Tab1.Connector.SecurityClass = secClass;
-
-            newPair.Tab2.ComissionType = comissionType;
-            newPair.Tab2.ComissionValue = comissionValue;
-            newPair.Tab2.Connector.ServerType = serverType;
-            newPair.Tab2.Connector.TimeFrame = timeFrame;
-            newPair.Tab2.Connector.SecurityName = sec2;
-            newPair.Tab2.Connector.SecurityClass = secClass;
         }
 
         #endregion
@@ -1338,14 +1165,11 @@ namespace OsEngine.OsTrader.Panels.Tab
             nRow.Cells.Add(new DataGridViewTextBoxCell());
             nRow.Cells.Add(new DataGridViewTextBoxCell());
             nRow.Cells.Add(new DataGridViewTextBoxCell());
+            nRow.Cells.Add(new DataGridViewTextBoxCell());
 
-            DataGridViewButtonCell button1 = new DataGridViewButtonCell(); // авто создание пар
-            button1.Value = OsLocalization.Trader.Label257;
-            nRow.Cells.Add(button1);
-
-            DataGridViewButtonCell button2 = new DataGridViewButtonCell(); // Общие настройки
-            button2.Value = OsLocalization.Trader.Label232;
-            nRow.Cells.Add(button2);
+            DataGridViewButtonCell button = new DataGridViewButtonCell(); // Общие настройки
+            button.Value = OsLocalization.Trader.Label232;
+            nRow.Cells.Add(button);
 
             DataGridViewComboBoxCell comboBox = new DataGridViewComboBoxCell();// Сортировка
             comboBox.Items.Add(OsLocalization.Trader.Label233 + ": " + MainGridPairSortType.No.ToString());
@@ -1620,19 +1444,6 @@ namespace OsEngine.OsTrader.Panels.Tab
                     _commonSettingsUi.Show();
                     _commonSettingsUi.Closed += _commonSettingsUi_Closed;
                 }
-                else if (column == 3 && row == 0)
-                { // кнопка открытия окна авто генерации пар
-                    if(_autoSelectPairsUi != null)
-                    {
-                        _autoSelectPairsUi.Activate();
-                        return;
-                    }
-
-                    _autoSelectPairsUi = new BotTabPairAutoSelectPairsUi(this);
-                    _autoSelectPairsUi.Show();
-                    _autoSelectPairsUi.Closed += _autoSelectPairsUi_Closed;
-
-                }
                 else if (column == 4)
                 {
                     // возможно кнопка открытия отдельного окна пары или общих настроек
@@ -1699,14 +1510,12 @@ namespace OsEngine.OsTrader.Panels.Tab
         {
             try
             {
-
                 string name = ((BotTabPairUi)sender).Name;
 
                 for (int i = 0; i < _uiList.Count; i++)
                 {
                     if (_uiList[i].Name == name)
                     {
-                        _uiList[i].Closed -= Ui_Closed;
                         _uiList.RemoveAt(i);
                         return;
                     }
@@ -1728,16 +1537,7 @@ namespace OsEngine.OsTrader.Panels.Tab
         /// </summary>
         private void _commonSettingsUi_Closed(object sender, EventArgs e)
         {
-            _commonSettingsUi.Closed -= _commonSettingsUi_Closed;
             _commonSettingsUi = null;
-        }
-
-        BotTabPairAutoSelectPairsUi _autoSelectPairsUi;
-
-        private void _autoSelectPairsUi_Closed(object sender, EventArgs e)
-        {
-            _autoSelectPairsUi.Closed -= _autoSelectPairsUi_Closed;
-            _autoSelectPairsUi = null;
         }
 
         #endregion
@@ -1809,6 +1609,16 @@ namespace OsEngine.OsTrader.Panels.Tab
         public int PairNum;
 
         /// <summary>
+        /// Trading Security source 1
+        /// </summary>
+        public BotTabSimple Tab1;
+
+        /// <summary>
+        /// Trading Security source 2
+        /// </summary>
+        public BotTabSimple Tab2;
+
+        /// <summary>
         /// Download the settings
         /// </summary>
         private void Load()
@@ -1837,8 +1647,7 @@ namespace OsEngine.OsTrader.Panels.Tab
                     Enum.TryParse(reader.ReadLine(), out Sec1TradeRegime);
                     Enum.TryParse(reader.ReadLine(), out Sec2TradeRegime);
                     Enum.TryParse(reader.ReadLine(), out _lastEntryCointegrationSide);
-                    _showTradePanelOnChart = Convert.ToBoolean(reader.ReadLine());
-
+                    
                     reader.Close();
                 }
             }
@@ -1873,7 +1682,6 @@ namespace OsEngine.OsTrader.Panels.Tab
                     writer.WriteLine(Sec1TradeRegime);
                     writer.WriteLine(Sec2TradeRegime);
                     writer.WriteLine(_lastEntryCointegrationSide);
-                    writer.WriteLine(_showTradePanelOnChart);
 
                     writer.Close();
                 }
@@ -1971,40 +1779,9 @@ namespace OsEngine.OsTrader.Panels.Tab
         /// </summary>
         public event Action PairDeletedEvent;
 
-        /// <summary>
-        /// Show Trade Panel On Chart Ui
-        /// </summary>
-        public bool ShowTradePanelOnChart
-        {
-            get 
-            { 
-                return _showTradePanelOnChart;
-            }
-            set 
-            { 
-                if(_showTradePanelOnChart == value)
-                {
-                    return;
-                }
-                _showTradePanelOnChart = value;
-                Save();
-            }
-        }
-        private bool _showTradePanelOnChart = true;
-
         #endregion
 
         #region Properties and settings
-
-        /// <summary>
-        /// Trading Security source 1
-        /// </summary>
-        public BotTabSimple Tab1;
-
-        /// <summary>
-        /// Trading Security source 2
-        /// </summary>
-        public BotTabSimple Tab2;
 
         /// <summary>
         /// Security 1. Trade Mode
