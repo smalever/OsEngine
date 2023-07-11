@@ -292,3 +292,5 @@ __pycache__/
 /project/OsEngine/bin/Debug/OsEngine.exe
 /project/OsEngine/bin/Debug/OsEngine.exe
 /project/OsEngine/Robots/PairArbitrage/PairCointegrationSideTrader.cs
+/project/OsEngine/OsTrader/Panels/Tab/BotTabPair.cs
+/project/OsEngine/OsTrader/Panels/Tab/BotTabPairAutoSelectPairsUi.xaml.cs
