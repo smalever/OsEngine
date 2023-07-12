@@ -297,3 +297,5 @@ __pycache__/
 /project/OsEngine/OsTrader/Panels/Tab/BotTabPair.cs
 /project/OsEngine/OsTrader/Panels/Tab/BotTabPair.cs
 /project/OsEngine/OsTrader/Panels/Tab/BotTabPairUi.xaml.cs
+/project/OsEngine/OsEngine.csproj
+*.cs~BotTabPair - сохранение раскладки в окне пары при открытии закрытии
