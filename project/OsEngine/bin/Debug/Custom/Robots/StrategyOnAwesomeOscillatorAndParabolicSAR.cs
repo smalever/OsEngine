@@ -11,16 +11,17 @@ using OsEngine.OsTrader.Panels.Tab;
 /* Description
 trading robot for osengine
 
-The trend robot on intersection of the Alligator, Bears Power and Bulls Power Strategy
-1. Fast line (lips) above the middle line (teeth), medium above the slow line (jaw)
-2. Bears Power columns should be below 0, but constantly growing
-3. Bulls Power columns should be above 0 and grow - enter into a long position
-1. fast line (lips) below the midline (teeth), medium below the slow line (jaw)
-2. Bulls Power columns should be above 0, but decrease
-3. Bears Power columns should be below 0 and decrease - enter short position
+The trend robot on Awesome Oscillator and Parabolic SAR
 
-Exit from the purchase: the fast line is lower than the slow one
-Exit from sale: fast line above slow line
+Buy:
+1. Price is higher than Parabolic
+2. AO above 0.
+
+Sale:
+1. Price below Parabolic
+2. AO below 0.
+
+Exit: on the return signal of the parabolic
  
  */
 
@@ -28,8 +29,8 @@ Exit from sale: fast line above slow line
 namespace OsEngine.Robots.Aligator
 {
     // We create an attribute so that we don't write anything to the BotFactory
-    [Bot("AlligatorBearsPowerandBullsPowerStrategy")] 
-    public class AlligatorBearsPowerandBullsPowerStrategy : BotPanel
+    [Bot("StrategyOnAwesomeOscillatorAndParabolicSAR")]
+    public class StrategyOnAwesomeOscillatorAndParabolicSAR : BotPanel
     {
         private BotTabSimple _tab;
 
@@ -42,27 +43,21 @@ namespace OsEngine.Robots.Aligator
         private StrategyParameterTimeOfDay EndTradeTime;
 
         // Setting indicator
-        private StrategyParameterInt AlligatorFastLineLength;
-        private StrategyParameterInt AlligatorMiddleLineLength;
-        private StrategyParameterInt AlligatorSlowLineLength;
-        private StrategyParameterInt BearsPeriod;
-        private StrategyParameterInt BullsPeriod;
+        private StrategyParameterInt FastLineLengthAO;
+        private StrategyParameterInt SlowLineLengthAO;
+        private StrategyParameterDecimal Step;
+        private StrategyParameterDecimal MaxStep;
 
         // Indicator
-        private Aindicator _Alligator;
-        private Aindicator _BullsPower;
-        private Aindicator _BearsPower;
+        private Aindicator _AO;
+        private Aindicator _Parabolic;
 
         // The last value of the indicators
-        private decimal _lastFast;
-        private decimal _lastMiddle;
-        private decimal _lastSlow;
-        private decimal _lastBears;
-        private decimal _lastBulls;
-        private decimal _prevBears;
-        private decimal _prevBulls;
+        private decimal _lastAO;
+        private decimal _lastParabolic;
 
-        public AlligatorBearsPowerandBullsPowerStrategy(string name, StartProgram startProgram) : base(name, startProgram)
+
+        public StrategyOnAwesomeOscillatorAndParabolicSAR(string name, StartProgram startProgram) : base(name, startProgram)
         {
             TabCreate(BotTabType.Simple);
             _tab = TabsSimple[0];
@@ -76,59 +71,50 @@ namespace OsEngine.Robots.Aligator
             EndTradeTime = CreateParameterTimeOfDay("End Trade Time", 24, 0, 0, 0, "Base");
 
             // Setting indicator
-            AlligatorFastLineLength = CreateParameter("Period Simple Moving Average Fast", 20, 10, 300, 10, "Indicator");
-            AlligatorMiddleLineLength = CreateParameter("Period Simple Moving Middle", 20, 10, 300, 10, "Indicator");
-            AlligatorSlowLineLength = CreateParameter("Period Simple Moving Slow", 20, 10, 300, 10, "Indicator");
-            BearsPeriod = CreateParameter("Bears Period", 20, 10, 300, 10, "Indicator");
-            BullsPeriod = CreateParameter("Bulls Period", 20, 10, 300, 10, "Indicator");
+            FastLineLengthAO = CreateParameter("Fast Line Length AO", 12, 10, 300, 10, "Indicator");
+            SlowLineLengthAO = CreateParameter("Slow Line Length AO", 24, 10, 300, 10, "Indicator");
+            Step = CreateParameter("Step", 10, 10.0m, 300, 10, "Indicator");
+            MaxStep = CreateParameter("Max Step", 20, 10.0m, 300, 10, "Indicator");
 
-            // Create indicator Alligator
-            _Alligator = IndicatorsFactory.CreateIndicatorByName("Alligator", name + "Alligator", false);
-            _Alligator = (Aindicator)_tab.CreateCandleIndicator(_Alligator, "Prime");
-            ((IndicatorParameterInt)_Alligator.Parameters[0]).ValueInt = AlligatorSlowLineLength.ValueInt;
-            ((IndicatorParameterInt)_Alligator.Parameters[1]).ValueInt = AlligatorFastLineLength.ValueInt;
-            ((IndicatorParameterInt)_Alligator.Parameters[2]).ValueInt = AlligatorMiddleLineLength.ValueInt;
-            _Alligator.Save();
 
-            // Create indicator BullsPower
-            _BullsPower = IndicatorsFactory.CreateIndicatorByName("BullsPower", name + "BullsPower", false);
-            _BullsPower = (Aindicator)_tab.CreateCandleIndicator(_BullsPower, "NewArea0");
-            ((IndicatorParameterInt)_BullsPower.Parameters[0]).ValueInt = BullsPeriod.ValueInt;
+            // Create indicator AO
+            _AO = IndicatorsFactory.CreateIndicatorByName("AO", name + "AO", false);
+            _AO = (Aindicator)_tab.CreateCandleIndicator(_AO, "NewArea");
+            ((IndicatorParameterInt)_AO.Parameters[0]).ValueInt = FastLineLengthAO.ValueInt;
+            ((IndicatorParameterInt)_AO.Parameters[1]).ValueInt = SlowLineLengthAO.ValueInt;
+            _AO.Save();
 
-            // Create indicator BearsPower
-            _BearsPower = IndicatorsFactory.CreateIndicatorByName("BearsPower", name + "BearsPower", false);
-            _BearsPower = (Aindicator)_tab.CreateCandleIndicator(_BearsPower, "NewArea1");
-            ((IndicatorParameterInt)_BearsPower.Parameters[0]).ValueInt = BearsPeriod.ValueInt;
+            // Create indicator Parabolic
+            _Parabolic = IndicatorsFactory.CreateIndicatorByName("ParabolicSAR", name + "Parabolic", false);
+            _Parabolic = (Aindicator)_tab.CreateCandleIndicator(_Parabolic, "Prime");
+            ((IndicatorParameterDecimal)_Parabolic.Parameters[0]).ValueDecimal = Step.ValueDecimal;
+            ((IndicatorParameterDecimal)_Parabolic.Parameters[1]).ValueDecimal = MaxStep.ValueDecimal;
+            _Parabolic.Save();
 
             // Subscribe to the indicator update event
-            ParametrsChangeByUser += AlligatorBearsPowerandBullsPowerStrategy_ParametrsChangeByUser;
+            ParametrsChangeByUser += StrategyOnAwesomeOscillatorAndParabolicSAR_ParametrsChangeByUser;
 
             // Subscribe to the candle finished event
             _tab.CandleFinishedEvent += _tab_CandleFinishedEvent;
         }
 
         // Indicator Update event
-        private void AlligatorBearsPowerandBullsPowerStrategy_ParametrsChangeByUser()
+        private void StrategyOnAwesomeOscillatorAndParabolicSAR_ParametrsChangeByUser()
         {
-            ((IndicatorParameterInt)_Alligator.Parameters[0]).ValueInt = AlligatorSlowLineLength.ValueInt;
-            ((IndicatorParameterInt)_Alligator.Parameters[1]).ValueInt = AlligatorFastLineLength.ValueInt;
-            ((IndicatorParameterInt)_Alligator.Parameters[2]).ValueInt = AlligatorMiddleLineLength.ValueInt;
-            _Alligator.Save();
-            _Alligator.Reload();
-
-            ((IndicatorParameterInt)_BearsPower.Parameters[0]).ValueInt = BearsPeriod.ValueInt;
-            _BearsPower.Save();
-            _BearsPower.Reload();
-
-            ((IndicatorParameterInt)_BullsPower.Parameters[0]).ValueInt = BullsPeriod.ValueInt;
-            _BullsPower.Save();
-            _BullsPower.Reload();
+            ((IndicatorParameterInt)_AO.Parameters[0]).ValueInt = FastLineLengthAO.ValueInt;
+            ((IndicatorParameterInt)_AO.Parameters[1]).ValueInt = SlowLineLengthAO.ValueInt;
+            _AO.Save();
+            _AO.Reload();
+            ((IndicatorParameterDecimal)_Parabolic.Parameters[0]).ValueDecimal = Step.ValueDecimal;
+            ((IndicatorParameterDecimal)_Parabolic.Parameters[1]).ValueDecimal = MaxStep.ValueDecimal;
+            _Parabolic.Save();
+            _Parabolic.Reload();
         }
 
         // The name of the robot in OsEngine
         public override string GetNameStrategyType()
         {
-            return "AlligatorBearsPowerandBullsPowerStrategy";
+            return "StrategyOnAwesomeOscillatorAndParabolicSAR";
         }
         public override void ShowIndividualSettingsDialog()
         {
@@ -145,7 +131,7 @@ namespace OsEngine.Robots.Aligator
             }
 
             // If there are not enough candles to build an indicator, we exit
-            if (candles.Count < AlligatorSlowLineLength.ValueInt)
+            if (candles.Count < SlowLineLengthAO.ValueInt)
             {
                 return;
             }
@@ -185,20 +171,15 @@ namespace OsEngine.Robots.Aligator
             if (openPositions == null || openPositions.Count == 0)
             {
                 // The last value of the indicators
-                _lastFast = _Alligator.DataSeries[2].Last;
-                _lastMiddle = _Alligator.DataSeries[1].Last;
-                _lastSlow = _Alligator.DataSeries[0].Last;
-                _lastBulls = _BullsPower.DataSeries[0].Last;
-                _lastBears = _BearsPower.DataSeries[0].Last;
-                _prevBulls = _BullsPower.DataSeries[0].Values[_BullsPower.DataSeries[0].Values.Count - 2];
-                _prevBears = _BearsPower.DataSeries[0].Values[_BearsPower.DataSeries[0].Values.Count - 2];
+                _lastAO = _AO.DataSeries[0].Last;
+                _lastParabolic = _Parabolic.DataSeries[0].Last;
 
                 decimal _slippage = Slippage.ValueDecimal * _tab.Securiti.PriceStep;
                 decimal lastPrice = candles[candles.Count - 1].Close;
                 // Long
                 if (Regime.ValueString != "OnlyShort") // If the mode is not only short, then we enter long
                 {
-                    if (_lastFast > _lastMiddle && _lastMiddle > _lastSlow && _lastBears < 0 && _lastBears > _prevBears && _lastBulls > 0 && _lastBulls > _prevBulls)
+                    if (_lastAO > 0 && lastPrice > _lastParabolic)
                     {
                         _tab.BuyAtLimit(GetVolume(), _tab.PriceBestAsk + _slippage);
                     }
@@ -208,7 +189,7 @@ namespace OsEngine.Robots.Aligator
                 if (Regime.ValueString != "OnlyLong") // If the mode is not only long, then we enter short
                 {
 
-                    if(_lastFast < _lastMiddle && _lastMiddle < _lastSlow && _lastBulls > 0 && _lastBulls < _prevBulls && _lastBears < 0 && _lastBears < _prevBears)
+                    if (_lastAO < 0 && lastPrice < _lastParabolic)
                     {
                         _tab.SellAtLimit(GetVolume(), _tab.PriceBestBid - _slippage);
                     }
@@ -225,13 +206,13 @@ namespace OsEngine.Robots.Aligator
             decimal _slippage = Slippage.ValueDecimal * _tab.Securiti.PriceStep;
 
             // The last value of the indicators
-            _lastFast = _Alligator.DataSeries[2].Last;
-            _lastSlow = _Alligator.DataSeries[0].Last;
+            _lastParabolic = _Parabolic.DataSeries[0].Last;
 
             decimal lastPrice = candles[candles.Count - 1].Close;
 
             for (int i = 0; openPositions != null && i < openPositions.Count; i++)
             {
+
                 if (openPositions[i].State != PositionStateType.Open)
                 {
                     continue;
@@ -240,14 +221,14 @@ namespace OsEngine.Robots.Aligator
 
                 if (openPositions[i].Direction == Side.Buy) // If the direction of the position is purchase
                 {
-                    if (_lastFast < _lastSlow)
+                    if (lastPrice < _lastParabolic)
                     {
                         _tab.CloseAtLimit(openPositions[0], lastPrice - _slippage, openPositions[0].OpenVolume);
                     }
                 }
                 else // If the direction of the position is sale
                 {
-                    if (_lastFast > _lastSlow)
+                    if (lastPrice > _lastParabolic)
                     {
                         _tab.CloseAtLimit(openPositions[0], lastPrice + _slippage, openPositions[0].OpenVolume);
                     }

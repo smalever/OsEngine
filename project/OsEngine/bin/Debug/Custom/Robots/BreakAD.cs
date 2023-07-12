@@ -1,30 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing.Drawing2D;
+using System.Drawing;
 using OsEngine.Charts.CandleChart.Indicators;
 using OsEngine.Entity;
 using OsEngine.Indicators;
 using OsEngine.OsTrader.Panels;
 using OsEngine.OsTrader.Panels.Attributes;
 using OsEngine.OsTrader.Panels.Tab;
+using System.Linq;
 
 /* Description
 trading robot for osengine
 
-The trend robot on intersection of three SMA
+The trend robot on strategy break Accumulation/Distribution.
 
-Buy: Fast Sma is above average Sma and medium is above slow
+Buy: The value of the A/D indicator broke through the maximum for a certain number of candles and closed higher.
 
-Sell: Fast Sma is below average Sma and average is below slow
+Sell: The value of the A/D indicator broke the low for a certain number of candles and closed lower.
 
-Exit: on the opposite signal
+Exiting a long position: Trailing stop is placed at the minimum for the period specified for the trailing
+stop and is transferred (sliding) to new price lows, also for the specified period.
 
-*/
+Exit from a short position: Trailing stop is placed on the maximum for the period specified for the trailing
+stop and is transferred (sliding) to a new price maximum, also for the specified period.
+ 
+ */
 
-namespace OsEngine.Robots.SMA
+
+namespace OsEngine.Robots.AO
 {
-    [Bot("IntersectionOfThreeSma")] // We create an attribute so that we don't write anything to the BotFactory
-    public class IntersectionOfThreeSma : BotPanel
+    [Bot("BreakAD")] // We create an attribute so that we don't write anything to the BotFactory
+    public class BreakAD : BotPanel
     {
         private BotTabSimple _tab;
 
@@ -36,21 +43,18 @@ namespace OsEngine.Robots.SMA
         private StrategyParameterTimeOfDay StartTradeTime;
         private StrategyParameterTimeOfDay EndTradeTime;
 
-        // Setting indicator
-        private StrategyParameterInt PeriodSmaFast;
-        private StrategyParameterInt PeriodSmaMiddle;
-        private StrategyParameterInt PeriodSmaSlow;
-
         // Indicator
-        private Aindicator _SmaFast;
-        private Aindicator _SmaMiddle;
-        private Aindicator _SmaSlow;
+        Aindicator _AD;
 
-        // The last value of the indicators
-        private decimal _lastSmaFast;
-        private decimal _lastSmaMiddle;
-        private decimal _lastSmaSlow;
-        public IntersectionOfThreeSma(string name, StartProgram startProgram) : base(name, startProgram)
+        // Enter
+        private StrategyParameterInt EntryCandlesLong;
+        private StrategyParameterInt EntryCandlesShort;
+
+        // Exit
+        private StrategyParameterInt TrailCandlesLong;
+        private StrategyParameterInt TrailCandlesShort;
+
+        public BreakAD(string name, StartProgram startProgram) : base(name, startProgram)
         {
             TabCreate(BotTabType.Simple);
             _tab = TabsSimple[0];
@@ -63,59 +67,28 @@ namespace OsEngine.Robots.SMA
             StartTradeTime = CreateParameterTimeOfDay("Start Trade Time", 0, 0, 0, 0, "Base");
             EndTradeTime = CreateParameterTimeOfDay("End Trade Time", 24, 0, 0, 0, "Base");
 
-            // Setting indicator
-            PeriodSmaFast = CreateParameter("Period SMA Fast", 100, 10, 300, 1, "Indicator");
-            PeriodSmaMiddle = CreateParameter("Period SMA Middle", 200, 10, 300, 1, "Indicator");
-            PeriodSmaSlow = CreateParameter("Period SMA Slow", 300, 10, 300, 1, "Indicator");
+            // Create indicator AD
+            _AD = IndicatorsFactory.CreateIndicatorByName("AccumulationDistribution", name + "AD", false);
+            _AD = (Aindicator)_tab.CreateCandleIndicator(_AD, "NewArea");
+            _AD.Save();
 
-            // Create indicator SmaFast
-            _SmaFast = IndicatorsFactory.CreateIndicatorByName("Sma", name + "SmaFast", false);
-            _SmaFast = (Aindicator)_tab.CreateCandleIndicator(_SmaFast, "Prime");
-            _SmaFast.DataSeries[0].Color = System.Drawing.Color.Blue;
-            ((IndicatorParameterInt)_SmaFast.Parameters[0]).ValueInt = PeriodSmaFast.ValueInt;
-            _SmaFast.Save();
+            // Enter 
+            EntryCandlesLong = CreateParameter("Entry Candles Long", 10, 5, 200, 5, "Enter");
+            EntryCandlesShort = CreateParameter("Entry Candles Short", 10, 5, 200, 5, "Enter");
 
-            // Create indicator SmaMiddle
-            _SmaMiddle = IndicatorsFactory.CreateIndicatorByName("Sma", name + "SmaMiddle", false);
-            _SmaMiddle = (Aindicator)_tab.CreateCandleIndicator(_SmaMiddle, "Prime");
-            _SmaMiddle.DataSeries[0].Color = System.Drawing.Color.Pink;
-            ((IndicatorParameterInt)_SmaMiddle.Parameters[0]).ValueInt = PeriodSmaMiddle.ValueInt;
-            _SmaMiddle.Save();
-
-            // Create indicator SmaSlow
-            _SmaSlow = IndicatorsFactory.CreateIndicatorByName("Sma", name + "SmaSlow", false);
-            _SmaSlow = (Aindicator)_tab.CreateCandleIndicator(_SmaSlow, "Prime");
-            _SmaSlow.DataSeries[0].Color = System.Drawing.Color.Yellow;
-            ((IndicatorParameterInt)_SmaSlow.Parameters[0]).ValueInt = PeriodSmaSlow.ValueInt;
-            _SmaSlow.Save();
-
-            // Subscribe to the indicator update event
-            ParametrsChangeByUser += IntersectionOfThreeSma_ParametrsChangeByUser;
+            // Exit
+            TrailCandlesLong = CreateParameter("Trail Candles Long", 5, 5, 200, 5, "Exit");
+            TrailCandlesShort = CreateParameter("Trail Candles Short", 5, 5, 200, 5, "Exit");
 
             // Subscribe to the candle finished event
             _tab.CandleFinishedEvent += _tab_CandleFinishedEvent;
         }
 
-        // Indicator Update event
-        private void IntersectionOfThreeSma_ParametrsChangeByUser()
-        {
-            ((IndicatorParameterInt)_SmaFast.Parameters[0]).ValueInt = PeriodSmaFast.ValueInt;
-            _SmaFast.Save();
-            _SmaFast.Reload();
-            ((IndicatorParameterInt)_SmaMiddle.Parameters[0]).ValueInt = PeriodSmaMiddle.ValueInt;
-            _SmaMiddle.Save();
-            _SmaMiddle.Reload();
-            ((IndicatorParameterInt)_SmaSlow.Parameters[0]).ValueInt = PeriodSmaSlow.ValueInt;
-            _SmaSlow.Save();
-            _SmaSlow.Reload();
-        }
-
         // The name of the robot in OsEngine
         public override string GetNameStrategyType()
         {
-            return "IntersectionOfThreeSma";
+            return "BreakAD";
         }
-
         public override void ShowIndividualSettingsDialog()
         {
 
@@ -131,9 +104,7 @@ namespace OsEngine.Robots.SMA
             }
 
             // If there are not enough candles to build an indicator, we exit
-            if (candles.Count < PeriodSmaFast.ValueInt 
-                || candles.Count < PeriodSmaMiddle.ValueInt 
-                || candles.Count < PeriodSmaSlow.ValueInt)
+            if (candles.Count < EntryCandlesShort.ValueInt + 10 || candles.Count < EntryCandlesLong.ValueInt + 10)
             {
                 return;
             }
@@ -172,16 +143,17 @@ namespace OsEngine.Robots.SMA
 
             if (openPositions == null || openPositions.Count == 0)
             {
-                // The last value of the indicators
-                _lastSmaFast = _SmaFast.DataSeries[0].Last;
-                _lastSmaMiddle = _SmaMiddle.DataSeries[0].Last;
-                _lastSmaSlow = _SmaSlow.DataSeries[0].Last;
+                List<decimal> values = _AD.DataSeries[0].Values;
 
+                // Slippage
                 decimal _slippage = Slippage.ValueDecimal * _tab.Securiti.PriceStep;
+
                 // Long
                 if (Regime.ValueString != "OnlyShort") // If the mode is not only short, then we enter long
                 {
-                    if (_lastSmaFast > _lastSmaMiddle && _lastSmaMiddle > _lastSmaSlow)
+                    
+                    
+                    if (EnterLongAndShort(values, EntryCandlesLong.ValueInt) == "true")
                     {
                         _tab.BuyAtLimit(GetVolume(), _tab.PriceBestAsk + _slippage);
                     }
@@ -190,9 +162,10 @@ namespace OsEngine.Robots.SMA
                 // Short
                 if (Regime.ValueString != "OnlyLong") // If the mode is not only long, then we enter short
                 {
-                    if (_lastSmaFast < _lastSmaMiddle && _lastSmaMiddle < _lastSmaSlow)
+
+                    if (EnterLongAndShort(values, EntryCandlesShort.ValueInt) == "false")
                     {
-                        _tab.SellAtLimit(GetVolume(), _tab.PriceBestAsk - _slippage);
+                        _tab.SellAtLimit(GetVolume(), _tab.PriceBestBid - _slippage);
                     }
                 }
             }
@@ -205,37 +178,37 @@ namespace OsEngine.Robots.SMA
 
             decimal _slippage = Slippage.ValueDecimal * _tab.Securiti.PriceStep;
 
+            decimal lastPrice = candles[candles.Count - 1].Close;
+
             for (int i = 0; openPositions != null && i < openPositions.Count; i++)
             {
-                if (openPositions[i].State != PositionStateType.Open)
+                Position positions = openPositions[i];
+
+                if (positions.State != PositionStateType.Open)
                 {
                     continue;
                 }
 
-                // The last value of the indicators
-                _lastSmaFast = _SmaFast.DataSeries[0].Last;
-                _lastSmaMiddle = _SmaMiddle.DataSeries[0].Last;
-                _lastSmaSlow = _SmaSlow.DataSeries[0].Last;
-
-                if (openPositions[i].Direction == Side.Buy) // If the direction of the position is purchase
-                {  
-                    if (_lastSmaFast < _lastSmaMiddle && _lastSmaMiddle < _lastSmaSlow)
+                if (positions.Direction == Side.Buy) // If the direction of the position is purchase
+                {
+                    decimal price = GetPriceStop(Side.Buy, candles, candles.Count - 1);
+                    if (price == 0)
                     {
-                        decimal lastPrice = candles[candles.Count - 1].Close;
-                        _tab.CloseAtLimit(openPositions[0], lastPrice - _slippage, openPositions[0].OpenVolume);
+                        return;
                     }
-
+                    _tab.CloseAtTrailingStop(openPositions[0], price, price - _slippage);
                 }
                 else // If the direction of the position is sale
                 {
-                    if (_lastSmaFast > _lastSmaMiddle && _lastSmaMiddle > _lastSmaSlow)
+                    decimal price = GetPriceStop(Side.Sell, candles, candles.Count - 1);
+                    if (price == 0)
                     {
-                        decimal lastPrice = candles[candles.Count - 1].Close;
-                        _tab.CloseAtLimit(openPositions[0], lastPrice + _slippage, openPositions[0].OpenVolume);
+                        return;
                     }
+                    _tab.CloseAtTrailingStop(openPositions[0], price, price + _slippage);
                 }
-            }
 
+            }
         }
 
         // Method for calculating the volume of entry into a position
@@ -253,7 +226,7 @@ namespace OsEngine.Robots.SMA
                 volume = VolumeOnPosition.ValueDecimal;
             }
 
-            // if the robot is running in the tester
+            // If the robot is running in the tester
             if (StartProgram == StartProgram.IsTester)
             {
                 volume = Math.Round(volume, 6);
@@ -262,8 +235,72 @@ namespace OsEngine.Robots.SMA
             {
                 volume = Math.Round(volume, _tab.Securiti.DecimalsVolume);
             }
-
             return volume;
+        }
+
+        private string EnterLongAndShort(List<decimal> values,int period)
+        {
+            int l = 0;
+            decimal Max = -9999999;
+            decimal Min = 9999999;
+            for(int i = 1; i <= period; i++)
+            {
+                if (values[values.Count - 1 - i] > Max)
+                {
+                    Max = values[values.Count - 1 -  i];
+                }
+                if (values[values.Count - 1 - i] < Min)
+                {
+                    Min = values[values.Count - 1 - i];
+                }
+                l = i;
+            }
+            if(Max < values[values.Count - 1])
+            {
+                return "true";
+            }
+            else if(Min > values[values.Count - 1])
+            {
+                return "false";
+            }
+            return "nope";
+        }
+        private decimal GetPriceStop(Side side, List<Candle> candles, int index)
+        {
+            if (candles == null || index < TrailCandlesLong.ValueInt || index < TrailCandlesShort.ValueInt)
+            {
+                return 0;
+            }
+
+            if (side == Side.Buy)
+            {
+                decimal price = decimal.MaxValue;
+
+                for (int i = index; i > index - TrailCandlesLong.ValueInt; i--)
+                {
+                    if (candles[i].Low < price)
+                    {
+                        price = candles[i].Low;
+                    }
+                }
+                return price;
+            }
+
+            if (side == Side.Sell)
+            {
+                decimal price = 0;
+
+                for (int i = index; i > index - TrailCandlesShort.ValueInt; i--)
+                {
+                    if (candles[i].High > price)
+                    {
+                        price = candles[i].High;
+                    }
+                }
+
+                return price;
+            }
+            return 0;
         }
     }
 }

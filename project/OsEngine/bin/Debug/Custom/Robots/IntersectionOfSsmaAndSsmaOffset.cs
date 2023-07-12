@@ -8,24 +8,24 @@ using System.Collections.Generic;
 using System.Drawing;
 
 /*Discription
-Trading robot for osengine
+Trading robot for osengine.
 
-Trend robot at the intersection of two exponential averages
+Trend robot at the Intersection of Ssma and  Ssma offset.
 
-Buy: the fast Ema is higher than the slow Ema and the value of the last candle is greater than the fast Ema.
+Buy: Fast Ssma is higher than slow Ssma.
 
-Sale: The fast Ema is lower than the slow Ema and the value of the last candle is less than the slow Ema.
+Sale: Fast Ssma is lower than slow Ssma.
 
-Exit: stop and profit in % of the entry price.
+Exit: on the opposite signal.
 */
 
 namespace OsEngine.Robots.MyRobots
-{ 
-     [Bot("IntersectionOfTwoEma")] //We create an attribute so that we don't write anything in the Boot factory
-    public class IntersectionOfTwoEma : BotPanel
+{
+    [Bot("IntersectionOfSsmaAndSsmaOffset")]//We create an attribute so that we don't write anything in the Boot factory
+    public class IntersectionOfSsmaAndSsmaOffset : BotPanel
     {
         BotTabSimple _tab;
-       
+        
         // Basic Settings
         private StrategyParameterString Regime;
         private StrategyParameterDecimal VolumeOnPosition;
@@ -33,28 +33,25 @@ namespace OsEngine.Robots.MyRobots
         private StrategyParameterDecimal Slippage;
         private StrategyParameterTimeOfDay TimeStart;
         private StrategyParameterTimeOfDay TimeEnd;
-        
+
         // Indicator
-        private Aindicator _ema1;
-        private Aindicator _ema2;
-        
+        private Aindicator _ssma1;
+        private Aindicator _ssma2;
+
         // Indicator setting
-        private StrategyParameterInt _periodEmaFast;                       
-        private StrategyParameterInt _periodEmaSlow;
-       
+        private StrategyParameterInt _periodSsmaFast;
+        private StrategyParameterInt _periodSsmaSlow;
+        private StrategyParameterInt _periodOffset;
+
         // The last value of the indicators
-        private decimal _lastEmaFast;
-        private decimal _lastEmaSlow;
+        private decimal _lastSsmaSlow;
+        private decimal _lastSsmaFast;
 
-        // Exit
-        private StrategyParameterDecimal StopValue;
-        private StrategyParameterDecimal ProfitValue;
-
-        public IntersectionOfTwoEma(string name, StartProgram startProgram) : base(name, startProgram)
+        public IntersectionOfSsmaAndSsmaOffset(string name, StartProgram startProgram) : base(name, startProgram)
         {
             TabCreate(BotTabType.Simple);
             _tab = TabsSimple[0];
-           
+
             // Basic Settings
             Regime = CreateParameter("Regime", "Off", new[] { "Off", "On", "OnlyLong", "OnlyShort", "OnlyClosePosition" }, "Base");
             VolumeRegime = CreateParameter("Volume type", "Number of contracts", new[] { "Number of contracts", "Contract currency" }, "Base");
@@ -62,71 +59,58 @@ namespace OsEngine.Robots.MyRobots
             Slippage = CreateParameter("Slippage %", 0m, 0, 20, 1, "Base");
             TimeStart = CreateParameterTimeOfDay("Start Trade Time", 0, 0, 0, 0, "Base");
             TimeEnd = CreateParameterTimeOfDay("End Trade Time", 24, 0, 0, 0, "Base");
-           
-            // Indicator Settings
-            _periodEmaFast = CreateParameter("fast EMA1 period", 250, 50, 500, 50, "Indicator");
-            _periodEmaSlow = CreateParameter("slow EMA2 period", 1000, 500, 1500, 100, "Indicator");
 
-            // Creating indicator Ema1
-            _ema1 = IndicatorsFactory.CreateIndicatorByName(nameClass: "Ema", name: name + "EMA1", canDelete: false);
-            _ema1 = (Aindicator)_tab.CreateCandleIndicator(_ema1, nameArea: "Prime");
-            ((IndicatorParameterInt)_ema1.Parameters[0]).ValueInt = _periodEmaFast.ValueInt;
-            _ema1.ParametersDigit[0].Value = _periodEmaFast.ValueInt;
-            _ema1.DataSeries[0].Color = Color.Red;
-            _ema1.Save();
-            
-            // Creating indicator Ema2
-            _ema2 = IndicatorsFactory.CreateIndicatorByName(nameClass: "Ema", name: name + "Ema2", canDelete: false);
-            _ema2 = (Aindicator)_tab.CreateCandleIndicator(_ema2, nameArea: "Prime");
-            _ema2.ParametersDigit[0].Value = _periodEmaSlow.ValueInt;
-            _ema2.DataSeries[0].Color = Color.Green;
-            _ema2.Save();
+            // Indicator Settings
+            _periodSsmaFast = CreateParameter("fast Ssma1 period", 250, 50, 500, 50, "Indicator");
+            _periodSsmaSlow = CreateParameter("slow Ssma2 period", 1000, 500, 1500, 100, "Indicator");
+            _periodOffset = CreateParameter("offset SSma2 period", 0, 3, 10, 11, "Indicator");
            
+            // Creating an indicator Ssma1
+            _ssma1 = IndicatorsFactory.CreateIndicatorByName(nameClass: "Ssma", name: name + "Ssma1", canDelete: false);
+            _ssma1 = (Aindicator)_tab.CreateCandleIndicator(_ssma1, nameArea: "Prime");
+            ((IndicatorParameterInt)_ssma1.Parameters[0]).ValueInt = _periodSsmaFast.ValueInt;
+            _ssma1.ParametersDigit[0].Value = _periodSsmaFast.ValueInt;
+            _ssma1.DataSeries[0].Color = Color.Red;
+            _ssma1.Save();
+
+            // Creating indicator Ssma2
+            _ssma2 = IndicatorsFactory.CreateIndicatorByName(nameClass: "OffsetEma", name: name + "Ssma2", canDelete: false);
+            _ssma2 = (Aindicator)_tab.CreateCandleIndicator(_ssma2, nameArea: "Prime");
+            _ssma2.ParametersDigit[0].Value = _periodSsmaSlow.ValueInt;
+            _ssma2.ParametersDigit[1].Value = _periodOffset.ValueInt;
+            _ssma2.DataSeries[0].Color = Color.Green;
+            _ssma2.Save();
+
             // Subscribe to the indicator update event
-            ParametrsChangeByUser += IntersectionOfTwoEma_ParametrsChangeByUser;
-           
+            ParametrsChangeByUser += IntersectionOfSsmaAndSsmaOffset_ParametrsChangeByUser;
+
             // Subscribe to the candle completion event
-            _tab.CandleFinishedEvent += _tab_CandleFinishedEvent;         
-           
-            // Exit
-            StopValue = CreateParameter("Stop percent", 0.5m, 1, 10, 1, "Exit settings");
-            ProfitValue = CreateParameter("Profit percent", 0.5m, 1, 10, 1, "Exit settings");
-            
+            _tab.CandleFinishedEvent += _tab_CandleFinishedEvent;
+
         }
 
         // Indicator Update event
-        private void IntersectionOfTwoEma_ParametrsChangeByUser()
+        private void IntersectionOfSsmaAndSsmaOffset_ParametrsChangeByUser()
         {
-            ((IndicatorParameterInt)_ema1.Parameters[0]).ValueInt = _periodEmaFast.ValueInt;
-            _ema1.Save();
-            _ema1.Reload();
-            ((IndicatorParameterInt)_ema2.Parameters[0]).ValueInt = _periodEmaSlow.ValueInt;
-            _ema2.Save();
-            _ema2.Reload();
+            ((IndicatorParameterInt)_ssma1.Parameters[0]).ValueInt = _periodSsmaFast.ValueInt;
+            _ssma1.Save();
+            _ssma1.Reload();
+            ((IndicatorParameterInt)_ssma2.Parameters[0]).ValueInt = _periodSsmaSlow.ValueInt;
+            _ssma2.Save();
+            _ssma2.Reload();
         }
 
-        // The name of the robot in OsEngine
-        public override string GetNameStrategyType()
-        {
-            return "IntersectionOfTwoEma";
-        }
 
-        public override void ShowIndividualSettingsDialog()
-        {
-
-        }
-       
-        // Candle Finished Event
+        // Candle Completion Event
         private void _tab_CandleFinishedEvent(List<Candle> candles)
         {
-            // If the robot is turned off, exit the event handler
             if (Regime.ValueString == "Off")
             {
                 return;
             }
 
             // If there are not enough candles to build an indicator, we exit
-            if (candles.Count < _periodEmaFast.ValueInt || candles.Count < _periodEmaSlow.ValueInt)
+            if (candles.Count < _periodSsmaFast.ValueInt || candles.Count < _periodSsmaSlow.ValueInt)
             {
                 return;
             }
@@ -137,10 +121,9 @@ namespace OsEngine.Robots.MyRobots
             {
                 return;
             }
-
             List<Position> openPositions = _tab.PositionsOpenAll;
 
-            // If there are positions, then go to the position closing method
+            // if there are positions, then go to the position closing method
             if (openPositions != null && openPositions.Count != 0)
             {
                 LogicClosePosition(candles);
@@ -151,6 +134,7 @@ namespace OsEngine.Robots.MyRobots
             {
                 return;
             }
+
             // If there are no positions, then go to the position opening method
             if (openPositions == null || openPositions.Count == 0)
             {
@@ -162,18 +146,24 @@ namespace OsEngine.Robots.MyRobots
         private void LogicOpenPosition(List<Candle> candles)
         {
             List<Position> openPositions = _tab.PositionsOpenAll;
-            decimal lastPrice = candles[candles.Count - 1].Close;
-            decimal _slippage = Slippage.ValueDecimal * _tab.Securiti.PriceStep;
+
+
+            // He last value of the indicators
+            _lastSsmaFast = _ssma1.DataSeries[0].Last;
+            _lastSsmaSlow = _ssma2.DataSeries[0].Last;
+
+
             if (openPositions == null || openPositions.Count == 0)
-            {               
+            {
+                decimal _slippage = Slippage.ValueDecimal * _tab.Securiti.PriceStep;
+                decimal lastPrice = candles[candles.Count - 1].Close;
+
                 // Long
                 if (Regime.ValueString != "OnlyShort") // If the mode is not only short, then we enter long
                 {
-                   // The last value of the indicators
-                    _lastEmaFast = _ema1.DataSeries[0].Last;
-                    _lastEmaSlow = _ema2.DataSeries[0].Last;
-                    if (_lastEmaFast > _lastEmaSlow && lastPrice > _lastEmaFast)
+                    if (_lastSsmaFast > _lastSsmaSlow && lastPrice > _lastSsmaFast)
                     {
+                        // We put a stop on the buy                       
                         _tab.BuyAtLimit(GetVolume(), _tab.PriceBestAsk + _slippage);
                     }
                 }
@@ -181,21 +171,24 @@ namespace OsEngine.Robots.MyRobots
                 // Short
                 if (Regime.ValueString != "OnlyLong") // If the mode is not only long, then we enter short
                 {
-                    
-                    if (_lastEmaFast < _lastEmaSlow && lastPrice < _lastEmaFast)
+                    if (_lastSsmaFast < _lastSsmaSlow && lastPrice < _lastSsmaFast)
                     {
+                        // Putting a stop on sale
                         _tab.SellAtLimit(GetVolume(), _tab.PriceBestBid - _slippage);
                     }
                 }
             }
         }
-
         // Logic close position
         private void LogicClosePosition(List<Candle> candles)
         {
             List<Position> openPositions = _tab.PositionsOpenAll;
-            Position pos = openPositions[0];
             decimal _slippage = Slippage.ValueDecimal * _tab.Securiti.PriceStep;
+            decimal lastPrice = candles[candles.Count - 1].Close;
+
+            // He last value of the indicators
+            _lastSsmaFast = _ssma1.DataSeries[0].Last;
+            _lastSsmaSlow = _ssma2.DataSeries[0].Last;
 
             for (int i = 0; openPositions != null && i < openPositions.Count; i++)
             {
@@ -203,32 +196,40 @@ namespace OsEngine.Robots.MyRobots
                 {
                     continue;
                 }
-
-                if (openPositions[i].Direction == Side.Buy) // If the direction of the position is purchase
+                if (openPositions[i].Direction == Side.Buy) // If the direction of the position is buy
                 {
-                    decimal profitActivation = pos.EntryPrice + pos.EntryPrice * ProfitValue.ValueDecimal / 100;
-                    decimal stopActivation = pos.EntryPrice - pos.EntryPrice * StopValue.ValueDecimal / 100;
-
-                    _tab.CloseAtProfit(pos, profitActivation, profitActivation + _slippage);
-                    _tab.CloseAtStop(pos, stopActivation, stopActivation - _slippage);
+                    if (_lastSsmaFast < _lastSsmaSlow && lastPrice < _lastSsmaFast)
+                    {
+                        _tab.CloseAtLimit(openPositions[0], lastPrice - _slippage, openPositions[0].OpenVolume);
+                    }
                 }
                 else // If the direction of the position is sale
                 {
-                    decimal profitActivation = pos.EntryPrice - pos.EntryPrice * ProfitValue.ValueDecimal / 100;
-                    decimal stopActivation = pos.EntryPrice + pos.EntryPrice * StopValue.ValueDecimal / 100;
-
-                    _tab.CloseAtProfit(pos, profitActivation, profitActivation - _slippage);
-                    _tab.CloseAtStop(pos, stopActivation, stopActivation + _slippage);
+                    if (_lastSsmaFast > _lastSsmaSlow && lastPrice > _lastSsmaFast)
+                    {
+                        _tab.CloseAtLimit(openPositions[0], lastPrice + _slippage, openPositions[0].OpenVolume);
+                    }
                 }
             }
         }
 
+
+        // The name of the robot in OsEngin
+        public override string GetNameStrategyType()
+        {
+            return "IntersectionOfSsmaAndSsmaOffset";
+        }
+
+        public override void ShowIndividualSettingsDialog()
+        {
+
+        }
         // Method for calculating the volume of entry into a position
         private decimal GetVolume()
         {
             decimal volume = 0;
 
-            if (VolumeRegime.ValueString == "Contract currency") 
+            if (VolumeRegime.ValueString == "Contract currency")
             {
                 decimal contractPrice = _tab.PriceBestAsk;
                 volume = VolumeOnPosition.ValueDecimal / contractPrice;
@@ -252,5 +253,3 @@ namespace OsEngine.Robots.MyRobots
         }
     }
 }
-
-

@@ -13,7 +13,7 @@ using System.IO;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using System.Threading;
-
+using OsEngine.Market;
 
 namespace OsEngine.OsTrader.Panels.Tab
 {
@@ -22,17 +22,22 @@ namespace OsEngine.OsTrader.Panels.Tab
     /// </summary>
     public class BotTabPair : IIBotTab
     {
+        #region Service. Constructor. Override for the interface
+
         public BotTabPair(string name, StartProgram startProgram)
         {
             TabName = name;
-            _startProgram = startProgram;
-            StandartManualControl = new BotManualControl(name, null, _startProgram);
+            StartProgram = startProgram;
+            StandartManualControl = new BotManualControl(name, null, StartProgram);
 
             LoadStandartSettings();
             LoadPairs();
         }
 
-        StartProgram _startProgram;
+        /// <summary>
+        /// The program in which this source is running.
+        /// </summary>
+        public StartProgram StartProgram;
 
         /// <summary>
         /// source type
@@ -66,20 +71,48 @@ namespace OsEngine.OsTrader.Panels.Tab
             }
             set
             {
+
+                for(int i = 0;i < Pairs.Count;i++)
+                {
+                    Pairs[i].EventsIsOn = value;
+                }
+
                 if (_eventsIsOn == value)
                 {
                     return;
                 }
                 _eventsIsOn = value;
+                SaveStandartSettings();
             }
         }
-
         private bool _eventsIsOn = true;
 
         /// <summary>
         /// Is the emulator enabled
         /// </summary>
-        public bool EmulatorIsOn { get; set; }
+        public bool EmulatorIsOn
+        {
+            get
+            {
+                return _emulatorIsOn;
+            }
+            set
+            {
+
+                for (int i = 0; i < Pairs.Count; i++)
+                {
+                    Pairs[i].EmulatorIsOn = value;
+                }
+
+                if (_emulatorIsOn == value)
+                {
+                    return;
+                }
+                _emulatorIsOn = value;
+                SaveStandartSettings();
+            }
+        }
+        private bool _emulatorIsOn = false;
 
         /// <summary>
         /// Time of the last update of the candle
@@ -88,9 +121,16 @@ namespace OsEngine.OsTrader.Panels.Tab
 
         public void Clear()
         {
-
+            for(int i = 0;i < Pairs.Count;i++)
+            {
+                Pairs[i].Tab1.Clear();
+                Pairs[i].Tab2.Clear();
+            }
         }
 
+        /// <summary>
+        /// Delete the source and clean up the data behind
+        /// </summary>
         public void Delete()
         {
             try
@@ -109,11 +149,36 @@ namespace OsEngine.OsTrader.Panels.Tab
                     // ignore
                 }
 
+                try
+                {
+                    if (File.Exists(@"Engine\" + TabName + @"StrategSettings.txt"))
+                    {
+                        File.Delete(@"Engine\" + TabName + @"StrategSettings.txt");
+                    }
+                }
+                catch
+                {
+                    // ignore
+                }
+
+                try
+                {
+                    if (File.Exists(@"Engine\" + TabName + @"PairsNamesToLoad.txt"))
+                    {
+                        File.Delete(@"Engine\" + TabName + @"PairsNamesToLoad.txt");
+                    }
+                }
+                catch
+                {
+                    // ignore
+                }
+
                 for (int i = 0; i < Pairs.Count; i++)
                 {
                     Pairs[i].Delete();
                     Pairs[i].CointegrationPositionSideChangeEvent -= Pair_CointegrationPositionSideChangeEvent;
                     Pairs[i].CorrelationChangeEvent -= NewPair_CorrelationChangeEvent;
+                    Pairs[i].CointegrationChangeEvent -= Pair_CointegrationChangeEvent;
 
                 }
 
@@ -140,16 +205,20 @@ namespace OsEngine.OsTrader.Panels.Tab
             }
         }
 
+        /// <summary>
+        /// Take all the journals for all the pairs
+        /// </summary>
         public List<Journal.Journal> GetJournals()
         {
             try
             {
                 List<Journal.Journal> journals = new List<Journal.Journal>();
 
-                /* for (int i = 0; i < Tabs.Count; i++)
-                 {
-                     journals.Add(Tabs[i].GetJournal());
-                 }*/
+                for(int i = 0;i < Pairs.Count;i++)
+                {
+                    journals.Add(Pairs[i].Tab1.GetJournal());
+                    journals.Add(Pairs[i].Tab2.GetJournal());
+                }
 
                 return journals;
             }
@@ -160,35 +229,168 @@ namespace OsEngine.OsTrader.Panels.Tab
             }
         }
 
-        // общие настройки
+        /// <summary>
+        /// Check all pairs for this position with a certain number. Service function
+        /// </summary>
+        public BotTabSimple GetTabWithThisPosition(int positionNum)
+        {
+            try
+            {
+                BotTabSimple tabWithPosition = null;
 
-        public OrderPriceType Sec1OrderPriceType = OrderPriceType.Market;
+                for (int i = 0; i < Pairs.Count; i++)
+                {
+                    List<Position> posOnThisTab = Pairs[i].Tab1.PositionsAll;
 
-        public decimal Sec1SlippagePercent = 0;
+                    for (int i2 = 0; i2 < posOnThisTab.Count; i2++)
+                    {
+                        if (posOnThisTab[i2].Number == positionNum)
+                        {
+                            return Pairs[i].Tab1;
+                        }
+                    }
 
+                    posOnThisTab = Pairs[i].Tab2.PositionsAll;
+
+                    for (int i2 = 0; i2 < posOnThisTab.Count; i2++)
+                    {
+                        if (posOnThisTab[i2].Number == positionNum)
+                        {
+                            return Pairs[i].Tab2;
+                        }
+                    }
+                }
+
+                return tabWithPosition;
+            }
+            catch (Exception error)
+            {
+                SendNewLogMessage(error.ToString(), LogMessageType.Error);
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Source removed
+        /// </summary>
+        public event Action TabDeletedEvent;
+
+        public List<string> SecuritiesActivated
+        {
+            get
+            {
+                if(Pairs.Count == 0)
+                {
+                    return null;
+                }
+
+                List<string> result = new List<string>();
+
+                for(int i = 0;i < Pairs.Count;i++)
+                {
+                    BotTabSimple tab1 = Pairs[i].Tab1;
+                    BotTabSimple tab2 = Pairs[i].Tab2;
+
+                    if(string.IsNullOrEmpty(tab1.Connector.SecurityName) == false)
+                    {
+                        result.Add(tab1.Connector.SecurityName);
+                    }
+
+                    if (string.IsNullOrEmpty(tab2.Connector.SecurityName) == false)
+                    {
+                        result.Add(tab2.Connector.SecurityName);
+                    }
+                }
+
+                return result;
+            }
+        }
+
+        #endregion
+
+        #region Common settings
+
+        /// <summary>
+        /// Security 1. Trade Mode
+        /// </summary>
+        public PairTraderSecurityTradeRegime Sec1TradeRegime;
+
+        /// <summary>
+        /// Security 1. Slippage calculation Mode
+        /// </summary>
+        public PairTraderSlippageType Sec1SlippageType;
+
+        /// <summary>
+        /// Security 1. Slippage value
+        /// </summary>
+        public decimal Sec1Slippage = 0;
+
+        /// <summary>
+        /// Security 1. Volume calculation Mode
+        /// </summary>
+        public PairTraderVolumeType Sec1VolumeType;
+
+        /// <summary>
+        /// Security 1. Volume value
+        /// </summary>
         public decimal Sec1Volume = 7;
 
-        public OrderPriceType Sec2OrderPriceType = OrderPriceType.Market;
+        /// <summary>
+        /// Security 2. Trade Mode
+        /// </summary>
+        public PairTraderSecurityTradeRegime Sec2TradeRegime;
 
-        public decimal Sec2SlippagePercent = 0;
+        /// <summary>
+        /// Security 2. Slippage calculation Mode
+        /// </summary>
+        public PairTraderSlippageType Sec2SlippageType;
 
+        /// <summary>
+        /// Security 2. Slippage value
+        /// </summary>
+        public decimal Sec2Slippage = 0;
+
+        /// <summary>
+        /// Security 2. Volume calculation Mode
+        /// </summary>
+        public PairTraderVolumeType Sec2VolumeType;
+
+        /// <summary>
+        /// Security 2. Volume value
+        /// </summary>
         public decimal Sec2Volume = 7;
 
+        /// <summary>
+        /// Length of correlation calculation
+        /// </summary>
         public int CorrelationLookBack = 50;
 
+        /// <summary>
+        /// Length of cointegration calculation
+        /// </summary>
         public int CointegrationLookBack = 50;
 
+        /// <summary>
+        /// Deviation for calculating cointegration
+        /// </summary>
         public decimal CointegrationDeviation = 1;
 
+        /// <summary>
+        /// Module support position. The standard settings from it will be copied to all pairs
+        /// </summary>
         public BotManualControl StandartManualControl;
 
-        public bool SecondByMarket;
+        /// <summary>
+        /// Type of pair sorting in the pair list
+        /// </summary>
+        public MainGridPairSortType PairSortType;
 
-        public MainGridPairSortType SortGridType;
-
+        /// <summary>
+        /// Save Settings
+        /// </summary>
         public void SaveStandartSettings()
         {
-            if (_startProgram == StartProgram.IsOsOptimizer)
+            if (StartProgram == StartProgram.IsOsOptimizer)
             {
                 return;
             }
@@ -198,17 +400,23 @@ namespace OsEngine.OsTrader.Panels.Tab
                 using (StreamWriter writer = new StreamWriter(@"Engine\" + TabName + @"StandartPairsSettings.txt", false))
                 {
 
-                    writer.WriteLine(Sec1OrderPriceType);
-                    writer.WriteLine(Sec1SlippagePercent);
+                    writer.WriteLine(Sec1Slippage);
                     writer.WriteLine(Sec1Volume);
-                    writer.WriteLine(Sec2OrderPriceType);
-                    writer.WriteLine(Sec2SlippagePercent);
+                    writer.WriteLine(Sec2Slippage);
                     writer.WriteLine(Sec2Volume);
                     writer.WriteLine(CorrelationLookBack);
                     writer.WriteLine(CointegrationDeviation);
                     writer.WriteLine(CointegrationLookBack);
-                    writer.WriteLine(SecondByMarket);
-                    writer.WriteLine(SortGridType);
+                    writer.WriteLine(PairSortType);
+                    writer.WriteLine(Sec1SlippageType);
+                    writer.WriteLine(Sec1VolumeType);
+                    writer.WriteLine(Sec2SlippageType);
+                    writer.WriteLine(Sec2VolumeType);
+                    writer.WriteLine(_eventsIsOn);
+                    writer.WriteLine(_emulatorIsOn);
+                    writer.WriteLine(Sec1TradeRegime);
+                    writer.WriteLine(Sec2TradeRegime);
+
 
                     writer.Close();
                 }
@@ -219,6 +427,9 @@ namespace OsEngine.OsTrader.Panels.Tab
             }
         }
 
+        /// <summary>
+        /// Load Settings
+        /// </summary>
         private void LoadStandartSettings()
         {
             if (!File.Exists(@"Engine\" + TabName + @"StandartPairsSettings.txt"))
@@ -229,17 +440,24 @@ namespace OsEngine.OsTrader.Panels.Tab
             {
                 using (StreamReader reader = new StreamReader(@"Engine\" + TabName + @"StandartPairsSettings.txt"))
                 {
-                    Enum.TryParse(reader.ReadLine(), out Sec1OrderPriceType);
-                    Sec1SlippagePercent = reader.ReadLine().ToDecimal();
+                    Sec1Slippage = reader.ReadLine().ToDecimal();
                     Sec1Volume = Convert.ToInt32(reader.ReadLine());
-                    Enum.TryParse(reader.ReadLine(), out Sec2OrderPriceType);
-                    Sec2SlippagePercent = reader.ReadLine().ToDecimal();
+                    Sec2Slippage = reader.ReadLine().ToDecimal();
                     Sec2Volume = Convert.ToInt32(reader.ReadLine());
                     CorrelationLookBack = Convert.ToInt32(reader.ReadLine());
                     CointegrationDeviation = reader.ReadLine().ToDecimal();
                     CointegrationLookBack = Convert.ToInt32(reader.ReadLine());
-                    SecondByMarket = Convert.ToBoolean(reader.ReadLine());
-                    Enum.TryParse(reader.ReadLine(), out SortGridType);
+                    Enum.TryParse(reader.ReadLine(), out PairSortType);
+                    Enum.TryParse(reader.ReadLine(), out Sec1SlippageType);
+                    Enum.TryParse(reader.ReadLine(), out Sec1VolumeType);
+                    Enum.TryParse(reader.ReadLine(), out Sec2SlippageType);
+                    Enum.TryParse(reader.ReadLine(), out Sec2VolumeType);
+
+                    _eventsIsOn = Convert.ToBoolean(reader.ReadLine());
+                    _emulatorIsOn = Convert.ToBoolean(reader.ReadLine());
+
+                    Enum.TryParse(reader.ReadLine(), out Sec1TradeRegime);
+                    Enum.TryParse(reader.ReadLine(), out Sec2TradeRegime);
 
                     reader.Close();
                 }
@@ -250,93 +468,141 @@ namespace OsEngine.OsTrader.Panels.Tab
             }
         }
 
-        // хранение пар
+        #endregion
 
+        #region Storage, creation and deletion of pairs
+
+        /// <summary>
+        /// Pair array 
+        /// </summary>
         public List<PairToTrade> Pairs = new List<PairToTrade>();
 
+        /// <summary>
+        /// Create a new trading pair
+        /// </summary>
         public void CreatePair()
         {
-            int number = 0;
-
-            for (int i = 0; i < Pairs.Count; i++)
+            try
             {
-                if (Pairs[i].PairNum >= number)
+                int number = 0;
+
+                for (int i = 0; i < Pairs.Count; i++)
                 {
-                    number = Pairs[i].PairNum + 1;
+                    if (Pairs[i].PairNum >= number)
+                    {
+                        number = Pairs[i].PairNum + 1;
+                    }
+                }
+
+                PairToTrade pair = new PairToTrade(TabName + number, StartProgram);
+                pair.PairNum = number;
+
+                pair.Sec1Slippage = Sec1Slippage;
+                pair.Sec1Volume = Sec1Volume;
+                pair.Sec2Slippage = Sec2Slippage;
+                pair.Sec2Volume = Sec2Volume;
+                pair.CorrelationLookBack = CorrelationLookBack;
+                pair.CointegrationDeviation = CointegrationDeviation;
+                pair.CointegrationLookBack = CointegrationLookBack;
+                pair.Sec1SlippageType = Sec1SlippageType;
+                pair.Sec2SlippageType = Sec2SlippageType;
+                pair.Sec1VolumeType = Sec1VolumeType;
+                pair.Sec2VolumeType = Sec2VolumeType;
+                pair.Sec1TradeRegime = Sec1TradeRegime;
+                pair.Sec2TradeRegime = Sec2TradeRegime;
+
+                CopyPositionControllerSettings(pair.Tab1, StandartManualControl);
+                CopyPositionControllerSettings(pair.Tab2, StandartManualControl);
+
+                pair.EmulatorIsOn = _emulatorIsOn;
+                pair.EventsIsOn = _eventsIsOn;
+                pair.Save();
+
+                Pairs.Add(pair);
+
+                SavePairNames();
+
+                pair.CointegrationPositionSideChangeEvent += Pair_CointegrationPositionSideChangeEvent;
+                pair.CorrelationChangeEvent += NewPair_CorrelationChangeEvent;
+                pair.CointegrationChangeEvent += Pair_CointegrationChangeEvent;
+                pair.LogMessageEvent += SendNewLogMessage;
+
+                if (PairToTradeCreateEvent != null)
+                {
+                    PairToTradeCreateEvent(pair);
                 }
             }
-
-            PairToTrade pair = new PairToTrade(TabName + number, _startProgram);
-            pair.PairNum = number;
-
-            pair.Sec1OrderPriceType = Sec1OrderPriceType;
-            pair.Sec1SlippagePercent = Sec1SlippagePercent;
-            pair.Sec1Volume = Sec1Volume;
-            pair.Sec2OrderPriceType = Sec2OrderPriceType;
-            pair.Sec2SlippagePercent = Sec2SlippagePercent;
-            pair.Sec2Volume = Sec2Volume;
-            pair.CorrelationLookBack = CorrelationLookBack;
-            pair.CointegrationDeviation = CointegrationDeviation;
-            pair.CointegrationLookBack = CointegrationLookBack;
-            pair.SecondByMarket = SecondByMarket;
-
-            CopyPositionControllerSettings(pair.Tab1, StandartManualControl);
-            CopyPositionControllerSettings(pair.Tab2, StandartManualControl);
-
-            pair.Save();
-
-            Pairs.Add(pair);
-
-            SavePairNames();
-
-            pair.CointegrationPositionSideChangeEvent += Pair_CointegrationPositionSideChangeEvent;
-            pair.CorrelationChangeEvent += NewPair_CorrelationChangeEvent;
-            pair.CointegrationChangeEvent += Pair_CointegrationChangeEvent;
+            catch(Exception error)
+            {
+                SendNewLogMessage(error.ToString(),LogMessageType.Error);
+            }
         }
 
+        /// <summary>
+        /// Move the default position tracking settings to the pair
+        /// </summary>
         private void CopyPositionControllerSettings(BotTabSimple tab, BotManualControl control)
         {
-            tab.ManualPositionSupport.SecondToClose = control.SecondToClose;
-            tab.ManualPositionSupport.SecondToOpen = control.SecondToOpen;
-            tab.ManualPositionSupport.DoubleExitIsOn = control.DoubleExitIsOn;
-            tab.ManualPositionSupport.DoubleExitSlipage = control.DoubleExitSlipage;
-            tab.ManualPositionSupport.ProfitDistance = control.ProfitDistance;
-            tab.ManualPositionSupport.ProfitIsOn = control.ProfitIsOn;
-            tab.ManualPositionSupport.ProfitSlipage = control.ProfitSlipage;
-            tab.ManualPositionSupport.SecondToCloseIsOn = control.SecondToCloseIsOn;
-            tab.ManualPositionSupport.SecondToOpenIsOn = control.SecondToOpenIsOn;
-            tab.ManualPositionSupport.SetbackToCloseIsOn = control.SetbackToCloseIsOn;
-            tab.ManualPositionSupport.SetbackToClosePosition = control.SetbackToOpenPosition;
-            tab.ManualPositionSupport.SetbackToOpenIsOn = control.SetbackToOpenIsOn;
-            tab.ManualPositionSupport.SetbackToOpenPosition = control.SetbackToOpenPosition;
-            tab.ManualPositionSupport.StopDistance = control.StopDistance;
-            tab.ManualPositionSupport.StopIsOn = control.StopIsOn;
-            tab.ManualPositionSupport.StopSlipage = control.StopSlipage;
-            tab.ManualPositionSupport.TypeDoubleExitOrder = control.TypeDoubleExitOrder;
-            tab.ManualPositionSupport.ValuesType = control.ValuesType;
-
-
-
-        }
-
-        public void DeletePair(int numberInArray)
-        {
-            for (int i = 0; i < Pairs.Count; i++)
+            try
             {
-                if (Pairs[i].PairNum == numberInArray)
-                {
-                    Pairs[i].CointegrationPositionSideChangeEvent -= Pair_CointegrationPositionSideChangeEvent;
-                    Pairs[i].CorrelationChangeEvent -= NewPair_CorrelationChangeEvent;
-                    Pairs[i].CointegrationChangeEvent -= Pair_CointegrationChangeEvent;
-                    Pairs[i].Delete();
-                    Pairs.RemoveAt(i);
-                    SavePairNames();
-                    RePaintGrid();
-                    return;
-                }
+                tab.ManualPositionSupport.SecondToClose = control.SecondToClose;
+                tab.ManualPositionSupport.SecondToOpen = control.SecondToOpen;
+                tab.ManualPositionSupport.DoubleExitIsOn = control.DoubleExitIsOn;
+                tab.ManualPositionSupport.DoubleExitSlipage = control.DoubleExitSlipage;
+                tab.ManualPositionSupport.ProfitDistance = control.ProfitDistance;
+                tab.ManualPositionSupport.ProfitIsOn = control.ProfitIsOn;
+                tab.ManualPositionSupport.ProfitSlipage = control.ProfitSlipage;
+                tab.ManualPositionSupport.SecondToCloseIsOn = control.SecondToCloseIsOn;
+                tab.ManualPositionSupport.SecondToOpenIsOn = control.SecondToOpenIsOn;
+                tab.ManualPositionSupport.SetbackToCloseIsOn = control.SetbackToCloseIsOn;
+                tab.ManualPositionSupport.SetbackToClosePosition = control.SetbackToOpenPosition;
+                tab.ManualPositionSupport.SetbackToOpenIsOn = control.SetbackToOpenIsOn;
+                tab.ManualPositionSupport.SetbackToOpenPosition = control.SetbackToOpenPosition;
+                tab.ManualPositionSupport.StopDistance = control.StopDistance;
+                tab.ManualPositionSupport.StopIsOn = control.StopIsOn;
+                tab.ManualPositionSupport.StopSlipage = control.StopSlipage;
+                tab.ManualPositionSupport.TypeDoubleExitOrder = control.TypeDoubleExitOrder;
+                tab.ManualPositionSupport.ValuesType = control.ValuesType;
+            }
+            catch (Exception error)
+            {
+                SendNewLogMessage(error.ToString(),LogMessageType.Error);
             }
         }
 
+        /// <summary>
+        /// Delete a trading pair
+        /// </summary>
+        /// <param name="numberInArray"></param>
+        public void DeletePair(int numberInArray)
+        {
+            try
+            {
+                for (int i = 0; i < Pairs.Count; i++)
+                {
+                    if (Pairs[i].PairNum == numberInArray)
+                    {
+                        Pairs[i].CointegrationPositionSideChangeEvent -= Pair_CointegrationPositionSideChangeEvent;
+                        Pairs[i].CorrelationChangeEvent -= NewPair_CorrelationChangeEvent;
+                        Pairs[i].CointegrationChangeEvent -= Pair_CointegrationChangeEvent;
+                        Pairs[i].LogMessageEvent -= SendNewLogMessage;
+                        Pairs[i].Delete();
+                        Pairs.RemoveAt(i);
+                        SavePairNames();
+                        RePaintGrid();
+                        return;
+                    }
+                }
+            }
+            catch(Exception error)
+            {
+                SendNewLogMessage(error.ToString(), LogMessageType.Error);
+            }
+        }
+
+        /// <summary>
+        /// Save pairs
+        /// </summary>
         public void SavePairNames()
         {
             try
@@ -358,6 +624,9 @@ namespace OsEngine.OsTrader.Panels.Tab
             }
         }
 
+        /// <summary>
+        /// Load pairs
+        /// </summary>
         private void LoadPairs()
         {
             if (!File.Exists(@"Engine\" + TabName + @"PairsNamesToLoad.txt"))
@@ -371,203 +640,453 @@ namespace OsEngine.OsTrader.Panels.Tab
                     while (reader.EndOfStream == false)
                     {
                         string pairName = reader.ReadLine();
-                        PairToTrade newPair = new PairToTrade(pairName, _startProgram);
+                        PairToTrade newPair = new PairToTrade(pairName, StartProgram);
                         newPair.CointegrationPositionSideChangeEvent += Pair_CointegrationPositionSideChangeEvent;
                         newPair.CorrelationChangeEvent += NewPair_CorrelationChangeEvent;
                         newPair.CointegrationChangeEvent += Pair_CointegrationChangeEvent;
+                        newPair.LogMessageEvent += SendNewLogMessage;
                         Pairs.Add(newPair);
                     }
 
                     reader.Close();
                 }
             }
-            catch (Exception)
+            catch (Exception error)
             {
-                // ignore
+                SendNewLogMessage(error.ToString(), LogMessageType.Error);
             }
         }
 
+        /// <summary>
+        /// Apply the default settings to all pairs
+        /// </summary>
         public void ApplySettingsFromStandartToAll()
         {
-            for (int i = 0; i < Pairs.Count; i++)
+            try
             {
-                PairToTrade pair = Pairs[i];
+                for (int i = 0; i < Pairs.Count; i++)
+                {
+                    PairToTrade pair = Pairs[i];
 
-                pair.Sec1OrderPriceType = Sec1OrderPriceType;
-                pair.Sec1SlippagePercent = Sec1SlippagePercent;
-                pair.Sec1Volume = Sec1Volume;
-                pair.Sec2OrderPriceType = Sec2OrderPriceType;
-                pair.Sec2SlippagePercent = Sec2SlippagePercent;
-                pair.Sec2Volume = Sec2Volume;
-                pair.CorrelationLookBack = CorrelationLookBack;
-                pair.CointegrationDeviation = CointegrationDeviation;
-                pair.CointegrationLookBack = CointegrationLookBack;
-                pair.SecondByMarket = SecondByMarket;
+                    pair.Sec1Slippage = Sec1Slippage;
+                    pair.Sec1Volume = Sec1Volume;
+                    pair.Sec2Slippage = Sec2Slippage;
+                    pair.Sec2Volume = Sec2Volume;
+                    pair.CorrelationLookBack = CorrelationLookBack;
+                    pair.CointegrationDeviation = CointegrationDeviation;
+                    pair.CointegrationLookBack = CointegrationLookBack;
+                    pair.Sec1SlippageType = Sec1SlippageType;
+                    pair.Sec2SlippageType = Sec2SlippageType;
+                    pair.Sec1VolumeType = Sec1VolumeType;
+                    pair.Sec2VolumeType = Sec2VolumeType;
+                    pair.Sec1TradeRegime = Sec1TradeRegime;
+                    pair.Sec2TradeRegime = Sec2TradeRegime;
 
-                CopyPositionControllerSettings(pair.Tab1, StandartManualControl);
-                CopyPositionControllerSettings(pair.Tab2, StandartManualControl);
+                    CopyPositionControllerSettings(pair.Tab1, StandartManualControl);
+                    CopyPositionControllerSettings(pair.Tab2, StandartManualControl);
 
-                pair.Save();
+                    pair.Save();
+                }
+            }
+            catch(Exception error) 
+            {
+                SendNewLogMessage(error.ToString(),LogMessageType.Error);
             }
         }
 
+        /// <summary>
+        /// Sort the array with pairs
+        /// </summary>
         public void SortPairsArray()
         {
-            if (Pairs == null ||
-                Pairs.Count == 0)
+            try
             {
-                return;
-            }
-
-            if (SortGridType == MainGridPairSortType.No)
-            { // по номерам
-                for (int i = 1; i < Pairs.Count; i++)
-                {
-                    for (int i2 = i; i2 < Pairs.Count; i2++)
-                    {
-                        if (Pairs[i2].PairNum < Pairs[i2 - 1].PairNum)
-                        {
-                            PairToTrade pair = Pairs[i2];
-                            Pairs[i2] = Pairs[i2 - 1];
-                            Pairs[i2 - 1] = pair;
-                        }
-                    }
-                }
-            }
-            else if (SortGridType == MainGridPairSortType.Side)
-            { // по стороне коинтеграции
-
-                for (int i = 1; i < Pairs.Count; i++)
-                {
-                    for (int i2 = i; i2 < Pairs.Count; i2++)
-                    {// up - в начало
-                        if (Pairs[i2].SideCointegrationValue == CointegrationLineSide.Up
-                            && Pairs[i2 - 1].SideCointegrationValue != CointegrationLineSide.Up)
-                        {
-                            PairToTrade pair = Pairs[i2];
-                            Pairs[i2] = Pairs[i2 - 1];
-                            Pairs[i2 - 1] = pair;
-                        }
-                    }
-
-                    for (int i2 = i; i2 < Pairs.Count; i2++)
-                    { // no - в конец
-                        if (Pairs[i2].SideCointegrationValue != CointegrationLineSide.No
-                            && Pairs[i2 - 1].SideCointegrationValue == CointegrationLineSide.No)
-                        {
-                            PairToTrade pair = Pairs[i2];
-                            Pairs[i2] = Pairs[i2 - 1];
-                            Pairs[i2 - 1] = pair;
-                        }
-                    }
-                }
-
-            }
-            else if (SortGridType == MainGridPairSortType.Correlation)
-            { // по наивысшему значению корреляции
-                for (int i = 1; i < Pairs.Count; i++)
-                {
-                    for (int i2 = i; i2 < Pairs.Count; i2++)
-                    {
-                        if (Pairs[i2].CorrelationLast > Pairs[i2 - 1].CorrelationLast
-                            || Pairs[i2].CorrelationLast != 0 && Pairs[i2 - 1].CorrelationLast == 0)
-                        {
-                            PairToTrade pair = Pairs[i2];
-                            Pairs[i2] = Pairs[i2 - 1];
-                            Pairs[i2 - 1] = pair;
-                        }
-                    }
-                }
-            }
-        }
-
-        // исходящие события
-
-        private void NewPair_CorrelationChangeEvent(List<PairIndicatorValue> correlationArray, PairToTrade pair)
-        {
-            if (SortGridType == MainGridPairSortType.Correlation)
-            {
-                SortPairsArray();
-            }
-
-            if(CorrelationChangeEvent != null)
-            {
-                CorrelationChangeEvent(correlationArray, pair);
-            }
-        }
-
-        private void Pair_CointegrationPositionSideChangeEvent(CointegrationLineSide side, PairToTrade pair)
-        {
-            if (SortGridType == MainGridPairSortType.Side)
-            {
-                SortPairsArray();
-            }
-
-            if (CointegrationPositionSideChangeEvent != null)
-            {
-                CointegrationPositionSideChangeEvent(side, pair);
-            }
-        }
-
-        private void Pair_CointegrationChangeEvent(List<PairIndicatorValue> cointegrationArray, PairToTrade pair)
-        {
-            if (CointegrationChangeEvent != null)
-            {
-                CointegrationChangeEvent(cointegrationArray, pair);
-            }
-        }
-
-        public event Action<List<PairIndicatorValue>, PairToTrade> CorrelationChangeEvent;
-
-        public event Action<List<PairIndicatorValue>, PairToTrade> CointegrationChangeEvent;
-
-        public event Action<CointegrationLineSide, PairToTrade> CointegrationPositionSideChangeEvent;
-
-        public event Action<PairToTrade> PairToTradeCreateEvent;
-
-        // прорисовка таблицы
-
-        Thread painterThread;
-
-        private void PainterThread()
-        {
-            while (true)
-            {
-                Thread.Sleep(2000);
-
-                if (_isDeleted)
+                if (Pairs == null ||
+                    Pairs.Count == 0)
                 {
                     return;
                 }
 
-                TryRePaintGrid();
+                if (PairSortType == MainGridPairSortType.No)
+                { // по номерам
+                    for (int i = 1; i < Pairs.Count; i++)
+                    {
+                        for (int i2 = i; i2 < Pairs.Count; i2++)
+                        {
+                            if (Pairs[i2].PairNum < Pairs[i2 - 1].PairNum)
+                            {
+                                PairToTrade pair = Pairs[i2];
+                                Pairs[i2] = Pairs[i2 - 1];
+                                Pairs[i2 - 1] = pair;
+                            }
+                        }
+                    }
+                }
+                else if (PairSortType == MainGridPairSortType.Side)
+                { // по стороне коинтеграции
+
+                    for (int i = 1; i < Pairs.Count; i++)
+                    {
+                        for (int i2 = i; i2 < Pairs.Count; i2++)
+                        {// up - в начало
+                            if (Pairs[i2].SideCointegrationValue == CointegrationLineSide.Up
+                                && Pairs[i2 - 1].SideCointegrationValue != CointegrationLineSide.Up)
+                            {
+                                PairToTrade pair = Pairs[i2];
+                                Pairs[i2] = Pairs[i2 - 1];
+                                Pairs[i2 - 1] = pair;
+                            }
+                        }
+
+                        for (int i2 = i; i2 < Pairs.Count; i2++)
+                        { // no - в конец
+                            if (Pairs[i2].SideCointegrationValue != CointegrationLineSide.No
+                                && Pairs[i2 - 1].SideCointegrationValue == CointegrationLineSide.No)
+                            {
+                                PairToTrade pair = Pairs[i2];
+                                Pairs[i2] = Pairs[i2 - 1];
+                                Pairs[i2 - 1] = pair;
+                            }
+                        }
+                    }
+
+                }
+                else if (PairSortType == MainGridPairSortType.Correlation)
+                { // по наивысшему значению корреляции
+                    for (int i = 1; i < Pairs.Count; i++)
+                    {
+                        for (int i2 = i; i2 < Pairs.Count; i2++)
+                        {
+                            if (Pairs[i2].CorrelationLast > Pairs[i2 - 1].CorrelationLast
+                                || Pairs[i2].CorrelationLast != 0 && Pairs[i2 - 1].CorrelationLast == 0)
+                            {
+                                PairToTrade pair = Pairs[i2];
+                                Pairs[i2] = Pairs[i2 - 1];
+                                Pairs[i2 - 1] = pair;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception error)
+            {
+                SendNewLogMessage(error.ToString(), LogMessageType.Error);
             }
         }
 
+        /// <summary>
+        /// Number of pairs with positions
+        /// </summary>
+        public int PairsWithPositionsCount
+        {
+            get
+            {
+                int result = 0;
+
+                for(int i = 0;i < Pairs.Count;i++)
+                {
+                    if (Pairs[i].HavePositions)
+                    {
+                        result++;
+                    }
+                }
+
+                return result;
+            }
+        }
+
+        #endregion
+
+        #region Automatic creation of trading pairs
+
+        /// <summary>
+        /// Make a list of previously created pairs
+        /// </summary>
+        public List<string> CreatedPairs
+        {
+            get
+            {
+                if(Pairs.Count == 0)
+                {
+                    return null;
+                }
+
+                List<string> createdPairs = new List<string>();
+
+                for(int i = 0;i < Pairs.Count; i++)
+                {
+                    if (string.IsNullOrEmpty(Pairs[i].Tab1.Connector.SecurityName) 
+                        || string.IsNullOrEmpty(Pairs[i].Tab2.Connector.SecurityName))
+                    {
+                        continue;
+                    }
+
+                    string name1 = Pairs[i].Tab1.Connector.SecurityName;
+                    string name2 = Pairs[i].Tab2.Connector.SecurityName;
+
+                    string resultNamePair = name1 + "_|_" + name2;
+                    createdPairs.Add(resultNamePair);
+                }
+
+                return createdPairs;
+            }
+        }
+
+        /// <summary>
+        /// Is this pair of securities in trade?
+        /// </summary>
+        public bool HaveThisPairInTrade(string sec1, string sec2, string secClass, TimeFrame timeFrame, ServerType serverType)
+        {
+            for(int i = 0;i < Pairs.Count;i++)
+            {
+                string curSecName1 = Pairs[i].Tab1.Connector.SecurityName;
+                string curSecName2 = Pairs[i].Tab2.Connector.SecurityName;
+                string curSecClass1 = Pairs[i].Tab1.Connector.SecurityClass;
+                string curSecClass2 = Pairs[i].Tab2.Connector.SecurityClass;
+
+                ServerType serverType1 = Pairs[i].Tab1.Connector.ServerType;
+                ServerType serverType2 = Pairs[i].Tab2.Connector.ServerType;
+
+                TimeFrame timeFrame1 = Pairs[i].Tab1.Connector.TimeFrame;
+                TimeFrame timeFrame2 = Pairs[i].Tab2.Connector.TimeFrame;
+
+                if(sec1 == curSecName1 &&
+                    sec2 == curSecName2 &&
+                    secClass == curSecClass1 &&
+                    secClass == curSecClass2 &&
+                    timeFrame == timeFrame1 &&
+                    timeFrame == timeFrame2 &&
+                    serverType == serverType1 &&
+                    serverType == serverType2)
+                {
+                    return true;
+                }
+
+                if (sec1 == curSecName2 &&
+                    sec2 == curSecName1 &&
+                    secClass == curSecClass2 &&
+                    secClass == curSecClass1 &&
+                    timeFrame == timeFrame2 &&
+                    timeFrame == timeFrame1 &&
+                    serverType == serverType2 &&
+                    serverType == serverType1)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Create a new pair according to the settings
+        /// </summary>
+        public void CreateNewPair(
+            string sec1, string sec2, string secClass, 
+            TimeFrame timeFrame, ServerType serverType,
+            ComissionType comissionType, decimal comissionValue)
+        {
+            CreatePair();
+
+            PairToTrade newPair = Pairs[Pairs.Count - 1];
+
+            newPair.Tab1.ComissionType = comissionType;
+            newPair.Tab1.ComissionValue = comissionValue;
+            newPair.Tab1.Connector.ServerType = serverType;
+            newPair.Tab1.Connector.TimeFrame = timeFrame;
+            newPair.Tab1.Connector.SecurityName = sec1;
+            newPair.Tab1.Connector.SecurityClass = secClass;
+
+            newPair.Tab2.ComissionType = comissionType;
+            newPair.Tab2.ComissionValue = comissionValue;
+            newPair.Tab2.Connector.ServerType = serverType;
+            newPair.Tab2.Connector.TimeFrame = timeFrame;
+            newPair.Tab2.Connector.SecurityName = sec2;
+            newPair.Tab2.Connector.SecurityClass = secClass;
+        }
+
+        #endregion
+
+        #region Outgoing events
+
+        /// <summary>
+        /// The pair has updated correlation value
+        /// </summary>
+        /// <param name="correlationArray">An array with correlation values. The actual value is the last</param>
+        /// <param name="pair">Pair of instruments for which the correlation was updated</param>
+        private void NewPair_CorrelationChangeEvent(List<PairIndicatorValue> correlationArray, PairToTrade pair)
+        {
+            try
+            {
+                if (PairSortType == MainGridPairSortType.Correlation)
+                {
+                    SortPairsArray();
+                }
+
+                if (CorrelationChangeEvent != null)
+                {
+                    CorrelationChangeEvent(correlationArray, pair);
+                }
+            }
+            catch(Exception error)
+            {
+                SendNewLogMessage(error.ToString(),LogMessageType.Error);
+            }
+        }
+
+        /// <summary>
+        /// The pair has updated cointegration side value
+        /// </summary>
+        /// <param name="side">The side in which the current value of the deviation between the instruments is located, 
+        /// relative to the lines on the cointegration graph. 
+        /// No - on the middle. Up - above the top line. Down - below the bottom line</param>
+        /// <param name="pair">Pair of instruments for which the cointegration was updated</param>
+        private void Pair_CointegrationPositionSideChangeEvent(CointegrationLineSide side, PairToTrade pair)
+        {
+            try
+            {
+
+                if (PairSortType == MainGridPairSortType.Side)
+                {
+                    SortPairsArray();
+                }
+
+                if (CointegrationPositionSideChangeEvent != null)
+                {
+                    CointegrationPositionSideChangeEvent(side, pair);
+                }
+            }
+            catch (Exception error)
+            {
+                SendNewLogMessage(error.ToString(), LogMessageType.Error);
+            }
+        }
+
+        /// <summary>
+        ///  The pair has updated cointegration value
+        /// </summary>
+        /// <param name="cointegrationArray">An array with cointegration values. The actual value is the last</param>
+        /// <param name="pair">Pair of instruments for which the cointegration was updated</param>
+        private void Pair_CointegrationChangeEvent(List<PairIndicatorValue> cointegrationArray, PairToTrade pair)
+        {
+            try
+            {
+                if (CointegrationChangeEvent != null)
+                {
+                    CointegrationChangeEvent(cointegrationArray, pair);
+                }
+            }
+            catch (Exception error)
+            {
+                SendNewLogMessage(error.ToString(), LogMessageType.Error);
+            }
+        }
+
+        /// <summary>
+        /// Some pair has updated correlation value. 
+        /// List<PairIndicatorValue> - An array with correlation values. The actual value is the last. 
+        /// PairToTrade - Pair of instruments for which the correlation was updated
+        /// </summary>
+        public event Action<List<PairIndicatorValue>, PairToTrade> CorrelationChangeEvent;
+
+        /// <summary>
+        /// Some pair has updated cointegration value. 
+        /// List<PairIndicatorValue> - An array with cointegration values. The actual value is the last. 
+        /// PairToTrade - Pair of instruments for which the cointegration was updated
+        /// </summary>
+        public event Action<List<PairIndicatorValue>, PairToTrade> CointegrationChangeEvent;
+
+        /// <summary>
+        /// Some pair has updated cointegration side value.  
+        /// CointegrationLineSide - The side in which the current value of the deviation between the instruments is located, 
+        /// relative to the lines on the cointegration graph. 
+        /// No - on the middle. Up - above the top line. Down - below the bottom line. 
+        /// PairToTrade - Pair of instruments for which the cointegration side was updated
+        /// </summary>
+        public event Action<CointegrationLineSide, PairToTrade> CointegrationPositionSideChangeEvent;
+
+        /// <summary>
+        /// The source has a new pair for trading
+        /// </summary>
+        public event Action<PairToTrade> PairToTradeCreateEvent;
+
+        #endregion
+
+        #region Drawing the source table
+
+        /// <summary>
+        /// Thread drawing interface
+        /// </summary>
+        Thread painterThread;
+
+        /// <summary>
+        /// A method in which interface drawing methods are periodically called
+        /// </summary>
+        private void PainterThread()
+        {
+            while (true)
+            {
+                try
+                {
+                    Thread.Sleep(2000);
+
+                    if (_isDeleted)
+                    {
+                        return;
+                    }
+
+                    TryRePaintGrid();
+                }
+                catch(Exception error)
+                {
+                    SendNewLogMessage(error.ToString(),LogMessageType.Error);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Flag indicating whether the source has been removed or not. false - not deleted. true - source deleted
+        /// </summary>
         private bool _isDeleted;
 
-        WindowsFormsHost _host;
+        /// <summary>
+        /// The area where the table of pairs is drawn
+        /// </summary>
+        private WindowsFormsHost _host;
 
+        /// <summary>
+        /// Start drawing the table of pairs
+        /// </summary>
         public void StartPaint(WindowsFormsHost host)
         {
-            _host = host;
-
-            if (_grid == null)
+            try
             {
-                CreateGrid();
+                _host = host;
+
+                if (_grid == null)
+                {
+                    CreateGrid();
+                }
+
+                RePaintGrid();
+
+                _host.Child = _grid;
+
+                if (painterThread == null)
+                {
+                    painterThread = new Thread(PainterThread);
+                    painterThread.Start();
+                }
             }
-
-            RePaintGrid();
-
-            _host.Child = _grid;
-
-            if (painterThread == null)
+            catch (Exception error)
             {
-                painterThread = new Thread(PainterThread);
-                painterThread.Start();
+                SendNewLogMessage(error.ToString(), LogMessageType.Error);
             }
         }
 
+        /// <summary>
+        /// Stop drawing the table of pairs
+        /// </summary>
         public void StopPaint()
         {
             if(_host != null)
@@ -576,6 +1095,9 @@ namespace OsEngine.OsTrader.Panels.Tab
             }
         }
 
+        /// <summary>
+        /// Method for creating a table for drawing pairs
+        /// </summary>
         private void CreateGrid()
         {
             DataGridView newGrid = DataGridFactory.GetDataGridView(DataGridViewSelectionMode.CellSelect, DataGridViewAutoSizeRowsMode.AllCells);
@@ -607,29 +1129,42 @@ namespace OsEngine.OsTrader.Panels.Tab
             _grid.CellClick += _grid_CellClick;
         }
 
+        /// <summary>
+        /// The method of full redrawing of the table with pairs
+        /// </summary>
         private void RePaintGrid()
         {
-            if (_grid.InvokeRequired)
+            try
             {
-                _grid.Invoke(new Action(RePaintGrid));
-                return;
+                if (_grid.InvokeRequired)
+                {
+                    _grid.Invoke(new Action(RePaintGrid));
+                    return;
+                }
+
+                _grid.Rows.Clear();
+
+                List<DataGridViewRow> rows = GetRowsToGrid();
+
+                if (rows == null)
+                {
+                    return;
+                }
+
+                for (int i = 0; i < rows.Count; i++)
+                {
+                    _grid.Rows.Add(rows[i]);
+                }
             }
-
-            _grid.Rows.Clear();
-
-            List<DataGridViewRow> rows = GetRowsToGrid();
-
-            if (rows == null)
+            catch (Exception error)
             {
-                return;
-            }
-
-            for (int i = 0; i < rows.Count; i++)
-            {
-                _grid.Rows.Add(rows[i]);
+                SendNewLogMessage(error.ToString(), LogMessageType.Error);
             }
         }
 
+        /// <summary>
+        /// Simplified method of redrawing a table with pairs. Redraws the table only if there are updates in it
+        /// </summary>
         private void TryRePaintGrid()
         {
             List<DataGridViewRow> rows = GetRowsToGrid();
@@ -705,14 +1240,17 @@ namespace OsEngine.OsTrader.Panels.Tab
                 TryRePaintRow(_grid.Rows[i], rows[i]);
             }
 
-            if (sideFromTable != SortGridType)
+            if (sideFromTable != PairSortType)
             {
-                SortGridType = sideFromTable;
+                PairSortType = sideFromTable;
                 SortPairsArray();
                 SaveStandartSettings();
             }
         }
 
+        /// <summary>
+        /// Redraw the row in the table
+        /// </summary>
         private void TryRePaintRow(DataGridViewRow rowInGrid, DataGridViewRow rowInArray)
         {
             if (_grid.InvokeRequired)
@@ -763,6 +1301,9 @@ namespace OsEngine.OsTrader.Panels.Tab
             }
         }
 
+        /// <summary>
+        /// Calculate all rows from the table of pairs
+        /// </summary>
         private List<DataGridViewRow> GetRowsToGrid()
         {
             try
@@ -797,18 +1338,21 @@ namespace OsEngine.OsTrader.Panels.Tab
             nRow.Cells.Add(new DataGridViewTextBoxCell());
             nRow.Cells.Add(new DataGridViewTextBoxCell());
             nRow.Cells.Add(new DataGridViewTextBoxCell());
-            nRow.Cells.Add(new DataGridViewTextBoxCell());
 
-            DataGridViewButtonCell button = new DataGridViewButtonCell(); // Общие настройки
-            button.Value = OsLocalization.Trader.Label232;
-            nRow.Cells.Add(button);
+            DataGridViewButtonCell button1 = new DataGridViewButtonCell(); // авто создание пар
+            button1.Value = OsLocalization.Trader.Label257;
+            nRow.Cells.Add(button1);
+
+            DataGridViewButtonCell button2 = new DataGridViewButtonCell(); // Общие настройки
+            button2.Value = OsLocalization.Trader.Label232;
+            nRow.Cells.Add(button2);
 
             DataGridViewComboBoxCell comboBox = new DataGridViewComboBoxCell();// Сортировка
             comboBox.Items.Add(OsLocalization.Trader.Label233 + ": " + MainGridPairSortType.No.ToString());
             comboBox.Items.Add(OsLocalization.Trader.Label233 + ": " + MainGridPairSortType.Side.ToString());
             comboBox.Items.Add(OsLocalization.Trader.Label233 + ": " + MainGridPairSortType.Correlation.ToString());
 
-            comboBox.Value = OsLocalization.Trader.Label233 + ": " + SortGridType.ToString();
+            comboBox.Value = OsLocalization.Trader.Label233 + ": " + PairSortType.ToString();
 
             nRow.Cells.Add(comboBox);
 
@@ -966,181 +1510,239 @@ namespace OsEngine.OsTrader.Panels.Tab
             return nRow;
         }
 
-        DataGridView _grid;
+        /// <summary>
+        /// Pair table for the visual interface
+        /// </summary>
+        private DataGridView _grid;
 
+        /// <summary>
+        /// Table click event handler in the visual interface
+        /// </summary>
         private void _grid_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            int column = e.ColumnIndex;
-            int row = e.RowIndex;
-
-            if (_grid.Rows.Count == row + 1 &&
-                column == 5)
-            { // создание вкладки
-                CreatePair();
-                RePaintGrid();
-            }
-            else if (column == 5)
-            {// возможно удаление
-
-                int tabNum = -1;
-
-                try
-                {
-                    if (_grid.Rows[row].Cells[0].Value == null)
-                    {
-                        return;
-                    }
-
-                    tabNum = Convert.ToInt32(_grid.Rows[row].Cells[0].Value.ToString());
-                }
-                catch
-                {
-                    return;
-                }
-
-                AcceptDialogUi ui = new AcceptDialogUi(OsLocalization.Trader.Label237);
-
-                ui.ShowDialog();
-
-                if (ui.UserAcceptActioin)
-                {
-                    DeletePair(tabNum);
-                }
-            }
-            else if (column == 1)
-            { // возможно кнопка подключения бумаги
-                if (_grid.Rows[row].Cells[0].Value != null)
-                {
-                    return;
-                }
-
-                int pairNum = -1;
-                int tabNum = -1;
-
-                for (int i = row - 1; i >= 0; i--)
-                {
-                    if (_grid.Rows[i].Cells[0].Value != null)
-                    {
-                        pairNum = Convert.ToInt32(_grid.Rows[i].Cells[0].Value);
-
-                        if (i == row - 1)
-                        {
-                            tabNum = 1;
-                        }
-                        else
-                        {
-                            tabNum = 2;
-                        }
-                        break;
-                    }
-                }
-
-                PairToTrade pair = null;
-
-                for (int i = 0; i < Pairs.Count; i++)
-                {
-                    if (Pairs[i].PairNum == pairNum)
-                    {
-                        pair = Pairs[i];
-                        break;
-                    }
-                }
-
-                if (tabNum == 1)
-                {
-                    pair.Tab1.ShowConnectorDialog();
-                }
-                else if (tabNum == 2)
-                {
-                    pair.Tab2.ShowConnectorDialog();
-                }
-            }
-            else if (column == 4 && row == 0)
-            { // кнопка открытия общих настроек
-
-                if (_commonSettingsUi != null)
-                {
-                    _commonSettingsUi.Activate();
-                    return;
-                }
-
-                _commonSettingsUi = new BotTabPairCommonSettingsUi(this);
-                _commonSettingsUi.Show();
-                _commonSettingsUi.Closed += _commonSettingsUi_Closed;
-            }
-            else if (column == 4)
+            try
             {
-                // возможно кнопка открытия отдельного окна пары или общих настроек
+                int column = e.ColumnIndex;
+                int row = e.RowIndex;
 
-                int tabNum = -1;
+                if (_grid.Rows.Count == row + 1 &&
+                    column == 5)
+                { // создание вкладки
+                    CreatePair();
+                    RePaintGrid();
+                }
+                else if (column == 5)
+                {// возможно удаление
 
-                try
-                {
-                    if (_grid.Rows[row].Cells[0].Value == null)
+                    int tabNum = -1;
+
+                    try
+                    {
+                        if (_grid.Rows[row].Cells[0].Value == null)
+                        {
+                            return;
+                        }
+
+                        tabNum = Convert.ToInt32(_grid.Rows[row].Cells[0].Value.ToString());
+                    }
+                    catch
                     {
                         return;
                     }
 
-                    tabNum = Convert.ToInt32(_grid.Rows[row].Cells[0].Value.ToString());
-                }
-                catch
-                {
-                    return;
-                }
+                    AcceptDialogUi ui = new AcceptDialogUi(OsLocalization.Trader.Label237);
 
-                PairToTrade pair = null;
+                    ui.ShowDialog();
 
-                for (int i = 0; i < Pairs.Count; i++)
-                {
-                    if (Pairs[i].PairNum == tabNum)
+                    if (ui.UserAcceptActioin)
                     {
-                        pair = Pairs[i];
-                        break;
+                        DeletePair(tabNum);
                     }
                 }
+                else if (column == 1)
+                { // возможно кнопка подключения бумаги
+                    if (_grid.Rows[row].Cells[0].Value != null)
+                    {
+                        return;
+                    }
+
+                    int pairNum = -1;
+                    int tabNum = -1;
+
+                    for (int i = row - 1; i >= 0; i--)
+                    {
+                        if (_grid.Rows[i].Cells[0].Value != null)
+                        {
+                            pairNum = Convert.ToInt32(_grid.Rows[i].Cells[0].Value);
+
+                            if (i == row - 1)
+                            {
+                                tabNum = 1;
+                            }
+                            else
+                            {
+                                tabNum = 2;
+                            }
+                            break;
+                        }
+                    }
+
+                    PairToTrade pair = null;
+
+                    for (int i = 0; i < Pairs.Count; i++)
+                    {
+                        if (Pairs[i].PairNum == pairNum)
+                        {
+                            pair = Pairs[i];
+                            break;
+                        }
+                    }
+
+                    if (tabNum == 1)
+                    {
+                        pair.Tab1.ShowConnectorDialog();
+                    }
+                    else if (tabNum == 2)
+                    {
+                        pair.Tab2.ShowConnectorDialog();
+                    }
+                }
+                else if (column == 4 && row == 0)
+                { // кнопка открытия общих настроек
+
+                    if (_commonSettingsUi != null)
+                    {
+                        _commonSettingsUi.Activate();
+                        return;
+                    }
+
+                    _commonSettingsUi = new BotTabPairCommonSettingsUi(this);
+                    _commonSettingsUi.Show();
+                    _commonSettingsUi.Closed += _commonSettingsUi_Closed;
+                }
+                else if (column == 3 && row == 0)
+                { // кнопка открытия окна авто генерации пар
+                    if(_autoSelectPairsUi != null)
+                    {
+                        _autoSelectPairsUi.Activate();
+                        return;
+                    }
+
+                    _autoSelectPairsUi = new BotTabPairAutoSelectPairsUi(this);
+                    _autoSelectPairsUi.Show();
+                    _autoSelectPairsUi.Closed += _autoSelectPairsUi_Closed;
+
+                }
+                else if (column == 4)
+                {
+                    // возможно кнопка открытия отдельного окна пары или общих настроек
+
+                    int tabNum = -1;
+
+                    try
+                    {
+                        if (_grid.Rows[row].Cells[0].Value == null)
+                        {
+                            return;
+                        }
+
+                        tabNum = Convert.ToInt32(_grid.Rows[row].Cells[0].Value.ToString());
+                    }
+                    catch
+                    {
+                        return;
+                    }
+
+                    PairToTrade pair = null;
+
+                    for (int i = 0; i < Pairs.Count; i++)
+                    {
+                        if (Pairs[i].PairNum == tabNum)
+                        {
+                            pair = Pairs[i];
+                            break;
+                        }
+                    }
+
+                    for (int i = 0; i < _uiList.Count; i++)
+                    {
+                        if (_uiList[i].Name == pair.Name)
+                        {
+                            _uiList[i].Activate();
+                            return;
+                        }
+                    }
+
+                    BotTabPairUi ui = new BotTabPairUi(pair);
+                    ui.Show();
+                    _uiList.Add(ui);
+
+                    ui.Closed += Ui_Closed;
+
+                }
+            }
+            catch (Exception error)
+            {
+                SendNewLogMessage(error.ToString(), LogMessageType.Error);
+            }
+        }
+
+        /// <summary>
+        /// Array with separate windows for viewing pairs
+        /// </summary>
+        private List<BotTabPairUi> _uiList = new List<BotTabPairUi>();
+
+        /// <summary>
+        /// Event handler for closing a separate pair window
+        /// </summary>
+        private void Ui_Closed(object sender, EventArgs e)
+        {
+            try
+            {
+
+                string name = ((BotTabPairUi)sender).Name;
 
                 for (int i = 0; i < _uiList.Count; i++)
                 {
-                    if (_uiList[i].Name == pair.Name)
+                    if (_uiList[i].Name == name)
                     {
-                        _uiList[i].Activate();
+                        _uiList[i].Closed -= Ui_Closed;
+                        _uiList.RemoveAt(i);
                         return;
                     }
                 }
-
-                BotTabPairUi ui = new BotTabPairUi(pair);
-                ui.Show();
-                _uiList.Add(ui);
-
-                ui.Closed += Ui_Closed;
-
             }
-        }
-
-        private void Ui_Closed(object sender, EventArgs e)
-        {
-            string name = ((BotTabPairUi)sender).Name;
-
-            for (int i = 0; i < _uiList.Count; i++)
+            catch (Exception error)
             {
-                if (_uiList[i].Name == name)
-                {
-                    _uiList.RemoveAt(i);
-                    return;
-                }
+                SendNewLogMessage(error.ToString(), LogMessageType.Error);
             }
         }
 
-        List<BotTabPairUi> _uiList = new List<BotTabPairUi>();
+        /// <summary>
+        /// Common settings window for all pairs in the source
+        /// </summary>
+        private BotTabPairCommonSettingsUi _commonSettingsUi;
 
-        BotTabPairCommonSettingsUi _commonSettingsUi;
-
+        /// <summary>
+        /// Event handler for closing a common settings window
+        /// </summary>
         private void _commonSettingsUi_Closed(object sender, EventArgs e)
         {
+            _commonSettingsUi.Closed -= _commonSettingsUi_Closed;
             _commonSettingsUi = null;
         }
 
-        // логирование
+        BotTabPairAutoSelectPairsUi _autoSelectPairsUi;
+
+        private void _autoSelectPairsUi_Closed(object sender, EventArgs e)
+        {
+            _autoSelectPairsUi.Closed -= _autoSelectPairsUi_Closed;
+            _autoSelectPairsUi = null;
+        }
+
+        #endregion
+
+        #region Logging
 
         /// <summary>
         /// Send new log message
@@ -1162,35 +1764,53 @@ namespace OsEngine.OsTrader.Panels.Tab
         /// </summary>
         public event Action<string, LogMessageType> LogMessageEvent;
 
-        /// <summary>
-        /// Source removed
-        /// </summary>
-        public event Action TabDeletedEvent;
+        #endregion
     }
 
+    /// <summary>
+    /// Pair for trading
+    /// </summary>
     public class PairToTrade
     {
+        #region Service. Constructor
+
+        /// <summary>
+        /// Pair for trading constructor
+        /// </summary>
+        /// <param name="name">unique pair name</param>
+        /// <param name="startProgram">The program in which this source is running</param>
         public PairToTrade(string name, StartProgram startProgram)
         {
             Name = name;
 
             Tab1 = new BotTabSimple(name + 1, startProgram);
             Tab2 = new BotTabSimple(name + 2, startProgram);
+
             Tab1.CandleFinishedEvent += Tab1_CandleFinishedEvent;
             Tab2.CandleFinishedEvent += Tab2_CandleFinishedEvent;
+
             Tab1.Connector.ConnectorStartedReconnectEvent += Connector_ConnectorStartedReconnectEvent;
             Tab2.Connector.ConnectorStartedReconnectEvent += Connector_ConnectorStartedReconnectEvent1;
+
+            Tab1.PositionOpeningSuccesEvent += Tab1_PositionOpeningSuccesEvent;
+            Tab2.PositionOpeningSuccesEvent += Tab2_PositionOpeningSuccesEvent;
+
             Load();
         }
 
+        /// <summary>
+        /// Unique pair name
+        /// </summary>
         public string Name;
 
+        /// <summary>
+        /// Unique pair number
+        /// </summary>
         public int PairNum;
 
-        public BotTabSimple Tab1;
-
-        public BotTabSimple Tab2;
-
+        /// <summary>
+        /// Download the settings
+        /// </summary>
         private void Load()
         {
             if (!File.Exists(@"Engine\" + Name + @"PairsSettings.txt"))
@@ -1203,16 +1823,21 @@ namespace OsEngine.OsTrader.Panels.Tab
                 {
                     PairNum = Convert.ToInt32(reader.ReadLine());
 
-                    Enum.TryParse(reader.ReadLine(), out Sec1OrderPriceType);
-                    Sec1SlippagePercent = reader.ReadLine().ToDecimal();
+                    Sec1Slippage = reader.ReadLine().ToDecimal();
                     Sec1Volume = Convert.ToInt32(reader.ReadLine());
-                    Enum.TryParse(reader.ReadLine(), out Sec2OrderPriceType);
-                    Sec2SlippagePercent = reader.ReadLine().ToDecimal();
+                    Sec2Slippage = reader.ReadLine().ToDecimal();
                     Sec2Volume = Convert.ToInt32(reader.ReadLine());
                     CorrelationLookBack = Convert.ToInt32(reader.ReadLine());
                     CointegrationDeviation = reader.ReadLine().ToDecimal();
                     CointegrationLookBack = Convert.ToInt32(reader.ReadLine());
-                    SecondByMarket = Convert.ToBoolean(reader.ReadLine());
+                    Enum.TryParse(reader.ReadLine(), out Sec1SlippageType);
+                    Enum.TryParse(reader.ReadLine(), out Sec1VolumeType);
+                    Enum.TryParse(reader.ReadLine(), out Sec2SlippageType);
+                    Enum.TryParse(reader.ReadLine(), out Sec2VolumeType);
+                    Enum.TryParse(reader.ReadLine(), out Sec1TradeRegime);
+                    Enum.TryParse(reader.ReadLine(), out Sec2TradeRegime);
+                    Enum.TryParse(reader.ReadLine(), out _lastEntryCointegrationSide);
+                    _showTradePanelOnChart = Convert.ToBoolean(reader.ReadLine());
 
                     reader.Close();
                 }
@@ -1223,6 +1848,9 @@ namespace OsEngine.OsTrader.Panels.Tab
             }
         }
 
+        /// <summary>
+        /// Save the settings
+        /// </summary>
         public void Save()
         {
             try
@@ -1231,16 +1859,21 @@ namespace OsEngine.OsTrader.Panels.Tab
                 {
                     writer.WriteLine(PairNum);
 
-                    writer.WriteLine(Sec1OrderPriceType);
-                    writer.WriteLine(Sec1SlippagePercent);
+                    writer.WriteLine(Sec1Slippage);
                     writer.WriteLine(Sec1Volume);
-                    writer.WriteLine(Sec2OrderPriceType);
-                    writer.WriteLine(Sec2SlippagePercent);
+                    writer.WriteLine(Sec2Slippage);
                     writer.WriteLine(Sec2Volume);
                     writer.WriteLine(CorrelationLookBack);
                     writer.WriteLine(CointegrationDeviation);
                     writer.WriteLine(CointegrationLookBack);
-                    writer.WriteLine(SecondByMarket);
+                    writer.WriteLine(Sec1SlippageType);
+                    writer.WriteLine(Sec1VolumeType);
+                    writer.WriteLine(Sec2SlippageType);
+                    writer.WriteLine(Sec2VolumeType);
+                    writer.WriteLine(Sec1TradeRegime);
+                    writer.WriteLine(Sec2TradeRegime);
+                    writer.WriteLine(_lastEntryCointegrationSide);
+                    writer.WriteLine(_showTradePanelOnChart);
 
                     writer.Close();
                 }
@@ -1251,6 +1884,9 @@ namespace OsEngine.OsTrader.Panels.Tab
             }
         }
 
+        /// <summary>
+        /// Delete the pair 
+        /// </summary>
         public void Delete()
         {
             try
@@ -1272,6 +1908,9 @@ namespace OsEngine.OsTrader.Panels.Tab
             Tab1.Connector.ConnectorStartedReconnectEvent -= Connector_ConnectorStartedReconnectEvent;
             Tab2.Connector.ConnectorStartedReconnectEvent -= Connector_ConnectorStartedReconnectEvent1;
 
+            Tab1.PositionOpeningSuccesEvent -= Tab1_PositionOpeningSuccesEvent;
+            Tab2.PositionOpeningSuccesEvent -= Tab2_PositionOpeningSuccesEvent;
+
             Tab1.Delete();
             Tab2.Delete();
 
@@ -1281,6 +1920,9 @@ namespace OsEngine.OsTrader.Panels.Tab
             }
         }
 
+        /// <summary>
+        /// Whether the submission of events to the top is enabled or not
+        /// </summary>
         public bool EventsIsOn
         {
             get
@@ -1297,9 +1939,13 @@ namespace OsEngine.OsTrader.Panels.Tab
 
                 Tab1.EventsIsOn = value;
                 Tab2.EventsIsOn = value;
+                Save();
             }
         }
 
+        /// <summary>
+        /// Is the emulator enabled
+        /// </summary>
         public bool EmulatorIsOn
         {
             get
@@ -1316,6 +1962,7 @@ namespace OsEngine.OsTrader.Panels.Tab
 
                 Tab1.EmulatorIsOn = value;
                 Tab2.EmulatorIsOn = value;
+                Save();
             }
         }
 
@@ -1324,44 +1971,424 @@ namespace OsEngine.OsTrader.Panels.Tab
         /// </summary>
         public event Action PairDeletedEvent;
 
-        // торговые методы
+        /// <summary>
+        /// Show Trade Panel On Chart Ui
+        /// </summary>
+        public bool ShowTradePanelOnChart
+        {
+            get 
+            { 
+                return _showTradePanelOnChart;
+            }
+            set 
+            { 
+                if(_showTradePanelOnChart == value)
+                {
+                    return;
+                }
+                _showTradePanelOnChart = value;
+                Save();
+            }
+        }
+        private bool _showTradePanelOnChart = true;
 
-        public OrderPriceType Sec1OrderPriceType = OrderPriceType.Market;
+        #endregion
 
-        public decimal Sec1SlippagePercent = 0;
+        #region Properties and settings
 
+        /// <summary>
+        /// Trading Security source 1
+        /// </summary>
+        public BotTabSimple Tab1;
+
+        /// <summary>
+        /// Trading Security source 2
+        /// </summary>
+        public BotTabSimple Tab2;
+
+        /// <summary>
+        /// Security 1. Trade Mode
+        /// </summary>
+        public PairTraderSecurityTradeRegime Sec1TradeRegime;
+
+        /// <summary>
+        /// Security 1. Slippage calculation Mode
+        /// </summary>
+        public PairTraderSlippageType Sec1SlippageType;
+
+        /// <summary>
+        /// Security 1. Slippage value
+        /// </summary>
+        public decimal Sec1Slippage = 0;
+
+        /// <summary>
+        /// Security 1. Volume calculation Mode
+        /// </summary>
+        public PairTraderVolumeType Sec1VolumeType;
+
+        /// <summary>
+        /// Security 1. Volume value
+        /// </summary>
         public decimal Sec1Volume = 7;
 
-        public OrderPriceType Sec2OrderPriceType = OrderPriceType.Market;
+        /// <summary>
+        /// Security 2. Trade Mode
+        /// </summary>
+        public PairTraderSecurityTradeRegime Sec2TradeRegime;
 
-        public decimal Sec2SlippagePercent = 0;
+        /// <summary>
+        /// Security 2. Slippage calculation Mode
+        /// </summary>
+        public PairTraderSlippageType Sec2SlippageType;
 
+        /// <summary>
+        /// Security 2. Slippage value
+        /// </summary>
+        public decimal Sec2Slippage = 0;
+
+        /// <summary>
+        /// Security 2. Volume calculation Mode
+        /// </summary>
+        public PairTraderVolumeType Sec2VolumeType;
+
+        /// <summary>
+        /// Security 2. Volume value
+        /// </summary>
         public decimal Sec2Volume = 7;
 
-        public bool SecondByMarket;
-
-        public void SellCointegration()
+        /// <summary>
+        /// Do the sources have open positions
+        /// </summary>
+        public bool HavePositions
         {
+            get
+            {
+                if (Tab1.PositionsOpenAll.Count != 0)
+                {
+                    return true;
+                }
 
+                if (Tab2.PositionsOpenAll.Count != 0)
+                {
+                    return true;
+                }
 
-
+                return false;
+            }
         }
 
-        public void BuyCointegration()
+        #endregion
+
+        #region Trading methods
+
+        /// <summary>
+        /// Sell security 1 and buy security 2
+        /// </summary>
+        public void SellSec1BuySec2()
         {
+            if (Sec1TradeRegime != PairTraderSecurityTradeRegime.Off)
+            {
+                decimal vol = GetVolume(Sec1VolumeType, Sec1Volume, Tab1);
+                
+                if(Sec1TradeRegime == PairTraderSecurityTradeRegime.Market)
+                {
+                    Tab1.SellAtMarket(vol);
+                }
+                else if (Sec1TradeRegime == PairTraderSecurityTradeRegime.Limit)
+                {
+                    decimal price = GetPrice(Sec1SlippageType, Sec1Slippage, Side.Sell, Tab1);
 
+                    Tab1.SellAtLimit(vol,price);
+                }
+            }
+            if (Sec2TradeRegime != PairTraderSecurityTradeRegime.Off)
+            {
+                decimal vol = GetVolume(Sec2VolumeType, Sec2Volume, Tab2);
 
+                if (Sec2TradeRegime == PairTraderSecurityTradeRegime.Market)
+                {
+                    Tab2.BuyAtMarket(vol);
+                }
+                else if (Sec2TradeRegime == PairTraderSecurityTradeRegime.Limit)
+                {
+                    decimal price = GetPrice(Sec2SlippageType, Sec2Slippage, Side.Buy, Tab2);
 
+                    Tab2.BuyAtLimit(vol, price);
+                }
+            }
+
+            LastEntryCointegrationSide = SideCointegrationValue;
         }
 
-        // корреляция
+        /// <summary>
+        /// Buy security 1 and sell security 2
+        /// </summary>
+        public void BuySec1SellSec2()
+        {
+            if (Sec1TradeRegime != PairTraderSecurityTradeRegime.Off)
+            {
+                decimal vol = GetVolume(Sec1VolumeType, Sec1Volume, Tab1);
 
+                if (Sec1TradeRegime == PairTraderSecurityTradeRegime.Market)
+                {
+                    Tab1.BuyAtMarket(vol);
+                }
+                else if (Sec1TradeRegime == PairTraderSecurityTradeRegime.Limit)
+                {
+                    decimal price = GetPrice(Sec1SlippageType, Sec1Slippage, Side.Buy, Tab1);
+
+                    Tab1.BuyAtLimit(vol, price);
+                }
+            }
+            if (Sec2TradeRegime != PairTraderSecurityTradeRegime.Off)
+            {
+                decimal vol = GetVolume(Sec2VolumeType, Sec2Volume, Tab2);
+
+                if (Sec2TradeRegime == PairTraderSecurityTradeRegime.Market)
+                {
+                    Tab2.SellAtMarket(vol);
+                }
+                else if (Sec2TradeRegime == PairTraderSecurityTradeRegime.Limit)
+                {
+                    decimal price = GetPrice(Sec2SlippageType, Sec2Slippage, Side.Sell, Tab2);
+
+                    Tab2.SellAtLimit(vol, price);
+                }
+            }
+            LastEntryCointegrationSide = SideCointegrationValue;
+        }
+
+        /// <summary>
+        /// Close all positions on the pair and recall all orders in the market
+        /// </summary>
+        public void ClosePositions()
+        {
+            Tab1.CloseAllOrderInSystem();
+            Tab1.CloseAllAtMarket();
+
+            Tab2.CloseAllOrderInSystem();
+            Tab2.CloseAllAtMarket();
+        }
+
+        /// <summary>
+        /// Calculate the volume on security
+        /// </summary>
+        private decimal GetVolume(PairTraderVolumeType volumeType, decimal volumeValue, BotTabSimple tab)
+        {
+            decimal volume = 0;
+
+            if (volumeType == PairTraderVolumeType.Currency)
+            {
+                decimal lastPrice = tab.PriceBestBid;
+
+                if(lastPrice == 0)
+                {
+                    return 0;
+                }
+
+                volume = volumeValue / lastPrice;
+            }
+            else if (volumeType == PairTraderVolumeType.Contract)
+            {
+                return volumeValue;
+            }
+
+            // If the robot is running in the tester
+            if (tab.StartProgram == StartProgram.IsTester)
+            {
+                volume = Math.Round(volume, 6);
+            }
+            else
+            {
+                volume = Math.Round(volume, tab.Securiti.DecimalsVolume);
+            }
+            return volume;
+        }
+
+        /// <summary>
+        /// Calculate the price on security
+        /// </summary>
+        private decimal GetPrice(PairTraderSlippageType slipageType, decimal slipageValue, Side side, BotTabSimple tab)
+        {
+            decimal price = 0;
+
+            if(side == Side.Buy)
+            {
+                price = tab.PriceBestBid;
+            }
+            else if(side == Side.Sell)
+            {
+                price = tab.PriceBestAsk;
+            }
+
+            if(slipageValue == 0)
+            {
+                return price;
+            }
+
+            decimal slippage = 0;
+
+            if(slipageType == PairTraderSlippageType.Absolute)
+            {
+                slippage = slipageValue;
+            }
+            else if(slipageType == PairTraderSlippageType.Percent)
+            {
+                slippage = price * (slipageValue / 100);
+            }
+
+            if (side == Side.Buy)
+            {
+                price = price + slippage;
+            }
+            else if (side == Side.Sell)
+            {
+                price = price - slippage;
+            }
+
+            return price;
+        }
+
+        /// <summary>
+        /// The location of the deviation last time a position was opened on the pair
+        /// </summary>
+        public CointegrationLineSide LastEntryCointegrationSide
+        {
+            get
+            {
+                return _lastEntryCointegrationSide;
+            }
+            set
+            {
+                if(_lastEntryCointegrationSide == value)
+                {
+                    return;
+                }
+
+                _lastEntryCointegrationSide = value;
+
+                if(Tab1.StartProgram == StartProgram.IsOsTrader)
+                {
+                    Save();
+                }
+            }
+
+        }
+        private CointegrationLineSide _lastEntryCointegrationSide;
+
+
+        #endregion
+
+        #region Delayed position opening on the second leg
+
+        /// <summary>
+        /// A position opened on source 1
+        /// </summary>
+        private void Tab1_PositionOpeningSuccesEvent(Position pos)
+        {
+            if (Tab1.StartProgram != StartProgram.IsOsTrader)
+            {
+                return;
+            }
+
+            if (Sec2TradeRegime != PairTraderSecurityTradeRegime.Second)
+            {
+                return;
+            }
+
+            List<Position> posOnOppositTab = Tab2.PositionsOpenAll;
+
+            if (posOnOppositTab.Count > 0)
+            {
+                return;
+            }
+
+            // открываемся по рынку по Инструменту 2
+
+            Side side = Side.Buy;
+
+            if (pos.Direction == Side.Buy)
+            {
+                side = Side.Sell;
+            }
+
+            decimal volume = GetVolume(Sec2VolumeType, Sec2Volume, Tab2);
+
+            if (side == Side.Buy)
+            {
+                Tab2.BuyAtMarket(volume);
+            }
+            else// if(side == Side.Sell)
+            {
+                Tab2.SellAtMarket(volume);
+            }
+        }
+
+        /// <summary>
+        /// A position opened on source 2
+        /// </summary>
+        private void Tab2_PositionOpeningSuccesEvent(Position pos)
+        {
+            if (Tab1.StartProgram != StartProgram.IsOsTrader)
+            {
+                return;
+            }
+
+            if (Sec1TradeRegime != PairTraderSecurityTradeRegime.Second)
+            {
+                return;
+            }
+
+            List<Position> posOnOppositTab = Tab1.PositionsOpenAll;
+
+            if (posOnOppositTab.Count > 0)
+            {
+                return;
+            }
+
+            // открываемся по рынку по Инструменту 1
+
+            Side side = Side.Buy;
+
+            if (pos.Direction == Side.Buy)
+            {
+                side = Side.Sell;
+            }
+
+            decimal volume = GetVolume(Sec1VolumeType, Sec1Volume, Tab1);
+
+            if (side == Side.Buy)
+            {
+                Tab1.BuyAtMarket(volume);
+            }
+            else// if(side == Side.Sell)
+            {
+                Tab1.SellAtMarket(volume);
+            }
+        }
+
+        #endregion
+
+        #region Correlation calculation and storage
+
+        /// <summary>
+        /// Object responsible for the calculation of the correlation
+        /// </summary>
         CorrelationBuilder correlationBuilder = new CorrelationBuilder();
 
+        /// <summary>
+        /// For how many candles the correlation is calculated
+        /// </summary>
         public int CorrelationLookBack = 50;
 
+        /// <summary>
+        /// Array with correlation values
+        /// </summary>
         public List<PairIndicatorValue> CorrelationList = new List<PairIndicatorValue>();
 
+        /// <summary>
+        /// The last correlation value
+        /// </summary>
         public decimal CorrelationLast
         {
             get
@@ -1375,20 +2402,35 @@ namespace OsEngine.OsTrader.Panels.Tab
             }
         }
 
+        /// <summary>
+        /// Recalculate the correlation array
+        /// </summary>
         public void ReloadCorrelationHard()
         {
-            List<Candle> candles1 = Tab1.CandlesFinishedOnly;
-            List<Candle> candles2 = Tab2.CandlesFinishedOnly;
-
-            if (candles1 == null ||
-                candles2 == null)
+            try
             {
-                return;
+                List<Candle> candles1 = Tab1.CandlesFinishedOnly;
+                List<Candle> candles2 = Tab2.CandlesFinishedOnly;
+
+                if (candles1 == null ||
+                    candles2 == null)
+                {
+                    return;
+                }
+
+                ReloadCorrelation(candles1, candles2);
+
+            }
+            catch(Exception ex)
+            {
+                SendNewLogMessage(ex.ToString(),LogMessageType.Error);
             }
 
-            ReloadCorrelation(candles1, candles2);
         }
 
+        /// <summary>
+        /// Recalculate the correlation array
+        /// </summary>
         private void ReloadCorrelation(List<Candle> candles1, List<Candle> candles2)
         {
 
@@ -1406,18 +2448,40 @@ namespace OsEngine.OsTrader.Panels.Tab
             }
         }
 
+        /// <summary>
+        /// Pair has updated correlation value. 
+        /// List<PairIndicatorValue> - An array with correlation values. The actual value is the last. 
+        /// PairToTrade - Pair of instruments for which the correlation was updated
+        /// </summary>
         public event Action<List<PairIndicatorValue>, PairToTrade> CorrelationChangeEvent;
 
-        // коинтеграция
+        #endregion
 
+        #region Cointegration calculation and storage
+
+        /// <summary>
+        /// Object responsible for the calculation of the cointegration
+        /// </summary>
         CointegrationBuilder _cointegrationBuilder = new CointegrationBuilder();
 
+        /// <summary>
+        /// Length of cointegration calculation
+        /// </summary>
         public int CointegrationLookBack = 50;
 
+        /// <summary>
+        /// Deviation for calculating lines on cointegration
+        /// </summary>
         public decimal CointegrationDeviation = 1;
 
+        /// <summary>
+        /// An array with cointegration values. The actual value is the last
+        /// </summary>
         public List<PairIndicatorValue> Cointegration = new List<PairIndicatorValue>();
 
+        /// <summary>
+        /// The last cointegration value
+        /// </summary>
         public decimal CointegrationLast
         {
             get
@@ -1431,16 +2495,36 @@ namespace OsEngine.OsTrader.Panels.Tab
             }
         }
 
+        /// <summary>
+        /// Multiplier for multiplication of the second instrument to obtain minimal deviations on the Cointegration graph
+        /// </summary>
         public decimal CointegrationMult;
 
+        /// <summary>
+        /// Standard deviation on the cointegration deviation graph
+        /// </summary>
         public decimal CointegrationStandartDeviation;
 
+        /// <summary>
+        /// The side in which the current value of the deviation between the instruments is located, 
+        /// relative to the lines on the cointegration graph. 
+        /// No - on the middle. Up - above the top line. Down - below the bottom line. 
+        /// </summary>
         public CointegrationLineSide SideCointegrationValue;
 
+        /// <summary>
+        /// Value of the upper line on the deviation graph
+        /// </summary>
         public decimal LineUpCointegration;
 
+        /// <summary>
+        /// The value of the bottom line on the deviation graph 
+        /// </summary>
         public decimal LineDownCointegration;
 
+        /// <summary>
+        /// Recalculate the cointegration array
+        /// </summary>
         public void ReloadCointegrationHard()
         {
             List<Candle> candles1 = Tab1.CandlesFinishedOnly;
@@ -1455,6 +2539,9 @@ namespace OsEngine.OsTrader.Panels.Tab
             ReloadCointegration(candles1, candles2);
         }
 
+        /// <summary>
+        /// Recalculate the cointegration array
+        /// </summary>
         private void ReloadCointegration(List<Candle> candles1, List<Candle> candles2)
         {
             Cointegration.Clear();
@@ -1512,40 +2599,78 @@ namespace OsEngine.OsTrader.Panels.Tab
             }
         }
 
+        /// <summary>
+        /// Pair has updated cointegration value. 
+        /// List<PairIndicatorValue> - An array with cointegration values. The actual value is the last. 
+        /// PairToTrade - Pair of instruments for which the cointegration was updated
+        /// </summary>
         public event Action<List<PairIndicatorValue>, PairToTrade> CointegrationChangeEvent;
 
+        /// <summary>
+        /// Pair has updated cointegration side value.  
+        /// CointegrationLineSide - The side in which the current value of the deviation between the instruments is located, 
+        /// relative to the lines on the cointegration graph. 
+        /// No - on the middle. Up - above the top line. Down - below the bottom line. 
+        /// PairToTrade - Pair of instruments for which the cointegration side was updated
+        /// </summary>
         public event Action<CointegrationLineSide, PairToTrade> CointegrationPositionSideChangeEvent;
 
-        // входящие события
+        #endregion
 
-        List<Candle> _candles1;
+        #region Event processing and indicator recalculation call
 
+        /// <summary>
+        /// First Source Candles
+        /// </summary>
+        private List<Candle> _candles1;
+
+        /// <summary>
+        /// A candle ended at source 1. Event handler
+        /// </summary>
         private void Tab1_CandleFinishedEvent(List<Candle> candles1)
         {
             _candles1 = candles1;
             TryReloadIndicators();
         }
 
-        List<Candle> _candles2;
+        /// <summary>
+        /// Second Source Candles
+        /// </summary>
+        private List<Candle> _candles2;
 
+        /// <summary>
+        /// A candle ended at source 2. Event handler
+        /// </summary>
         private void Tab2_CandleFinishedEvent(List<Candle> candles2)
         {
             _candles2 = candles2;
             TryReloadIndicators();
         }
 
+        /// <summary>
+        /// The reconnection to the exchange was started in source 1. Event handler
+        /// </summary>
         private void Connector_ConnectorStartedReconnectEvent1(string arg1, TimeFrame arg2, TimeSpan arg3, string arg4, Market.ServerType arg5)
         {
             ClearIndicators();
         }
 
+        /// <summary>
+        /// The reconnection to the exchange was started in source 2. Event handler
+        /// </summary>
         private void Connector_ConnectorStartedReconnectEvent(string arg1, TimeFrame arg2, TimeSpan arg3, string arg4, Market.ServerType arg5)
         {
             ClearIndicators();
         }
 
+        /// <summary>
+        /// Time of last recalculation of indicators
+        /// </summary>
         private DateTime _timeLastReloadIndicators;
 
+        /// <summary>
+        /// Recalculate indicators
+        /// </summary>
         private void TryReloadIndicators()
         {
             if (_candles1 == null ||
@@ -1583,6 +2708,9 @@ namespace OsEngine.OsTrader.Panels.Tab
             ReloadCointegration(_candles1, _candles2);
         }
 
+        /// <summary>
+        /// Clear indicators
+        /// </summary>
         private void ClearIndicators()
         {
             CorrelationList.Clear();
@@ -1600,7 +2728,9 @@ namespace OsEngine.OsTrader.Panels.Tab
             LineDownCointegration = 0; ;
         }
 
-        // логирование
+        #endregion
+
+        #region Logging
 
         /// <summary>
         /// Send new log message
@@ -1622,12 +2752,86 @@ namespace OsEngine.OsTrader.Panels.Tab
         /// </summary>
         public event Action<string, LogMessageType> LogMessageEvent;
 
+        #endregion
     }
 
+    /// <summary>
+    /// Type of volume calculation for the pair
+    /// </summary>
+    public enum PairTraderVolumeType
+    {
+        /// <summary>
+        /// Currency of the contract in which the security is traded
+        /// </summary>
+        Currency,
+
+        /// <summary>
+        /// The contract itself in which the security is traded
+        /// </summary>
+        Contract
+    }
+
+    /// <summary>
+    /// Type of slippage calculation for the pair
+    /// </summary>
+    public enum PairTraderSlippageType
+    {
+        /// <summary>
+        /// The number of percent of the current price
+        /// </summary>
+        Percent,
+
+        /// <summary>
+        /// Absolute value specified by the user
+        /// </summary>
+        Absolute
+    }
+
+    /// <summary>
+    /// Sort type of an array of pairs
+    /// </summary>
     public enum MainGridPairSortType
     {
+        /// <summary>
+        /// Pair array is not sorted
+        /// </summary>
         No,
+
+        /// <summary>
+        /// The array of pairs is sorted by the location of the last deviation value relative to the lines on the cointegration graph
+        /// </summary>
         Side,
+
+        /// <summary>
+        /// The array of pairs is sorted by the value of the correlation. The greater the correlation, the higher the pair in the array
+        /// </summary>
         Correlation
+    }
+
+    /// <summary>
+    /// Trading mode for the security in the pair
+    /// </summary>
+    public enum PairTraderSecurityTradeRegime
+    {
+        /// <summary>
+        /// Off. No operations will be performed on this leg
+        /// </summary>
+        Off,
+
+        /// <summary>
+        /// Market orders. Operations on this leg will be performed using market orders
+        /// </summary>
+        Market,
+
+        /// <summary>
+        /// Limit orders. Operations on this leg will be performed using limit orders
+        /// </summary>
+        Limit,
+
+        /// <summary>
+        /// Opening with a delay. For this leg position opening operations will be performed only when the position will be opened for the other leg. 
+        /// A market order will be used
+        /// </summary>
+        Second
     }
 }
