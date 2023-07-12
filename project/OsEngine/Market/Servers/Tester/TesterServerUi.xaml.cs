@@ -325,6 +325,10 @@ namespace OsEngine.Market.Servers.Tester
 
             try
             {
+                if(_server == null)
+                {
+                    return;
+                }
                 ProgressBar.Value = (_server.TimeNow - DateTime.MinValue).TotalMinutes;
             }
             catch (Exception error)
@@ -704,6 +708,12 @@ namespace OsEngine.Market.Servers.Tester
                 _chartReport.Invoke(new Action(PaintLastPointOnChart));
                 return;
             }
+
+            if(_server == null)
+            {
+                return;
+            }
+
             List<decimal> portfolio = _server.ProfitArray;
 
             if (portfolio.Count == 0)

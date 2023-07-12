@@ -266,7 +266,7 @@ namespace OsEngine.Robots.MyRobots
 
         public override void ShowIndividualSettingsDialog()
         {
-            throw new NotImplementedException();
+            
         }
     }
 }

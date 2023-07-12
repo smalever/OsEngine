@@ -961,6 +961,9 @@
       <DependentUpon>BotPanelChartUI.xaml</DependentUpon>
     </Compile>
     <Compile Include="OsTrader\Panels\Tab\BotTabPair.cs" />
+    <Compile Include="OsTrader\Panels\Tab\BotTabPairAutoSelectPairsUi.xaml.cs">
+      <DependentUpon>BotTabPairAutoSelectPairsUi.xaml</DependentUpon>
+    </Compile>
     <Compile Include="OsTrader\Panels\Tab\BotTabPairCommonSettingsUi.xaml.cs">
       <DependentUpon>BotTabPairCommonSettingsUi.xaml</DependentUpon>
     </Compile>
@@ -1007,6 +1010,9 @@
     <Compile Include="Robots\OnScriptIndicators\BollingerRevers.cs" />
     <Compile Include="Robots\OnScriptIndicators\BollingerTrailing.cs" />
     <Compile Include="Robots\OnScriptIndicators\CciTrade.cs" />
+    <Compile Include="Robots\PairArbitrage\PairCointegrationSideTrader.cs" />
+    <Compile Include="Robots\PairArbitrage\PairCorrelationNegative.cs" />
+    <Compile Include="Robots\PairArbitrage\PairCorrelationTrader.cs" />
     <Compile Include="Robots\TechSapmles\BlockIndicatorsSample.cs" />
     <Compile Include="Robots\TechSapmles\CustomParamsUseBotSample.cs" />
     <Compile Include="Robots\OnScriptIndicators\FundBalanceDivergenceBot.cs" />
@@ -1559,6 +1565,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="OsTrader\Panels\Tab\BotTabPairAutoSelectPairsUi.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="OsTrader\Panels\Tab\BotTabPairCommonSettingsUi.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -1707,12 +1717,6 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <None Include="lua\dkjson.lua" />
-    <None Include="lua\qscallbacks.lua" />
-    <None Include="lua\qsfunctions.lua" />
-    <None Include="lua\qsutils.lua" />
-    <None Include="lua\QuikSharp.lua" />
-    <None Include="lua\socket.lua" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -1821,8 +1825,6 @@
     <Resource Include="Images\Support\No.png" />
     <Resource Include="Images\Support\Prime.png" />
     <Resource Include="Images\Support\Standart.png" />
-    <Content Include="lua\clibs\lua51.dll" />
-    <Content Include="lua\clibs\socket\core.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
