@@ -19,12 +19,25 @@ using static OsEngine.OsaExtension.MVVM.ViewModels.MainWindowRobWpfVM;
 
 namespace OsEngine.OsaExtension.MVVM.ViewModels
 {
-    public class BaseBotVM : BaseVM, IRobotVM
+    public class BaseBotVM : BaseVM , IRobotVM
     {
         public BaseBotVM()
         {
             ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
             
+        }
+
+        event GridRobotVM.selectedSecurity IRobotVM.OnSelectedSecurity
+        {
+            add
+            {
+                
+            }
+
+            remove
+            {
+               
+            }
         }
 
         /// <summary>
@@ -373,6 +386,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 SubscribeToServer(); // подключаемя к бир
             }
         }
+
+        public NameStrat NameStrat { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         private IServer _server = null;
 
         #endregion

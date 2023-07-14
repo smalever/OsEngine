@@ -835,16 +835,24 @@
       <DependentUpon>SupportTableUi.xaml</DependentUpon>
     </Compile>
     <Compile Include="OsaExtension\MVVM\Commands\DelegateCommand.cs" />
+    <Compile Include="OsaExtension\MVVM\Models\Action.cs" />
+    <Compile Include="OsaExtension\MVVM\Models\Direction.cs" />
     <Compile Include="OsaExtension\MVVM\Models\EmitClasses.cs" />
     <Compile Include="OsaExtension\MVVM\Models\Emitent.cs" />
     <Compile Include="OsaExtension\MVVM\Models\ExChenge.cs" />
+    <Compile Include="OsaExtension\MVVM\Models\Level.cs" />
+    <Compile Include="OsaExtension\MVVM\Models\MessageForLog.cs" />
+    <Compile Include="OsaExtension\MVVM\Models\NameStrat.cs" />
+    <Compile Include="OsaExtension\MVVM\Models\PositionStatus.cs" />
+    <Compile Include="OsaExtension\MVVM\Models\StepType.cs" />
     <Compile Include="OsaExtension\MVVM\ViewModels\BaseBotVM.cs" />
     <Compile Include="OsaExtension\MVVM\ViewModels\BaseVM.cs" />
     <Compile Include="OsaExtension\MVVM\ViewModels\ChangeEmitentVM.cs" />
+    <Compile Include="OsaExtension\MVVM\ViewModels\GridRobotVM.cs" />
     <Compile Include="OsaExtension\MVVM\ViewModels\IRobotVM.cs" />
     <Compile Include="OsaExtension\MVVM\ViewModels\MainWindowRobWpfVM.cs" />
     <Compile Include="OsaExtension\MVVM\ViewModels\MeshPlusVM.cs" />
-    <Compile Include="OsaExtension\MVVM\ViewModels\RobotWindowVM.cs" />
+    <Compile Include="OsaExtension\MVVM\ViewModels\RobotsWindowVM.cs" />
     <Compile Include="OsaExtension\MVVM\View\ChengeEmitendWidow.xaml.cs">
       <DependentUpon>ChengeEmitendWidow.xaml</DependentUpon>
     </Compile>

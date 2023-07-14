@@ -14,6 +14,7 @@ namespace OsEngine.OsaExtension.MVVM.View
     /// </summary>
     public partial class RobotsWindow : Window
     {
+        public static Dispatcher Dispatcher;
         public RobotsWindow()
         {
             Process ps = Process.GetCurrentProcess();
@@ -27,7 +28,7 @@ namespace OsEngine.OsaExtension.MVVM.View
 
             ServerMaster.ActivateLogging();
             this.Closed += RobotWindow_Closed; //событие закрытия окна
-            DataContext = new RobotWindowVM();
+            DataContext = new RobotsWindowVM();
         }
         /// <summary>
         /// закрываем все рабочие процессы осы
@@ -37,8 +38,7 @@ namespace OsEngine.OsaExtension.MVVM.View
             MainWindow.ProccesIsWorked = false;
             Thread.Sleep(7000);
             Process.GetCurrentProcess().Kill();
-        }
-        public static Dispatcher Dispatcher;
+        }        
 
         private void TextBlock_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {

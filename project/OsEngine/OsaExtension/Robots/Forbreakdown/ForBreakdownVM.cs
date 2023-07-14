@@ -17,6 +17,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using static OsEngine.OsaExtension.MVVM.ViewModels.MainWindowRobWpfVM;
 using OsEngine.OsaExtension.MVVM.ViewModels;
+using OsEngine.OsaExtension.MVVM;
 
 namespace OsEngine.OsaExtension.Robots.Forbreakdown
 {
@@ -26,6 +27,19 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
         {
             ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
 
+        }
+
+        event GridRobotVM.selectedSecurity IRobotVM.OnSelectedSecurity
+        {
+            add
+            {
+                // заглушка 
+            }
+
+            remove
+            {
+               
+            }
         }
 
         /// <summary>
@@ -373,6 +387,9 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
                 SubscribeToServer(); // подключаемя к бир
             }
         }
+
+        public NameStrat NameStrat { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         private IServer _server = null;
 
         #endregion

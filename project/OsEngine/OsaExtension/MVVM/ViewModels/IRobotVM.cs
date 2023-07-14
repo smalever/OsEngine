@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static OsEngine.OsaExtension.MVVM.ViewModels.GridRobotVM;
 
 namespace OsEngine.OsaExtension.MVVM.ViewModels
 {
@@ -25,10 +26,16 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         public int NumberTab { get; set; }
 
+
+        /// <summary>
+        /// название статегии 
+        /// </summary>
+        public NameStrat NameStrat { get; set; }
+
         /// <summary>
         /// событие подписки на бумагу
         /// </summary>
-        public event MainWindowRobWpfVM.selectedSecurity OnSelectedSecurity;
+        public event selectedSecurity OnSelectedSecurity;
 
         public IServer Server { get; set; }
 
