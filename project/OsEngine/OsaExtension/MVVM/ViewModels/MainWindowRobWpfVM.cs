@@ -142,6 +142,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         public void CreateVM_Bot()
         {
             List<BotPanel> ListBotsOsen = ManagerBot.PanelsArray;
+            if (ListBotsOsen == null) return;
             int count = ListBotsOsen.Count;
             if (count == 0) return;
 

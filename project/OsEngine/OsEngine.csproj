@@ -844,6 +844,7 @@
     <Compile Include="OsaExtension\MVVM\ViewModels\IRobotVM.cs" />
     <Compile Include="OsaExtension\MVVM\ViewModels\MainWindowRobWpfVM.cs" />
     <Compile Include="OsaExtension\MVVM\ViewModels\MeshPlusVM.cs" />
+    <Compile Include="OsaExtension\MVVM\ViewModels\RobotWindowVM.cs" />
     <Compile Include="OsaExtension\MVVM\View\ChengeEmitendWidow.xaml.cs">
       <DependentUpon>ChengeEmitendWidow.xaml</DependentUpon>
     </Compile>
@@ -855,6 +856,9 @@
     </Compile>
     <Compile Include="OsaExtension\MVVM\View\MeshPlusUI.xaml.cs">
       <DependentUpon>MeshPlusUI.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="OsaExtension\MVVM\View\RobotsWindow.xaml.cs">
+      <DependentUpon>RobotsWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="OsaExtension\Robots\Forbreakdown\ForBreakdown.cs" />
     <Compile Include="OsaExtension\Robots\Forbreakdown\ForbreakdownUI.xaml.cs">
@@ -1508,6 +1512,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="OsaExtension\MVVM\View\MeshPlusUI.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="OsaExtension\MVVM\View\RobotsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

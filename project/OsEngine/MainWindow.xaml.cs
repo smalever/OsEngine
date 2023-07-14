@@ -536,7 +536,7 @@ namespace OsEngine
             try
             {
                 Hide();
-                MainWindowRobotsWPF MainWin = new MainWindowRobotsWPF();
+                RobotsWindow MainWin = new RobotsWindow();
                 MainWin.ShowDialog();
                 Close();
                 ProccesIsWorked = false;
