@@ -107,7 +107,7 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
         private void _tab_PositionClosingSuccesEvent(Position position)
         {
             // изменть значения переменных 
-            IsOn.ValueBool = false;
+            // IsOn.ValueBool = false;
             ProfitPoint = 0;
             _pricePointIn = 0;
             // StartPoint = 0;
@@ -120,8 +120,8 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
         {
             _marketPriceSecur = candles[candles.Count - 1].Close;
             if (StartProgram == StartProgram.IsOsTrader) return;
-
-            FollowPrice();
+            //TODO:  НАДО включить после тестов 
+             FollowPrice();
 
             TradeLogic();
         }
@@ -231,7 +231,7 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
                     if (positions[0].OpenOrders[0].State == OrderStateType.Patrial) return;
                     if (positions[0].OpenOrders[0].State == OrderStateType.Pending) return;
                     if (positions[0].OpenOrders[0].State == OrderStateType.None) return;
-                    // if (positions[0].OpenOrders[0].State == OrderStateType.Patrial) return;
+                    //if (positions[0].OpenOrders[0].State == OrderStateType.) return;
                 }
                 RecruitingPosition();
                 //CalculatePointIn();                
@@ -302,6 +302,7 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
                     if (positions[0].OpenOrders[0].State == OrderStateType.Activ) return;
                     if (positions[0].OpenOrders[0].State == OrderStateType.Patrial) return;
                     if (positions[0].OpenOrders[0].State == OrderStateType.Pending) return;
+                    if (positions[0].OpenOrders[0].State == OrderStateType.None) return;
                 }
                 // if (_tab.PositionsOpenAll[0].OpenActiv == true) return;
 
@@ -315,8 +316,12 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
                 if (_tab.PositionsOpenAll[0].OpenActiv == true) return;
                 if (_tab.PositionsLast.OpenActiv == true) return;
                 if (position[0].OpenOrders[0].State == OrderStateType.Activ) return;
+                if (position[0].OpenOrders[0].State == OrderStateType.Patrial) return;
+                if (position[0].OpenOrders[0].State == OrderStateType.Pending) return;
+                if (position[0].OpenOrders[0].State == OrderStateType.None) return;
                 _tab.BuyAtMarketToPosition(_tab.PositionsLast, vol);
-                PrinTextDebag("RecruitingPosition добрвли позицию ", "_rpicePointIn = " + _pricePointIn);                
+
+                PrinTextDebag("RecruitingPosition добрали позицию ", "_rpicePointIn = " + _pricePointIn);                
             }
             CalculatePointIn();
             // TODO: надо придумать отключение повтороного набора позиции 
@@ -347,7 +352,7 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
         /// <summary>
         /// расчет точки набора позиции
         /// </summary>
-        private decimal CalculatePointIn()
+        private void CalculatePointIn()
         {
             // берем цену старта  и вычисляем по шагу 
             if (_tab.PositionsOpenAll.Count == 0)
@@ -372,10 +377,11 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
                             if ( buypoint == 0 && tridepoint !=0)
                             {
                                 buypoint = tridepoint;
+                                _pricePointIn = buypoint;
                             }
                             if ( tridepoint < buypoint)
                             {
-                                buypoint = tridepoint;
+                                buypoint = tridepoint;                                
                             }
                         }
                     }
@@ -385,8 +391,7 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
                     }
                 }
             }
-            PrinTextDebag("CalculatePointIn пересчитали  ", "_rpicePointIn =" + _pricePointIn);
-            return _pricePointIn;
+            PrinTextDebag("CalculatePointIn пересчитали  ", "_rpicePointIn =" + _pricePointIn);            
         }
 
         /// <summary>
