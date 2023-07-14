@@ -547,7 +547,6 @@ namespace OsEngine
                 MessageBox.Show(error.ToString());
             }
             Process.GetCurrentProcess().Kill();
-
         }
     }
 
