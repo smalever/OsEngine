@@ -107,7 +107,7 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
         private void _tab_PositionClosingSuccesEvent(Position position)
         {
             // изменть значения переменных 
-            // IsOn.ValueBool = false;
+            IsOn.ValueBool = false;
             ProfitPoint = 0;
             _pricePointIn = 0;
             // StartPoint = 0;
