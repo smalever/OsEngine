@@ -3,10 +3,7 @@ using OsEngine.OsaExtension.MVVM.Commands;
 using OsEngine.Entity;
 using OsEngine.Market;
 using OsEngine.Market.Servers;
-
-
 using OsEngine.OsaExtension.MVVM.View;
-
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;

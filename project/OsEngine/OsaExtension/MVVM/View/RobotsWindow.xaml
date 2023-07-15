@@ -1,12 +1,104 @@
-﻿<Window x:Class="OsEngine.OsaExtension.MVVM.View.RobotsWindow"
+﻿<mah:MetroWindow x:Class="OsEngine.OsaExtension.MVVM.View.RobotsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:local="clr-namespace:OsEngine.OsaExtension.MVVM.View"
-        mc:Ignorable="d"
-        Title="RobotsWindow" Height="450" Width="800">
-    <Grid>
-        
-    </Grid>
-</Window>
+        xmlns:vm="clr-namespace:OsEngine.OsaExtension.MVVM.ViewModels"
+        xmlns:int ="http://schemas.microsoft.com/xaml/behaviors" d:DataContext="{d:DesignInstance Type=vm:RobotsWindowVM}"
+        mc:Ignorable="d" 
+        Height="860" Width="1410">
+        <mah:MetroWindow.LeftWindowCommands>
+        <mah:WindowCommands>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
+                <TextBlock Text="ДЕПОЗИТ ПЛЮС ХХХ" FontSize="16" 
+                           MouseLeftButtonDown="TextBlock_MouseLeftButtonDown" />
+                <Button 
+                Content="Сервера"
+                ToolTip="Соедениться с биржей"
+                Command="{Binding ComandServerConect}">
+                </Button>
+                <!--<TextBlock Text="стратегия"/>-->
+                <ComboBox ItemsSource="{Binding NameStrategies}"
+                          SelectedItem="{Binding NameStrat}" />
+                <!--SelectionChanged="ComboBox_SelectionChanged"/>-->
+                <Button 
+                Content="Добавить робота"
+                Command="{Binding ComandAddRobot}">
+                </Button>
+            </StackPanel>
+
+        </mah:WindowCommands>
+    </mah:MetroWindow.LeftWindowCommands>
+        <DockPanel>
+
+        <!--<int:Interaction.Triggers>
+            <int:EventTrigger EventName="MouseEnter">
+                <int:InvokeCommandAction Command="{Binding ComandAddRobot }"/>
+
+            </int:EventTrigger>
+        </int:Interaction.Triggers>-->
+
+        <StatusBar DockPanel.Dock="Bottom">
+            <DockPanel>
+                <TextBlock Text =" Позиция робота = "/>
+                <TextBlock d:DataContext="{d:DesignInstance Type=vm:GridRobotVM}" Text ="{Binding SelectSecurBalans}"/>
+            </DockPanel>
+        </StatusBar>
+        <Grid>
+
+            <TabControl ItemsSource="{Binding Robots}"
+                        SelectedItem="{Binding SelectedRobot}" >
+
+                <!--SelectedItem="{Binding SelectedRobot}"-->
+                <TabControl.Resources>
+                    <DataTemplate DataType="{x:Type vm:GridRobotVM}">
+                        <local:Grid>
+
+                        </local:Grid>
+                    </DataTemplate>
+
+                    <!--<DataTemplate DataType="{x:Type vm:RobotBreakVM}">
+                        <local:RobotBreak>
+
+                        </local:RobotBreak>
+                    </DataTemplate>-->
+
+                </TabControl.Resources>
+                <TabControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Header}"/>
+                            <Button Width="20"
+                            Command="{Binding DataContext.ComandDeleteRobot, 
+                            RelativeSource= {RelativeSource AncestorType={x:Type Window}}}"
+                            Style="{StaticResource WindowButtonStyleIconClose}"
+                            CommandParameter="{Binding Header}">
+                            </Button>
+                        </StackPanel>
+                    </DataTemplate>
+
+                </TabControl.ItemTemplate>
+
+                <!--<ContentControl Content="{Binding SelectedRobot}"/>-->
+
+                <!--<TabItem Header="первый">
+    
+                    <local:MyRobot>
+
+                    </local:MyRobot>
+
+                </TabItem >
+
+                <TabItem Header="другой">
+                    <local:RobotBreak>
+
+                    </local:RobotBreak>
+                </TabItem>-->
+
+            </TabControl>
+        </Grid>
+    </DockPanel>
+
+</mah:MetroWindow>
