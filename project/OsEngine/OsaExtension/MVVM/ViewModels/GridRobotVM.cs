@@ -33,15 +33,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             //string[]str = header.Split('=');
             NumberTab = numberTab;
             Header = header;
-            //Level.OrdersForClose = null; 
-            //Level.OrdersForOpen = null;
+  
 
             LoadParamsBot(header);
-            //ClearOrd();
+            ClearOrd();
             SelectSecurBalans = 0;
-
-            //ReloadOrderLevels();
-            //DesirializerDictionaryOrders();
+            
             ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
 
         }
@@ -55,11 +52,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         #region Свойства ================================================================================== 
 
-
-        /// <summary>
-        /// словарь  ордеров на бирже ТЕСТ 
-        /// </summary>
-        public ConcurrentDictionary<string, Order> DictionaryOrdersActiv = new ConcurrentDictionary<string, Order>();
 
         /// <summary>
         /// список портфелей 
@@ -530,8 +522,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         #region Поля =======================================================================================
 
-        //List<Order> listForSave;
-
         decimal _bestBid;
         decimal _bestAsk;
 
@@ -633,27 +623,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// расчитывает уровни (цены открвтия и профитов)
         /// </summary>
         void Calculate(object o)
-        {
-            #region пробовал доавить условия 
-            //// опрашиваем ордера 
-            //GetOrderStatusOnBoard();
-            //GetBalansSecur();
-            //// закрываем все открытое
-            //foreach (Level level in Levels)
-            //{
-            //    level.CancelAllOrders(Server, GetStringForSave);
-            //    // если есть монеты на бирже
-            //    if (SelectSecurBalans != 0)
-            //    {
-            //        LevelTradeLogicClose(level, Action.CLOSE);
-            //    }
-            //}
-            //foreach (Level level in Levels)
-            //{
-            //    level.CancelAllOrders(Server, GetStringForSave);
-            //}
-            #endregion
-
+        {   
             decimal volume = 0;
             decimal stepTake = 0;
 
@@ -807,8 +777,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 MessageBox.Show("Перейдите в режим редактирования!  ");
             }
-            Levels.Add(new Level());
-            //DesirializerDictionaryOrders();
+            Levels.Add(new Level());           
         }
         private void TestApi(object o)
         {
@@ -901,7 +870,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         private void StartStop(object o)
         {
-
             RobotsWindowVM.Log(Header, " \n\n StartStop = " + !IsRun);
             Thread.Sleep(300);
 
@@ -924,10 +892,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     while (true)
                     {
                         foreach (Level level in Levels)
-                        {
+                        {                            
                             level.CancelAllOrders(Server, Header);
+                            Thread.Sleep(50);
                         }
-                        Thread.Sleep(3000);
+                        Thread.Sleep(1500);
 
                         bool flag = true;
                         foreach (Level level in Levels)
@@ -1000,10 +969,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void LevelTradeLogicOpen(Level level)
         {
-            //if (IsRun == false || SelectedSecurity == null)
-            //{
-            //    return;
-            //}
+            if (IsRun == false || SelectedSecurity == null)
+            {
+                return;
+            }
 
             decimal stepLevel = GetStepLevel();
 
@@ -1197,7 +1166,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         {
                             level.CanselPatrialOrders(Server);
                         }
-                        // переставить ордер - удалить маленький, докупить обем и закрыть весь обем 
+                        // TODO: переставить ордер - удалить маленький, докупить обем и закрыть весь обем 
                         // надо обдумать логику 
                     }
                 }
@@ -1320,7 +1289,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             _server.NewMyTradeEvent += Server_NewMyTradeEvent;
             _server.NewOrderIncomeEvent += Server_NewOrderIncomeEvent;
-            _server.NewCandleIncomeEvent += Server_NewCandleIncomeEvent;
             _server.NewTradeEvent += Server_NewTradeEvent;
             _server.SecuritiesChangeEvent += _server_SecuritiesChangeEvent;
             _server.PortfoliosChangeEvent += _server_PortfoliosChangeEvent;
@@ -1337,7 +1305,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             _server.NewMyTradeEvent -= Server_NewMyTradeEvent;
             _server.NewOrderIncomeEvent -= Server_NewOrderIncomeEvent;
-            _server.NewCandleIncomeEvent -= Server_NewCandleIncomeEvent;
             _server.NewTradeEvent -= Server_NewTradeEvent;
             _server.SecuritiesChangeEvent -= _server_SecuritiesChangeEvent;
             _server.PortfoliosChangeEvent -= _server_PortfoliosChangeEvent;
@@ -1360,46 +1327,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 level.ClearOrders(ref level.OrdersForOpen);
                 level.ClearOrders(ref level.OrdersForClose);
             }
-        }
-
-        /// <summary>
-        /// Взять номера ордера на уровнях после выгрузки изфайла сохранения 
-        /// </summary>
-        /// <returns> спсиок ордеров на уровнях </returns>
-        private List<Order> GetOrdersInLevels()
-        {
-            //if (Level.OrdersForOpen == null) return null;
-            ClearOrd();
-
-            if (Levels == null)
-            {
-                return null;
-            }
-            List<Order> ordersInLevels = new List<Order>();
-            foreach (Level level in Levels)
-            {
-                //level.ClearOrders(ref Level.OrdersForOpen);
-                for (int i = 0; i < level.OrdersForOpen.Count; i++)
-                {
-                    Order order = level.OrdersForOpen[i];
-                    // || order.NumberMarket==""
-                    if (order == null || order.NumberMarket == "") // || order.Comment == null                         
-                    {
-                        continue;
-                    }
-                    ordersInLevels.Add(order);
-                }
-                for (int i = 0; i < level.OrdersForClose.Count; i++)
-                {
-                    Order order = level.OrdersForClose[i];
-                    if (order == null || order.Comment == null || order.NumberMarket == "")
-                    {
-                        continue;
-                    }
-                    ordersInLevels.Add(order);
-                }
-            }
-            return ordersInLevels;
         }
 
         ///<summary>
@@ -1429,11 +1356,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     }
                 }
             }
-
-            //decimal balans = portfolios[0].GetPositionOnBoard()[0].Find(pos =>
-            //    pos.SecurityNameCode == _securName).ValueCurrent;
-            //    return balans;
-
         }
 
         /// <summary>
@@ -1783,8 +1705,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         private void Server_NewTradeEvent(List<Trade> trades)
         {
-            if (trades != null
-                && trades[0].SecurityNameCode == SelectedSecurity.Name)
+            if (trades != null  && trades[0].SecurityNameCode == SelectedSecurity.Name)
             {
                 Trade trade = trades.Last();
 
@@ -1796,23 +1717,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 if (trade.Time.Second % 10 == 0)
                 {
                     TradeLogic();
-                }
-                //bool rec = true;
-                //if (trade.Time.AddSeconds(1) < Server.ServerTime)
-                //{
-                //    rec = false;
-                //}
-                //if (rec)
-                //{
-                //    GetOrderStatusOnBoard();
-                //}
+                }   
             }
         }
-        private void Server_NewCandleIncomeEvent(CandleSeries candle)
-        {
-            //
-        }
-
+  
         /// <summary>
         /// пришел ответ с биржи по ордеру 
         /// </summary>
@@ -1821,15 +1729,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             if (order == null || _portfolio == null || SelectedSecurity == null) return;
             if (order.SecurityNameCode == SelectedSecurity.Name
                 && order.ServerType == Server.ServerType) // 
-            {
-                //TradeLogic();
-                if (ActiveLevelAre())
-                {
-                    //SerializerDictionaryOrders();
-                    //RobotWindowVM.SendStrTextDb(" SerializerDictionaryOrders ");
-                    // SerializerLevel();
-                }
-
+            {  
                 //  дальше запись в лог ответа с биржи по ордеру  и уровню 
                 bool rec = true;
                 if (order.State == OrderStateType.Activ
@@ -1955,188 +1855,5 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         #endregion
 
-        #region == ЗАГОТОВКИ =====
-
-        /// <summary>
-        /// запросить статус ордеров на бирже
-        /// </summary>
-        private void GetOrderStatusOnBoard()
-        { // отключил 
-            List<Order> odersInLev = GetOrdersInLevels();
-            if (odersInLev == null || odersInLev.Count == 0) return;
-            for (int i = 0; i < odersInLev.Count; i++)
-            {
-                Order ord = odersInLev[i];
-                // Server.GetStatusOrder(ord);
-            }
-            RobotsWindowVM.Log(Header, " GetOrderStatusOnBoard\n" +
-                " Опросил статус ордера ");
-        }
-
-        /// <summary>
-        /// сериализация словаря  ордеров
-        /// </summary>
-        public void SerializerDictionaryOrders()
-        {
-            DataContractJsonSerializer DictionaryOrdersSerialazer
-              = new DataContractJsonSerializer(typeof(ConcurrentDictionary<string, ConcurrentDictionary<string, Order>>));
-            using (var file = new FileStream("DictionaryAllOrders.json", FileMode.OpenOrCreate))
-            {
-                DictionaryOrdersSerialazer.WriteObject(file, RobotsWindowVM.Orders);
-            }
-        }
-
-        /// <summary>
-        ///  десериализация словаря ордеров 
-        /// </summary>
-        public void DesirializerDictionaryOrders()
-        {
-            return;
-            DataContractJsonSerializer DictionaryOrdersSerialazer
-                = new DataContractJsonSerializer(typeof(ConcurrentDictionary<string, ConcurrentDictionary<string, Order>>));
-            if (!File.Exists("DictionaryAllOrders.json"))
-            {
-                return;
-            }
-            using (var file = new FileStream("DictionaryAllOrders.json", FileMode.Open))
-            {
-                ConcurrentDictionary<string, ConcurrentDictionary<string, Order>> DictionaryOrders
-                 = DictionaryOrdersSerialazer.ReadObject(file) as ConcurrentDictionary<string, ConcurrentDictionary<string, Order>>;
-                if (DictionaryOrders != null)
-                {
-                    RobotsWindowVM.Orders = DictionaryOrders;
-                }
-            }
-        }
-
-        /// <summary>
-        /// презагружает листы ордеров 
-        /// </summary>
-        private void ReloadOrderLevels()
-        {
-            if (Levels == null)
-            {
-                return;
-            }
-            List<Order> NewOrdersForOpen = new List<Order>();
-            List<Order> NewOrdersForClose = new List<Order>();
-
-            foreach (Level level in Levels)
-            {
-                //var or = Level.OrdersForOpen[0];
-                List<Order> ordersOp = level.OrdersForOpen;
-                NewOrdersForOpen = ordersOp;
-                level.OrdersForOpen = NewOrdersForOpen;
-
-                List<Order> orderCl = level.OrdersForClose;
-                NewOrdersForClose = orderCl;
-                level.OrdersForClose = NewOrdersForClose;
-            }
-        }
-
-        /// <summary>
-        /// сериализация словарz активных ордеров
-        /// </summary>
-        public void SerializerDictionaryActivOrders()
-        {
-            DataContractJsonSerializer DictionaryOrdersSerialazer = new DataContractJsonSerializer(typeof(ConcurrentDictionary<string, Order>));
-            using (var file = new FileStream("DictionaryActivOrders.json", FileMode.OpenOrCreate))
-            {
-                DictionaryOrdersSerialazer.WriteObject(file, DictionaryOrdersActiv);
-            }
-        }
-        /// <summary>
-        ///  десериализация словаря ордеров 
-        /// </summary>
-        public void DesirializerDictionaryActivOrders()
-        {
-            DataContractJsonSerializer DictionaryOrdersSerialazer = new DataContractJsonSerializer(typeof(ConcurrentDictionary<string, Order>));
-            using (var file = new FileStream("DictionaryActivOrders.json", FileMode.Open))
-            {
-                ConcurrentDictionary<string, Order> LoadDictionaryOrdersActiv = new ConcurrentDictionary<string, Order>();
-                ConcurrentDictionary<string, Order> DictionaryOrdersActiv = DictionaryOrdersSerialazer.ReadObject(file) as ConcurrentDictionary<string, Order>;
-                if (DictionaryOrdersActiv != null)
-                {
-                    foreach (var order in DictionaryOrdersActiv)
-                    {
-                        LoadDictionaryOrdersActiv.AddOrUpdate(order.Key, order.Value, (key, value) => value = order.Value);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// сохраяие уровни в файл 
-        /// </summary>
-        public void SerializerLevel()
-        {
-            if (!Directory.Exists(@"Parametrs\Tabs"))
-            {
-                Directory.CreateDirectory(@"Parametrs\Tabs");
-            }
-
-            DataContractJsonSerializer LevelSerialazer = new DataContractJsonSerializer(typeof(ObservableCollection<Level>));
-
-            using (var file = new FileStream(@"Parametrs\Tabs\levels_" + Header + "=" + NumberTab + ".json", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
-            {
-                LevelSerialazer.WriteObject(file, Levels);
-                RobotsWindowVM.SendStrTextDb(" Serializer Levels ");
-            }
-        }
-        /// <summary>
-        /// загружаеи из фала сохраненные уровни 
-        /// </summary>
-        public void DesirializerLevels()
-        {
-            if (!File.Exists(@"Parametrs\Tabs\levels_" + Header + "=" + NumberTab + ".json"))
-            {
-                RobotsWindowVM.Log(Header, " DesirializerLevels \n нет файла levels_.json ");
-                return;
-            }
-
-            DataContractJsonSerializer LevelsDsSerialazer = new DataContractJsonSerializer(typeof(ObservableCollection<Level>));
-            using (var file = new FileStream(@"Parametrs\Tabs\levels_" + Header + "=" + NumberTab + ".json", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
-            {
-                ObservableCollection<Level> LevelsDeseriolazer = LevelsDsSerialazer.ReadObject(file) as ObservableCollection<Level>;
-                if (LevelsDeseriolazer != null)
-                {
-                    Levels = LevelsDeseriolazer;
-                    RobotsWindowVM.Log(Header, " DesirializerLevels \n загрузили уровни из levels_.json ");
-                }
-            }
-        }
-
-        //RobotWindowVM.SendStrTextDb(" NewOrderIncomeEvent " + order.NumberMarket, " NumberUser " + order.NumberUser.ToString() + "\n"
-        //             + " NewOrder Status " + order.State + "\n"
-        //             + " DictionaryOrdersActiv count " + DictionaryOrdersActiv.Count);
-        //if (order.State == OrderStateType.Activ)
-        //{
-        //    DictionaryOrdersActiv.AddOrUpdate(order.NumberMarket, order, (key, value) => value = order);
-
-        //    RobotWindowVM.SendStrTextDb(" NewOrderIncomeEvent " + order.NumberMarket, " NumberUser " + order.NumberUser.ToString() + "\n"
-        //                                + " Add Activ order \n" );
-        //    //SerializerDictionaryOrders();
-        //    RobotWindowVM.SendStrTextDb(" SerializerDictionaryOrders ");
-        //}
-
-        #endregion
-
-        ////#region ============================= Реализация интерфейса INotifyPropertyChanged =======================
-
-        //public event PropertyChangedEventHandler PropertyChanged;
-
-        //public virtual void OnPropertyChanged([CallerMemberName] string PropertyName = null)
-        //{
-        //    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
-        //}
-
-        //public virtual bool Set<T>(ref T field, T value, [CallerMemberName] string PropertyName = null)
-        //{
-        //    if (Equals(field, value)) return false;
-        //    field = value;
-        //    OnPropertyChanged(PropertyName);
-        //    return true;
-        //}
-        //#endregion
     }
 }

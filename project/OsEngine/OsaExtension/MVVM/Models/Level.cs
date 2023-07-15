@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,7 +13,6 @@ namespace OsEngine.OsaExtension.MVVM.Models
     public class Level : BaseVM
     {
         #region ======================================Свойства======================================
-        [DataMember]
         /// <summary>
         /// цена уровня
         /// </summary>
@@ -29,10 +27,10 @@ namespace OsEngine.OsaExtension.MVVM.Models
             }
         }
         public decimal _priceLevel = 0;
+
         /// <summary>
         /// направлние сделок на уровне
         /// </summary>
-        [DataMember]
         public Side Side
         {
             get => _side;
@@ -48,7 +46,6 @@ namespace OsEngine.OsaExtension.MVVM.Models
         /// <summary>
         /// Статус сделок на уровне
         /// </summary>
-        [DataMember]
         public PositionStatus StatusLevel
         {
             get => _statusLevel;
@@ -64,7 +61,6 @@ namespace OsEngine.OsaExtension.MVVM.Models
         /// <summary>
         /// реалькая цена открытой позиции
         /// </summary>
-        [DataMember]
         public decimal OpenPrice
         {
             get => _openPrice;
@@ -76,10 +72,10 @@ namespace OsEngine.OsaExtension.MVVM.Models
             }
         }
         public decimal _openPrice = 0;
+
         /// <summary>
         ///  цена закрытия позиции (прибыли)
         /// </summary>
-        [DataMember]
         public decimal TakePrice
         {
             get => _takePrice;
@@ -91,8 +87,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
             }
         }
         public decimal _takePrice = 0;
-
-        [DataMember]
+       
         /// <summary>
         /// объем позиции
         /// </summary>
@@ -107,7 +102,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
             }
         }
         public decimal _volume = 0;
-        [DataMember]
+        
         public decimal Margin
         {
             get => _margine;
@@ -119,7 +114,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
             }
         }
         public decimal _margine = 0;
-        [DataMember]
+        
         public decimal Accum
         {
             get => _accum;
@@ -132,7 +127,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
             }
         }
         public decimal _accum = 0;
-        [DataMember]
+        
         /// <summary>
         /// объем ордера открытия поз
         /// <summary>
@@ -146,7 +141,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
             }
         }
         private decimal _limitVolume;
-        [DataMember]
+       
         /// <summary>
         /// Обем ордера закрытия поз
         /// </summary>
@@ -160,7 +155,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
             }
         }
         private decimal _takeVolume;
-        [DataMember]
+        
         /// <summary>
         /// разрешение открыть позицию        
         /// </summary>
@@ -175,7 +170,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
             }
         }
         public bool _passVolume = true;
-        [DataMember]
+        
         /// <summary>
         /// разрешение выставить тейк     
         /// </summary>
@@ -199,19 +194,16 @@ namespace OsEngine.OsaExtension.MVVM.Models
         /// <summary>
         ///  список лимиток на закрытие
         /// </summary>
-        [DataMember]
         public List<Order> OrdersForClose = new List<Order>();
 
         /// <summary>
         /// лимитки на открытие позиций 
         /// </summary>
-        [DataMember]
         public List<Order> OrdersForOpen = new List<Order>();
 
         /// <summary>
         ///  список моих трейдов принадлежащих уровню
         /// </summary>
-        [DataMember]
         private List<MyTrade> _myTrades = new List<MyTrade>();
 
         private decimal _calcVolume = 0;
@@ -219,19 +211,6 @@ namespace OsEngine.OsaExtension.MVVM.Models
         #endregion
 
         #region ======================================Методы====================================
-
-        //public void GetCounOrdersForOpen()
-        //{
-        //    int count = 0;
-        //    count = OrdersForOpen.Count;
-        //    if (count>0)
-        //    {
-        //        decimal orderprice = OrdersForOpen[OrdersForOpen.Count - 1].Price;
-        //        string str = "ордеров на открытие = " + count + "\n"
-        //            + " цена последнего = " + orderprice;
-        //        Debug.WriteLine(str);
-        //    }  
-        //}
 
         public void SetVolumeStart()
         {
@@ -397,7 +376,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
                     newOrders.Add(order);
                 }
             }
-            RobotsWindowVM.SendStrTextDb(" Удалили ордера Cancel  Done");
+            RobotsWindowVM.SendStrTextDb(" Удалили ордера Cancel и Done");
             orders = newOrders;
         }
 
