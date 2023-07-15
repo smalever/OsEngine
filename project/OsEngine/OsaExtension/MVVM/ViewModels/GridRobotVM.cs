@@ -158,7 +158,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
                     _serverType = value;
                 }
-
             }
         }
         ServerType _serverType = ServerType.None;
@@ -847,7 +846,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
                     IsRun = false;
                     SaveParamsBot();
-                    string str = " Сработал СТОП, IsRun = false , сохранились \n ";
+                    string str = " Сработал СТОП шорта, IsRun = false , сохранились \n ";
                     Debug.WriteLine(str);
                     StopShort = 0;
                     foreach (Level level in Levels)
@@ -869,11 +868,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         private void StartStop(object o)
-        {
-            RobotsWindowVM.Log(Header, " \n\n StartStop = " + !IsRun);
+        {           
             Thread.Sleep(300);
 
             IsRun = !IsRun;
+
+            RobotsWindowVM.Log(Header, " \n\n StartStop = " + IsRun);
 
             SaveParamsBot();
             if (IsRun)
@@ -915,7 +915,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         /// <summary>
-        /// после трейда или ррдера с бижжи по бумаге гоняет по уровням  логику отправки ореров на открытип и закрытие 
+        /// после трейда или ордера с бижжи по бумаге гоняет по уровням  логику отправки ореров на открытип и закрытие 
         /// </summary>
         private void TradeLogic()
         {
@@ -1208,6 +1208,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             Total = Accum + VarMargine;
 
         }
+
         /// <summary>
         /// расчитывает количество монет (лот)
         /// </summary>
@@ -1316,7 +1317,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         #endregion
 
-        #region  ===== сервисные ======
+        #region  ===== сервисные ========================================================================
         /// <summary>
         /// удалять ошибочные и законченные 
         /// </summary>
@@ -1657,7 +1658,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 if (order != null)
                 {
-                    if (order.State == OrderStateType.None ||
+                    if (order.State == OrderStateType.Activ ||
                        order.State == OrderStateType.Patrial ||
                        order.State == OrderStateType.Pending)
                     {
@@ -1668,7 +1669,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
         #endregion
 
-        #region ======= события сервера =====
+        #region ======= события сервера ======================================================================
 
         /// <summary>
         /// сервер сменил статус

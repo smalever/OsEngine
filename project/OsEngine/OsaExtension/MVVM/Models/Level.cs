@@ -424,8 +424,6 @@ namespace OsEngine.OsaExtension.MVVM.Models
         /// </summary>
         public void CancelAllOrders(IServer server, string header)
         {
-            //CanselCloseOrders(server, getStringForSave);
-            //CanselOpenOrders(server, getStringForSave);
             Task.Run(() =>
             {
                 while (true)
@@ -441,8 +439,6 @@ namespace OsEngine.OsaExtension.MVVM.Models
                     {
                         string str2 = "Поток для отзыва ордеров ОТКЛЮЧЕН \n";
                         Debug.WriteLine(str2);
-
-                        //RobotWindowVM.Log(Header, "Поток для отзыва ордеров ОТКЛЮЧЕН \n");
 
                         break;
                     }
@@ -611,30 +607,6 @@ namespace OsEngine.OsaExtension.MVVM.Models
             OpenPrice = Math.Round(OpenPrice, security.Decimals);
             Accum += accum * security.Lot;
         }
-
-
-        //private bool IsMyTrade(MyTrade myTrade)
-        //{
-        //    foreach (Order order in OrdersForOpen)
-        //    {
-        //        if (order.NumberMarket == myTrade.NumberOrderParent)
-        //        {
-        //            // номер трейда принадлежит ордеру открытия позы на бирже
-        //            // StatusLevel = PositionStatus.OPEN;
-        //            return true;                   
-        //        }
-        //    }
-        //    foreach (Order order in OrdersForClose)
-        //    {
-        //        if (order.NumberMarket == myTrade.NumberOrderParent)
-        //        {
-        //            // номер трейда принадлежит ордеру закрытия позы на бирже
-        //            // StatusLevel = PositionStatus.DONE;
-        //            return true;
-        //        }
-        //    }
-        //    return false;
-        //} 
 
         #endregion
 

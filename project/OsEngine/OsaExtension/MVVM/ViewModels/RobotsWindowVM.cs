@@ -100,7 +100,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             Orders = new ConcurrentDictionary<string, ConcurrentDictionary<string, Order>>();
 
         /// <summary>
-        /// многопоточный слоарь для трейдов 
+        /// многопоточный словарь для трейдов 
         /// </summary>
         public static ConcurrentDictionary<string, ConcurrentDictionary<string, MyTrade>>
             MyTrades = new ConcurrentDictionary<string, ConcurrentDictionary<string, MyTrade>>();
@@ -171,7 +171,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             ConcurrentDictionary<string, MyTrade> myTrades = null;
 
-            if (RobotsWindowVM.MyTrades.TryGetValue(myTrade.SecurityNameCode, out myTrades))
+            if (MyTrades.TryGetValue(myTrade.SecurityNameCode, out myTrades))
             {
                 myTrades.AddOrUpdate(myTrade.NumberTrade, myTrade, (key, value) => value = myTrade);
             }
@@ -179,7 +179,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 myTrades = new ConcurrentDictionary<string, MyTrade>();
                 myTrades.AddOrUpdate(myTrade.NumberTrade, myTrade, (key, value) => value = myTrade);
-                RobotsWindowVM.MyTrades.AddOrUpdate(myTrade.SecurityNameCode, myTrades, (key, value) => value = myTrades);
+                MyTrades.AddOrUpdate(myTrade.SecurityNameCode, myTrades, (key, value) => value = myTrades);
             }
         }
 
