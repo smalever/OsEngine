@@ -12,7 +12,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 {
 
     /// <summary>
-    /// интерфейс для роботов 
+    /// интерфейс для VM роботов 
     /// </summary>
     public interface IRobotVM
     {
@@ -25,7 +25,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// номер вкладки
         /// </summary>
         public int NumberTab { get; set; }
-
 
         /// <summary>
         /// название статегии 
@@ -52,9 +51,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// метод сбора названий кошельков (бирж)
         /// </summary>
-        public ObservableCollection<string> GetStringPortfolios(IServer server);
-
- 
+        public ObservableCollection<string> GetStringPortfolios(IServer server); 
 
     }
 }

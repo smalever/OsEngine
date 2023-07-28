@@ -616,7 +616,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         #region все Методы =====================================================================================
 
-        #region ===== логика ======
+        #region ===== логика ==============================================================
 
         /// <summary>
         /// расчитывает уровни (цены открвтия и профитов)
@@ -1312,7 +1312,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             _server.NewBidAscIncomeEvent -= _server_NewBidAscIncomeEvent;
             _server.ConnectStatusChangeEvent -= _server_ConnectStatusChangeEvent;
 
-            RobotsWindowVM.Log(Header, " Отключаем от сервера = " + _server.ServerType);
+            RobotsWindowVM.Log(Header, " Отключились от сервера = " + _server.ServerType);
         }
 
         #endregion
@@ -1357,6 +1357,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     }
                 }
             }
+            //decimal balans = portfolios[0].GetPositionOnBoard()[0].Find(pos =>
+            //    pos.SecurityNameCode == _securName).ValueCurrent;
+            //return balans;
+
         }
 
         /// <summary>
@@ -1667,6 +1671,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 }
             }
         }
+
         #endregion
 
         #region ======= события сервера ======================================================================
@@ -1855,6 +1860,5 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         public event selectedSecurity OnSelectedSecurity;
 
         #endregion
-
     }
 }

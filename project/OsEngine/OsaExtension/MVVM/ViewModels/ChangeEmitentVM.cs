@@ -30,6 +30,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         #region Свойства ===============================================================================
 
         public ObservableCollection<ExChenge> ExChanges { get; set; } = new ObservableCollection<ExChenge>();
+
         /// <summary>
         /// колекция классов бумаг на бирже 
         /// </summary>

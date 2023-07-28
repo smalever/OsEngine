@@ -19,7 +19,6 @@
         </UserControl.Resources>
     
         <DockPanel>
-
         <!--<Menu DockPanel.Dock="Bottom">
             <MenuItem Header="меню сервера">
                 <MenuItem Header="выбрать сервер" />

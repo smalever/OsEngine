@@ -15,6 +15,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using OsEngine.Market.Servers;
 
 namespace OsEngine.OsaExtension.MVVM.ViewModels
 {
@@ -153,9 +154,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         #region  ================================ Методы =====================================
 
         /// <summary>
-        /// в событии создания нового сервера // подписались на новый ордер
+        /// в событии создания нового сервера // подписались на новый ордер и прочие 
         /// </summary>
-        private void ServerMaster_ServerCreateEvent(Market.Servers.IServer server)
+        private void ServerMaster_ServerCreateEvent(IServer server)
         {
             // подписались на новый ордер
             server.NewOrderIncomeEvent += Server_NewOrderIncomeEvent;
@@ -209,37 +210,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             //GetNameSecuretiClass();
         }
 
-        private void GetBalansSecur()
-        {
-            List<Portfolio> portfolios = new List<Portfolio>();
-            //if (Server.Portfolios != null)
-            //{
-            //    portfolios = Server.Portfolios;
-            //}
-            //if (portfolios.Count > 0 && portfolios != null
-            //    && _selectedSecurity != null)
-            //{
-            //    int count = portfolios[0].GetPositionOnBoard().Count;
-            //    string nam = SelectedSecurity.Name;
-            //    string suf = "_BOTH";
-            //    string SecurName = nam + suf;
-            //    for (int i = 0; i < count; i++)
-            //    {
-            //        string seсurCode = portfolios[0].GetPositionOnBoard()[i].SecurityNameCode;
-            //        if (seсurCode == SecurName)
-            //        {
-            //            decimal d = portfolios[0].GetPositionOnBoard()[i].ValueCurrent;
-            //            SelectSecurBalans = d; // отправка значения в свойство
-            //        }
-            //    }
-            //}
-
-            //decimal balans = portfolios[0].GetPositionOnBoard()[0].Find(pos =>
-            //    pos.SecurityNameCode == _securName).ValueCurrent;
-            //    return balans;
-
-        }
-
         /// <summary>
         /// добвляет или обновляет пришедшие ордера с биржы в словарь ордеров на компе
         /// </summary>
@@ -257,15 +227,22 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                 Orders.AddOrUpdate(order.SecurityNameCode, numberOrders, (key, value) => value = numberOrders);
             }
+            PrintOrd(order);
+        }
+
+        /// <summary>
+        /// выводит данные ордера из Orders
+        /// </summary>
+        void PrintOrd(Order order)
+        {
             // колеция ордеров по бумаге, ключ NumberMarket
             ConcurrentDictionary<string, Order> ordNam = Orders[order.SecurityNameCode];
 
             foreach (var numMark in ordNam)
             {
-                Order numOrd = numMark.Value;
-                SendStrTextDb(" номер ордера в Orders = " + numOrd.NumberMarket);
-                SendStrTextDb(" статус ордера в Orders = " + numOrd.State);
-                SendStrTextDb(" NameCode ордера в Orders = " + numOrd.SecurityNameCode);
+                Order orde = numMark.Value;
+                SendStrTextDb(" номер ордера в Orders = " + orde.NumberMarket, " статус ордера в Orders = " + orde.State
+                + " \n бумага  = " + orde.SecurityNameCode);
             }
         }
 
@@ -392,7 +369,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                 if (_logMessges.TryDequeue(out mess))
                 {
-                    string name = "Log" + mess.Name + "_" + DateTime.Now.ToShortDateString() + ".txt";
+                    string name = mess.Name + "_" + DateTime.Now.ToShortDateString() + ".log";
 
                     using (StreamWriter writer = new StreamWriter(@"Log\" + name, true))
                     {
@@ -431,11 +408,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     writer.WriteLine(SelectedRobot.NameStrat);
 
                     writer.Close();
-                    //if (SelectedRobot == null)
-                    //{
-                    //    writer.WriteLine("none tab");
-                    //}
-                    //else writer.WriteLine(SelectedRobot.Header);
                 }
             }
             catch (Exception ex)
