@@ -16,6 +16,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Forms.DataVisualization.Charting;
 using static OsEngine.OsaExtension.MVVM.ViewModels.MainWindowRobWpfVM;
 
+
 namespace OsEngine.OsaExtension.Robots.Forbreakdown
 {
 
@@ -104,7 +105,7 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
         /// <summary>
         /// после закрытия для обнуления переменных
         /// </summary>
-        private void _tab_PositionClosingSuccesEvent(Position position)
+        private void _tab_PositionClosingSuccesEvent(Entity.Position position)
         {
             // изменть значения переменных 
             IsOn.ValueBool = false;
@@ -224,7 +225,7 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
             {                
                 if (IsOn.ValueBool == false) return;
 
-                List<Position> positions = _tab.PositionsOpenAll;
+                List<Entity.Position> positions = _tab.PositionsOpenAll;
                 if (positions.Count > 0) 
                 {
                     if (positions[0].OpenOrders[0].State == OrderStateType.Activ) return;
@@ -286,7 +287,7 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
             
             if (IsOn.ValueBool == false) return;
 
-            List<Position> position = _tab.PositionsOpenAll;
+            List<Entity.Position> position = _tab.PositionsOpenAll;
             //if (positions[0].OpenOrders[0].State == OrderStateType.Activ) return;
 
             if (FullVolume()) return;  // проверить набраный обем 
@@ -296,7 +297,7 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
   
             if (_tab.PositionsOpenAll.Count == 0 && vol !=0)
             {
-                List<Position> positions = _tab.PositionsOpenAll;
+                List<Entity.Position> positions = _tab.PositionsOpenAll;
                 if (positions.Count > 0)
                 {
                     if (positions[0].OpenOrders[0].State == OrderStateType.Activ) return;

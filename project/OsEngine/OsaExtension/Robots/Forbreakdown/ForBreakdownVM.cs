@@ -135,7 +135,7 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
         #endregion  end Свойства =========================================================
 
 
-        ObservableCollection<Position> PositionsOpenAll = new ObservableCollection<Position>();
+        ObservableCollection<Entity.Position> PositionsOpenAll = new ObservableCollection<Entity.Position>();
 
         /// <summary>
         /// инициализация свойств робота 

@@ -479,7 +479,5 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         #endregion
-
-
     }
 }
