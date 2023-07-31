@@ -866,6 +866,7 @@
     <Compile Include="OsaExtension\MVVM\ViewModels\IRobotVM.cs" />
     <Compile Include="OsaExtension\MVVM\ViewModels\MainWindowRobWpfVM.cs" />
     <Compile Include="OsaExtension\MVVM\ViewModels\MeshPlusVM.cs" />
+    <Compile Include="OsaExtension\MVVM\ViewModels\RobotBreakVM.cs" />
     <Compile Include="OsaExtension\MVVM\ViewModels\RobotsWindowVM.cs" />
     <Compile Include="OsaExtension\MVVM\View\ChengeEmitendWidow.xaml.cs">
       <DependentUpon>ChengeEmitendWidow.xaml</DependentUpon>

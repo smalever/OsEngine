@@ -286,7 +286,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 }
                 if (strat == NameStrat.BREAKDOWN)
                 {
-                    //Robots.Add(new RobotBreakVM("Tab " + Robots.Count + 1, Robots.Count + 1));
+                    Robots.Add(new RobotBreakVM("Tab " + Robots.Count + 1, Robots.Count + 1));
                     // Robots.Last().Header = "Tab " + (Robots.Count + 1);
                 }
             }
