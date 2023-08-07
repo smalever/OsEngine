@@ -272,7 +272,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 }
                 if (strat == NameStrat.BREAKDOWN)
                 {
-                    //Robots.Add(new RobotBreakVM(name, Robots.Count + 1));
+                    Robots.Add(new RobotBreakVM(name, Robots.Count + 1));
                 }
 
                 Robots.Last().OnSelectedSecurity += RobotWindowVM_OnSelectedSecurity;
@@ -457,7 +457,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     }
                     if (NameStrat == NameStrat.BREAKDOWN)
                     {
-                        //SelectedRobot = (RobotBreakVM)Robots.Last();
+                        SelectedRobot = (RobotBreakVM)Robots.Last();
                     }
                 }
             }

@@ -59,11 +59,11 @@
                         </local:Grid>
                     </DataTemplate>
 
-                    <!--<DataTemplate DataType="{x:Type vm:RobotBreakVM}">
+                    <DataTemplate DataType="{x:Type vm:RobotBreakVM}">
                         <local:RobotBreak>
 
                         </local:RobotBreak>
-                    </DataTemplate>-->
+                    </DataTemplate>
 
                 </TabControl.Resources>
                 <TabControl.ItemTemplate>

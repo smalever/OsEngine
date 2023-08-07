@@ -885,6 +885,9 @@
     <Compile Include="OsaExtension\MVVM\View\MeshPlusUI.xaml.cs">
       <DependentUpon>MeshPlusUI.xaml</DependentUpon>
     </Compile>
+    <Compile Include="OsaExtension\MVVM\View\RobotBreak.xaml.cs">
+      <DependentUpon>RobotBreak.xaml</DependentUpon>
+    </Compile>
     <Compile Include="OsaExtension\MVVM\View\RobotsWindow.xaml.cs">
       <DependentUpon>RobotsWindow.xaml</DependentUpon>
     </Compile>
@@ -1544,6 +1547,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="OsaExtension\MVVM\View\MeshPlusUI.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="OsaExtension\MVVM\View\RobotBreak.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
