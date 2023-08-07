@@ -27,10 +27,23 @@ namespace OsEngine.OsaExtension.MVVM.Models
             }
         }
         private PositionStatus _status;
+
+        /// <summary>
+        /// ордера позиции 
+        /// </summary>
+        public List<Order> OrdersPos
+        {
+            get
+            {
+                return _ordersPos;
+            }
+        }
+        private List<Order> _ordersPos;
     }
 
+
     /// <summary>
-    /// перечисление состояний статусов позиции на уровне 
+    /// перечисление состояний статусов позиции в роботе
     /// </summary>
     public enum PositionStatus
     {
