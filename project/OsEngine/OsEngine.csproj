@@ -857,7 +857,7 @@
     <Compile Include="OsaExtension\MVVM\Models\Level.cs" />
     <Compile Include="OsaExtension\MVVM\Models\MessageForLog.cs" />
     <Compile Include="OsaExtension\MVVM\Models\NameStrat.cs" />
-    <Compile Include="OsaExtension\MVVM\Models\Positions.cs" />
+    <Compile Include="OsaExtension\MVVM\Models\PositionBot.cs" />
     <Compile Include="OsaExtension\MVVM\Models\StepType.cs" />
     <Compile Include="OsaExtension\MVVM\ViewModels\BaseBotVM.cs" />
     <Compile Include="OsaExtension\MVVM\ViewModels\BaseVM.cs" />

@@ -1524,6 +1524,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             decimal.TryParse(str, out value);
             return value;
         }
+
         /// <summary>
         /// является ли уровень активным 
         /// </summary>

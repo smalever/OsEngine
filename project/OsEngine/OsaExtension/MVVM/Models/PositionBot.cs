@@ -9,15 +9,62 @@ namespace OsEngine.OsaExtension.MVVM.Models
 {
   
     /// <summary>
-    /// позиция по инструменту 
+    /// позиция робота по инструменту 
     /// </summary>
-    public class Positions
+    public class PositionBot
     {
-        public Positions()
+        public PositionBot()
         {
             Status = PositionStatus.NONE;
         }
 
+        #region ====== Свойства Positions ==========================================================================
+
+        /// <summary>
+        /// Код инструмента, для которого открыта позиция
+        /// </summary>
+        public string SecurityName
+        {
+            get
+            {
+                if (_ordersPos != null && _ordersPos.Count != 0)
+                {
+                    return _ordersPos[0].SecurityNameCode;
+                }
+                return _securityName;
+            }
+            set
+            {
+                if (_ordersPos != null && _ordersPos.Count != 0)
+                {
+                    return;
+                }
+                _securityName = value;
+            }
+        }
+        private string _securityName;
+
+        /// <summary>
+        /// является ли позиция активной 
+        /// </summary>
+        private bool ActivePos()
+        {
+            //if (Levels == null || Levels.Count == 0) return false;
+            //foreach (Level level in Levels)
+            //{
+            //    if (level.StatusLevel == PositionStatus.OPENING ||
+            //        level.StatusLevel == PositionStatus.OPEN ||
+            //        level.StatusLevel == PositionStatus.CLOSING)
+            //    {
+            //        return true;
+            //    }
+            //}
+            return false;
+        }
+
+        /// <summary>
+        /// статус - состояние позиции 
+        /// </summary>
         public PositionStatus Status
         {
             get { return _status; }
@@ -39,8 +86,9 @@ namespace OsEngine.OsaExtension.MVVM.Models
             }
         }
         private List<Order> _ordersPos;
-    }
 
+        #endregion  end Свойства ========================
+    }
 
     /// <summary>
     /// перечисление состояний статусов позиции в роботе
