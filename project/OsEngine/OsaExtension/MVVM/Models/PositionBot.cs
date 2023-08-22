@@ -1,6 +1,7 @@
 ﻿using OsEngine.Entity;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,7 +19,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
             Status = PositionStatus.NONE;
         }
 
-        #region ====== Свойства Positions ==========================================================================
+        #region ====== Свойства Position ==========================================================================
 
         /// <summary>
         /// Код инструмента, для которого открыта позиция
@@ -27,15 +28,15 @@ namespace OsEngine.OsaExtension.MVVM.Models
         {
             get
             {
-                if (_ordersPos != null && _ordersPos.Count != 0)
+                if (_ordersForOpen != null && _ordersForOpen.Count != 0)
                 {
-                    return _ordersPos[0].SecurityNameCode;
+                    return _ordersForOpen[0].SecurityNameCode;
                 }
                 return _securityName;
             }
             set
             {
-                if (_ordersPos != null && _ordersPos.Count != 0)
+                if (_ordersForOpen != null && _ordersForOpen.Count != 0)
                 {
                     return;
                 }
@@ -43,24 +44,6 @@ namespace OsEngine.OsaExtension.MVVM.Models
             }
         }
         private string _securityName;
-
-        /// <summary>
-        /// является ли позиция активной 
-        /// </summary>
-        private bool ActivePos()
-        {
-            //if (Levels == null || Levels.Count == 0) return false;
-            //foreach (Level level in Levels)
-            //{
-            //    if (level.StatusLevel == PositionStatus.OPENING ||
-            //        level.StatusLevel == PositionStatus.OPEN ||
-            //        level.StatusLevel == PositionStatus.CLOSING)
-            //    {
-            //        return true;
-            //    }
-            //}
-            return false;
-        }
 
         /// <summary>
         /// статус - состояние позиции 
@@ -76,18 +59,132 @@ namespace OsEngine.OsaExtension.MVVM.Models
         private PositionStatus _status;
 
         /// <summary>
-        /// ордера позиции 
+        /// ордера на открытие позиции
         /// </summary>
-        public List<Order> OrdersPos
+        public List<Order> OrdersForOpen
         {
             get
             {
-                return _ordersPos;
+                return _ordersForOpen;
             }
         }
-        private List<Order> _ordersPos;
+        private List<Order> _ordersForOpen;
+
+        /// <summary>
+        ///  список ордеров на закрытие позиции
+        /// </summary>
+        public List<Order> OrdersForClose
+        {
+            get
+            {
+                return _ordersForClose;
+            }
+        }
+        private List<Order> _ordersForClose;
+
+        /// <summary>
+        /// Position number / номер позиции
+        /// </summary>
+        public int Number;
+
+        /// <summary>
+        /// имя робота создавшего сделку 
+        /// </summary>
+        public string NameBot;
+
+        /// <summary>
+        /// Comment / коментарий 
+        /// </summary>
+        public string Comment;
+
+        /// <summary>
+        /// объем исполненый (открытый) в сделке 
+        /// </summary>
+        public decimal OpenVolume 
+        {
+            get
+            {
+                if (OrdersForClose == null)
+                {
+                    decimal volume = 0;
+
+                    for (int i = 0; _ordersForOpen != null && i < _ordersForOpen.Count; i++)
+                    {
+                        volume += _ordersForOpen[i].VolumeExecute;
+                    }
+                    return volume;
+                }
+
+                decimal valueClose = 0;
+
+                if (OrdersForClose != null)
+                {
+                    for (int i = 0; i < OrdersForClose.Count; i++)
+                    {
+                        valueClose += OrdersForClose[i].VolumeExecute;
+                    }
+                }
+
+                decimal volumeOpen = 0;
+
+                for (int i = 0; _ordersForOpen != null && i < _ordersForOpen.Count; i++)
+                {
+                    volumeOpen += _ordersForOpen[i].VolumeExecute;
+                }
+
+                decimal value = volumeOpen - valueClose;
+
+                return value;
+            }
+        }
+
+        /// <summary>
+        /// Position opening price / цена открытия позиции (средняя)
+        /// </summary>
+        public decimal EntryPrice
+        {
+            get
+            {
+                if (_ordersForOpen == null ||
+                    _ordersForOpen.Count == 0)
+                {
+                    return 0;
+                }
+
+                decimal price = 0;
+                decimal volume = 0;
+                for (int i = 0; i < _ordersForOpen.Count; i++)
+                {
+                    decimal volumeEx = _ordersForOpen[i].VolumeExecute;
+                    if (volumeEx != 0)
+                    {
+                        volume += volumeEx;
+                        price += volumeEx * _ordersForOpen[i].PriceReal;
+                    }
+                }
+                if (volume == 0)
+                {
+                    return _ordersForOpen[0].Price;
+                }
+
+                return price / volume;
+            }
+        }
+
 
         #endregion  end Свойства ========================
+
+        #region ======================================Поля===========================================
+
+        CultureInfo CultureInfo = new CultureInfo("ru-RU"); 
+
+        /// <summary>
+        ///  список трейдов принадлежащих позиции 
+        /// </summary>
+        private List<MyTrade> _myTrades = new List<MyTrade>();  
+
+        #endregion поля 
+
     }
 
     /// <summary>

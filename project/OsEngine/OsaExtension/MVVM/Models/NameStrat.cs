@@ -10,9 +10,9 @@ namespace OsEngine.OsaExtension.MVVM
     /// перечисление названий стратегий (роботов)
     /// </summary>
     public enum NameStrat
-    {
-        GRID,
+    {        
         BREAKDOWN,
+        GRID,
         NONE
     }
 }

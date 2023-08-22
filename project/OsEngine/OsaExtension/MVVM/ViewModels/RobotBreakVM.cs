@@ -13,6 +13,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 {
     public class RobotBreakVM : BaseVM, IRobotVM
     {
+        #region Свойства  =====================================================
+
         /// <summary>
         /// заголовок робота 
         /// </summary>
@@ -38,6 +40,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
         private string _header;
 
+        /// <summary>
+        /// номер вкладки робота
+        /// </summary>
         public int NumberTab
         {
             get => _numberTab;
@@ -78,13 +83,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
         private IServer _server = null;
 
-        /// <summary>
-        /// список портфелей 
-        /// </summary>
-        public ObservableCollection<string> StringPortfolios { get; set; } = new ObservableCollection<string>();
-        /// <summary>
-        /// Выбранная бумага
-        /// </summary>
         public Security SelectedSecurity
         {
             get => _selectedSecurity;
@@ -102,6 +100,18 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
         private Security _selectedSecurity = null;
 
+
+        #endregion конец свойств =============================================
+
+
+        /// <summary>
+        /// список портфелей 
+        /// </summary>
+        public ObservableCollection<string> StringPortfolios { get; set; } = new ObservableCollection<string>();
+        /// <summary>
+        /// Выбранная бумага
+        /// </summary>
+  
         public delegate void selectedSecurity();
         public event selectedSecurity OnSelectedSecurity;
 
@@ -120,7 +130,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         /// <summary>
-        /// конструктор для созданого и сохранеенного робота
+        /// конструктор для ранне  созданого и сохранеенного робота
         /// </summary>
         public RobotBreakVM(string header, int numberTab)
         {
@@ -134,7 +144,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         }  
 
-        #region  Metods============================================================================
+        #region  Metods ============================================================================
 
         /// <summary>
         /// Начать получать данные по бумге

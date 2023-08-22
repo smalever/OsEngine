@@ -36,7 +36,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
   
 
             LoadParamsBot(header);
-            ClearOrd();
+            //ClearOrd();
             SelectSecurBalans = 0;
             
             ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
@@ -1450,7 +1450,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// загрузка во вкладку параметров из файла сохрана
         /// </summary>
-        private void LoadParamsBot(string name)
+        public void LoadParamsBot(string name)
         {
             if (!Directory.Exists(@"Parametrs\Tabs"))
             {

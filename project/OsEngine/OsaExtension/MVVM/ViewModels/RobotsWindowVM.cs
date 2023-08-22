@@ -58,12 +58,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         public List<NameStrat> NameStrategies { get; set; } = new List<NameStrat>()
         {
-            NameStrat.GRID, NameStrat.BREAKDOWN, NameStrat.NONE
+            NameStrat.BREAKDOWN, NameStrat.GRID, NameStrat.NONE
         };
         /// <summary>
         /// колекция созданых роботов
         /// </summary> 
         public ObservableCollection<IRobotVM> Robots { get; set; } = new ObservableCollection<IRobotVM>();
+
         /// <summary>
         /// выбранный робот
         /// </summary>
@@ -78,7 +79,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
         }
 
-        private IRobotVM _selectedRobot;
+        private IRobotVM _selectedRobot ;
 
         #endregion
 
@@ -259,18 +260,20 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         void AddTabRobot(object o)
         {
-            AddTab("", NameStrat);
+            string header = (string)o;
+
+            AddTab("", NameStrat.ToString());
         }
 
-        void AddTab(string name, NameStrat strat)
+        void AddTab(string name, string namestrat)
         {
             if (name != "")
             {
-                if (strat == NameStrat.GRID)
-                {
-                    Robots.Add(new GridRobotVM(name, Robots.Count + 1));
-                }
-                if (strat == NameStrat.BREAKDOWN)
+                //if (strat == NameStrat.GRID)
+                //{
+                //    Robots.Add(new GridRobotVM(name, Robots.Count + 1));
+                //}
+                if (namestrat == NameStrat.BREAKDOWN.ToString())
                 {
                     Robots.Add(new RobotBreakVM(name, Robots.Count + 1));
                 }
@@ -279,18 +282,22 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
             else
             {
-                if (strat == NameStrat.GRID)
+                //if (strat == NameStrat.GRID)
+                //{
+                //    Robots.Add(new GridRobotVM( strat + " " + Robots.Count + 1, Robots.Count + 1));
+                //    // Robots.Last().NumberTab = Robots.Count;
+                //}
+                if (namestrat == NameStrat.BREAKDOWN.ToString())
                 {
-                    Robots.Add(new GridRobotVM("Tab " + Robots.Count + 1, Robots.Count + 1));
-                    //Robots.Last().Header = "Tab " + (Robots.Count + 1);
-                }
-                if (strat == NameStrat.BREAKDOWN)
-                {
-                    Robots.Add(new RobotBreakVM("Tab " + Robots.Count + 1, Robots.Count + 1));
+                    Robots.Add(new RobotBreakVM(namestrat + " " + Robots.Count + 1, Robots.Count + 1));
+
+                    // Robots.Last().NumberTab = Robots.Count;
                     // Robots.Last().Header = "Tab " + (Robots.Count + 1);
                 }
             }
+            
             Robots.Last().OnSelectedSecurity += RobotWindowVM_OnSelectedSecurity; // подписываемся на создание новой вкладки робота
+            SaveHeaderBot();
         }
 
         private void RobotWindowVM_OnSelectedSecurity()
@@ -402,6 +409,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 using (StreamWriter writer = new StreamWriter(@"Parametrs\param.txt", false))
                 {
                     writer.WriteLine(str);
+                    if (SelectedRobot == null)
+                    {
+                        writer.Close();
+                        return;
+                    }
 
                     writer.WriteLine(SelectedRobot.NumberTab);
 
@@ -443,6 +455,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 Log("App", " Ошибка выгрузки параметров = " + ex.Message);
             }
+
+            if (string.IsNullOrEmpty(strTabs)) { return; }  
+
             string[] tabs = strTabs.Split(';');
 
             //string[] strat = strStrat.Split(';');
@@ -450,11 +465,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 if (tab != "")
                 {
-                    AddTab(tab, NameStrat);
-                    if (NameStrat == NameStrat.GRID)
-                    {
-                        SelectedRobot = (GridRobotVM)Robots.Last();
-                    }
+                    AddTab(tab, NameStrat.ToString());
+                    //if (NameStrat == NameStrat.GRID)
+                    //{
+                    //    SelectedRobot = (GridRobotVM)Robots.Last();
+                    //}
                     if (NameStrat == NameStrat.BREAKDOWN)
                     {
                         SelectedRobot = (RobotBreakVM)Robots.Last();
@@ -465,7 +480,14 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             if (Robots.Count > selectedNumber - 1)
             {
-                SelectedRobot = Robots[selectedNumber - 1];
+                if (selectedNumber==0)
+                {
+                    SelectedRobot = Robots[0];
+                }
+                else 
+                {
+                    SelectedRobot = Robots[selectedNumber - 1];
+                }                
             }
         }
 
