@@ -260,7 +260,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         void AddTabRobot(object o)
         {
-            string header = (string)o;
+            // string header = (string)o;
 
             AddTab("", NameStrat.ToString());
         }
@@ -312,13 +312,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             string header = (string)obj;
 
-            GridRobotVM delRobot = null;
+            IRobotVM delRobot = null;
 
             foreach (var robot in Robots)
             {
                 if (robot.Header == header)
                 {
-                    delRobot = (GridRobotVM)robot;
+                    delRobot = (IRobotVM)robot;
                     break;
                 }
             }
