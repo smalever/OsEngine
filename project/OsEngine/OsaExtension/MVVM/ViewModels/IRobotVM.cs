@@ -34,7 +34,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// событие подписки на бумагу
         /// </summary>
-        public event selectedSecurity OnSelectedSecurity;
+        //public event selectedSecurity OnSelectedSecurity;
 
         public IServer Server { get; set; }
 
@@ -47,11 +47,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// выбранная бумага
         /// </summary>
         public Security SelectedSecurity { get; set; }
- 
+
         /// <summary>
         /// метод сбора названий кошельков (бирж)
         /// </summary>
-        public ObservableCollection<string> GetStringPortfolios(IServer server); 
+        public ObservableCollection<string> GetStringPortfolios(IServer server);
 
     }
 }

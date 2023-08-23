@@ -33,12 +33,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             //string[]str = header.Split('=');
             NumberTab = numberTab;
             Header = header;
-  
+
 
             LoadParamsBot(header);
             //ClearOrd();
             SelectSecurBalans = 0;
-            
+
             ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
 
         }
@@ -136,7 +136,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 if (NameClass != null)
                 {
                     // string klass = SelectedSecurity.NameClass;
-                    OnSelectedSecurity?.Invoke();
+                    //OnSelectedSecurity?.Invoke();
                 }
             }
         }
@@ -549,6 +549,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 return _commandStartStop;
             }
         }
+
         private DelegateCommand _commandSelectSecurity;
         public DelegateCommand CommandSelectSecurity
         {
@@ -622,7 +623,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// расчитывает уровни (цены открвтия и профитов)
         /// </summary>
         void Calculate(object o)
-        {   
+        {
             decimal volume = 0;
             decimal stepTake = 0;
 
@@ -776,7 +777,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 MessageBox.Show("Перейдите в режим редактирования!  ");
             }
-            Levels.Add(new Level());           
+            Levels.Add(new Level());
         }
         private void TestApi(object o)
         {
@@ -868,7 +869,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         private void StartStop(object o)
-        {           
+        {
             Thread.Sleep(300);
 
             IsRun = !IsRun;
@@ -892,7 +893,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     while (true)
                     {
                         foreach (Level level in Levels)
-                        {                            
+                        {
                             level.CancelAllOrders(Server, Header);
                             Thread.Sleep(50);
                         }
@@ -1712,7 +1713,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         private void Server_NewTradeEvent(List<Trade> trades)
         {
-            if (trades != null  && trades[0].SecurityNameCode == SelectedSecurity.Name)
+            if (trades != null && trades[0].SecurityNameCode == SelectedSecurity.Name)
             {
                 Trade trade = trades.Last();
 
@@ -1724,10 +1725,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 if (trade.Time.Second % 10 == 0)
                 {
                     TradeLogic();
-                }   
+                }
             }
         }
-  
+
         /// <summary>
         /// пришел ответ с биржи по ордеру 
         /// </summary>
@@ -1736,7 +1737,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             if (order == null || _portfolio == null || SelectedSecurity == null) return;
             if (order.SecurityNameCode == SelectedSecurity.Name
                 && order.ServerType == Server.ServerType) // 
-            {  
+            {
                 //  дальше запись в лог ответа с биржи по ордеру  и уровню 
                 bool rec = true;
                 if (order.State == OrderStateType.Activ

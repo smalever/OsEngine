@@ -13,32 +13,32 @@ using static OsEngine.OsaExtension.MVVM.ViewModels.MainWindowRobWpfVM;
 
 namespace OsEngine.OsaExtension.MVVM.ViewModels
 {
-    public class BaseBotVM : BaseVM , IRobotVM
+    public class BaseBotVM : BaseVM, IRobotVM
     {
         public BaseBotVM()
         {
-            ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;            
+            ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
         }
 
-        event GridRobotVM.selectedSecurity IRobotVM.OnSelectedSecurity
-        {
-            add
-            {
-                
-            }
+        //event GridRobotVM.selectedSecurity IRobotVM.OnSelectedSecurity
+        //{
+        //    add
+        //    {
 
-            remove
-            {
-               
-            }
-        }
+        //    }
+
+        //    remove
+        //    {
+
+        //    }
+        //}
 
         /// <summary>
         /// создан сервер 
         /// </summary>
         private void ServerMaster_ServerCreateEvent(IServer server)
         {
-            server.NewTradeEvent += Server_NewTradeEvent;           
+            server.NewTradeEvent += Server_NewTradeEvent;
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                     Price = trade.Price;
                 }
-            }    
+            }
         }
         #region Свойства =========================================================
 
@@ -155,8 +155,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
                     NameSecurityBot = TabsSimple.Connector.SecurityName;
                     var qwe = TabsSimple.PositionsOpenAll;
-                } 
-            }                 
+                }
+            }
         }
 
         private DelegateCommand _commandSelectSecurity;
@@ -209,7 +209,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 return _individualParamsBot;
             }
         }
-       
+
         /// <summary>
         /// вызывает диалог параметров 
         /// </summary>
@@ -221,8 +221,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             for (int i = 0; i < count; i++)
             {
-                if (ListBotPanels[i].NameStrategyUniq == nameBot )
-                {                    
+                if (ListBotPanels[i].NameStrategyUniq == nameBot)
+                {
                     OsTraderMaster.Master._activPanel = ListBotPanels[i];
                     OsTraderMaster.Master.BotShowParametrsDialog();
                     break;
@@ -252,9 +252,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         void DeleteBot(object o)
         {
             string nameBot = (string)o;
-  
+
             int count = ListBotPanels.Count;
- 
+
             for (int i = 0; i < count; i++)
             {
                 if (ListBotPanels[i].NameStrategyUniq == nameBot)
@@ -262,7 +262,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     OsTraderMaster.Master.DeleteByNum(i);
                     break;
                 }
-            }            
+            }
         }
 
         #region ===== Сущностия для своего окна вызова инструмента(бумаги)
