@@ -29,18 +29,18 @@ namespace OsEngine.OsaExtension.Robots.Forbreakdown
 
         }
 
-        event GridRobotVM.selectedSecurity IRobotVM.OnSelectedSecurity
-        {
-            add
-            {
-                // заглушка 
-            }
+        //event GridRobotVM.selectedSecurity IRobotVM.OnSelectedSecurity
+        //{
+        //    add
+        //    {
+        //        // заглушка 
+        //    }
 
-            remove
-            {
+        //    remove
+        //    {
                
-            }
-        }
+        //    }
+        //}
 
         /// <summary>
         /// создан сервер 

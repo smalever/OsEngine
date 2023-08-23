@@ -20,18 +20,18 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;            
         }
 
-        event GridRobotVM.selectedSecurity IRobotVM.OnSelectedSecurity
-        {
-            add
-            {
+        //event GridRobotVM.selectedSecurity IRobotVM.OnSelectedSecurity
+        //{
+        //    add
+        //    {
                 
-            }
+        //    }
 
-            remove
-            {
+        //    remove
+        //    {
                
-            }
-        }
+        //    }
+        //}
 
         /// <summary>
         /// создан сервер 
