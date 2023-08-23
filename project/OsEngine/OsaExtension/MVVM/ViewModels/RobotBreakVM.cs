@@ -152,21 +152,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
 
         public delegate void selectedSecurity();
-        public event selectedSecurity OnSelectedSecurity;
-
-        //event selectedSecurity IRobotVM.OnSelectedSecurity
-        //{
-        //    add
-        //    {
-        //        // todo: разобраться с реализацией 
-
-        //    }
-
-        //    remove
-        //    {
-        //        //throw new NotImplementedException();
-        //    }
-        //}
+        public event selectedSecurity OnSelectedSecurity;    
 
         /// <summary>
         /// конструктор для ранне  созданого и сохранеенного робота
@@ -332,6 +318,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 return _commandSelectSecurity;
             }
         }
+
+
         #endregion end Commands ====================================================
     }
 }

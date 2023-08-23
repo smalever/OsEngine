@@ -31,11 +31,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         public NameStrat NameStrat { get; set; }
 
-        /// <summary>
-        /// событие подписки на бумагу
-        /// </summary>
-        //public event selectedSecurity OnSelectedSecurity;
-
         public IServer Server { get; set; }
 
         /// <summary>

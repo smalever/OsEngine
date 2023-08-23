@@ -63,7 +63,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// колекция созданых роботов
         /// </summary> 
-        public ObservableCollection<IRobotVM> Robots { get; set; } = new ObservableCollection<IRobotVM>();
+        public ObservableCollection<RobotBreakVM> Robots { get; set; } = new ObservableCollection<RobotBreakVM>();
 
         /// <summary>
         /// выбранный робот
@@ -195,11 +195,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     while (dt.AddMinutes(1) > DateTime.Now)
                     {
                         await Task.Delay(5000);
-                        foreach (GridRobotVM robot in Robots)
+                        foreach (RobotBreakVM robot in Robots)
                         {
-                            robot.CheckMissedOrders();
+                            //robot.CheckMissedOrders();
 
-                            robot.CheckMissedMyTrades();
+                            //robot.CheckMissedMyTrades();
                         }
                     }
                 });
@@ -262,44 +262,25 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             // string header = (string)o;
 
-            AddTab("", NameStrat.ToString());
+            AddTab("");
         }
 
-        void AddTab(string name, string namestrat)
+        void AddTab(string name)
         {
             if (name != "")
             {
-                if (namestrat == NameStrat.GRID.ToString())
-                {
-                    Robots.Add(new GridRobotVM(name, Robots.Count + 1));
-                }
-                if (namestrat == NameStrat.BREAKDOWN.ToString())
-                {
-                    Robots.Add(new RobotBreakVM(name, Robots.Count + 1));
-                }
-
-                //Robots.Last().OnSelectedSecurity += RobotWindowVM_OnSelectedSecurity;
+                Robots.Add(new RobotBreakVM(name, Robots.Count + 1)); 
             }
             else
             {
-                if (namestrat == NameStrat.GRID.ToString())
-                {
-                    Robots.Add(new GridRobotVM(namestrat + " " + Robots.Count + 1, Robots.Count + 1));
-                    // Robots.Last().NumberTab = Robots.Count;
-                }
-                if (namestrat == NameStrat.BREAKDOWN.ToString())
-                {
-                    Robots.Add(new RobotBreakVM(namestrat + " " + Robots.Count + 1, Robots.Count + 1));
-
-                    // Robots.Last().NumberTab = Robots.Count;
-                    // Robots.Last().Header = "Tab " + (Robots.Count + 1);
-                }
+                Robots.Add(new RobotBreakVM(name+ " " + Robots.Count + 1, Robots.Count + 1));             
             }
-
-            //Robots.Last().OnSelectedSecurity += RobotWindowVM_OnSelectedSecurity; // подписываемся на создание новой вкладки робота
-            SaveHeaderBot();
+            Robots.Last().OnSelectedSecurity += RobotWindowVM_OnSelectedSecurity; 
         }
 
+        /// <summary>
+        /// подписываемся на создание новой вкладки робота
+        /// </summary>
         private void RobotWindowVM_OnSelectedSecurity()
         {
             SaveHeaderBot();
@@ -312,13 +293,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             string header = (string)obj;
 
-            IRobotVM delRobot = null;
+            RobotBreakVM delRobot = null;
 
             foreach (var robot in Robots)
             {
                 if (robot.Header == header)
                 {
-                    delRobot = (IRobotVM)robot;
+                    delRobot = (RobotBreakVM)robot;
                     break;
                 }
             }
@@ -395,15 +376,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 using (StreamWriter writer = new StreamWriter(@"Parametrs\param.txt", false))
                 {
                     writer.WriteLine(str);
+
                     if (SelectedRobot == null)
                     {
                         writer.Close();
                         return;
                     }
-
                     writer.WriteLine(SelectedRobot.NumberTab);
-
-                    writer.WriteLine(SelectedRobot.NameStrat); // стратегии 
 
                     writer.Close();
                 }
@@ -425,16 +404,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
             string strTabs = "";
             int selectedNumber = 0;
-            //string header = "";
-            string strStrat = "";
+
             try
             {
                 using (StreamReader reader = new StreamReader(@"Parametrs\param.txt"))
                 {
                     strTabs = reader.ReadLine();
                     selectedNumber = Convert.ToInt32(reader.ReadLine());
-                    //header = reader.ReadLine();
-                    strStrat = reader.ReadLine();
                 }
             }
             catch (Exception ex)
@@ -446,20 +422,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             string[] tabs = strTabs.Split(';');
 
-            //string[] strat = strStrat.Split(';');
             foreach (string tab in tabs)
             {
                 if (tab != "")
                 {
-                    AddTab(tab, NameStrat.ToString());
-                    if (NameStrat == NameStrat.GRID)
-                    {
-                        SelectedRobot = (GridRobotVM)Robots.Last();
-                    }
-                    if (NameStrat == NameStrat.BREAKDOWN)
-                    {
-                        SelectedRobot = (RobotBreakVM)Robots.Last();
-                    }
+                    AddTab(tab);      
+                    SelectedRobot = (RobotBreakVM)Robots.Last();
                 }
             }
             if (Robots.Count == 0) return;
