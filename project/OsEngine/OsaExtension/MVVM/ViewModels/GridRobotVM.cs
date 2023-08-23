@@ -23,7 +23,7 @@ using OsEngine.OsaExtension.MVVM.Models;
 
 namespace OsEngine.OsaExtension.MVVM.ViewModels
 {
-    public class GridRobotVM : BaseVM , IRobotVM
+    public class GridRobotVM : BaseVM, IRobotVM
     {
         /// <summary>
         /// конструктор для созданого и сохранеенного робота
@@ -136,7 +136,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 if (NameClass != null)
                 {
                     // string klass = SelectedSecurity.NameClass;
-                    //OnSelectedSecurity?.Invoke();
+                    OnSelectedSecurity?.Invoke();
                 }
             }
         }
@@ -549,7 +549,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 return _commandStartStop;
             }
         }
-
         private DelegateCommand _commandSelectSecurity;
         public DelegateCommand CommandSelectSecurity
         {

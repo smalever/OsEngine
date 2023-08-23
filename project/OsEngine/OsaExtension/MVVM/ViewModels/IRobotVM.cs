@@ -34,7 +34,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// событие подписки на бумагу
         /// </summary>
-        //public event selectedSecurity OnSelectedSecurity;
+        public event selectedSecurity OnSelectedSecurity;
 
         public IServer Server { get; set; }
 

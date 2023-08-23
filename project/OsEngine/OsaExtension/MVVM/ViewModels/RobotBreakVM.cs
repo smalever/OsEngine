@@ -1,8 +1,6 @@
 ﻿using OsEngine.Entity;
 using OsEngine.Market;
 using OsEngine.Market.Servers;
-using OsEngine.OsaExtension.MVVM.Commands;
-using OsEngine.OsaExtension.MVVM.View;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -13,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace OsEngine.OsaExtension.MVVM.ViewModels
 {
-    public class RobotBreakVM : BaseVM , IRobotVM
+    public class RobotBreakVM : BaseVM, IRobotVM
     {
         #region Свойства  =====================================================
 
@@ -102,43 +100,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
         private Security _selectedSecurity = null;
 
-        /// <summary>
-        /// название биржи (кошелька)
-        /// </summary>
-        public ServerType ServerType
-        {
-            get
-            {
-                if (Server == null)
-                {
-                    return _serverType;
-                }
-                return Server.ServerType;
-            }
-            set
-            {
-                if (value != _serverType)
-                {
-                    _serverType = value;
-                }
-            }
-        }
-        ServerType _serverType = ServerType.None;
-
-        /// <summary>
-        /// Рыночная цена бумаги 
-        /// </summary>
-        public decimal Price
-        {
-            get => _price;
-            set
-            {
-                _price = value;
-                OnPropertyChanged(nameof(Price));
-            }
-        }
-        private decimal _price;
-
 
         #endregion конец свойств =============================================
 
@@ -154,19 +115,19 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         public delegate void selectedSecurity();
         public event selectedSecurity OnSelectedSecurity;
 
-        //event selectedSecurity IRobotVM.OnSelectedSecurity
-        //{
-        //    add
-        //    {
-        //        // todo: разобраться с реализацией 
+        event GridRobotVM.selectedSecurity IRobotVM.OnSelectedSecurity
+        {
+            add
+            {
+                // todo: разобраться с реализацией 
+               
+            }
 
-        //    }
-
-        //    remove
-        //    {
-        //        //throw new NotImplementedException();
-        //    }
-        //}
+            remove
+            {
+                //throw new NotImplementedException();
+            }
+        }
 
         /// <summary>
         /// конструктор для ранне  созданого и сохранеенного робота
@@ -178,18 +139,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             Header = header;
 
             //LoadParamsBot(header);
-            ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
+   
+            //ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
 
-        }
-
-        private void ServerMaster_ServerCreateEvent(IServer server)
-        {
-            if (server.ServerType == ServerType)
-            {
-                Server = server;
-            }
-        }
-
+        }  
 
         #region  Metods ============================================================================
 
@@ -253,30 +206,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             //_server.NewMyTradeEvent += Server_NewMyTradeEvent;
             //_server.NewOrderIncomeEvent += Server_NewOrderIncomeEvent;
-            _server.NewTradeEvent += _NewTradeEvent;
+            //_server.NewTradeEvent += Server_NewTradeEvent;
             //_server.SecuritiesChangeEvent += _server_SecuritiesChangeEvent;
             //_server.PortfoliosChangeEvent += _server_PortfoliosChangeEvent;
             //_server.NewBidAscIncomeEvent += _server_NewBidAscIncomeEvent;
             //_server.ConnectStatusChangeEvent += _server_ConnectStatusChangeEvent;
 
             RobotsWindowVM.Log(Header, " Подключаемся к серверу = " + _server.ServerType);
-        }
-        /// <summary>
-        /// пришел новый терейд 
-        /// </summary>
-        private void _NewTradeEvent(List<Trade> trades)
-        {
-            if (trades != null && trades[0].SecurityNameCode == SelectedSecurity.Name)
-            {
-                Trade trade = trades.Last();
-
-                Price = trade.Price;
-
-                if (trade.Time.Second % 10 == 0)
-                {
-                    //TradeLogic();
-                }
-            }
         }
 
         /// <summary>
@@ -286,7 +222,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             //_server.NewMyTradeEvent -= Server_NewMyTradeEvent;
             //_server.NewOrderIncomeEvent -= Server_NewOrderIncomeEvent;
-            _server.NewTradeEvent -= _NewTradeEvent;
+            //_server.NewTradeEvent -= Server_NewTradeEvent;
             //_server.SecuritiesChangeEvent -= _server_SecuritiesChangeEvent;
             //_server.PortfoliosChangeEvent -= _server_PortfoliosChangeEvent;
             //_server.NewBidAscIncomeEvent -= _server_NewBidAscIncomeEvent;
@@ -294,44 +230,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             RobotsWindowVM.Log(Header, " Отключились от сервера = " + _server.ServerType);
         }
-
-        /// <summary>
-        /// выбрать бумагу
-        /// </summary>
-        void SelectSecurity(object o)
-        {
-            if (RobotsWindowVM.ChengeEmitendWidow != null)
-            {
-                return;
-            }
-            RobotsWindowVM.ChengeEmitendWidow = new ChengeEmitendWidow(this);
-            RobotsWindowVM.ChengeEmitendWidow.ShowDialog();
-            RobotsWindowVM.ChengeEmitendWidow = null;
-            if (_server != null)
-            {
-                //if (_server.ServerType == ServerType.Binance
-                //    || _server.ServerType == ServerType.BinanceFutures)
-                //{
-                //    IsChekCurrency = true;
-                //}
-                //else IsChekCurrency = false;
-            }
-        }
         #endregion
-
-        #region Commands ==============================================================
-        private DelegateCommand _commandSelectSecurity;
-        public DelegateCommand CommandSelectSecurity
-        {
-            get
-            {
-                if (_commandSelectSecurity == null)
-                {
-                    _commandSelectSecurity = new DelegateCommand(SelectSecurity);
-                }
-                return _commandSelectSecurity;
-            }
-        }
-        #endregion end Commands ====================================================
     }
 }

@@ -269,24 +269,24 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             if (name != "")
             {
-                if (namestrat == NameStrat.GRID.ToString())
-                {
-                    Robots.Add(new GridRobotVM(name, Robots.Count + 1));
-                }
+                //if (strat == NameStrat.GRID)
+                //{
+                //    Robots.Add(new GridRobotVM(name, Robots.Count + 1));
+                //}
                 if (namestrat == NameStrat.BREAKDOWN.ToString())
                 {
                     Robots.Add(new RobotBreakVM(name, Robots.Count + 1));
                 }
 
-                //Robots.Last().OnSelectedSecurity += RobotWindowVM_OnSelectedSecurity;
+                Robots.Last().OnSelectedSecurity += RobotWindowVM_OnSelectedSecurity;
             }
             else
             {
-                if (namestrat == NameStrat.GRID.ToString())
-                {
-                    Robots.Add(new GridRobotVM(namestrat + " " + Robots.Count + 1, Robots.Count + 1));
-                    // Robots.Last().NumberTab = Robots.Count;
-                }
+                //if (strat == NameStrat.GRID)
+                //{
+                //    Robots.Add(new GridRobotVM( strat + " " + Robots.Count + 1, Robots.Count + 1));
+                //    // Robots.Last().NumberTab = Robots.Count;
+                //}
                 if (namestrat == NameStrat.BREAKDOWN.ToString())
                 {
                     Robots.Add(new RobotBreakVM(namestrat + " " + Robots.Count + 1, Robots.Count + 1));
@@ -296,7 +296,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 }
             }
             
-            //Robots.Last().OnSelectedSecurity += RobotWindowVM_OnSelectedSecurity; // подписываемся на создание новой вкладки робота
+            Robots.Last().OnSelectedSecurity += RobotWindowVM_OnSelectedSecurity; // подписываемся на создание новой вкладки робота
             SaveHeaderBot();
         }
 
@@ -342,6 +342,20 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             MessageForLog mess = new MessageForLog()
             {
                 Name = name,
+                Message = str
+            };
+            _logMessges.Enqueue(mess);
+        }
+
+        /// <summary>
+        /// конструктор отправки строки в лог с стартегией
+        /// </summary>
+        public static void Log(string name, string strat, string str)
+        {
+            MessageForLog mess = new MessageForLog()
+            {
+                Name = name,
+                Strategy = strat,
                 Message = str
             };
             _logMessges.Enqueue(mess);
@@ -403,7 +417,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                     writer.WriteLine(SelectedRobot.NumberTab);
 
-                    writer.WriteLine(SelectedRobot.NameStrat); // стратегии 
+                    writer.WriteLine(SelectedRobot.NameStrat);
 
                     writer.Close();
                 }
@@ -452,10 +466,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 if (tab != "")
                 {
                     AddTab(tab, NameStrat.ToString());
-                    if (NameStrat == NameStrat.GRID)
-                    {
-                        SelectedRobot = (GridRobotVM)Robots.Last();
-                    }
+                    //if (NameStrat == NameStrat.GRID)
+                    //{
+                    //    SelectedRobot = (GridRobotVM)Robots.Last();
+                    //}
                     if (NameStrat == NameStrat.BREAKDOWN)
                     {
                         SelectedRobot = (RobotBreakVM)Robots.Last();
@@ -487,8 +501,5 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         #endregion
-
-        public delegate void selectedSecurity();
-        public event selectedSecurity OnSelectedSecurity;
     }
 }
