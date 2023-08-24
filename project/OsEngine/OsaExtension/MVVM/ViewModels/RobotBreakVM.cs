@@ -142,15 +142,14 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         #endregion конец свойств =============================================
 
-
         /// <summary>
         /// список портфелей 
         /// </summary>
         public ObservableCollection<string> StringPortfolios { get; set; } = new ObservableCollection<string>();
+
         /// <summary>
         /// Выбранная бумага
         /// </summary>
-
         public delegate void selectedSecurity();
         public event selectedSecurity OnSelectedSecurity;    
 
@@ -159,13 +158,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         public RobotBreakVM(string header, int numberTab)
         {
-            //string[]str = header.Split('=');
             NumberTab = numberTab;
             Header = header;
 
             //LoadParamsBot(header);
             ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
-
         }
 
         private void ServerMaster_ServerCreateEvent(IServer server)
@@ -175,7 +172,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 Server = server;
             }
         }
-
 
         #region  Metods ============================================================================
 
@@ -246,24 +242,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             //_server.ConnectStatusChangeEvent += _server_ConnectStatusChangeEvent;
 
             RobotsWindowVM.Log(Header, " Подключаемся к серверу = " + _server.ServerType);
-        }
-        /// <summary>
-        /// пришел новый терейд 
-        /// </summary>
-        private void _NewTradeEvent(List<Trade> trades)
-        {
-            if (trades != null && trades[0].SecurityNameCode == SelectedSecurity.Name)
-            {
-                Trade trade = trades.Last();
-
-                Price = trade.Price;
-
-                if (trade.Time.Second % 10 == 0)
-                {
-                    //TradeLogic();
-                }
-            }
-        }
+        }  
 
         /// <summary>
         ///  отключиться от сервера 
@@ -303,9 +282,29 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 //else IsChekCurrency = false;
             }
         }
+
+        /// <summary>
+        /// пришел новый терейд 
+        /// </summary>
+        private void _NewTradeEvent(List<Trade> trades)
+        {
+            if (trades != null && trades[0].SecurityNameCode == SelectedSecurity.Name)
+            {
+                Trade trade = trades.Last();
+
+                Price = trade.Price;
+
+                if (trade.Time.Second % 10 == 0)
+                {
+                    //TradeLogic();
+                }
+            }
+        }
+
         #endregion
 
         #region Commands ==============================================================
+
         private DelegateCommand _commandSelectSecurity;
         public DelegateCommand CommandSelectSecurity
         {
@@ -318,7 +317,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 return _commandSelectSecurity;
             }
         }
-
 
         #endregion end Commands ====================================================
     }

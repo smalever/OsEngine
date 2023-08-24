@@ -168,6 +168,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             // мои трейды
             server.NewMyTradeEvent += Server_NewMyTradeEvent;
 
+
         }
         private void Server_NewMyTradeEvent(MyTrade myTrade)
         {

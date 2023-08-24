@@ -13,14 +13,13 @@
 
             <TextBlock Text="Сервер "  Margin="5,3,0,0" FontSize="16"/>
             <TextBlock Text="{Binding ServerType}" FontSize="16" Height="20"  Margin="5,3,0,3" />
-            <TextBlock Text="Счет"  Height="20"  Margin="5"   FontSize="16"/>
-            <ComboBox ItemsSource="{Binding StringPortfolios}"
-                      SelectedItem="{Binding StringPortfolio}"/>
+     
             <Button Content="Выбрать бумагу"
+                    ToolTip=" Выбрать / Сменить бумагу"
                     Command="{Binding CommandSelectSecurity}">
             </Button>
             <TextBlock Text="{Binding Header}"  Margin="5" FontSize="16"/>
-            <TextBlock Text="Цена" 
+            <TextBlock Text="Рыночная цена" 
                        Margin="10,3" 
                        FontSize="16"/>
             <TextBlock Text="{Binding Price}" 
