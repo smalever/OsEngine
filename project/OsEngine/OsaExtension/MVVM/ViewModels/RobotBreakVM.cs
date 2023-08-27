@@ -18,7 +18,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         #region Свойства  =====================================================
 
         /// <summary>
-        /// заголовок робота 
+        /// заголовок вкладки робота 
         /// </summary>
         public string Header
         {
@@ -139,11 +139,25 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
         private decimal _price;
 
+        /// <summary>
+        /// Цена большого кластера 
+        /// </summary>
+        public decimal PriceBigСluster
+        {
+            get => _priceBigСluster;
+            set
+            {
+                _priceBigСluster = value;
+                OnPropertyChanged(nameof(PriceBigСluster));
+            }
+        }
+        private decimal _priceBigСluster = 0;
+
 
         #endregion конец свойств =============================================
 
         /// <summary>
-        /// список портфелей 
+        /// список названий портфелей 
         /// </summary>
         public ObservableCollection<string> StringPortfolios { get; set; } = new ObservableCollection<string>();
 
@@ -165,6 +179,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
         }
 
+        /// <summary>
+        /// Создан сервер 
+        /// </summary> 
         private void ServerMaster_ServerCreateEvent(IServer server)
         {
             if (server.ServerType == ServerType)
@@ -174,6 +191,15 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         #region  Metods ============================================================================
+
+        private void StartOpenPosition()
+        {
+            if (PriceBigСluster == 0) return;
+
+            
+
+        }
+
 
         /// <summary>
         /// Начать получать данные по бумге
