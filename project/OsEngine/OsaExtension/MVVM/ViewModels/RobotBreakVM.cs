@@ -142,16 +142,32 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// Цена большого кластера 
         /// </summary>
-        public decimal PriceBigСluster
+        public decimal BigСlusterPrice
         {
-            get => _priceBigСluster;
+            get => _bigСlusterPrice;
             set
             {
-                _priceBigСluster = value;
-                OnPropertyChanged(nameof(PriceBigСluster));
+                _bigСlusterPrice = value;
+                OnPropertyChanged(nameof(BigСlusterPrice));
             }
         }
-        private decimal _priceBigСluster = 0;
+        private decimal _bigСlusterPrice = 0;
+
+        /// <summary>
+        /// Нижняя цена набра позиции
+        /// </summary>
+        public decimal BottomPositionPrice
+        {
+            get => _bottomPositionPrice;
+            set
+            {
+                _bottomPositionPrice = value;
+                OnPropertyChanged(nameof(BottomPositionPrice));
+            }
+        }
+        private decimal _bottomPositionPrice = 0;
+
+        
 
 
         #endregion конец свойств =============================================
@@ -192,11 +208,23 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         #region  Metods ============================================================================
 
-        private void StartOpenPosition()
+        /// <summary>
+        ///  логика набора позийии
+        /// </summary>
+        private void LogicStartOpenPosition()
         {
-            if (PriceBigСluster == 0) return;
+            if (BigСlusterPrice == 0) return;
+            /*
+             *  направление набора позиции
+             *   + нижняя цена набора позиции
+             *  шаг набора позиции
+             *   весь объем набора позиции по поортфелю
+             *   часть объема на ордер 
+             *   количесвто частей на набор 
+             *  
+             * 
+             * */
 
-            
 
         }
 
