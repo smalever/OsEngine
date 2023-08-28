@@ -155,7 +155,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private decimal _bigСlusterPrice = 0;
 
         /// <summary>
-        /// Верхняя цеа позиции
+        /// Верхняя цена позиции
         /// </summary>
         public decimal TopPositionPrice
         {

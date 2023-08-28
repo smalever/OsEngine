@@ -32,7 +32,41 @@
                        Margin="5,3,0,0"
                        FontSize="16"/>
         </StatusBar>
-        <Grid>
+        <Grid >
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="500"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel  Orientation="Horizontal">
+                <GroupBox Header="Параметры набора позиции"    
+                          Grid.Row="0" 
+                          HorizontalAlignment="Left" 
+                          VerticalAlignment="Top"   
+                          Margin="3"
+                          FontSize="18">
+                    <UniformGrid Columns="2"
+                                 Margin="3"
+                                 Width="450">
+                        <TextBlock Text="Верхняя цена позиции"/>
+                        <local:DecimalTextBox Text="{Binding TopPositionPrice}"/>
+
+                        <TextBlock Text="Цена большого кластера "/>
+                        <local:DecimalTextBox Text="{Binding BigСlusterPrice}"/>
+
+                        <TextBlock Text="Нижняя цена набра поз"/>
+                        <local:DecimalTextBox Text="{Binding BottomPositionPrice}"/>
+
+
+                    </UniformGrid>
+
+
+                </GroupBox>
+
+            </StackPanel>
 
         </Grid>
     </DockPanel>
