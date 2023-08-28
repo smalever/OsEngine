@@ -1,4 +1,5 @@
-﻿using OsEngine.Entity;
+﻿using OsEngine.Charts.CandleChart.Indicators;
+using OsEngine.Entity;
 using OsEngine.Market;
 using OsEngine.Market.Servers;
 using OsEngine.OsaExtension.MVVM.Commands;
@@ -167,7 +168,61 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
         private decimal _bottomPositionPrice = 0;
 
-        
+        /// <summary>
+        /// Шаг набра позиции
+        /// </summary>
+        public decimal SetStep
+        {
+            get => _setStep;
+            set
+            {
+                _setStep = value;
+                OnPropertyChanged(nameof(SetStep));
+            }
+        }
+        private decimal _setStep = 0;
+
+        /// <summary>
+        /// Полный объем позиции робота в портфеле 
+        /// </summary>
+        public decimal FullPositionVolume
+        {
+            get => _fullPositionVolume;
+            set
+            {
+                _fullPositionVolume = value;
+                OnPropertyChanged(nameof(FullPositionVolume));
+            }
+        }
+        private decimal _fullPositionVolume = 0;
+
+        /// <summary>
+        /// количесвто частей на набор 
+        /// </summary>
+        public int PartsPerInput
+        {
+            get => _partsPerInput;
+            set
+            {
+                _partsPerInput = value;
+                OnPropertyChanged(nameof(PartsPerInput));
+            }
+        }
+        private int _partsPerInput = 0;
+
+        /// <summary>
+        /// Oбъем на ордер (часть позиции)
+        /// </summary>
+        public decimal VolumePerOrder
+        {
+            get => _volumePerOrder;
+            set
+            {
+                _volumePerOrder = value;
+                OnPropertyChanged(nameof(VolumePerOrder));
+            }
+        }
+        private decimal _volumePerOrder = 0;
 
 
         #endregion конец свойств =============================================
@@ -217,10 +272,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             /*
              *  направление набора позиции
              *   + нижняя цена набора позиции
-             *  шаг набора позиции
-             *   весь объем набора позиции по поортфелю
-             *   часть объема на ордер 
-             *   количесвто частей на набор 
+             *   + шаг набора позиции
+             *   + весь объем набора позиции роботом по поортфелю
+             *   + часть объема на ордер 
+             *   + количесвто частей на набор 
              *  
              * 
              * */
