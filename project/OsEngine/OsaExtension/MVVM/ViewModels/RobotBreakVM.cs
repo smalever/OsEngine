@@ -208,7 +208,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 OnPropertyChanged(nameof(FullPositionVolume));
             }
         }
-        private decimal _fullPositionVolume = 0;
+        private decimal _fullPositionVolume = 7;
 
         /// <summary>
         /// количесвто частей на набор 
@@ -222,7 +222,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 OnPropertyChanged(nameof(PartsPerInput));
             }
         }
-        private int _partsPerInput = 0;
+        private int _partsPerInput = 1;
 
         /// <summary>
         /// Oбъем на ордер (часть позиции)
@@ -297,7 +297,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         /// <summary>
-        /// Начать получать данные по бумге
+        /// Начать получать данные по бумаге
         /// </summary> 
         private void StartSecuritiy(Security security)
         {

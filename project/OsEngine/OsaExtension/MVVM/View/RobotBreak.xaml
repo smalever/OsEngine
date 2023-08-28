@@ -6,13 +6,13 @@
         xmlns:local="clr-namespace:OsEngine.OsaExtension.MVVM.View"
         xmlns:conver="clr-namespace:OsEngine.OsaExtension.MVVM.Converters"
         xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-        mc:Ignorable="d">
+        mc:Ignorable="d" d:DesignWidth="470">
 
     <DockPanel>
         <StatusBar DockPanel.Dock="Top" Margin="3">
 
             <TextBlock Text="Сервер "  Margin="5,3,0,0" FontSize="16"/>
-            <TextBlock Text="{Binding ServerType}" FontSize="16" Height="20"  Margin="5,3,0,3" />
+            <TextBlock Text="{Binding ServerType}" FontSize="16" Height="20"  Margin="3" />
 
             <Button Content="Выбрать бумагу"
                     ToolTip=" Выбрать / Сменить бумагу"
@@ -38,29 +38,43 @@
                 <RowDefinition/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="420"/>
+                <ColumnDefinition Width="440"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <StackPanel  Orientation="Horizontal">
+            <StackPanel  Orientation="Horizontal" Margin="1">
+
                 <GroupBox Header="Параметры набора позиции"    
                           Grid.Row="0" 
                           VerticalAlignment="Top"   
-                          Margin="3"
-                          FontSize="16" Width="410">
-                    <UniformGrid Columns="2"
-                                 Margin="3"
-                                 MaxWidth="440">
-                        <TextBlock Text="Верхняя цена позиции" />
-                        <local:DecimalTextBox HorizontalAlignment="Right" 
-                                              Text="{Binding TopPositionPrice}" />
+                          Margin="1"
+                          FontSize="18" 
+                          Width="440" >
 
-                        <TextBlock Text="Цена большого кластера " Width="219"/>
-                        <local:DecimalTextBox  HorizontalAlignment="Right"
-                                               Text="{Binding BigСlusterPrice}"/>
+                    <UniformGrid Columns="2" 
+                                 Margin="2"
+                                 MaxWidth="420">
+                        
+                        <TextBlock Text="Верхняя цена позиции" 
+                                   ToolTip=" Цена при достиженни которой робот примет действие (ЗАКРЫТИЯ/ ПЕРЕВОРОТ И Т,Д,)"/>
+                        <local:DecimalTextBox Text="{Binding TopPositionPrice}" />
+                        
+                        <TextBlock Text="Цена большого кластера " />
+                        <local:DecimalTextBox   Text="{Binding BigСlusterPrice}"/>
 
-                        <TextBlock Text="Нижняя цена набра позиций" Width="219"/>
-                        <local:DecimalTextBox HorizontalAlignment="Right"
-                                              Text="{Binding BottomPositionPrice}"/>
+                        <TextBlock Text="Нижняя цена набора позиций" 
+                                   ToolTip=" Тут робот примет действие (ЗАКРЫТИЯ/ ПЕРЕВОРОТ И Т,Д,)"/>
+                        <local:DecimalTextBox  Text="{Binding BottomPositionPrice}"/>
+
+                        <TextBlock Text="Объем для робота $" 
+                                   ToolTip=" Максимальный объем набираемый роботом на бирже"/>
+                        <local:DecimalTextBox  Text="{Binding FullPositionVolume}" />
+
+                        <TextBlock Text="Количество частей входа" />
+                        <local:IntTextBox  Text="{Binding PartsPerInput}" />
+
+                        <TextBlock Text="Шаг набора позиции" />
+                        <local:DecimalTextBox  Text="{Binding SetStep}" />
+
                     </UniformGrid>
 
                 </GroupBox>
