@@ -155,6 +155,20 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private decimal _bigСlusterPrice = 0;
 
         /// <summary>
+        /// Верхняя цеа позиции
+        /// </summary>
+        public decimal TopPositionPrice
+        {
+            get => _topPositionPrice;
+            set
+            {
+                _topPositionPrice = value;
+                OnPropertyChanged(nameof(TopPositionPrice));
+            }
+        }
+        private decimal _topPositionPrice = 0;
+
+        /// <summary>
         /// Нижняя цена набра позиции
         /// </summary>
         public decimal BottomPositionPrice
@@ -277,12 +291,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
              *   + часть объема на ордер 
              *   + количесвто частей на набор 
              *  
-             * 
              * */
 
 
         }
-
 
         /// <summary>
         /// Начать получать данные по бумге
