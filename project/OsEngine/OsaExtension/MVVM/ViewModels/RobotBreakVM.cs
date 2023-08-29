@@ -1,16 +1,21 @@
 ﻿using OsEngine.Charts.CandleChart.Indicators;
 using OsEngine.Entity;
+using OsEngine.Logging;
 using OsEngine.Market;
 using OsEngine.Market.Servers;
 using OsEngine.OsaExtension.MVVM.Commands;
+using OsEngine.OsaExtension.MVVM.Models;
 using OsEngine.OsaExtension.MVVM.View;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Documents;
 
 namespace OsEngine.OsaExtension.MVVM.ViewModels
 {
@@ -262,6 +267,16 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             //LoadParamsBot(header);
             ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
+
+            //if (numberTab >= 1)
+            //{
+            //    Security sek = new Security();
+            //    sek.Name = header;
+            //    StartSecuritiy(sek);
+            //}
+            LoadParamsBot(header);
+
+            ServerMaster.ActivateAutoConnection();
         }
 
         /// <summary>
@@ -285,11 +300,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             if (BigСlusterPrice == 0) return;
             /*
              *  направление набора позиции
-             *   + нижняя цена набора позиции
-             *   + шаг набора позиции
-             *   + весь объем набора позиции роботом по поортфелю
-             *   + часть объема на ордер 
-             *   + количесвто частей на набор 
+             *  тип шага между набором объема и расчет
+             *  расчет объема на ордер
+             *  
              *  
              * */
 
@@ -323,6 +336,93 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     Thread.Sleep(1000);
                 }
             });
+        }
+
+        /// <summary>
+        /// загрузка во вкладку параметров из файла сохрана
+        /// </summary>
+        public void LoadParamsBot(string name)
+        {
+            if (!Directory.Exists(@"Parametrs\Tabs"))
+            {
+                return;
+            }
+            RobotsWindowVM.Log(Header, " LoadParamsBot \n загрузили параметры ");
+            string servType = "";
+            try
+            {
+                using (StreamReader reader = new StreamReader(@"Parametrs\Tabs\param_" + NumberTab + ".txt"))
+                {
+                    Header = reader.ReadLine(); // загружаем заголовок
+                    servType = reader.ReadLine(); // загружаем название сервера
+                    //StringPortfolio = reader.ReadLine();  // загружаем бумагу 
+
+                    //StopShort = GetDecimalForString(reader.ReadLine());
+                    //StartPoint = GetDecimalForString(reader.ReadLine());
+                    //StopLong = GetDecimalForString(reader.ReadLine());
+
+                    //CountLevels = (int)GetDecimalForString(reader.ReadLine());
+
+                    //Direction direct = Direction.BUY;
+                    //if (Enum.TryParse(reader.ReadLine(), out direct))
+                    //{
+                    //    Direction = direct;
+                    //}
+
+                    //Lot = GetDecimalForString(reader.ReadLine());
+
+                    //StepType step = StepType.PUNKT;
+                    //if (Enum.TryParse(reader.ReadLine(), out step))
+                    //{
+                    //    StepType = step;
+                    //}
+
+                    //StepLevel = GetDecimalForString(reader.ReadLine());
+                    //TakeLevel = GetDecimalForString(reader.ReadLine());
+                    //MaxActiveLevel = (int)GetDecimalForString(reader.ReadLine());
+                    //PriceAverege = GetDecimalForString(reader.ReadLine());
+                    //Accum = GetDecimalForString(reader.ReadLine());
+
+                    //Levels = JsonConvert.DeserializeAnonymousType(reader.ReadLine(), new ObservableCollection<Level>());
+
+                    //bool check = false;
+                    //if (bool.TryParse(reader.ReadLine(), out check))
+                    //{
+                    //    IsChekCurrency = check;
+                    //}
+                    //bool run = false;
+                    //if (bool.TryParse(reader.ReadLine(), out run))
+                    //{
+                    //    IsRun = run;
+                    //}
+
+                    reader.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                RobotsWindowVM.Log(Header, " Ошибка выгрузки параметров = " + ex.Message);
+            }
+            StartServer(servType);
+
+        }
+
+        /// <summary>
+        /// запускаем сервер
+        /// </summary>
+        void StartServer(string servType)
+        {
+            if (servType == "" || servType == "null")
+            {
+                return;
+            }
+            ServerType type = ServerType.None;
+            if (Enum.TryParse(servType, out type))
+            {
+                ServerType = type;
+                ServerMaster.SetNeedServer(type);
+                // LoadParamsBot(Header);
+            }
         }
 
         /// <summary>
@@ -360,10 +460,18 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             //_server.SecuritiesChangeEvent += _server_SecuritiesChangeEvent;
             //_server.PortfoliosChangeEvent += _server_PortfoliosChangeEvent;
             //_server.NewBidAscIncomeEvent += _server_NewBidAscIncomeEvent;
-            //_server.ConnectStatusChangeEvent += _server_ConnectStatusChangeEvent;
+            _server.ConnectStatusChangeEvent += _server_ConnectStatusChangeEvent;
 
             RobotsWindowVM.Log(Header, " Подключаемся к серверу = " + _server.ServerType);
-        }  
+        }
+
+        private void _server_ConnectStatusChangeEvent(string state)
+        {
+            if (state == "Connect")
+            {
+                StartSecuritiy(SelectedSecurity);
+            }
+        }
 
         /// <summary>
         ///  отключиться от сервера 
@@ -376,7 +484,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             //_server.SecuritiesChangeEvent -= _server_SecuritiesChangeEvent;
             //_server.PortfoliosChangeEvent -= _server_PortfoliosChangeEvent;
             //_server.NewBidAscIncomeEvent -= _server_NewBidAscIncomeEvent;
-            //_server.ConnectStatusChangeEvent -= _server_ConnectStatusChangeEvent;
+            _server.ConnectStatusChangeEvent -= _server_ConnectStatusChangeEvent;
 
             RobotsWindowVM.Log(Header, " Отключились от сервера = " + _server.ServerType);
         }
