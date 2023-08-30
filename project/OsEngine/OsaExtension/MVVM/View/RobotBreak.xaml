@@ -46,34 +46,38 @@
                 <GroupBox Header="Параметры набора позиции"    
                           Grid.Row="0" 
                           VerticalAlignment="Top"   
-                          Margin="1"
+                          Margin="1,1,1,1"
                           FontSize="18" 
-                          Width="440" >
+                          Width="430" >
 
                     <UniformGrid Columns="2" 
-                                 Margin="2"
+                                 Margin="1"
                                  MaxWidth="420">
                         
                         <TextBlock Text="Верхняя цена позиции" 
                                    ToolTip=" Цена при достиженни которой робот примет действие (ЗАКРЫТИЯ/ ПЕРЕВОРОТ И Т,Д,)"/>
-                        <local:DecimalTextBox Text="{Binding TopPositionPrice}" />
+                        <local:DecimalTextBox Text="{Binding TopPositionPrice}" 
+                                               Margin="0,2,1,0"/>
                         
                         <TextBlock Text="Цена большого кластера " />
-                        <local:DecimalTextBox   Text="{Binding BigСlusterPrice}"/>
+                        <local:DecimalTextBox   Text="{Binding BigСlusterPrice}" Margin="0,2,1,0"/>
 
                         <TextBlock Text="Нижняя цена набора позиций" 
                                    ToolTip=" Тут робот примет действие (ЗАКРЫТИЯ/ ПЕРЕВОРОТ И Т,Д,)"/>
-                        <local:DecimalTextBox  Text="{Binding BottomPositionPrice}"/>
+                        <local:DecimalTextBox  Text="{Binding BottomPositionPrice}" Margin="0,2,1,0"/>
+
+                        <Label/>
+                        <Label/>
 
                         <TextBlock Text="Объем для робота $" 
                                    ToolTip=" Максимальный объем набираемый роботом на бирже"/>
-                        <local:DecimalTextBox  Text="{Binding FullPositionVolume}" />
+                        <local:DecimalTextBox  Text="{Binding FullPositionVolume}" Margin="0,2,1,0" />
 
                         <TextBlock Text="Количество частей входа" />
-                        <local:IntTextBox  Text="{Binding PartsPerInput}" />
+                        <local:IntTextBox  Text="{Binding PartsPerInput}" Margin="0,2,1,0" />
 
                         <TextBlock Text="Шаг набора позиции" />
-                        <local:DecimalTextBox  Text="{Binding SetStep}" />
+                        <local:DecimalTextBox  Text="{Binding SetStep}"  Margin="0,2,1,0"/>
 
                     </UniformGrid>
 
