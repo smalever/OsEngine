@@ -482,8 +482,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             if (state == "Connect")
             {
-                StartSecuritiy(SelectedSecurity);
-                SubscribeToServer();
+                //StartSecuritiy(SelectedSecurity);
+                //SubscribeToServer();
             }
         }
 

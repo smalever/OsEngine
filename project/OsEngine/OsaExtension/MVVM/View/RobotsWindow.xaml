@@ -43,7 +43,7 @@
         <StatusBar DockPanel.Dock="Bottom">
             <DockPanel>
                 <TextBlock Text =" Позиция робота = "/>
-                <TextBlock d:DataContext="{d:DesignInstance Type=vm:GridRobotVM}" Text ="{Binding SelectSecurBalans}"/>
+                <TextBlock d:DataContext="{d:DesignInstance Type=vm:RobotBreakVM}" Text ="{Binding SelectSecurBalans}"/>
             </DockPanel>
         </StatusBar>
         <Grid>
