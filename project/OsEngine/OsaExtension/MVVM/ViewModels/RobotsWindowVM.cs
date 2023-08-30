@@ -162,7 +162,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             // подписались на новый ордер
             server.NewOrderIncomeEvent += Server_NewOrderIncomeEvent;
             // изменились портфели
-            server.PortfoliosChangeEvent += Server_PortfoliosChangeEvent;
+            // server.PortfoliosChangeEvent += Server_PortfoliosChangeEvent;
             // сервер конект
             server.ConnectStatusChangeEvent += Server_ConnectStatusChangeEvent;
             // мои трейды
@@ -186,6 +186,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
         }
 
+        /// <summary>
+        /// пока не используется 
+        /// </summary>
         private void Server_ConnectStatusChangeEvent(string state)
         {
             if (state == "Connect")
@@ -209,7 +212,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         private void Server_PortfoliosChangeEvent(List<Portfolio> portfolios)
         {
-            //GetNameSecuretiClass();
+            //TODO: разобраться (переделать) подписку на бумаги через глвное окно с роботами 
         }
 
         /// <summary>

@@ -457,7 +457,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             //_server.NewMyTradeEvent += Server_NewMyTradeEvent;
             //_server.NewOrderIncomeEvent += Server_NewOrderIncomeEvent;
             _server.NewTradeEvent += _NewTradeEvent;
-            //_server.SecuritiesChangeEvent += _server_SecuritiesChangeEvent;
+            _server.SecuritiesChangeEvent += _server_SecuritiesChangeEvent;
             //_server.PortfoliosChangeEvent += _server_PortfoliosChangeEvent;
             //_server.NewBidAscIncomeEvent += _server_NewBidAscIncomeEvent;
             _server.ConnectStatusChangeEvent += _server_ConnectStatusChangeEvent;
@@ -465,11 +465,25 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             RobotsWindowVM.Log(Header, " Подключаемся к серверу = " + _server.ServerType);
         }
 
+        private void _server_SecuritiesChangeEvent(List<Security> securities)
+        {
+            for (int i = 0; i < securities.Count; i++)
+            {
+                if (securities[i].Name == Header)
+                {
+                    SelectedSecurity = securities[i];
+                    //StartSecuritiy(securities[i]);
+                    break;
+                }
+            }
+        }
+
         private void _server_ConnectStatusChangeEvent(string state)
         {
             if (state == "Connect")
             {
                 StartSecuritiy(SelectedSecurity);
+                SubscribeToServer();
             }
         }
 
@@ -481,7 +495,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             //_server.NewMyTradeEvent -= Server_NewMyTradeEvent;
             //_server.NewOrderIncomeEvent -= Server_NewOrderIncomeEvent;
             _server.NewTradeEvent -= _NewTradeEvent;
-            //_server.SecuritiesChangeEvent -= _server_SecuritiesChangeEvent;
+            _server.SecuritiesChangeEvent -= _server_SecuritiesChangeEvent;
             //_server.PortfoliosChangeEvent -= _server_PortfoliosChangeEvent;
             //_server.NewBidAscIncomeEvent -= _server_NewBidAscIncomeEvent;
             _server.ConnectStatusChangeEvent -= _server_ConnectStatusChangeEvent;
