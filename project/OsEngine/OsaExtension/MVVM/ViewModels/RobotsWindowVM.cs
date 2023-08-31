@@ -54,6 +54,20 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private NameStrat _nameStrat;
 
         /// <summary>
+        /// строка для отображения сообщений в лог 
+        /// </summary>
+        public string StrLog
+        {
+            get => _strLog;
+            set
+            {
+                _strLog = value;
+                OnPropertyChanged(nameof(StrLog));
+            }
+        }
+        private string _strLog;
+
+        /// <summary>
         /// портфель робота на бирже
         /// </summary>
         public PositionOnBoard PositionBotOnBoard
@@ -284,15 +298,21 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             AddTab("");
         }
 
+        private static RobotsWindowVM _robotThis = new RobotsWindowVM();
+        
         void AddTab(string name)
         {
             if (name != "")
             {
-                Robots.Add(new RobotBreakVM(name, Robots.Count + 1)); 
+                _robotThis = this;
+                RobotBreakVM robotBreak = new RobotBreakVM(name, Robots.Count + 1, _robotThis);
+                Robots.Add(robotBreak); 
             }
             else
             {
-                Robots.Add(new RobotBreakVM(name+ " " + Robots.Count + 1, Robots.Count + 1));             
+                _robotThis = this;
+                RobotBreakVM robotBreak = new RobotBreakVM(name + " " + Robots.Count + 1, Robots.Count + 1,_robotThis);
+                Robots.Add(robotBreak);             
             }
             Robots.Last().OnSelectedSecurity += RobotWindowVM_OnSelectedSecurity; 
         }
@@ -471,6 +491,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             string str = text + " \n" + text2 + "\n";
             Debug.WriteLine(str);
+        }
+        /// <summary>
+        /// отправить строку в статус бар
+        /// </summary>
+        public void SendStrStatus(string text)
+        {
+           this.StrLog = text;
         }
 
         #endregion

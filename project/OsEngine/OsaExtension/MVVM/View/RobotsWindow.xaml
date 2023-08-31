@@ -44,7 +44,13 @@
             <DockPanel>
                 <TextBlock Text ="Портфель роботов на бирже : "
                            ToolTip=" Общий портфель роботов на бирже :"/>
-                <TextBlock d:DataContext="{d:DesignInstance Type=vm:RobotBreakVM}" Text ="{Binding PositionBotOnBoard}"/>
+                <TextBlock d:DataContext="{d:DesignInstance Type=vm:RobotBreakVM}" 
+                           Text ="{Binding PositionBotOnBoard}"/>
+                <TextBlock Text="Сообщение: "/>
+                <TextBlock Margin="1"                        
+                         FontSize="16"
+                         Text="{Binding StrLog}" />
+                
             </DockPanel>
         </StatusBar>
         <Grid>

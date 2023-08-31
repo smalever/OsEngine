@@ -324,17 +324,21 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         #endregion конец свойств =============================================
 
         #region Поля ==================================================
-        //private decimal _priceOpenPos = 0;
+        
+        private RobotsWindowVM _robotsWindowVM;
+       
+
         #endregion
      
         /// <summary>
         /// конструктор для ранне  созданого и сохранеенного робота
         /// </summary>
-        public RobotBreakVM(string header, int numberTab)
+        public RobotBreakVM(string header, int numberTab, RobotsWindowVM MainWindows)
         {
             NumberTab = numberTab;
             Header = header;
-          
+            _robotsWindowVM = MainWindows;
+
             ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
         
             LoadParamsBot(header);
@@ -367,15 +371,23 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             if (Direction == Direction.BUY)
             {
+                if (BigСlusterPrice == 0 || BottomPositionPrice == 0) return;
+
                 stepPrice = (BigСlusterPrice - BottomPositionPrice) / PartsPerInput;
                 _priceOpenPos = BigСlusterPrice - stepPrice;
             }
             if (Direction == Direction.SELL)
             {
+                if (BigСlusterPrice == 0 || TopPositionPrice == 0)
+                {
+                    SendStrStatus(" BigСlusterPrice или TopPositionPrice = 0 ");
+                    return;
+                }
+
                 stepPrice = (TopPositionPrice - BigСlusterPrice) / PartsPerInput;
                 _priceOpenPos = BigСlusterPrice + stepPrice;
             }
-            //  todo : бобавить расчет разнонаправленных сделок
+            //  todo : бобавить расчет для разнонаправленных сделок
 
             _priceOpenPos = Decimal.Round(_priceOpenPos, SelectedSecurity.Decimals);
 
@@ -631,8 +643,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
             StartServer(servType);
 
+        } 
+        private void SendStrStatus(string txt)
+        {
+            _robotsWindowVM.SendStrStatus(txt);
         }
-
         #endregion
         #endregion end metods==============================================
 
