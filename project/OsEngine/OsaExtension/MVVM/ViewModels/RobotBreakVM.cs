@@ -244,6 +244,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private decimal _volumePerOrder = 0;
 
 
+
         #endregion конец свойств =============================================
 
         /// <summary>
@@ -264,16 +265,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             NumberTab = numberTab;
             Header = header;
-
-            //LoadParamsBot(header);
+          
             ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
-
-            //if (numberTab >= 1)
-            //{
-            //    Security sek = new Security();
-            //    sek.Name = header;
-            //    StartSecuritiy(sek);
-            //}
+        
             LoadParamsBot(header);
 
             ServerMaster.ActivateAutoConnection();
