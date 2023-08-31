@@ -316,24 +316,17 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             StepType.PUNKT, StepType.PERCENT
         };
 
+        /// <summary>
+        /// список названий портфелей 
+        /// </summary>
+        public ObservableCollection<string> StringPortfolios { get; set; } = new ObservableCollection<string>();
 
         #endregion конец свойств =============================================
 
         #region Поля ==================================================
         //private decimal _priceOpenPos = 0;
         #endregion
-
-        /// <summary>
-        /// список названий портфелей 
-        /// </summary>
-        public ObservableCollection<string> StringPortfolios { get; set; } = new ObservableCollection<string>();
-
-        /// <summary>
-        /// Выбранная бумага
-        /// </summary>
-        public delegate void selectedSecurity();
-        public event selectedSecurity OnSelectedSecurity;    
-
+     
         /// <summary>
         /// конструктор для ранне  созданого и сохранеенного робота
         /// </summary>
@@ -347,20 +340,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             LoadParamsBot(header);
 
             ServerMaster.ActivateAutoConnection();
-        }
+        } 
 
-        /// <summary>
-        /// Создан сервер 
-        /// </summary> 
-        private void ServerMaster_ServerCreateEvent(IServer server)
-        {
-            if (server.ServerType == ServerType)
-            {
-                Server = server;
-            }
-        }
-
-        #region  Metods ============================================================================
+        #region  Metods ======================================================================
+        #region  методы логики ===============================================
 
         /// <summary>
         ///  логика набора позиций
@@ -378,18 +361,18 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// расчитать стартовую цену (начала открытия позиции)
         /// </summary>
         private void CalculPriceStartPos()
-        {          
+        {
             _priceOpenPos = 0;
             decimal stepPrice = 0;
-                   
+
             if (Direction == Direction.BUY)
             {
                 stepPrice = (BigСlusterPrice - BottomPositionPrice) / PartsPerInput;
-                _priceOpenPos  = BigСlusterPrice - stepPrice;                
+                _priceOpenPos = BigСlusterPrice - stepPrice;
             }
             if (Direction == Direction.SELL)
             {
-                stepPrice = ( TopPositionPrice - BigСlusterPrice) / PartsPerInput;
+                stepPrice = (TopPositionPrice - BigСlusterPrice) / PartsPerInput;
                 _priceOpenPos = BigСlusterPrice + stepPrice;
             }
             //  todo : бобавить расчет разнонаправленных сделок
@@ -428,6 +411,159 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             });
         }
 
+
+        /// <summary>
+        /// выбрать бумагу
+        /// </summary>
+        void SelectSecurity(object o)
+        {
+            if (RobotsWindowVM.ChengeEmitendWidow != null)
+            {
+                return;
+            }
+            RobotsWindowVM.ChengeEmitendWidow = new ChengeEmitendWidow(this);
+            RobotsWindowVM.ChengeEmitendWidow.ShowDialog();
+            RobotsWindowVM.ChengeEmitendWidow = null;
+            if (_server != null)
+            {
+                //if (_server.ServerType == ServerType.Binance
+                //    || _server.ServerType == ServerType.BinanceFutures)
+                //{
+                //    IsChekCurrency = true;
+                //}
+                //else IsChekCurrency = false;
+            }
+        }
+
+        /// <summary>
+        /// запускаем сервер
+        /// </summary>
+        void StartServer(string servType)
+        {
+            if (servType == "" || servType == "null")
+            {
+                return;
+            }
+            ServerType type = ServerType.None;
+            if (Enum.TryParse(servType, out type))
+            {
+                ServerType = type;
+                ServerMaster.SetNeedServer(type);
+                // LoadParamsBot(Header);
+            }
+        }
+
+        /// <summary>
+        /// берет названия кошельков (бирж)
+        /// </summary>
+        public ObservableCollection<string> GetStringPortfolios(IServer server)
+        {
+            ObservableCollection<string> stringPortfolios = new ObservableCollection<string>();
+            if (server == null)
+            {
+                RobotsWindowVM.Log(Header, "GetStringPortfolios server == null ");
+                return stringPortfolios;
+            }
+            if (server.Portfolios == null)
+            {
+                return stringPortfolios;
+            }
+
+            foreach (Portfolio portf in server.Portfolios)
+            {
+                //RobotWindowVM.Log(Header, "GetStringPortfolios  портфель =  " + portf.Number);
+                stringPortfolios.Add(portf.Number);
+            }
+            return stringPortfolios;
+        }
+        #endregion
+        #region  методы сервера ===========================
+  
+        /// <summary>
+        /// Создан сервер 
+        /// </summary> 
+        private void ServerMaster_ServerCreateEvent(IServer server)
+        {
+            if (server.ServerType == ServerType)
+            {
+                Server = server;
+            }
+        }
+
+        private void _server_SecuritiesChangeEvent(List<Security> securities)
+        {
+            for (int i = 0; i < securities.Count; i++)
+            {
+                if (securities[i].Name == Header)
+                {
+                    SelectedSecurity = securities[i];
+                    //StartSecuritiy(securities[i]);
+                    break;
+                }
+            }
+        }
+
+        private void _server_ConnectStatusChangeEvent(string state)
+        {
+            if (state == "Connect")
+            {
+                //StartSecuritiy(SelectedSecurity);
+                //SubscribeToServer();
+            }
+        }
+
+        /// <summary>
+        ///  подключиться к серверу
+        /// </summary>
+        private void SubscribeToServer()
+        {
+            //_server.NewMyTradeEvent += Server_NewMyTradeEvent;
+            //_server.NewOrderIncomeEvent += Server_NewOrderIncomeEvent;
+            _server.NewTradeEvent += _NewTradeEvent;
+            _server.SecuritiesChangeEvent += _server_SecuritiesChangeEvent;
+            //_server.PortfoliosChangeEvent += _server_PortfoliosChangeEvent;
+            //_server.NewBidAscIncomeEvent += _server_NewBidAscIncomeEvent;
+            _server.ConnectStatusChangeEvent += _server_ConnectStatusChangeEvent;
+
+            RobotsWindowVM.Log(Header, " Подключаемся к серверу = " + _server.ServerType);
+        }
+
+        /// <summary>
+        ///  отключиться от сервера 
+        /// </summary>
+        private void UnSubscribeToServer()
+        {
+            //_server.NewMyTradeEvent -= Server_NewMyTradeEvent;
+            //_server.NewOrderIncomeEvent -= Server_NewOrderIncomeEvent;
+            _server.NewTradeEvent -= _NewTradeEvent;
+            _server.SecuritiesChangeEvent -= _server_SecuritiesChangeEvent;
+            //_server.PortfoliosChangeEvent -= _server_PortfoliosChangeEvent;
+            //_server.NewBidAscIncomeEvent -= _server_NewBidAscIncomeEvent;
+            _server.ConnectStatusChangeEvent -= _server_ConnectStatusChangeEvent;
+
+            RobotsWindowVM.Log(Header, " Отключились от сервера = " + _server.ServerType);
+        }
+
+        /// <summary>
+        /// пришел новый терейд 
+        /// </summary>
+        private void _NewTradeEvent(List<Trade> trades)
+        {
+            if (trades != null && trades[0].SecurityNameCode == SelectedSecurity.Name)
+            {
+                Trade trade = trades.Last();
+
+                Price = trade.Price;
+
+                if (trade.Time.Second % 10 == 0)
+                {
+                    LogicStartOpenPosition();
+                }
+            }
+        }
+
+        #endregion
+        #region   сервисные методы ===========================
         /// <summary>
         /// загрузка во вкладку параметров из файла сохрана
         /// </summary>
@@ -497,144 +633,15 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         }
 
-        /// <summary>
-        /// запускаем сервер
-        /// </summary>
-        void StartServer(string servType)
-        {
-            if (servType == "" || servType == "null")
-            {
-                return;
-            }
-            ServerType type = ServerType.None;
-            if (Enum.TryParse(servType, out type))
-            {
-                ServerType = type;
-                ServerMaster.SetNeedServer(type);
-                // LoadParamsBot(Header);
-            }
-        }
-
-        /// <summary>
-        /// берет названия кошельков (бирж)
-        /// </summary>
-        public ObservableCollection<string> GetStringPortfolios(IServer server)
-        {
-            ObservableCollection<string> stringPortfolios = new ObservableCollection<string>();
-            if (server == null)
-            {
-                RobotsWindowVM.Log(Header, "GetStringPortfolios server == null ");
-                return stringPortfolios;
-            }
-            if (server.Portfolios == null)
-            {
-                return stringPortfolios;
-            }
-
-            foreach (Portfolio portf in server.Portfolios)
-            {
-                //RobotWindowVM.Log(Header, "GetStringPortfolios  портфель =  " + portf.Number);
-                stringPortfolios.Add(portf.Number);
-            }
-            return stringPortfolios;
-        }
-
-        /// <summary>
-        ///  подключиться к серверу
-        /// </summary>
-        private void SubscribeToServer()
-        {
-            //_server.NewMyTradeEvent += Server_NewMyTradeEvent;
-            //_server.NewOrderIncomeEvent += Server_NewOrderIncomeEvent;
-            _server.NewTradeEvent += _NewTradeEvent;
-            _server.SecuritiesChangeEvent += _server_SecuritiesChangeEvent;
-            //_server.PortfoliosChangeEvent += _server_PortfoliosChangeEvent;
-            //_server.NewBidAscIncomeEvent += _server_NewBidAscIncomeEvent;
-            _server.ConnectStatusChangeEvent += _server_ConnectStatusChangeEvent;
-
-            RobotsWindowVM.Log(Header, " Подключаемся к серверу = " + _server.ServerType);
-        }
-
-        private void _server_SecuritiesChangeEvent(List<Security> securities)
-        {
-            for (int i = 0; i < securities.Count; i++)
-            {
-                if (securities[i].Name == Header)
-                {
-                    SelectedSecurity = securities[i];
-                    //StartSecuritiy(securities[i]);
-                    break;
-                }
-            }
-        }
-
-        private void _server_ConnectStatusChangeEvent(string state)
-        {
-            if (state == "Connect")
-            {
-                //StartSecuritiy(SelectedSecurity);
-                //SubscribeToServer();
-            }
-        }
-
-        /// <summary>
-        ///  отключиться от сервера 
-        /// </summary>
-        private void UnSubscribeToServer()
-        {
-            //_server.NewMyTradeEvent -= Server_NewMyTradeEvent;
-            //_server.NewOrderIncomeEvent -= Server_NewOrderIncomeEvent;
-            _server.NewTradeEvent -= _NewTradeEvent;
-            _server.SecuritiesChangeEvent -= _server_SecuritiesChangeEvent;
-            //_server.PortfoliosChangeEvent -= _server_PortfoliosChangeEvent;
-            //_server.NewBidAscIncomeEvent -= _server_NewBidAscIncomeEvent;
-            _server.ConnectStatusChangeEvent -= _server_ConnectStatusChangeEvent;
-
-            RobotsWindowVM.Log(Header, " Отключились от сервера = " + _server.ServerType);
-        }
-
-        /// <summary>
-        /// выбрать бумагу
-        /// </summary>
-        void SelectSecurity(object o)
-        {
-            if (RobotsWindowVM.ChengeEmitendWidow != null)
-            {
-                return;
-            }
-            RobotsWindowVM.ChengeEmitendWidow = new ChengeEmitendWidow(this);
-            RobotsWindowVM.ChengeEmitendWidow.ShowDialog();
-            RobotsWindowVM.ChengeEmitendWidow = null;
-            if (_server != null)
-            {
-                //if (_server.ServerType == ServerType.Binance
-                //    || _server.ServerType == ServerType.BinanceFutures)
-                //{
-                //    IsChekCurrency = true;
-                //}
-                //else IsChekCurrency = false;
-            }
-        }
-
-        /// <summary>
-        /// пришел новый терейд 
-        /// </summary>
-        private void _NewTradeEvent(List<Trade> trades)
-        {
-            if (trades != null && trades[0].SecurityNameCode == SelectedSecurity.Name)
-            {
-                Trade trade = trades.Last();
-
-                Price = trade.Price;
-
-                if (trade.Time.Second % 10 == 0)
-                {
-                    LogicStartOpenPosition();
-                }
-            }
-        }
-
         #endregion
+        #endregion end metods==============================================
+
+        /// <summary>
+        /// Выбранная бумага
+        /// </summary>
+        public delegate void selectedSecurity();
+        public event selectedSecurity OnSelectedSecurity;
+
 
         #region Commands ==============================================================
 
