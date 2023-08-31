@@ -40,10 +40,11 @@
             </int:EventTrigger>
         </int:Interaction.Triggers>-->
 
-        <StatusBar DockPanel.Dock="Bottom">
+        <StatusBar DockPanel.Dock="Bottom" FontSize="18">
             <DockPanel>
-                <TextBlock Text =" Позиция робота = "/>
-                <TextBlock d:DataContext="{d:DesignInstance Type=vm:RobotBreakVM}" Text ="{Binding SelectSecurBalans}"/>
+                <TextBlock Text =" Робот сейчас : "
+                           ToolTip="сейчас робот делает :"/>
+                <TextBlock d:DataContext="{d:DesignInstance Type=vm:RobotBreakVM}" Text ="{Binding ActionBot}"/>
             </DockPanel>
         </StatusBar>
         <Grid>

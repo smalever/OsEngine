@@ -59,6 +59,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         public ActionBot ActionBot
         {
             get => _actionBot;
+            // todo: создать метод опроса и вывада состояния робота в нижний статус бар
             set
             {
                 _actionBot = value;
