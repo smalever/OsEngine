@@ -24,6 +24,20 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         #region Свойства  =====================================================
 
         /// <summary>
+        /// расчетная цена открытия позиции 
+        /// </summary>
+        public decimal PriceOpenPos
+        {
+            get => _priceOpenPos;
+            set
+            {
+                _priceOpenPos = value;
+                OnPropertyChanged(nameof(PriceOpenPos));
+            }
+        }
+        private decimal _priceOpenPos = 0;
+
+        /// <summary>
         /// заголовок вкладки робота 
         /// </summary>
         public string Header
@@ -165,14 +179,14 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         public decimal BigСlusterPrice
         {
-            get => _bigСlusterPrice;
+            get =>_bigСlusterPrice;
             set
             {
                 _bigСlusterPrice = value;
                 OnPropertyChanged(nameof(BigСlusterPrice));
             }
         }
-        private decimal _bigСlusterPrice = 0;
+        private decimal _bigСlusterPrice;
 
         /// <summary>
         /// Верхняя цена позиции
@@ -305,6 +319,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         #endregion конец свойств =============================================
 
+        #region Поля ==================================================
+        //private decimal _priceOpenPos = 0;
+        #endregion
+
         /// <summary>
         /// список названий портфелей 
         /// </summary>
@@ -345,20 +363,40 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         #region  Metods ============================================================================
 
         /// <summary>
-        ///  логика набора позийии
+        ///  логика набора позиций
         /// </summary>
         private void LogicStartOpenPosition()
         {
             if (BigСlusterPrice == 0) return;
-            /*
-             *  направление набора позиции
-             *  тип шага между набором объема и расчет
-             *  расчет объема на ордер
-             *  
-             *  
-             * */
+            /*             
+             *  расчет объема на ордер           
+             */
+            CalculPriceStartPos();
+        }
 
+        /// <summary>
+        /// расчитать стартовую цену (начала открытия позиции)
+        /// </summary>
+        private void CalculPriceStartPos()
+        {          
+            _priceOpenPos = 0;
+            decimal stepPrice = 0;
+                   
+            if (Direction == Direction.BUY)
+            {
+                stepPrice = (BigСlusterPrice - BottomPositionPrice) / PartsPerInput;
+                _priceOpenPos  = BigСlusterPrice - stepPrice;                
+            }
+            if (Direction == Direction.SELL)
+            {
+                stepPrice = ( TopPositionPrice - BigСlusterPrice) / PartsPerInput;
+                _priceOpenPos = BigСlusterPrice + stepPrice;
+            }
+            //  todo : бобавить расчет разнонаправленных сделок
 
+            _priceOpenPos = Decimal.Round(_priceOpenPos, SelectedSecurity.Decimals);
+
+            PriceOpenPos = _priceOpenPos;
         }
 
         /// <summary>
@@ -591,7 +629,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                 if (trade.Time.Second % 10 == 0)
                 {
-                    //TradeLogic();
+                    LogicStartOpenPosition();
                 }
             }
         }

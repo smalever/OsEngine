@@ -26,9 +26,12 @@
                        Margin="5,3,0,0"
                        FontSize="16"/>
             <TextBlock Text=" Робот сейчас :" 
+                       ToolTip=" Что делает робот сейчас "
                        Margin="5,3,0,0"
                        FontSize="16"/>
+            
             <TextBlock Text="{Binding ActionBot}" 
+                       
                        Margin="5,3,0,0"
                        FontSize="16"/>
         </StatusBar>
@@ -87,13 +90,13 @@
                         <Label/>
                         <Label/>
 
-                        <TextBlock Text="Тип шага"/>
+                        <!--<TextBlock Text="Тип шага"/>
                         <ComboBox ItemsSource="{Binding StepTypes}"
                                   SelectedItem="{Binding StepType}"
-                                  Margin="0,2,1,0"/>
+                                  Margin="0,2,1,0"/>-->
 
-                        <TextBlock Text="Шаг на вход"/>
-                        <local:DecimalTextBox Text="{Binding SetStep}" Margin="0,2,1,0"/>
+                        <TextBlock Text="Расчет цена входа"/>
+                        <local:DecimalTextBox Text="{Binding PriceOpenPos}" Margin="0,2,1,0"/>
 
                     </UniformGrid>
 
