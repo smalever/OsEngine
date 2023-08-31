@@ -258,6 +258,49 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
         private decimal _volumePerOrder = 0;
 
+        /// <summary>
+        /// направление сделок 
+        /// </summary>
+        public Direction Direction
+        {
+            get => _direction;
+            set
+            {
+                _direction = value;
+                OnPropertyChanged(nameof(Direction));
+            }
+        }
+        private Direction _direction;
+
+        /// <summary>
+        /// список  свойств направления сделок
+        /// </summary> 
+        public List<Direction> Directions { get; set; } = new List<Direction>()
+        {
+            Direction.BUY, Direction.SELL, Direction.BUYSELL
+        };
+
+        /// <summary>
+        /// тип расчета шага на вход 
+        /// </summary>
+        public StepType StepType
+        {
+            get => _stepType;
+            set
+            {
+                _stepType = value;
+                OnPropertyChanged(nameof(StepType));
+            }
+        }
+        private StepType _stepType;
+
+        /// <summary>
+        /// список типов расчета шага 
+        /// </summary>
+        public List<StepType> StepTypes { get; set; } = new List<StepType>()
+        {
+            StepType.PUNKT, StepType.PERCENT
+        };
 
 
         #endregion конец свойств =============================================

@@ -221,7 +221,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private int _сountLevels;
 
         /// <summary>
-        /// направление сделок StepType
+        /// направление сделок 
         /// </summary>
         public Direction Direction
         {
