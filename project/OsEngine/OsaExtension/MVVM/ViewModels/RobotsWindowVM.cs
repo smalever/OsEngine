@@ -54,6 +54,20 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private NameStrat _nameStrat;
 
         /// <summary>
+        /// действия робота
+        /// </summary>
+        public ActionBot ActionBot
+        {
+            get => _actionBot;
+            set
+            {
+                _actionBot = value;
+                OnPropertyChanged(nameof(ActionBot));
+            }
+        }
+        private ActionBot _actionBot;
+
+        /// <summary>
         /// список типов стратегий
         /// </summary>
         public List<NameStrat> NameStrategies { get; set; } = new List<NameStrat>()
