@@ -62,6 +62,21 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
         private int _numberTab = 0;
 
+        /// <summary>
+        /// действия робота
+        /// </summary>
+        public ActionBot ActionBot
+        {
+            get => _actionBot;
+            // todo: создать метод опроса и вывада состояния робота в статус бар
+            set
+            {
+                _actionBot = value;
+                OnPropertyChanged(nameof(ActionBot));
+            }
+        }
+        private ActionBot _actionBot;
+
         public NameStrat NameStrat
         {
             get => _nameStrat;

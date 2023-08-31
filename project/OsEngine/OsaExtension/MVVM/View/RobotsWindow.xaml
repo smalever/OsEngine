@@ -42,9 +42,9 @@
 
         <StatusBar DockPanel.Dock="Bottom" FontSize="18">
             <DockPanel>
-                <TextBlock Text =" Робот сейчас : "
+                <TextBlock Text ="Портфель роботов на бирже : "
                            ToolTip="сейчас робот делает :"/>
-                <TextBlock d:DataContext="{d:DesignInstance Type=vm:RobotBreakVM}" Text ="{Binding ActionBot}"/>
+                <TextBlock d:DataContext="{d:DesignInstance Type=vm:RobotBreakVM}" Text ="{Binding PositionBotOnBoard}"/>
             </DockPanel>
         </StatusBar>
         <Grid>

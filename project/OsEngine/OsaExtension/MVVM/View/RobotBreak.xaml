@@ -25,10 +25,10 @@
             <TextBlock Text="{Binding Price}" 
                        Margin="5,3,0,0"
                        FontSize="16"/>
-            <TextBlock Text="монет на бирже =" 
+            <TextBlock Text=" Робот сейчас :" 
                        Margin="5,3,0,0"
                        FontSize="16"/>
-            <TextBlock Text="{Binding SelectSecurBalans}" 
+            <TextBlock Text="{Binding ActionBot}" 
                        Margin="5,3,0,0"
                        FontSize="16"/>
         </StatusBar>

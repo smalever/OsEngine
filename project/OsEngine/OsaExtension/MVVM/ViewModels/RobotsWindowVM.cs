@@ -54,19 +54,19 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private NameStrat _nameStrat;
 
         /// <summary>
-        /// действия робота
+        /// портфель робота на бирже
         /// </summary>
-        public ActionBot ActionBot
+        public PositionOnBoard PositionBotOnBoard
         {
-            get => _actionBot;
-            // todo: создать метод опроса и вывада состояния робота в нижний статус бар
+            get => _positionOnBoard;
+            // todo: создать метод опроса и вывада портфеля робота на бирже в нижний статус бар
             set
             {
-                _actionBot = value;
-                OnPropertyChanged(nameof(ActionBot));
+                _positionOnBoard = value;
+                OnPropertyChanged(nameof(PositionBotOnBoard));
             }
         }
-        private ActionBot _actionBot;
+        private PositionOnBoard _positionOnBoard;
 
         /// <summary>
         /// список типов стратегий
