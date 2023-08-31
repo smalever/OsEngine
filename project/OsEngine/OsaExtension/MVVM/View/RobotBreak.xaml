@@ -58,9 +58,17 @@
                                    ToolTip=" Цена при достиженни которой робот примет действие (ЗАКРЫТИЯ/ ПЕРЕВОРОТ И Т,Д,)"/>
                         <local:DecimalTextBox Text="{Binding TopPositionPrice}" 
                                                Margin="0,2,1,0"/>
-                        
+                        <Label/>
+                        <Label/>
+
                         <TextBlock Text="Цена большого кластера " />
                         <local:DecimalTextBox   Text="{Binding BigСlusterPrice}" Margin="0,2,1,0"/>
+
+                        <TextBlock Text="Направление сделок"/>
+                        <ComboBox ItemsSource="{Binding Directions}"
+                                  SelectedItem="{Binding Direction}" Margin="0,2,1,0"/>
+                        <Label/>
+                        <Label/>
 
                         <TextBlock Text="Нижняя цена набора позиций" 
                                    ToolTip=" Тут робот примет действие (ЗАКРЫТИЯ/ ПЕРЕВОРОТ И Т,Д,)"/>
@@ -76,8 +84,16 @@
                         <TextBlock Text="Количество частей входа" />
                         <local:IntTextBox  Text="{Binding PartsPerInput}" Margin="0,2,1,0" />
 
-                        <TextBlock Text="Шаг набора позиции" />
-                        <local:DecimalTextBox  Text="{Binding SetStep}"  Margin="0,2,1,0"/>
+                        <Label/>
+                        <Label/>
+
+                        <TextBlock Text="Тип шага"/>
+                        <ComboBox ItemsSource="{Binding StepTypes}"
+                                  SelectedItem="{Binding StepType}"
+                                  Margin="0,2,1,0"/>
+
+                        <TextBlock Text="Шаг на вход"/>
+                        <local:DecimalTextBox Text="{Binding SetStep}" Margin="0,2,1,0"/>
 
                     </UniformGrid>
 
