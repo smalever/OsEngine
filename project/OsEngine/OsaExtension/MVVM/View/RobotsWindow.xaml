@@ -43,7 +43,7 @@
         <StatusBar DockPanel.Dock="Bottom" FontSize="18">
             <DockPanel>
                 <TextBlock Text ="Портфель роботов на бирже : "
-                           ToolTip="сейчас робот делает :"/>
+                           ToolTip=" Общий портфель роботов на бирже :"/>
                 <TextBlock d:DataContext="{d:DesignInstance Type=vm:RobotBreakVM}" Text ="{Binding PositionBotOnBoard}"/>
             </DockPanel>
         </StatusBar>
