@@ -115,6 +115,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         #region  ================================ Поля =====================================
 
         /// <summary>
+        /// настояший экземпляр робота для ссылки на него в другом класске
+        /// </summary>
+        private static RobotsWindowVM _tihisRobotsWindowsVM = new RobotsWindowVM();
+
+        /// <summary>
         /// коллекция  для логов из разных потоков 
         /// </summary>
         private static ConcurrentQueue<MessageForLog> _logMessges = new ConcurrentQueue<MessageForLog>();
@@ -296,22 +301,19 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             // string header = (string)o;
 
             AddTab("");
-        }
-
-        private static RobotsWindowVM _robotThis = new RobotsWindowVM();
-        
+        } 
         void AddTab(string name)
         {
             if (name != "")
             {
-                _robotThis = this;
-                RobotBreakVM robotBreak = new RobotBreakVM(name, Robots.Count + 1, _robotThis);
+                _tihisRobotsWindowsVM = this;
+                RobotBreakVM robotBreak = new RobotBreakVM(name, Robots.Count + 1, _tihisRobotsWindowsVM);
                 Robots.Add(robotBreak); 
             }
             else
             {
-                _robotThis = this;
-                RobotBreakVM robotBreak = new RobotBreakVM(name + " " + Robots.Count + 1, Robots.Count + 1,_robotThis);
+                _tihisRobotsWindowsVM = this;
+                RobotBreakVM robotBreak = new RobotBreakVM(name + " " + Robots.Count + 1, Robots.Count + 1,_tihisRobotsWindowsVM);
                 Robots.Add(robotBreak);             
             }
             Robots.Last().OnSelectedSecurity += RobotWindowVM_OnSelectedSecurity; 
@@ -492,6 +494,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             string str = text + " \n" + text2 + "\n";
             Debug.WriteLine(str);
         }
+
         /// <summary>
         /// отправить строку в статус бар
         /// </summary>
