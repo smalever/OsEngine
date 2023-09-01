@@ -492,13 +492,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             string str = text + " \n" + text2 + "\n";
             Debug.WriteLine(str);
         }
-
         /// <summary>
         /// отправить строку в статус бар
         /// </summary>
         public void SendStrStatus(string text)
         {
-           StrLog = text;
+           this.StrLog = text;
         }
 
         #endregion

@@ -567,7 +567,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                 Price = trade.Price;
 
-                if (trade.Time.Second % 2== 0)
+                if (trade.Time.Second % 10 == 0)
                 {
                     LogicStartOpenPosition();
                 }
@@ -646,8 +646,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         } 
         private void SendStrStatus(string txt)
         {
-            string timestamp = DateTime.Now.ToString("HH:mm:ss");
-            txt = timestamp + " " + txt;
             _robotsWindowVM.SendStrStatus(txt);
         }
         #endregion
