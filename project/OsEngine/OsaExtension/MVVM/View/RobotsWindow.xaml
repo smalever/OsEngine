@@ -47,9 +47,7 @@
                 <TextBlock d:DataContext="{d:DesignInstance Type=vm:RobotBreakVM}" 
                            Text ="{Binding PositionBotOnBoard}"/>
                 <TextBlock Text="Сообщение: "/>
-                <TextBlock Margin="1"                        
-                         FontSize="16"
-                         Text="{Binding StrLog}" />
+                <TextBlock Text="{Binding StrLog}"/>
                 
             </DockPanel>
         </StatusBar>
