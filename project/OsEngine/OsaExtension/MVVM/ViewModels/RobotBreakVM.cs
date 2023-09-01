@@ -647,7 +647,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private void SendStrStatus(string txt)
         {
             string timestamp = DateTime.Now.ToString("HH:mm:ss");
-            txt = timestamp + " " + txt;
+            txt = Header + " " + timestamp + " ->" + txt;
             _robotsWindowVM.SendStrStatus(txt);
         }
         #endregion
