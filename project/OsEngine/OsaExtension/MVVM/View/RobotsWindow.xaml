@@ -46,7 +46,7 @@
                            ToolTip=" Общий портфель роботов на бирже :"/>
                 <TextBlock d:DataContext="{d:DesignInstance Type=vm:RobotBreakVM}" 
                            Text ="{Binding PositionBotOnBoard}"/>
-                <TextBlock Text="Сообщение: "/>
+                <TextBlock Text="Сообщение от: "/>
                 <TextBlock Margin="1"                        
                          FontSize="16"
                          Text="{Binding StrLog}" />
