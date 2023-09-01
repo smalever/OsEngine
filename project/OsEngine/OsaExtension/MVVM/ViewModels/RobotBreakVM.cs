@@ -643,11 +643,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
             StartServer(servType);
 
-        }
-
-        /// <summary>
-        /// отправляет строку в стасус окна с роботами
-        /// </summary> 
+        } 
         private void SendStrStatus(string txt)
         {
             string timestamp = DateTime.Now.ToString("HH:mm:ss");
