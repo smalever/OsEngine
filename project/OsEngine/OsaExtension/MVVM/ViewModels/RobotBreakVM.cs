@@ -37,7 +37,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                 if (IsRun)
                 {
-                    //TradeLogic();
+                    TradeLogic();
+                }
+                else
+                {
+                    StopTradeLogic();
                 }
             }
         }
@@ -357,8 +361,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// поле содержащее VM окна отображ всех роботов
         /// </summary>
-        private RobotsWindowVM _robotsWindowVM;
-       
+        private RobotsWindowVM _robotsWindowVM;       
 
         #endregion
      
@@ -378,11 +381,26 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             ServerMaster.ActivateAutoConnection();
 
             PropertyChanged += RobotBreakVM_PropertyChanged;    
+            SendStrStatus(" Ожидается подключение к бирже ");
         }
-
 
         #region  Metods ======================================================================
         #region  методы логики ===============================================
+
+        private void TradeLogic()
+        {
+            // начало открытия позиции
+            // запускается сейчас в обход в методе трейда
+            LogicStartOpenPosition(); 
+        }
+
+        /// <summary>
+        /// метод отработки кнопки стоп
+        /// </summary>
+        private void StopTradeLogic()
+        {
+            
+        }
 
         /// <summary>
         /// метод отработки кнопки старт/стоп
@@ -398,7 +416,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             SaveParamsBot();
             if (IsRun)
             {
-                // StartTradeLogic();
+                // сейчас логика запускается в свойстве вкл/выкл
 
                 //level.SetVolumeStart();
                 //level.PassVolume = true;
@@ -426,11 +444,22 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 SendStrStatus(" BigСlusterPrice = 0 ");
                 return;
             }
-            /*             
-             *  расчет объема на ордер           
-             */
+                
             CalculPriceStartPos();
+            CalculateVolumeTrades();
+
         }
+
+        /// <summary>
+        /// расчет объема на ордер
+        /// </summary>
+        private void CalculateVolumeTrades()
+        {
+            /*             
+            *  расчет объема на ордер           
+            */
+        }
+
 
         /// <summary>
         /// расчитать стартовую цену (начала открытия позиции)
@@ -645,7 +674,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                 if (trade.Time.Second % 2 == 0)
                 {
-                    LogicStartOpenPosition();
+                    // LogicStartOpenPosition();
                 }
             }
         }
@@ -788,7 +817,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         public delegate void selectedSecurity();
         public event selectedSecurity OnSelectedSecurity;
-
 
         #region Commands ==============================================================
 
