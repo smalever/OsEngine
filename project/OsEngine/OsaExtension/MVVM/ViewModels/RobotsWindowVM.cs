@@ -61,9 +61,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             get => _strLog;
             set
             {
-                _strLog = value;
-                OnPropertyChanged(nameof(StrStatus));
-            }
+                if (value!= _strLog)
+                {
+                    _strLog = value;
+                    OnPropertyChanged(nameof(StrStatus));
+                }
+            } 
         }
         private string _strLog;
 

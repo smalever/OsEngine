@@ -9,6 +9,7 @@ using OsEngine.OsaExtension.MVVM.View;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -201,8 +202,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             get =>_bigСlusterPrice;
             set
             {
-                _bigСlusterPrice = value;
-                OnPropertyChanged(nameof(BigСlusterPrice));
+                if (value != _bigСlusterPrice)
+                {
+                    _bigСlusterPrice = value;
+                    OnPropertyChanged(nameof(BigСlusterPrice));
+                }                    
             }
         }
         private decimal _bigСlusterPrice;
@@ -215,8 +219,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             get => _topPositionPrice;
             set
             {
-                _topPositionPrice = value;
-                OnPropertyChanged(nameof(TopPositionPrice));
+                if (value != _topPositionPrice)
+                {
+                    _topPositionPrice = value;
+                    OnPropertyChanged(nameof(TopPositionPrice));
+                } 
             }
         }
         private decimal _topPositionPrice = 0;
@@ -229,8 +236,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             get => _bottomPositionPrice;
             set
             {
-                _bottomPositionPrice = value;
-                OnPropertyChanged(nameof(BottomPositionPrice));
+                if (value != _bottomPositionPrice) 
+                {
+                    _bottomPositionPrice = value;
+                    OnPropertyChanged(nameof(BottomPositionPrice));
+                }                
             }
         }
         private decimal _bottomPositionPrice = 0;
@@ -366,7 +376,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             LoadParamsBot(header);
 
             ServerMaster.ActivateAutoConnection();
-        } 
+            PropertyChanged += RobotBreakVM_PropertyChanged;    
+        }
+
 
         #region  Metods ======================================================================
         #region  методы логики ===============================================
@@ -603,6 +615,21 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         #endregion
         #region   сервисные методы ===========================
+
+        /// <summary>
+        ///  обновились значения PropertyChange
+        /// </summary>
+        private void RobotBreakVM_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "BottomPositionPrice" ||
+                e.PropertyName == "PartsPerInput" ||
+                e.PropertyName == "TopPositionPrice" ||
+                e.PropertyName == "BigСlusterPrice" ||
+                e.PropertyName == "FullPositionVolume")            
+            {
+                SaveParamsBot();
+            }  
+        }
 
         /// <summary>
         /// сохранение параметров робота

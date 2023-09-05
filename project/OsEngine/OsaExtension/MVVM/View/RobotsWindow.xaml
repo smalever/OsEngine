@@ -51,7 +51,7 @@
                 <TextBlock Margin="1" 
                            ToolTip=" сообщение о состоянни работы робота  "
                            FontSize="16"
-                           Text="{Binding StrLog}" />
+                           Text="{Binding StrStatus}" />
                 
             </DockPanel>
         </StatusBar>
