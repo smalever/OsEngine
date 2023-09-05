@@ -58,17 +58,17 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         public string StrStatus
         {
-            get => _strLog;
+            get => _strStatus;
             set
             {
-                if (value!= _strLog)
+                if (value!= _strStatus)
                 {
-                    _strLog = value;
+                    _strStatus = value;
                     OnPropertyChanged(nameof(StrStatus));
                 }
             } 
         }
-        private string _strLog;
+        private string _strStatus;
 
         /// <summary>
         /// портфель робота на бирже

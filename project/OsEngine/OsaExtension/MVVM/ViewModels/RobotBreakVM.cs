@@ -388,7 +388,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void LogicStartOpenPosition()
         {
-            if (BigСlusterPrice == 0) return;
+            if (BigСlusterPrice == 0)
+            {
+                SendStrStatus(" BigСlusterPrice = 0 ");
+                return;
+            }
             /*             
              *  расчет объема на ордер           
              */
@@ -621,7 +625,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void RobotBreakVM_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "BottomPositionPrice" ||
+            if (e.PropertyName == "BottomPositionPrice" || // список на которые надо реагировать
                 e.PropertyName == "PartsPerInput" ||
                 e.PropertyName == "TopPositionPrice" ||
                 e.PropertyName == "BigСlusterPrice" ||
@@ -721,7 +725,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
             StartServer(servType);
 
-        } 
+        }
+
+        /// <summary>
+        /// отправляет строку в статус окна с роботами
+        /// </summary> 
         private void SendStrStatus(string txt)
         {
             string timestamp = DateTime.Now.ToString("HH:mm:ss");

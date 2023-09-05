@@ -6,7 +6,17 @@
         xmlns:local="clr-namespace:OsEngine.OsaExtension.MVVM.View"
         xmlns:conver="clr-namespace:OsEngine.OsaExtension.MVVM.Converters"
         xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-        mc:Ignorable="d" d:DesignWidth="470">
+        mc:Ignorable="d" d:DesignWidth="500">
+    <UserControl.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="MinWidth" Value="30"/>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="MinWidth" Value="30"/>
+        </Style>
+        <conver:ConverterColorToSide  x:Key="ConvertersColorToSide"/>
+        <conver:ConverterIsRunToBool x:Key="ConverterIsRunToBool"/>
+    </UserControl.Resources>
 
     <DockPanel>
         <StatusBar DockPanel.Dock="Top" Margin="3">
@@ -37,30 +47,28 @@
         </StatusBar>
         <Grid >
             <Grid.RowDefinitions>
-                <RowDefinition />
-                <RowDefinition/>
+                <RowDefinition Height="450" />
+                <RowDefinition Height ="*" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="440"/>
+                <ColumnDefinition Width="530"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <StackPanel  Orientation="Horizontal" Margin="1">
-
+            <StackPanel  Orientation="Vertical" Margin="1">
                 <GroupBox Header="Параметры набора позиции"    
-                          Grid.Row="0" 
-                          VerticalAlignment="Top"   
-                          Margin="1,1,1,1"
-                          FontSize="18" 
-                          Width="430" >
+               Grid.Row="0" 
+               Margin="1,1,1,1"
+               FontSize="18">
 
                     <UniformGrid Columns="2" 
-                                 Margin="1"
-                                 MaxWidth="420">
-                        
+                                Margin="1"
+                                Grid.Row="0"
+                                MinWidth="400">
+
                         <TextBlock Text="Верхняя цена позиции" 
-                                   ToolTip=" Цена при достиженни которой робот примет действие (ЗАКРЫТИЯ/ ПЕРЕВОРОТ И Т,Д,)"/>
+                        ToolTip=" Цена при достиженни которой робот примет действие (ЗАКРЫТИЯ/ ПЕРЕВОРОТ И Т,Д,)"/>
                         <local:DecimalTextBox Text="{Binding TopPositionPrice}" 
-                                               Margin="0,2,1,0"/>
+                                    Margin="0,2,1,0"/>
                         <Label/>
                         <Label/>
 
@@ -69,19 +77,19 @@
 
                         <TextBlock Text="Направление сделок"/>
                         <ComboBox ItemsSource="{Binding Directions}"
-                                  SelectedItem="{Binding Direction}" Margin="0,2,1,0"/>
+                       SelectedItem="{Binding Direction}" Margin="0,2,1,0"/>
                         <Label/>
                         <Label/>
 
                         <TextBlock Text="Нижняя цена набора позиций" 
-                                   ToolTip=" Тут робот примет действие (ЗАКРЫТИЯ/ ПЕРЕВОРОТ И Т,Д,)"/>
+                        ToolTip=" Тут робот примет действие (ЗАКРЫТИЯ/ ПЕРЕВОРОТ И Т,Д,)"/>
                         <local:DecimalTextBox  Text="{Binding BottomPositionPrice}" Margin="0,2,1,0"/>
 
                         <Label/>
                         <Label/>
 
                         <TextBlock Text="Объем для робота $" 
-                                   ToolTip=" Максимальный объем набираемый роботом на бирже"/>
+                        ToolTip=" Максимальный объем набираемый роботом на бирже"/>
                         <local:DecimalTextBox  Text="{Binding FullPositionVolume}" Margin="0,2,1,0" />
 
                         <TextBlock Text="Количество частей входа" />
@@ -91,18 +99,27 @@
                         <Label/>
 
                         <!--<TextBlock Text="Тип шага"/>
-                        <ComboBox ItemsSource="{Binding StepTypes}"
-                                  SelectedItem="{Binding StepType}"
-                                  Margin="0,2,1,0"/>-->
+             <ComboBox ItemsSource="{Binding StepTypes}"
+                       SelectedItem="{Binding StepType}"
+                       Margin="0,2,1,0"/>-->
 
                         <TextBlock Text="Расчет цена входа"/>
                         <local:DecimalTextBox Text="{Binding PriceOpenPos}" Margin="0,2,1,0"/>
 
                     </UniformGrid>
-
                 </GroupBox>
-
             </StackPanel>
+            <Button Grid.Row="1" 
+                    Grid.Column ="0"
+                    Margin="5"
+              Content="{Binding IsRun, Converter={StaticResource ConverterIsRunToBool}}" 
+              FontSize="30"
+              Command="{Binding CommandStartStop}"
+              ToolTip="ПУСК / СТОП робота"
+              Height="60" Width="300" 
+              VerticalAlignment="Top"
+              HorizontalAlignment="Center"
+                    />
 
         </Grid>
     </DockPanel>
