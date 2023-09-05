@@ -54,15 +54,15 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private NameStrat _nameStrat;
 
         /// <summary>
-        /// строка для отображения сообщений в лог 
+        /// строка для отображения сообщений в статус баре
         /// </summary>
-        public string StrLog
+        public string StrStatus
         {
             get => _strLog;
             set
             {
                 _strLog = value;
-                OnPropertyChanged(nameof(StrLog));
+                OnPropertyChanged(nameof(StrStatus));
             }
         }
         private string _strLog;
@@ -497,7 +497,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         public void SendStrStatus(string text)
         {
-           this.StrLog = text;
+           this.StrStatus = text;
         }
 
         #endregion

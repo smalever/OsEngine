@@ -24,6 +24,25 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         #region Свойства  =====================================================
 
         /// <summary>
+        /// вкл\выкл
+        /// </summary>
+        public bool IsRun
+        {
+            get => _isRun;
+            set
+            {
+                _isRun = value;
+                OnPropertyChanged(nameof(IsRun));
+
+                if (IsRun)
+                {
+                    //TradeLogic();
+                }
+            }
+        }
+        private bool _isRun;
+
+        /// <summary>
         /// расчетная цена открытия позиции 
         /// </summary>
         public decimal PriceOpenPos
@@ -324,7 +343,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         #endregion конец свойств =============================================
 
         #region Поля ==================================================
-        
+
+        /// <summary>
+        /// поле содержащее VM окна отображ всех роботов
+        /// </summary>
         private RobotsWindowVM _robotsWindowVM;
        
 
@@ -371,7 +393,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             if (Direction == Direction.BUY)
             {
-                if (BigСlusterPrice == 0 || BottomPositionPrice == 0) return;
+                if (BigСlusterPrice == 0 || BottomPositionPrice == 0)
+                {
+                    SendStrStatus(" BigСlusterPrice или BottomPositionPrice = 0 ");
+                    return; 
+                }
 
                 stepPrice = (BigСlusterPrice - BottomPositionPrice) / PartsPerInput;
                 _priceOpenPos = BigСlusterPrice - stepPrice;
@@ -414,7 +440,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     {
                         RobotsWindowVM.Log(Header, "StartSecuritiy  security = " + series.Security.Name);
                         // DesirializerLevels();
-                        //SaveParamsBot();
+                        SaveParamsBot();
                         //GetOrderStatusOnBoard();
                         break;
                     }
@@ -488,6 +514,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
             return stringPortfolios;
         }
+
         #endregion
         #region  методы сервера ===========================
   
@@ -576,6 +603,44 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         #endregion
         #region   сервисные методы ===========================
+
+        /// <summary>
+        /// сохранение параметров робота
+        /// </summary>
+        private void SaveParamsBot()
+        {
+            if (!Directory.Exists(@"Parametrs\Tabs"))
+            {
+                Directory.CreateDirectory(@"Parametrs\Tabs");
+            }
+
+            try
+            {
+                using (StreamWriter writer = new StreamWriter(@"Parametrs\Tabs\param_" + NumberTab + ".txt", false))
+                {
+                    writer.WriteLine(IsRun);
+                    writer.WriteLine(Header);
+                    writer.WriteLine(ServerType);
+
+                    writer.WriteLine(TopPositionPrice);
+                    writer.WriteLine(BigСlusterPrice);
+                    writer.WriteLine(Direction);
+
+                    writer.WriteLine(BottomPositionPrice);
+
+                    writer.WriteLine(FullPositionVolume);
+
+                    writer.WriteLine(PartsPerInput);     
+
+                    writer.Close();
+                    RobotsWindowVM.Log(Header, "SaveParamsBot  \n cохраненили  параметры ");
+                }
+            }
+            catch (Exception ex)
+            {
+                RobotsWindowVM.Log(Header, " Ошибка сохранения параметров = " + ex.Message);
+            }
+        }
         /// <summary>
         /// загрузка во вкладку параметров из файла сохрана
         /// </summary>
@@ -591,23 +656,26 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 using (StreamReader reader = new StreamReader(@"Parametrs\Tabs\param_" + NumberTab + ".txt"))
                 {
+                    bool run = false;
+                    if (bool.TryParse(reader.ReadLine(), out run))
+                    {
+                        IsRun = run;
+                    }
                     Header = reader.ReadLine(); // загружаем заголовок
                     servType = reader.ReadLine(); // загружаем название сервера
-                    //StringPortfolio = reader.ReadLine();  // загружаем бумагу 
 
-                    //StopShort = GetDecimalForString(reader.ReadLine());
-                    //StartPoint = GetDecimalForString(reader.ReadLine());
-                    //StopLong = GetDecimalForString(reader.ReadLine());
+                    TopPositionPrice = GetDecimalForString(reader.ReadLine());
+                    BigСlusterPrice = GetDecimalForString(reader.ReadLine());
 
-                    //CountLevels = (int)GetDecimalForString(reader.ReadLine());
+                    Direction direct = Direction.BUY;
+                    if (Enum.TryParse(reader.ReadLine(), out direct))
+                    {
+                        Direction = direct;
+                    }
 
-                    //Direction direct = Direction.BUY;
-                    //if (Enum.TryParse(reader.ReadLine(), out direct))
-                    //{
-                    //    Direction = direct;
-                    //}
-
-                    //Lot = GetDecimalForString(reader.ReadLine());
+                    BottomPositionPrice = GetDecimalForString(reader.ReadLine());
+                    FullPositionVolume = GetDecimalForString(reader.ReadLine());
+                    PartsPerInput = (int)GetDecimalForString(reader.ReadLine());
 
                     //StepType step = StepType.PUNKT;
                     //if (Enum.TryParse(reader.ReadLine(), out step))
@@ -615,24 +683,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     //    StepType = step;
                     //}
 
-                    //StepLevel = GetDecimalForString(reader.ReadLine());
-                    //TakeLevel = GetDecimalForString(reader.ReadLine());
-                    //MaxActiveLevel = (int)GetDecimalForString(reader.ReadLine());
-                    //PriceAverege = GetDecimalForString(reader.ReadLine());
-                    //Accum = GetDecimalForString(reader.ReadLine());
-
                     //Levels = JsonConvert.DeserializeAnonymousType(reader.ReadLine(), new ObservableCollection<Level>());
-
-                    //bool check = false;
-                    //if (bool.TryParse(reader.ReadLine(), out check))
-                    //{
-                    //    IsChekCurrency = check;
-                    //}
-                    //bool run = false;
-                    //if (bool.TryParse(reader.ReadLine(), out run))
-                    //{
-                    //    IsRun = run;
-                    //}
 
                     reader.Close();
                 }
@@ -650,6 +701,17 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             txt = Header + " " + timestamp + " ->" + txt;
             _robotsWindowVM.SendStrStatus(txt);
         }
+
+        /// <summary>
+        ///  преобразует строку из файла сохранения в децимал 
+        /// </summary>
+        private decimal GetDecimalForString(string str)
+        {
+            decimal value = 0;
+            decimal.TryParse(str, out value);
+            return value;
+        }
+
         #endregion
         #endregion end metods==============================================
 
