@@ -376,12 +376,45 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             LoadParamsBot(header);
 
             ServerMaster.ActivateAutoConnection();
+
             PropertyChanged += RobotBreakVM_PropertyChanged;    
         }
 
 
         #region  Metods ======================================================================
         #region  методы логики ===============================================
+
+        /// <summary>
+        /// метод отработки кнопки старт/стоп
+        /// </summary>
+        private void StartStop(object o)
+        {
+            Thread.Sleep(300);
+
+            IsRun = !IsRun;
+
+            RobotsWindowVM.Log(Header, " \n\n StartStop = " + IsRun);
+
+            SaveParamsBot();
+            if (IsRun)
+            {
+                // StartTradeLogic();
+
+                //level.SetVolumeStart();
+                //level.PassVolume = true;
+                //level.PassTake = true;               
+            }
+            else
+            {
+                Task.Run(() =>
+                {
+                    while (true)
+                    {
+                        // StopLogic();  
+                    }
+                });
+            }
+        }
 
         /// <summary>
         ///  логика набора позиций
@@ -771,6 +804,22 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 return _commandSelectSecurity;
             }
         }
+
+        /// <summary>
+        /// делегат для команды старт/стоп
+        /// </summary>
+        public DelegateCommand CommandStartStop
+        {
+            get
+            {
+                if (_commandStartStop == null)
+                {
+                    _commandStartStop = new DelegateCommand(StartStop);
+                }
+                return _commandStartStop;
+            }
+        }
+        private DelegateCommand _commandStartStop;
 
         #endregion end Commands ====================================================
     }

@@ -944,9 +944,6 @@
     <Compile Include="OsaExtension\MVVM\View\RobotBreak.xaml.cs">
       <DependentUpon>RobotBreak.xaml</DependentUpon>
     </Compile>
-    <Compile Include="OsaExtension\MVVM\View\RobotsWindow.xaml.cs">
-      <DependentUpon>RobotsWindow.xaml</DependentUpon>
-    </Compile>
     <Compile Include="OsaExtension\Robots\Forbreakdown\ForBreakdown.cs" />
     <Compile Include="OsaExtension\Robots\Forbreakdown\ForbreakdownUI.xaml.cs">
       <DependentUpon>ForbreakdownUI.xaml</DependentUpon>
@@ -1084,6 +1081,9 @@
     </Compile>
     <Compile Include="OsTrader\Panels\Tab\Internal\PositionOpenUi2.xaml.cs">
       <DependentUpon>PositionOpenUi2.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="RobotsWindow.xaml.cs">
+      <DependentUpon>RobotsWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Robots\AutoTestBots\ServerTests\AllSecuritiesSubscribleTest.cs" />
     <Compile Include="Robots\AutoTestBots\ServerTests\AServerTester.cs" />
@@ -1610,10 +1610,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="OsaExtension\MVVM\View\RobotsWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="OsaExtension\Robots\Forbreakdown\ForbreakdownUI.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -1715,6 +1711,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="OsTrader\Panels\Tab\Internal\PositionOpenUi2.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="RobotsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -9,7 +9,7 @@
         xmlns:int ="http://schemas.microsoft.com/xaml/behaviors" d:DataContext="{d:DesignInstance Type=vm:RobotsWindowVM}"
         mc:Ignorable="d" 
         Height="860" Width="1410">
-        <mah:MetroWindow.LeftWindowCommands>
+    <mah:MetroWindow.LeftWindowCommands>
         <mah:WindowCommands>
             <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
                 <TextBlock Text="ДЕПОЗИТ ПЛЮС ХХХ" FontSize="16" 
@@ -31,7 +31,7 @@
 
         </mah:WindowCommands>
     </mah:MetroWindow.LeftWindowCommands>
-        <DockPanel>
+    <DockPanel>
 
         <!--<int:Interaction.Triggers>
             <int:EventTrigger EventName="MouseEnter">
@@ -52,7 +52,7 @@
                            ToolTip=" сообщение о состоянни работы робота  "
                            FontSize="16"
                            Text="{Binding StrStatus}" />
-                
+
             </DockPanel>
         </StatusBar>
         <Grid>

@@ -39,7 +39,7 @@ namespace OsEngine.OsaExtension.MVVM.View
             MainWindow.ProccesIsWorked = false;
             Thread.Sleep(7000);
             Process.GetCurrentProcess().Kill();
-        }        
+        }
 
         private void TextBlock_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
