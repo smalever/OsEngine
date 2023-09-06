@@ -454,21 +454,22 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void CalculateVolumeTrades()
         {
-            
-            decimal baks = FullPositionVolume/ PartsPerInput; // это в баксах
-            decimal moni = baks / Price;
-            decimal workLot = (decimal)Math.Round(moni, SelectedSecurity.DecimalsVolume);
+            VolumePerOrder = 0;
+            decimal workLot = 0;
+            decimal baks = 0;
+            baks = FullPositionVolume/ PartsPerInput; // это в баксах
+            decimal moni = baks / Price; // в монете
+            workLot = (decimal)Math.Round(moni, SelectedSecurity.DecimalsVolume);
             decimal minVolume = SelectedSecurity.MinTradeAmount;
             if (workLot < minVolume)
             {
-                SendStrStatus("Объем слишком мал ");
+                SendStrStatus("Объем слишком мал для отправки ордера ");
             }
             else
             {
                 VolumePerOrder = workLot;
             }
         }
-
 
         /// <summary>
         /// расчитать стартовую цену (начала открытия позиции)
