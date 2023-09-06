@@ -16,7 +16,10 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Documents;
+using Order = OsEngine.Entity.Order;
+using Security = OsEngine.Entity.Security;
 
 namespace OsEngine.OsaExtension.MVVM.ViewModels
 {
@@ -342,6 +345,22 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private StepType _stepType;
 
         /// <summary>
+        /// название портфеля (счета)
+        /// </summary>
+        public string StringPortfolio
+        {
+            get => _stringportfolio;
+            set
+            {
+                _stringportfolio = value;
+                OnPropertyChanged(nameof(StringPortfolio));
+
+                _portfolio = GetPortfolio(_stringportfolio);
+            }
+        }
+        private string _stringportfolio = "";
+
+        /// <summary>
         /// список типов расчета шага 
         /// </summary>
         public List<StepType> StepTypes { get; set; } = new List<StepType>()
@@ -358,9 +377,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// список позиций робота 
         /// </summary>
         public ObservableCollection<PositionBot> PositionBots { get; set; } = new ObservableCollection<PositionBot>();
+
         #endregion конец свойств =============================================
 
         #region Поля ==================================================
+
+
+        Portfolio _portfolio;
 
         /// <summary>
         /// поле содержащее VM окна отображ всех роботов
@@ -450,7 +473,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 
             CalculPriceStartPos();
             CalculateVolumeTrades();
-            if (VolumePerOrder != 0 && PriceOpenPos != 0)
+            if (VolumePerOrder != 0 && PriceOpenPos != 0 && IsRun == true)
             {
 
                 // отрпавить ордер 
@@ -613,9 +636,68 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             return stringPortfolios;
         }
 
+        /// <summary>
+        ///  отправить лимитный оредер на биржу 
+        /// </summary>
+        private Order SendLimitOrder(Security sec, decimal prise, decimal volume, Side side)
+        {
+            if (string.IsNullOrEmpty(StringPortfolio))
+            {
+                // сообщение в лог  сделать 
+                MessageBox.Show(" еще нет портфеля ");
+                return null;
+            }
+            Order order = new Order()
+            {
+                Price = prise,
+                Volume = volume,
+                Side = side,
+                PortfolioNumber = StringPortfolio,
+                TypeOrder = OrderPriceType.Limit,
+                NumberUser = NumberGen.GetNumberOrder(StartProgram.IsOsTrader),
+                SecurityNameCode = sec.Name,
+                SecurityClassCode = sec.NameClass,
+            };
+            //RobotsWindowVM.Log(Header, "SendLimitOrder\n " + " отправляем лимитку на биржу\n" + GetStringForSave(order));
+            RobotsWindowVM.SendStrTextDb(" SendLimitOrder " + order.NumberUser);
+
+            Server.ExecuteOrder(order);
+
+            return order;
+        }
+
+        /// <summary>
+        ///  отправить Маркетный оредер на биржу 
+        /// </summary>
+        private Order SendMarketOrder(Security sec, decimal prise, decimal volume, Side side)
+        {
+            if (string.IsNullOrEmpty(StringPortfolio))
+            {
+                // сообщение в лог  сделать 
+                MessageBox.Show(" еще нет портфеля ");
+                return null;
+            }
+            Order order = new Order()
+            {
+                Price = prise,
+                Volume = volume,
+                Side = side,
+                PortfolioNumber = StringPortfolio,
+                TypeOrder = OrderPriceType.Market,
+                NumberUser = NumberGen.GetNumberOrder(StartProgram.IsOsTrader),
+                SecurityNameCode = sec.Name,
+                SecurityClassCode = sec.NameClass,
+            };
+            //RobotsWindowVM.Log(Header, "SendMarketOrder\n " + " отправляем маркет на биржу\n" + GetStringForSave(order));
+            RobotsWindowVM.SendStrTextDb(" SendMarketOrder " + order.NumberUser);
+            Server.ExecuteOrder(order);
+
+            return order;
+        }
+
         #endregion
         #region  методы сервера ===========================
-  
+
         /// <summary>
         /// Создан сервер 
         /// </summary> 
@@ -690,7 +772,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// пришел новый терейд 
         /// </summary>
-        private void _NewTradeEvent(List<Trade> trades)
+        private void _NewTradeEvent(List<Entity.Trade> trades)
         {
             if (trades != null && trades[0].SecurityNameCode == SelectedSecurity.Name)
             {
@@ -707,6 +789,27 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         #endregion
         #region   сервисные методы ===========================
+
+        /// <summary>
+        /// берет номер портфеля  
+        /// </summary>
+        private Portfolio GetPortfolio(string number)
+        {
+            if (Server != null && Server.Portfolios != null)
+            {
+                foreach (Portfolio portf in Server.Portfolios)
+                {
+                    if (portf.Number == number)
+                    {
+                        RobotsWindowVM.Log(Header, " Выбран портфель =  " + portf.Number);
+                        return portf;
+                    }
+                }
+            }
+
+            RobotsWindowVM.Log(Header, "GetStringPortfolios  портфель = null ");
+            return null;
+        }
 
         /// <summary>
         ///  обновились значения PropertyChange

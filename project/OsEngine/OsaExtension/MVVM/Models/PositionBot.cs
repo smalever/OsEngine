@@ -1,4 +1,5 @@
 ﻿using OsEngine.Entity;
+using OsEngine.OsaExtension.MVVM.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -12,7 +13,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
     /// <summary>
     /// позиция робота по инструменту 
     /// </summary>
-    public class PositionBot
+    public class PositionBot : BaseVM
     {
         public PositionBot()
         {
