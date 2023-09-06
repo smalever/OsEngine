@@ -171,6 +171,35 @@ namespace OsEngine.OsaExtension.MVVM.Models
             }
         }
 
+        /// <summary>
+        /// разрешение отправить открывающий ордер    
+        /// </summary>
+        public bool PassOpenOrder
+        {
+            get => _passOpenOrder;
+
+            set
+            {
+                _passOpenOrder = value;
+                //Change();
+                //OnPropertyChanged(nameof(PassVolume));
+            }
+        }
+        public bool _passOpenOrder = true;
+
+        /// <summary>
+        /// разрешение отправить закрывающий ордер    
+        /// </summary>
+        public bool PassCloseOrder
+        {
+            get => _passCloseOrder;
+
+            set
+            {
+                _passCloseOrder = value;                
+            }
+        }
+        public bool _passCloseOrder = true;
 
         #endregion  end Свойства ========================
 

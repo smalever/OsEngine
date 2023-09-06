@@ -353,7 +353,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// список названий портфелей 
         /// </summary>
         public ObservableCollection<string> StringPortfolios { get; set; } = new ObservableCollection<string>();
-
+        
+        /// <summary>
+        /// список позиций робота 
+        /// </summary>
+        public ObservableCollection<PositionBot> PositionBots { get; set; } = new ObservableCollection<PositionBot>();
         #endregion конец свойств =============================================
 
         #region Поля ==================================================
@@ -446,7 +450,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 
             CalculPriceStartPos();
             CalculateVolumeTrades();
+            if (VolumePerOrder != 0 && PriceOpenPos != 0)
+            {
 
+                // отрпавить ордер 
+                SendStrStatus(" Отправляем ордер ");
+            }
+                
         }
 
         /// <summary>
@@ -463,7 +473,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             decimal minVolume = SelectedSecurity.MinTradeAmount;
             if (workLot < minVolume)
             {
-                SendStrStatus("Объем слишком мал для отправки ордера ");
+                SendStrStatus("Объем ордера меньше допустимого");
+                // IsRun = false;
             }
             else
             {
@@ -536,7 +547,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 }
             });
         }
-
 
         /// <summary>
         /// выбрать бумагу

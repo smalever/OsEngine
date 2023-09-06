@@ -67,8 +67,8 @@
     </StartupObject>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Binance.Net, Version=9.0.5.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Binance.Net.9.0.5\lib\netstandard2.0\Binance.Net.dll</HintPath>
+    <Reference Include="Binance.Net, Version=9.1.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Binance.Net.9.1.2\lib\netstandard2.0\Binance.Net.dll</HintPath>
     </Reference>
     <Reference Include="cgate_net64, Version=5.10.0.36987, Culture=neutral, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
@@ -80,8 +80,8 @@
     <Reference Include="ControlzEx, Version=4.0.0.0, Culture=neutral, PublicKeyToken=69f1c32f803d307e, processorArchitecture=MSIL">
       <HintPath>..\packages\ControlzEx.4.4.0\lib\net462\ControlzEx.dll</HintPath>
     </Reference>
-    <Reference Include="CryptoExchange.Net, Version=6.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CryptoExchange.Net.6.0.0\lib\netstandard2.0\CryptoExchange.Net.dll</HintPath>
+    <Reference Include="CryptoExchange.Net, Version=6.1.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CryptoExchange.Net.6.1.1\lib\netstandard2.0\CryptoExchange.Net.dll</HintPath>
     </Reference>
     <Reference Include="Jayrock, Version=0.9.16530.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -133,7 +133,7 @@
       <HintPath>..\packages\Microsoft.Extensions.Primitives.3.1.32\lib\netstandard2.0\Microsoft.Extensions.Primitives.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Xaml.Behaviors, Version=1.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Xaml.Behaviors.Wpf.1.1.19\lib\net45\Microsoft.Xaml.Behaviors.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Xaml.Behaviors.Wpf.1.1.39\lib\net45\Microsoft.Xaml.Behaviors.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -149,10 +149,6 @@
     <Reference Include="qC, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Vendors\qC.dll</HintPath>
-    </Reference>
-    <Reference Include="QUIKSharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=eb70e0fec970faf8, processorArchitecture=MSIL">
-      <HintPath>..\packages\QUIKSharp.1.0.0\lib\net45\QUIKSharp.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="RestSharp, Version=105.2.3.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
