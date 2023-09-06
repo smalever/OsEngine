@@ -390,7 +390,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private void TradeLogic()
         {
             // начало открытия позиции
-            // запускается сейчас в обход в методе трейда
             LogicStartOpenPosition(); 
         }
 
@@ -455,9 +454,19 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void CalculateVolumeTrades()
         {
-            /*             
-            *  расчет объема на ордер           
-            */
+            
+            decimal baks = FullPositionVolume/ PartsPerInput; // это в баксах
+            decimal moni = baks / Price;
+            decimal workLot = (decimal)Math.Round(moni, SelectedSecurity.DecimalsVolume);
+            decimal minVolume = SelectedSecurity.MinTradeAmount;
+            if (workLot < minVolume)
+            {
+                SendStrStatus("Объем слишком мал ");
+            }
+            else
+            {
+                VolumePerOrder = workLot;
+            }
         }
 
 
@@ -624,8 +633,14 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             if (state == "Connect")
             {
+                
+                SendStrStatus(" Сервер подключен ");
                 //StartSecuritiy(SelectedSecurity);
                 //SubscribeToServer();
+            }
+            else if (state == "Disconnect")
+            {
+                SendStrStatus(" Сервер отключен ");
             }
         }
 
@@ -674,7 +689,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                 if (trade.Time.Second % 2 == 0)
                 {
-                    // LogicStartOpenPosition();
+                    // test  LogicStartOpenPosition();
                 }
             }
         }
