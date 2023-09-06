@@ -23,6 +23,21 @@ namespace OsEngine.OsaExtension.MVVM.Models
         #region ====== Свойства Position ==========================================================================
 
         /// <summary>
+        /// направлние позиции 
+        /// </summary>
+        public Side Side
+        {
+            get => _side;
+
+            set
+            {
+                _side = value;
+                OnPropertyChanged(nameof(Side));
+            }
+        }
+        public Side _side = 0;
+
+        /// <summary>
         /// Код инструмента, для которого открыта позиция
         /// </summary>
         public string SecurityName

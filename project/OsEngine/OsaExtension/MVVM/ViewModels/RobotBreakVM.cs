@@ -473,13 +473,19 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 
             CalculPriceStartPos();
             CalculateVolumeTrades();
-            if (VolumePerOrder != 0 && PriceOpenPos != 0 && IsRun == true)
+            if (VolumePerOrder != 0 && PriceOpenPos != 0 && IsRun == true) // отрпавить ордер на открытие позиции
             {
+                if (Direction == Direction.BUY)
+                {
+                    // TODO: придумать логику учета отправления ордеров
 
-                // отрпавить ордер 
-                SendStrStatus(" Отправляем ордер ");
+                    SendLimitOrder(SelectedSecurity, PriceOpenPos, VolumePerOrder, Side.Buy);
+                }
+                if (Direction == Direction.SELL)
+                {
+                    SendLimitOrder(SelectedSecurity, PriceOpenPos, VolumePerOrder, Side.Sell);
+                }    
             }
-                
         }
 
         /// <summary>
@@ -772,7 +778,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// пришел новый терейд 
         /// </summary>
-        private void _NewTradeEvent(List<Entity.Trade> trades)
+        private void _NewTradeEvent(List<Trade> trades)
         {
             if (trades != null && trades[0].SecurityNameCode == SelectedSecurity.Name)
             {
