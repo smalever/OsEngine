@@ -476,7 +476,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
              * отправить ордер на биржу
              * 
              */
-
         }
 
         /// <summary>
@@ -508,6 +507,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 if (Direction == Direction.BUY || Direction == Direction.BUYSELL)
                 {
                     positionBuy.Status = PositionStatus.NONE;
+                    positionBuy.SecurityName = SelectedSecurity.Name;
                     positionBots.Add(positionBuy);
 
                     //SendLimitOrder(SelectedSecurity, PriceOpenPos, VolumePerOrder, Side.Buy);
@@ -515,6 +515,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 if (Direction == Direction.SELL || Direction == Direction.BUYSELL)
                 {
                     positionSell.Status = PositionStatus.NONE;
+                    positionSell.SecurityName = SelectedSecurity.Name;
                     positionBots.Insert(0, positionSell);
 
                     //SendLimitOrder(SelectedSecurity, PriceOpenPos, VolumePerOrder, Side.Sell);
@@ -538,8 +539,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         /// <summary>
-            /// расчет объема на ордер
-            /// </summary>
+        /// расчет объема на ордер
+        /// </summary>
         private void CalculateVolumeTrades()
         {
             VolumePerOrder = 0;
