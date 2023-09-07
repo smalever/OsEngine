@@ -524,21 +524,19 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
                     positionBuy.Status = PositionStatus.NONE;
                     positionBuy.SecurityName = SelectedSecurity.Name;
+                    AddOpderPosition(positionBuy);
                     positionBots.Add(positionBuy);
-
-                    //SendLimitOrder(SelectedSecurity, PriceOpenPos, VolumePerOrder, Side.Buy);
                 }
                 if (Direction == Direction.SELL || Direction == Direction.BUYSELL)
                 {
-                    positionSell.Status = PositionStatus.NONE;
+                    positionSell.Status = PositionStatus.NONE;                    
                     positionSell.SecurityName = SelectedSecurity.Name;
+                    AddOpderPosition(positionSell);
                     positionBots.Insert(0, positionSell);
-
-                    //SendLimitOrder(SelectedSecurity, PriceOpenPos, VolumePerOrder, Side.Sell);
                 }
                 PositionsBots = positionBots;
                 SendStrStatus(" Позиция создана");
-            }
+            }            
         }
 
         /// <summary>
