@@ -382,7 +382,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         #region Поля ==================================================
 
-
+        /// <summary>
+        /// названия портфеля для отправки ордера на биржу
+        /// </summary>
         Portfolio _portfolio;
 
         /// <summary>
@@ -416,7 +418,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         private void TradeLogic()
         {
-            // начало открытия позиции
+            CreateNewPosition(); // создали позиции
             LogicStartOpenPosition(); 
         }
 
@@ -465,24 +467,38 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void LogicStartOpenPosition()
         {
+            // отправить ордер на биржу
+        }
+
+        /// <summary>
+        /// добавить открывающий ордер в позицию
+        /// </summary>  
+        private void AddOpderPosition(PositionBot position)
+        {
+            if (Direction == Direction.BUY || Direction == Direction.BUYSELL)
+            {// создать ордер
+                Order order = CreateLimitOrder(SelectedSecurity, PriceOpenPos, VolumePerOrder, Side.Buy);
+                // отправить ордер в позицию
+                position.OrdersForOpen.Add(order);
+            }
+            if (Direction == Direction.SELL || Direction == Direction.BUYSELL)
+            {// создать ордер
+                Order order = CreateLimitOrder(SelectedSecurity, PriceOpenPos, VolumePerOrder, Side.Sell);
+                // отправить ордер в позицию
+                position.OrdersForOpen.Add(order);
+            }
+        }
+        /// <summary>
+            /// создание позиции
+            /// </summary>
+        private void CreateNewPosition()
+        {
             if (BigСlusterPrice == 0)
             {
                 SendStrStatus(" BigСlusterPrice = 0 ");
                 return;
             }
-            CreatePosition();
-            /*
-             * отправить ордер в позицию 
-             * отправить ордер на биржу
-             * 
-             */
-        }
 
-        /// <summary>
-        /// создание позиции
-        /// </summary>
-        private void CreatePosition()
-        {
             if (MonitoringOpenVolumePosition() == true)
             {
                 SendStrStatus(" Есть открытый объем ");
@@ -521,6 +537,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     //SendLimitOrder(SelectedSecurity, PriceOpenPos, VolumePerOrder, Side.Sell);
                 }
                 PositionsBots = positionBots;
+                SendStrStatus(" Позиция создана");
             }
         }
 
@@ -693,9 +710,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         /// <summary>
-        ///  отправить лимитный оредер на биржу 
+        ///  сформировать лимитный оредер
         /// </summary>
-        private Order SendLimitOrder(Security sec, decimal prise, decimal volume, Side side)
+        private Order CreateLimitOrder(Security sec, decimal prise, decimal volume, Side side)
         {
             if (string.IsNullOrEmpty(StringPortfolio))
             {
@@ -715,17 +732,17 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 SecurityClassCode = sec.NameClass,
             };
             //RobotsWindowVM.Log(Header, "SendLimitOrder\n " + " отправляем лимитку на биржу\n" + GetStringForSave(order));
-            RobotsWindowVM.SendStrTextDb(" SendLimitOrder " + order.NumberUser);
+            RobotsWindowVM.SendStrTextDb(" Создали ордер " + order.NumberUser);
 
-            Server.ExecuteOrder(order);
+            //Server.ExecuteOrder(order);
 
             return order;
         }
 
         /// <summary>
-        ///  отправить Маркетный оредер на биржу 
+        /// сформировать Маркетный оредер 
         /// </summary>
-        private Order SendMarketOrder(Security sec, decimal prise, decimal volume, Side side)
+        private Order CreateMarketOrder(Security sec, decimal prise, decimal volume, Side side)
         {
             if (string.IsNullOrEmpty(StringPortfolio))
             {
@@ -745,8 +762,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 SecurityClassCode = sec.NameClass,
             };
             //RobotsWindowVM.Log(Header, "SendMarketOrder\n " + " отправляем маркет на биржу\n" + GetStringForSave(order));
-            RobotsWindowVM.SendStrTextDb(" SendMarketOrder " + order.NumberUser);
-            Server.ExecuteOrder(order);
+            RobotsWindowVM.SendStrTextDb(" CreateMarketOrder " + order.NumberUser);
+            //Server.ExecuteOrder(order);
 
             return order;
         }
