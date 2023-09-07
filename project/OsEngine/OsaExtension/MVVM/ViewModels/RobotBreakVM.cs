@@ -376,7 +376,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// список позиций робота 
         /// </summary>
-        public ObservableCollection<PositionBot> PositionBots { get; set; } = new ObservableCollection<PositionBot>();
+        public ObservableCollection<PositionBot> PositionsBots { get; set; } = new ObservableCollection<PositionBot>();
 
         #endregion конец свойств =============================================
 
@@ -470,27 +470,76 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 SendStrStatus(" BigСlusterPrice = 0 ");
                 return;
             }
-                
+            CreatePosition();
+            /*
+             * отправить ордер в позицию 
+             * отправить ордер на биржу
+             * 
+             */
+
+        }
+
+        /// <summary>
+        /// создание позиции
+        /// </summary>
+        private void CreatePosition()
+        {
+            if (MonitoringOpenVolumePosition() == true)
+            {
+                SendStrStatus(" Есть открытый объем ");
+                return;
+                //MessageBoxResult result = MessageBox.Show(" Есть открытые позиции! \n Всеравно создать? ", " ВНИМАНИЕ !!! ",
+                //MessageBoxButton.YesNo);
+                //if (result == MessageBoxResult.No)
+                //{
+                //    return;
+                //}
+            }
+            ObservableCollection<PositionBot> positionBots = new ObservableCollection<PositionBot>();
+
+            PositionBot positionBuy = new PositionBot() { Side = Side.Buy };
+            PositionBot positionSell = new PositionBot() { Side = Side.Sell };
+
             CalculPriceStartPos();
             CalculateVolumeTrades();
-            if (VolumePerOrder != 0 && PriceOpenPos != 0 && IsRun == true) // отрпавить ордер на открытие позиции
-            {
-                if (Direction == Direction.BUY)
-                {
-                    // TODO: придумать логику учета отправления ордеров
 
-                    SendLimitOrder(SelectedSecurity, PriceOpenPos, VolumePerOrder, Side.Buy);
-                }
-                if (Direction == Direction.SELL)
+            if (VolumePerOrder != 0 && PriceOpenPos != 0 && IsRun == true) // формируем позиции
+            {
+                if (Direction == Direction.BUY || Direction == Direction.BUYSELL)
                 {
-                    SendLimitOrder(SelectedSecurity, PriceOpenPos, VolumePerOrder, Side.Sell);
-                }    
+                    positionBuy.Status = PositionStatus.NONE;
+                    positionBots.Add(positionBuy);
+
+                    //SendLimitOrder(SelectedSecurity, PriceOpenPos, VolumePerOrder, Side.Buy);
+                }
+                if (Direction == Direction.SELL || Direction == Direction.BUYSELL)
+                {
+                    positionSell.Status = PositionStatus.NONE;
+                    positionBots.Insert(0, positionSell);
+
+                    //SendLimitOrder(SelectedSecurity, PriceOpenPos, VolumePerOrder, Side.Sell);
+                }
+                PositionsBots = positionBots;
             }
         }
 
         /// <summary>
-        /// расчет объема на ордер
-        /// </summary>
+        /// проверка открытого объема в позиция
+        /// </summary> 
+        private bool MonitoringOpenVolumePosition()
+        {
+            decimal volume = 0;
+            foreach (PositionBot pos in PositionsBots)
+            {
+                volume += Math.Abs(pos.OpenVolume);
+            }
+            if (volume > 0) return true;
+            else return false;
+        }
+
+        /// <summary>
+            /// расчет объема на ордер
+            /// </summary>
         private void CalculateVolumeTrades()
         {
             VolumePerOrder = 0;
@@ -498,7 +547,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             decimal baks = 0;
             baks = FullPositionVolume/ PartsPerInput; // это в баксах
             decimal moni = baks / Price; // в монете
-            workLot = (decimal)Math.Round(moni, SelectedSecurity.DecimalsVolume);
+            workLot = Decimal.Round(moni, SelectedSecurity.DecimalsVolume);
             decimal minVolume = SelectedSecurity.MinTradeAmount;
             if (workLot < minVolume)
             {

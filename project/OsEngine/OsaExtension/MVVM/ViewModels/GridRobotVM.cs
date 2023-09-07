@@ -620,7 +620,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         #region ===== логика ==============================================================
 
         /// <summary>
-        /// расчитывает уровни (цены открвтия и профитов)
+        /// расчитывает уровни (цены открытия и профитов)
         /// </summary>
         void Calculate(object o)
         {
@@ -633,7 +633,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
             if (volume > 0)
             {
-                System.Windows.MessageBoxResult result = MessageBox.Show(" Есть открытые позиции! \n Всеравно пресчитать? ", " ВНИМАНИЕ !!! ",
+                MessageBoxResult result = MessageBox.Show(" Есть открытые позиции! \n Всеравно пресчитать? ", " ВНИМАНИЕ !!! ",
                     MessageBoxButton.YesNo);
                 if (result == MessageBoxResult.No)
                 {
