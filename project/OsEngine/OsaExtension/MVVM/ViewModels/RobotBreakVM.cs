@@ -354,7 +354,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 _stringportfolio = value;
                 OnPropertyChanged(nameof(StringPortfolio));
-
+                // TODO: надо разобраться с загрузкой значения (без файла сох) 
                 _portfolio = GetPortfolio(_stringportfolio);
             }
         }
@@ -914,6 +914,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     writer.WriteLine(IsRun);
                     writer.WriteLine(Header);
                     writer.WriteLine(ServerType);
+                    writer.WriteLine(StringPortfolio);
 
                     writer.WriteLine(TopPositionPrice);
                     writer.WriteLine(BigСlusterPrice);
@@ -956,6 +957,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     }
                     Header = reader.ReadLine(); // загружаем заголовок
                     servType = reader.ReadLine(); // загружаем название сервера
+                    StringPortfolio = reader.ReadLine();
 
                     TopPositionPrice = GetDecimalForString(reader.ReadLine());
                     BigСlusterPrice = GetDecimalForString(reader.ReadLine());

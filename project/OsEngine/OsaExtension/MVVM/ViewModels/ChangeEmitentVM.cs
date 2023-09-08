@@ -20,7 +20,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
     /// </summary>
     public class ChangeEmitentVM : BaseVM
     {
-        public ChangeEmitentVM(IRobotVM rob)
+        public ChangeEmitentVM(RobotBreakVM rob)
         {
              _robot = rob;
 
@@ -60,7 +60,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         Dictionary<string, List<Security>> _classes = new Dictionary<string, List<Security>>();
 
-        private IRobotVM _robot;
+        private  RobotBreakVM _robot;
         /// <summary>
         ///  выбранный сервер
         /// </summary>

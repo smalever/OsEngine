@@ -707,7 +707,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 return;
             }
-            RobotsWindowVM.ChengeEmitendWidow = new ChengeEmitendWidow(this);
+            //RobotsWindowVM.ChengeEmitendWidow = new ChengeEmitendWidow(this);
             RobotsWindowVM.ChengeEmitendWidow.ShowDialog();
             RobotsWindowVM.ChengeEmitendWidow = null;
             if (_server != null)
