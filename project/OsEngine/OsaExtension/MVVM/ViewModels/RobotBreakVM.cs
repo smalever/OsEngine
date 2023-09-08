@@ -419,7 +419,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private void TradeLogic()
         {
             CreateNewPosition(); // создали позиции
-            LogicStartOpenPosition(); 
+            SendOrderExchange(); // отправили ордер на биржу
         }
 
         /// <summary>
@@ -463,11 +463,28 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         /// <summary>
-        ///  логика набора позиций
+        ///  отправить ордер на биржу 
         /// </summary>
-        private void LogicStartOpenPosition()
+        private void SendOrderExchange()
         {
-            // отправить ордер на биржу
+            PositionBot position = PositionsBots.Last();
+            List<Order> orders = position.OrdersForOpen;
+
+            if (position.PassOpenOrder)
+            {
+                position.PassOpenOrder = false;
+
+                foreach (Order order in orders) // взять из позиции ордер
+                {
+                    if (order.State == OrderStateType.None)
+                    {
+                        // отправить ордер на биржу
+                        Server.ExecuteOrder(order);
+                        position.Status = PositionStatus.OPENING;
+                        SendStrStatus(" Ордер отправлен на биржу");
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -488,9 +505,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 position.OrdersForOpen.Add(order);
             }
         }
+
         /// <summary>
-            /// создание позиции
-            /// </summary>
+        /// создание позиции
+        /// </summary>
         private void CreateNewPosition()
         {
             if (BigСlusterPrice == 0)

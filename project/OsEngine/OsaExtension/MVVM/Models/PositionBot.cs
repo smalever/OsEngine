@@ -15,10 +15,10 @@ namespace OsEngine.OsaExtension.MVVM.Models
     /// </summary>
     public class PositionBot : BaseVM
     {
-        public PositionBot()
-        {
-            Status = PositionStatus.NONE;
-        }
+        //public PositionBot()
+        //{
+        //    Status = PositionStatus.NONE;
+        //}
 
         #region ====== Свойства Position ==========================================================================
 
@@ -84,7 +84,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
                 return _ordersForOpen;
             }
         }
-        private List<Order> _ordersForOpen;
+        private List<Order> _ordersForOpen = new List<Order>();
 
         /// <summary>
         ///  список ордеров на закрытие позиции
@@ -96,7 +96,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
                 return _ordersForClose;
             }
         }
-        private List<Order> _ordersForClose;
+        private List<Order> _ordersForClose = new List<Order>();
 
         /// <summary>
         /// Position number / номер позиции
