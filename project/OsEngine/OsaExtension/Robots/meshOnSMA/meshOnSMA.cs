@@ -64,7 +64,9 @@ namespace OsEngine.OsaExtension.MyBots.meshOnSMA
         /// line color
         /// цвет линии
         /// </summary>
+#pragma warning disable CS0649 // Полю "meshOnSMA.Color" нигде не присваивается значение, поэтому оно всегда будет иметь значение по умолчанию .
         public Color Color;
+#pragma warning restore CS0649 // Полю "meshOnSMA.Color" нигде не присваивается значение, поэтому оно всегда будет иметь значение по умолчанию .
         /// <summary>
         /// цена закрытия последней свечки
         /// </summary>

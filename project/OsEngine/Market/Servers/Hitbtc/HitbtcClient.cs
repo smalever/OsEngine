@@ -305,6 +305,7 @@ namespace OsEngine.Market.Servers.Hitbtc
             }
 
             string endPoint = "/api/2/public/candles/";
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
             try
             {
                 lock (_candleLocker)
@@ -492,6 +493,7 @@ namespace OsEngine.Market.Servers.Hitbtc
             {
                 return null;
             }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
         }
 
         /// <summary>

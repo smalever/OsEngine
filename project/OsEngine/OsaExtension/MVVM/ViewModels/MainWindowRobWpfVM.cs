@@ -199,7 +199,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
 
         public delegate void selectedSecurity();
+#pragma warning disable CS0067 // Событие "MainWindowRobWpfVM.OnSelectedSecurity" никогда не используется.
         public event selectedSecurity OnSelectedSecurity;
+#pragma warning restore CS0067 // Событие "MainWindowRobWpfVM.OnSelectedSecurity" никогда не используется.
 
     }
 }

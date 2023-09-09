@@ -24,7 +24,9 @@ namespace OsEngine.OsaExtension.MVVM.Commands
         public DelegateFunction _function;
         private object v;
 
+#pragma warning disable CS0067 // Событие "DelegateCommand.CanExecuteChanged" никогда не используется.
         public event EventHandler CanExecuteChanged;
+#pragma warning restore CS0067 // Событие "DelegateCommand.CanExecuteChanged" никогда не используется.
 
         public bool CanExecute(object parameter)
         {

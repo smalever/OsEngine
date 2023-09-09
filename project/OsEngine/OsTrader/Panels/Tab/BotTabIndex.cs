@@ -1085,6 +1085,7 @@ namespace OsEngine.OsTrader.Panels.Tab
                     Candle candleOne = candlesOne[i1];
                     Candle candleTwo = candlesTwo[i2];
 
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
                     try
                     {
                         if (candlesOne[i1].TimeStart == candlesTwo[i2].TimeStart)
@@ -1104,6 +1105,7 @@ namespace OsEngine.OsTrader.Panels.Tab
                     {
 
                     }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
                 }
                 exitVal.ValueCandles = exitCandles;
             }
@@ -1176,7 +1178,9 @@ namespace OsEngine.OsTrader.Panels.Tab
 
             List<Candle> exitCandles = exitVal.ValueCandles;
 
+#pragma warning disable CS0219 // Переменная назначена, но ее значение не используется
             int lastOper = -1;
+#pragma warning restore CS0219 // Переменная назначена, но ее значение не используется
 
             if (exitCandles.Count != 0 &&
                 candlesOne[candlesOne.Count - 1].TimeStart == exitCandles[exitCandles.Count - 1].TimeStart)

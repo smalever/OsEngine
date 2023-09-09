@@ -931,6 +931,7 @@ namespace OsEngine.Entity
         /// <param name="series">a series of candles to stop/серия свечек которую нужно остановить</param>
         public void StopSeries(CandleSeries series)
         {
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
             try
             {
                 if(series == null 
@@ -989,6 +990,7 @@ namespace OsEngine.Entity
             {
                 //SendLogMessage(error.ToString(), LogMessageType.Error);
             }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
         }
 
         /// <summary>

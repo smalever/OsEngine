@@ -738,7 +738,9 @@ namespace OsEngine.Market.Servers.Kraken
         private void GenerateTrades(KrakenOrder order)
         {
             return;
+#pragma warning disable CS0162 // Обнаружен недостижимый код
             Order osOrder = _osEngineOrders.Find(ord => ord.NumberMarket == order.TxId);
+#pragma warning restore CS0162 // Обнаружен недостижимый код
 
             if (order.Status == null)
             {
@@ -814,13 +816,17 @@ namespace OsEngine.Market.Servers.Kraken
         /// depth updated
         /// обновился стакан
         /// </summary>
+#pragma warning disable CS0067 // Событие "KrakenClient.UpdateMarketDepth" никогда не используется.
         public event Action<MarketDepth> UpdateMarketDepth;
+#pragma warning restore CS0067 // Событие "KrakenClient.UpdateMarketDepth" никогда не используется.
 
         /// <summary>
         /// ticks updated
         /// обновились тики
         /// </summary>
+#pragma warning disable CS0067 // Событие "KrakenClient.NewTradesEvent" никогда не используется.
         public event Action<OsEngine.Entity.Trade> NewTradesEvent;
+#pragma warning restore CS0067 // Событие "KrakenClient.NewTradesEvent" никогда не используется.
 
         /// <summary>
         /// API connection established

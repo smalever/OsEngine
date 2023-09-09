@@ -245,6 +245,7 @@ namespace OsEngine.Market.Servers
 
             if (File.Exists(_pathName + "\\" + specification + ".txt"))
             {
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
                 try
                 {
                     using (StreamReader reader = new StreamReader(_pathName + "\\" + specification + ".txt"))
@@ -264,6 +265,7 @@ namespace OsEngine.Market.Servers
                 {
                     // ignore
                 }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
             }
 
             // далее смотрим есть ли сохранение в глобальном хранилище
@@ -275,6 +277,7 @@ namespace OsEngine.Market.Servers
             if (Directory.Exists("Data\\ServersCandleTempData") &&
                 File.Exists(path))
             {
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
                 try
                 {
                     using (StreamReader reader = new StreamReader(path))
@@ -294,6 +297,7 @@ namespace OsEngine.Market.Servers
                 {
                     // ignore
                 }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
             }
 
             if (candlesFromOsData.Count == 0 &&

@@ -237,7 +237,9 @@ namespace OsEngine.OsaExtension.Robots.InterstockArbitrage
         /// <summary>
         /// вкладка для индекса
         /// </summary>
+#pragma warning disable CS0169 // Поле "InterstockArbitrage._tabIndex" никогда не используется.
         private BotTabIndex _tabIndex;
+#pragma warning restore CS0169 // Поле "InterstockArbitrage._tabIndex" никогда не используется.
 
         /// <summary>
         /// режим торгуем - не торгуем

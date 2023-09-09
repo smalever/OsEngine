@@ -376,11 +376,27 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// список позиций робота 
         /// </summary>
-        public ObservableCollection<PositionBot> PositionsBots { get; set; } = new ObservableCollection<PositionBot>();
+        public static ObservableCollection<PositionBot> PositionsBots { get; set; } = new ObservableCollection<PositionBot>();
 
         #endregion конец свойств =============================================
 
         #region Поля ==================================================
+
+        /// <summary>
+        /// последня  добавленная позиция 
+        /// </summary>
+        static PositionBot positionLast = PositionsBots.Last();
+
+        /// <summary>
+        /// открывающие ордера позиции Last 
+        /// </summary>
+        List<Order> ordersForOpen = positionLast.OrdersForOpen;
+
+        /// <summary>
+        /// закрывающие ордера позиции Last 
+        /// </summary>
+        List<Order> ordersForClose = positionLast.OrdersForOpen;
+
 
         /// <summary>
         /// названия портфеля для отправки ордера на биржу
@@ -462,25 +478,23 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
         }
 
+
         /// <summary>
         ///  отправить ордер на биржу 
         /// </summary>
         private void SendOrderExchange()
         {
-            PositionBot position = PositionsBots.Last();
-            List<Order> orders = position.OrdersForOpen;
-
-            if (position.PassOpenOrder)
+            if (positionLast.PassOpenOrder)
             {
-                position.PassOpenOrder = false;
+                positionLast.PassOpenOrder = false;
 
-                foreach (Order order in orders) // взять из позиции ордер
+                foreach (Order order in ordersForOpen) // взять из позиции ордер
                 {
                     if (order.State == OrderStateType.None)
                     {
                         // отправить ордер на биржу
                         Server.ExecuteOrder(order);
-                        position.Status = PositionStatus.OPENING;
+                        positionLast.Status = PositionStatus.OPENING;
                         SendStrStatus(" Ордер отправлен на биржу");
                     }
                 }
@@ -630,76 +644,27 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             PriceOpenPos = _priceOpenPos;
         }
-
-        /// <summary>
-        ///  перезапись состояния оредра с биржи в мое хранилище
-        /// </summary>
-        private Order CopyOrder(Order newOrder, Order order)
-        {
-            order.State = newOrder.State;
-            order.TimeCancel = newOrder.TimeCancel;
-            order.Volume = newOrder.Volume;
-            order.VolumeExecute = newOrder.VolumeExecute;
-            order.TimeDone = newOrder.TimeDone;
-            order.TimeCallBack = newOrder.TimeCallBack;
-            order.NumberUser = newOrder.NumberUser;
-
-            return order;
-        }
-
-        /// <summary>
-        /// принадлежит ли ордер списку
-        /// </summary>
-        public bool NewOrder(Order newOrder)
-        {
-            //if(OrdersForOpen == null || OrdersForOpen.Count == 0) return false;
-            //for (int i = 0; i < OrdersForOpen.Count; i++)
-            //{
-            //    if (OrdersForOpen[i].NumberMarket == newOrder.NumberMarket)
-            //    {
-            //        CopyOrder(newOrder, OrdersForOpen[i]);
-
-            //        CalculateOrders();
-
-            //        StatusLevel = PositionStatus.OPEN;
-
-            //        return true;
-            //    }
-            //}
-            //for (int i = 0; i < OrdersForClose.Count; i++)
-            //{
-            //    if (OrdersForClose[i].NumberMarket == newOrder.NumberMarket)
-            //    {
-            //        CopyOrder(newOrder, OrdersForClose[i]);
-
-            //        CalculateOrders();
-
-            //        StatusLevel = PositionStatus.DONE;
-            //        return true;
-            //    }
-            //}
-            return false;
-        }
+  
         /// <summary>
         /// проверка ордера
         /// </summary>
-        private void CheckMyOrder()
+        private void CheckMyOrder(Order checkOrder)
         {
-            // проверить номер юзера,
-            // если мой - обновить данные о нем в сделке
+            for (int i = 0; i < PositionsBots.Count; i++)
+            {
+                bool newOrderBool = PositionsBots[i].NewOrder(checkOrder);
+            }
+            //проверить номер юзера,
+            // если мой -обновить данные о нем в сделке
 
-            //if (order.NumberMarket != "")
+            //if (checkOrder.NumberMarket != "")
             //{
-            //    foreach (Level level in Levels)
+            //    foreach (var positionBot in PositionsBots)
             //    {
-            //        bool newOrderBool = level.NewOrder(order);
-
-            //        if (newOrderBool)
-            //        {
-            //            RobotsWindowVM.Log(Header, " Обновился Уровень = " + level.GetStringForSave());
-            //        }
+            //        bool newOrderBool = positionBot.NewOrder(checkOrder);
             //    }
             //}
+
         }
  
         /// <summary>
@@ -842,7 +807,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// мой ордер с сервера
         /// </summary>
         private void _server_NewOrderIncomeEvent(Order myOrder)
-        {
+        {            
+            if (myOrder == null || _portfolio == null || SelectedSecurity == null) return;
+            if (myOrder.SecurityNameCode == SelectedSecurity.Name
+                && myOrder.ServerType == Server.ServerType)
+            {
+                CheckMyOrder(myOrder);
+            }
             /*  проверить номер юзера,
              *  если мой - обновить данные о нем в сделке 
              *  продолжить логику 

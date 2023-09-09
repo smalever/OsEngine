@@ -1811,10 +1811,12 @@ position => position.State != PositionStateType.OpeningFail
         {
             get
             {
+#pragma warning disable CS0162 // Обнаружен недостижимый код
                 for (int i = 0; _botTabs != null && i < _botTabs.Count; i++)
                 {
                     return _botTabs[i].EventsIsOn;
                 }
+#pragma warning restore CS0162 // Обнаружен недостижимый код
 
                 return false;
             }

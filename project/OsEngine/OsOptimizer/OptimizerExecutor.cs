@@ -110,7 +110,9 @@ namespace OsEngine.OsOptimizer
         /// place of work flow responsible for optimization
         /// место работы потока отвечающего за оптимизацию
         /// </summary>
+#pragma warning disable CS1998 // В асинхронном методе отсутствуют операторы await, будет выполнен синхронный метод
         private async void PrimeThreadWorkerPlace()
+#pragma warning restore CS1998 // В асинхронном методе отсутствуют операторы await, будет выполнен синхронный метод
         {
             ReportsToFazes = new List<OptimazerFazeReport>();
 
@@ -328,7 +330,9 @@ namespace OsEngine.OsOptimizer
 
         public List<OptimazerFazeReport> ReportsToFazes = new List<OptimazerFazeReport>();
 
+#pragma warning disable CS1998 // В асинхронном методе отсутствуют операторы await, будет выполнен синхронный метод
         private async void StartOptimazeFazeInSample(OptimizerFaze faze, OptimazerFazeReport report,
+#pragma warning restore CS1998 // В асинхронном методе отсутствуют операторы await, будет выполнен синхронный метод
             List<IIStrategyParameter> allParameters, List<bool> parametersToOptimization)
         {
             ReloadAllParam(allParameters);
@@ -890,7 +894,9 @@ namespace OsEngine.OsOptimizer
         /// the event that you need to move the interface to a certain place
         /// событие о том что нужно переместить интерфейс в определённое место
         /// </summary>
+#pragma warning disable CS0067 // Событие "OptimizerExecutor.NeadToMoveUiToEvent" никогда не используется.
         public event Action<NeadToMoveUiTo> NeadToMoveUiToEvent;
+#pragma warning restore CS0067 // Событие "OptimizerExecutor.NeadToMoveUiToEvent" никогда не используется.
 
         // единичный тест
 

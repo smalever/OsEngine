@@ -359,7 +359,9 @@ namespace OsEngine.Market.Servers.Kraken
         /// all depths
         /// все стаканы
         /// </summary>
+#pragma warning disable CS0169 // Поле "KrakenServerRealization._depths" никогда не используется.
         private List<MarketDepth> _depths;
+#pragma warning restore CS0169 // Поле "KrakenServerRealization._depths" никогда не используется.
 
         private readonly object _depthLocker = new object();
 

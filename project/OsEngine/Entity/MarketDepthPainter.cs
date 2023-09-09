@@ -494,6 +494,7 @@ namespace OsEngine.Entity
         /// </summary>
         private void PaintMarketDepth(MarketDepth depth)
         {
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
             try
             {
                 _lastMarketDepth = depth;
@@ -669,6 +670,7 @@ namespace OsEngine.Entity
             {
                 //SendNewLogMessage(error.ToString(), LogMessageType.Error);
             }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
         }
 
         private decimal _bid;

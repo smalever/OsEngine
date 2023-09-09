@@ -1580,6 +1580,7 @@ namespace OsEngine.OsTrader.Panels.Tab
                  indicatorsFirst.Count == 0)
             { // удаляем все индикаторы во второй вкладке
 
+#pragma warning disable CS0162 // Обнаружен недостижимый код
                 for (int i = 0;
                     second.Indicators != null &&
                     i < second.Indicators.Count; i++)
@@ -1587,6 +1588,7 @@ namespace OsEngine.OsTrader.Panels.Tab
                     second.DeleteCandleIndicator(second.Indicators[i]);
                     break;
                 }
+#pragma warning restore CS0162 // Обнаружен недостижимый код
             }
 
             // удаляем не нужные индикаторы

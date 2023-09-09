@@ -536,6 +536,7 @@ namespace OsEngine.Charts.CandleChart.Indicators
 
             for (int i = index; i > index - Lenght && i > 0; i--)
             {
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
                 try
                 {
                     average += values[i];
@@ -544,6 +545,7 @@ namespace OsEngine.Charts.CandleChart.Indicators
                 {
 
                 }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
             }
 
             average = average / Lenght;

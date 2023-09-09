@@ -123,7 +123,9 @@ namespace OsEngine.Entity
         /// <summary>
         /// Event: parameter state changed
         /// </summary>
+#pragma warning disable CS0067 // Событие "StrategyParameterLabel.ValueChange" никогда не используется.
         public event Action ValueChange;
+#pragma warning restore CS0067 // Событие "StrategyParameterLabel.ValueChange" никогда не используется.
 
         /// <summary>
         /// Get formatted string to save to file
@@ -1191,7 +1193,9 @@ namespace OsEngine.Entity
         /// <summary>
         /// Event: parameter state changed
         /// </summary>
+#pragma warning disable CS0067 // Событие "StrategyParameterButton.ValueChange" никогда не используется.
         public event Action ValueChange;
+#pragma warning restore CS0067 // Событие "StrategyParameterButton.ValueChange" никогда не используется.
 
         /// <summary>
         /// Trigger a button click event

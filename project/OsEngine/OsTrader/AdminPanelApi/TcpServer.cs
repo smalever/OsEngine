@@ -68,6 +68,7 @@ namespace OsEngine.OsTrader.AdminPanelApi
 
         protected internal void Listen()
         {
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
             try
             {
                 _tcpListener = new TcpListener(IPAddress.Any, ExitPort);
@@ -98,6 +99,7 @@ namespace OsEngine.OsTrader.AdminPanelApi
                 Disconnect();
                 Disconnected?.Invoke();
             }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
         }
 
         private void BroadcastMessage(string message)
@@ -107,6 +109,7 @@ namespace OsEngine.OsTrader.AdminPanelApi
             {
                 if (_clients[i].Authorized)
                 {
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
                     try
                     {
                         _clients[i].Stream.Write(data, 0, data.Length);
@@ -116,6 +119,7 @@ namespace OsEngine.OsTrader.AdminPanelApi
                         _clients[i].Close();
                         RemoveConnection(_clients[i].Id);
                     }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
                 }
             }
         }

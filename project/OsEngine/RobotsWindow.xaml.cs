@@ -15,7 +15,9 @@ namespace OsEngine.OsaExtension.MVVM.View
     /// </summary>
     public partial class RobotsWindow : MetroWindow
     {
+
         public static Dispatcher Dispatcher;
+
         public RobotsWindow()
         {
             Process ps = Process.GetCurrentProcess();

@@ -2230,6 +2230,7 @@ namespace OsEngine.OsData
 
             List<Candle> candles = new List<Candle>();
 
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
             try
             {
                 using (StreamReader reader = new StreamReader(pathToTempFile))
@@ -2248,6 +2249,7 @@ namespace OsEngine.OsData
             {
                 //SendNewLogMessage(error.ToString(), LogMessageType.Error);
             }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
 
             if (candles.Count != 0)
             {
@@ -2261,6 +2263,7 @@ namespace OsEngine.OsData
         {
             string pathToTempFile = _pathMyTempPieInTfFolder + "\\" + TempFileName;
 
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
             try
             {
                 DateTime realEnd = End.AddDays(1);
@@ -2287,6 +2290,7 @@ namespace OsEngine.OsData
             {
                 //SendNewLogMessage(error.ToString(), LogMessageType.Error);
             }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
         }
 
         // трейды
@@ -2303,6 +2307,7 @@ namespace OsEngine.OsData
 
             List<Trade> trades = new List<Trade>();
 
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
             try
             {
                 using (StreamReader reader = new StreamReader(pathToTempFile))
@@ -2321,6 +2326,7 @@ namespace OsEngine.OsData
             {
                 //SendNewLogMessage(error.ToString(), LogMessageType.Error);
             }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
 
             if (trades.Count != 0)
             {
@@ -2340,6 +2346,7 @@ namespace OsEngine.OsData
         {
             string pathToTempFile = _pathMyTempPieInTfFolder + "\\" + TempFileName;
 
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
             try
             {
                 DateTime realEnd = End.AddDays(1);
@@ -2366,6 +2373,7 @@ namespace OsEngine.OsData
             {
                 //SendNewLogMessage(error.ToString(), LogMessageType.Error);
             }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
         }
 
     }

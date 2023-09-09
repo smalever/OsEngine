@@ -337,7 +337,9 @@ namespace Kraken.WebSockets
             // += (sender, e) => Console.WriteLine($"Spread received");
             return;
 
+#pragma warning disable CS0162 // Обнаружен недостижимый код
             string pair = e.Pair.ToString();
+#pragma warning restore CS0162 // Обнаружен недостижимый код
 
             Sec security = Securities.Find(sec => sec.NameInSocket == pair);
             DateTime time = new DateTime(1970, 1, 1).AddSeconds(Convert.ToDouble(e.DataMessage.Time));
@@ -432,13 +434,21 @@ namespace Kraken.WebSockets
   
         }
 
+#pragma warning disable CS0067 // Событие "KrakenApi.NewOrderEvent" никогда не используется.
         public event Action<OsEngine.Entity.Order> NewOrderEvent;
+#pragma warning restore CS0067 // Событие "KrakenApi.NewOrderEvent" никогда не используется.
 
+#pragma warning disable CS0067 // Событие "KrakenApi.MyTradeEvent" никогда не используется.
         public event Action<OsEngine.Entity.MyTrade> MyTradeEvent;
+#pragma warning restore CS0067 // Событие "KrakenApi.MyTradeEvent" никогда не используется.
 
+#pragma warning disable CS0067 // Событие "KrakenApi.Connect" никогда не используется.
         public event Action Connect;
+#pragma warning restore CS0067 // Событие "KrakenApi.Connect" никогда не используется.
 
+#pragma warning disable CS0067 // Событие "KrakenApi.Disconnect" никогда не используется.
         public event Action Disconnect;
+#pragma warning restore CS0067 // Событие "KrakenApi.Disconnect" никогда не используется.
 
         public static event Action<OsEngine.Entity.MarketDepth> MarketDepthUpdateEvent;
 

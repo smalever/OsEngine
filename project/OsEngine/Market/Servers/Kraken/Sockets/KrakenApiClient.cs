@@ -54,7 +54,9 @@ namespace Kraken.WebSockets
         /// <summary>
         /// The cancel order status received
         /// </summary>
+#pragma warning disable CS0649 // Полю "KrakenApiClient.CancelOrderStatusReceived" нигде не присваивается значение, поэтому оно всегда будет иметь значение по умолчанию null.
         public EventHandler<KrakenMessageEventArgs<CancelOrderStatusEvent>> CancelOrderStatusReceived;
+#pragma warning restore CS0649 // Полю "KrakenApiClient.CancelOrderStatusReceived" нигде не присваивается значение, поэтому оно всегда будет иметь значение по умолчанию null.
 
         /// <summary>
         /// Occurs when a new ticker information was received.
@@ -357,6 +359,7 @@ namespace Kraken.WebSockets
         private TEvent HandleEvent<TEvent>(KrakenMessageEventArgs eventArgs, EventHandler<KrakenMessageEventArgs<TEvent>> eventHandler)
             where TEvent : KrakenMessage, new()
         {
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
             try
             {
                 var eventObject = serializer.Deserialize<TEvent>(eventArgs.RawContent);
@@ -370,6 +373,7 @@ namespace Kraken.WebSockets
                 //logger.LogError(ex, "Failed to deserialize addOrderStatus: {message}", eventArgs.RawContent);
                 return null;
             }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
         }
 
         private void SynchronizeSubscriptions(SubscriptionStatus currentStatus)

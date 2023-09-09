@@ -398,7 +398,9 @@ public class MartinBollinger : BotPanel
     /// <summary>
     /// признак что были ниже сма
     /// </summary>
+#pragma warning disable CS0414 // Полю "MartinBollinger.wereBelowSma" присвоено значение, но оно ни разу не использовано.
     bool wereBelowSma = false;
+#pragma warning restore CS0414 // Полю "MartinBollinger.wereBelowSma" присвоено значение, но оно ни разу не использовано.
 
     /// <summary>
     /// шаг уменьшения тейка при наборе шагов
@@ -445,7 +447,9 @@ public class MartinBollinger : BotPanel
     /// <summary>
     /// количество пунктов на тейк профит
     /// </summary>
+#pragma warning disable CS0169 // Поле "MartinBollinger._takeProfitInPoints" никогда не используется.
     private StrategyParameterDecimal _takeProfitInPoints;
+#pragma warning restore CS0169 // Поле "MartinBollinger._takeProfitInPoints" никогда не используется.
 
     /// <summary>
     /// режим работы

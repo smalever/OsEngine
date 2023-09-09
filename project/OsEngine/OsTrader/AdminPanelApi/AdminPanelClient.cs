@@ -104,6 +104,7 @@ namespace OsEngine.OsTrader.AdminPanelApi
 
         private bool TryAuthorization(string message, string token)
         {
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
             try
             {
                 var authorization = JsonConvert.DeserializeObject<AuthorizationMessage>(message);
@@ -119,6 +120,7 @@ namespace OsEngine.OsTrader.AdminPanelApi
             {
                 return false;
             }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
         }
 
         private string GetMessage()

@@ -463,7 +463,9 @@ namespace OsEngine.Market.Servers.Entity
             get { return ServerParameterType.Button; }
         }
 
+#pragma warning disable CS0067 // Событие "ServerParameterButton.ValueChange" никогда не используется.
         public event Action ValueChange;
+#pragma warning restore CS0067 // Событие "ServerParameterButton.ValueChange" никогда не используется.
 
         public void ActivateButtonClick()
         {

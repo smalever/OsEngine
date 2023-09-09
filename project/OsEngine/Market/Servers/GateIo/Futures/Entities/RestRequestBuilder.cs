@@ -93,7 +93,9 @@ namespace OsEngine.Market.Servers.GateIo.Futures.Entities
 
             if (uri.ToString().Contains("?"))
             {
+#pragma warning disable CS0219 // Переменная назначена, но ее значение не используется
                 var t = 6;
+#pragma warning restore CS0219 // Переменная назначена, но ее значение не используется
             }
 
             var httpWebRequest = (HttpWebRequest)WebRequest.Create(uri);

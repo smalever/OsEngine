@@ -1259,6 +1259,7 @@ namespace OsEngine.OsTrader.Panels.Tab
                 return;
             }
 
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
             try
             {
                 if (rowInGrid.Cells[1].Value.ToString() != rowInArray.Cells[1].Value.ToString())
@@ -1299,6 +1300,7 @@ namespace OsEngine.OsTrader.Panels.Tab
             {
                
             }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
         }
 
         /// <summary>

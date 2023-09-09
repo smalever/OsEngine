@@ -46,6 +46,7 @@ namespace OsEngine.Market.Servers.Binance.Spot
 
             // check server availability for HTTP communication with it / проверяем доступность сервера для HTTP общения с ним
             Uri uri = new Uri(_baseUrl + "/v1/time");
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
             try
             {
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
@@ -57,6 +58,7 @@ namespace OsEngine.Market.Servers.Binance.Spot
                 SendLogMessage("Сервер не доступен. Отсутствует интернет. ", LogMessageType.Error);
                 return;
             }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
 
             IsConnected = true;
 

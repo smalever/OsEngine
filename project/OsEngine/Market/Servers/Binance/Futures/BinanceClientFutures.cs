@@ -51,6 +51,7 @@ namespace OsEngine.Market.Servers.Binance.Futures
 
             // check server availability for HTTP communication with it / проверяем доступность сервера для HTTP общения с ним
             Uri uri = new Uri(_baseUrl + "/" + type_str_selector + "/v1/time");
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
             try
             {
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
@@ -62,6 +63,7 @@ namespace OsEngine.Market.Servers.Binance.Futures
                 SendLogMessage("Сервер не доступен. Отсутствует интернет. ", LogMessageType.Error);
                 return;
             }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
 
             IsConnected = true;
 
@@ -1652,6 +1654,7 @@ namespace OsEngine.Market.Servers.Binance.Futures
                                 // если есть code ошибки, то пытаемся распарсить
                                 ErrorMessage _err = new ErrorMessage();
 
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
                                 try
                                 {
                                     _err = JsonConvert.DeserializeAnonymousType(mes, new ErrorMessage());
@@ -1662,6 +1665,7 @@ namespace OsEngine.Market.Servers.Binance.Futures
                                     _err.code = 9999;
                                     _err.msg = mes;
                                 }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
                                 SendLogMessage("code:" + _err.code.ToString() + ",msg:" + _err.msg, LogMessageType.Error);
                             }
 

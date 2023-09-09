@@ -832,7 +832,9 @@ namespace OsEngine.Market.Servers.Hitbtc
         {
             public int OsOrderNumberUser;
             public string OrderNumberMarket;
+#pragma warning disable CS0649 // Полю "HitbtcServerRealization.OrderCoupler.OrderCancelId" нигде не присваивается значение, поэтому оно всегда будет иметь значение по умолчанию null.
             public string OrderCancelId;
+#pragma warning restore CS0649 // Полю "HitbtcServerRealization.OrderCoupler.OrderCancelId" нигде не присваивается значение, поэтому оно всегда будет иметь значение по умолчанию null.
             public decimal CurrentVolume = 0;
         }
     }

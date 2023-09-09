@@ -401,6 +401,7 @@ namespace OsEngine.Entity
 
             StrategyParameterTimeOfDay param = new StrategyParameterTimeOfDay("temp", 0, 0, 0, 0);
 
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
             try
             {
                 string[] array = new[] { "", _grid.Rows[index].Cells[1].EditedFormattedValue.ToString() };
@@ -411,6 +412,7 @@ namespace OsEngine.Entity
 
                 _grid.Rows[index].Cells[1].Value = ((StrategyParameterTimeOfDay)_parameters[index]).Value.ToString();
             }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
         }
 
         public void Save()

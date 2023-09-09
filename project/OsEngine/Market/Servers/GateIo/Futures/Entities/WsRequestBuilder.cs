@@ -9,7 +9,9 @@ namespace OsEngine.Market.Servers.GateIo.Futures.Entities
 {
     class WsRequestBuilder
     {
+#pragma warning disable CS0169 // Поле "WsRequestBuilder._timeStamp" никогда не используется.
         private string _timeStamp;
+#pragma warning restore CS0169 // Поле "WsRequestBuilder._timeStamp" никогда не используется.
         private GateFuturesWsReuest _wsReuest = new GateFuturesWsReuest();
         private Auth _auth;
         private Signer _signer;

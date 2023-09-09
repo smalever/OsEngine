@@ -22,6 +22,7 @@ namespace OsEngine.Market.Servers.Lmax.LmaxEntity
             _tcpClient = tcpClient;
             _stream = new SslStream(tcpClient.GetStream()) { ReadTimeout = 1000 };
 
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
             try
             {
                 _stream.AuthenticateAsClient(uri);
@@ -30,6 +31,7 @@ namespace OsEngine.Market.Servers.Lmax.LmaxEntity
             {
                 _tcpClient.Close();
             }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
         }
 
         /// <summary>

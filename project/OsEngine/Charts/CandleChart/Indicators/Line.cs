@@ -230,7 +230,9 @@ namespace OsEngine.Charts.CandleChart.Indicators
         /// indicator needs to be redrawn
         /// индикатор нужно перерисовать
         /// </summary>
+#pragma warning disable CS0067 // Событие "Line.NeadToReloadEvent" никогда не используется.
         public event Action<IIndicator> NeadToReloadEvent;
+#pragma warning restore CS0067 // Событие "Line.NeadToReloadEvent" никогда не используется.
 
         /// <summary>
         /// recalculate indicator. This indicator blocked.

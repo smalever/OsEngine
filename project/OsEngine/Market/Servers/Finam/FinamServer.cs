@@ -1231,6 +1231,7 @@ namespace OsEngine.Market.Servers.Finam
         private void ThreadDownLoaderArea()
         {
             return;
+#pragma warning disable CS0162 // Обнаружен недостижимый код
             while (true)
             {
 
@@ -1252,6 +1253,7 @@ namespace OsEngine.Market.Servers.Finam
                     Thread.Sleep(10000);
                 }
             }
+#pragma warning restore CS0162 // Обнаружен недостижимый код
         }
 
         /// <summary>
@@ -1459,7 +1461,9 @@ namespace OsEngine.Market.Servers.Finam
         /// called when my new deal comes
         /// вызывается когда приходит новая моя сделка
         /// </summary>
+#pragma warning disable CS0067 // Событие "FinamServer.NewMyTradeEvent" никогда не используется.
         public event Action<MyTrade> NewMyTradeEvent;
+#pragma warning restore CS0067 // Событие "FinamServer.NewMyTradeEvent" никогда не используется.
 
         // work with orders
         // работа с ордерами
@@ -1495,7 +1499,9 @@ namespace OsEngine.Market.Servers.Finam
         /// called when new order appear in the system
         /// вызывается когда в системе появляется новый ордер
         /// </summary>
+#pragma warning disable CS0067 // Событие "FinamServer.NewOrderIncomeEvent" никогда не используется.
         public event Action<Order> NewOrderIncomeEvent;
+#pragma warning restore CS0067 // Событие "FinamServer.NewOrderIncomeEvent" никогда не используется.
 
         private DateTime _serverTime;
 
@@ -1521,7 +1527,9 @@ namespace OsEngine.Market.Servers.Finam
         /// called when server time is changed
         /// вызывается когда изменяется время сервера
         /// </summary>
+#pragma warning disable CS0067 // Событие "FinamServer.TimeServerChangeEvent" никогда не используется.
         public event Action<DateTime> TimeServerChangeEvent;
+#pragma warning restore CS0067 // Событие "FinamServer.TimeServerChangeEvent" никогда не используется.
 
         #endregion
 
@@ -1648,7 +1656,9 @@ namespace OsEngine.Market.Servers.Finam
         /// trades updated
         /// обновились трейды
         /// </summary>
+#pragma warning disable CS0067 // Событие "FinamDataSeries.TradesUpdateEvent" никогда не используется.
         public event Action<List<string>> TradesUpdateEvent;
+#pragma warning restore CS0067 // Событие "FinamDataSeries.TradesUpdateEvent" никогда не используется.
 
         /// <summary>
         /// is current object a downloading tick

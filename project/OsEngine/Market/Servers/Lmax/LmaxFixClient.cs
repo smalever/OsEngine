@@ -129,6 +129,7 @@ namespace OsEngine.Market.Servers.Lmax
 
             _client = new TcpClient();
 
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
             try
             {
                 _client.Connect(endPoint);
@@ -139,6 +140,7 @@ namespace OsEngine.Market.Servers.Lmax
                 Disconnected?.Invoke();
                 return;
             }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
 
             _tradingSession = new Session(_client, _uiUrl);
 
@@ -502,6 +504,7 @@ namespace OsEngine.Market.Servers.Lmax
 
                     if (type == "0")
                     {
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
                         try
                         {
                             // if new order signal has come, but ClOrdID cannot be converted to int, then the order was not created in OsEngine, ignore it / если пришел сигнал о новом ордере, но ClOrdID не может быть конвертирован в int, значит ордер создавался не в OsEngine, игнорим его
@@ -511,6 +514,7 @@ namespace OsEngine.Market.Servers.Lmax
                         {
                             return;
                         }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
 
                         order.State = OrderStateType.Activ;
                         order.NumberMarket = entity.GetFieldByTag((int)Tags.OrderID);
@@ -529,6 +533,7 @@ namespace OsEngine.Market.Servers.Lmax
 
                     if (type == "8")
                     {
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
                         try
                         {
                             order.NumberUser = Convert.ToInt32(numUser);
@@ -537,6 +542,7 @@ namespace OsEngine.Market.Servers.Lmax
                         {
                             return;
                         }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
 
                         order.State = OrderStateType.Fail;
 
@@ -557,6 +563,7 @@ namespace OsEngine.Market.Servers.Lmax
                         order.TimeCancel = order.TimeCallBack;
                         var oldNumUser = entity.GetFieldByTag((int)Tags.OrigClOrdID);
 
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
                         try
                         {
                             order.NumberUser = Convert.ToInt32(oldNumUser);
@@ -565,6 +572,7 @@ namespace OsEngine.Market.Servers.Lmax
                         {
                             return;
                         }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
 
                         order.NumberMarket = entity.GetFieldByTag((int)Tags.OrderID);
                         order.Side = entity.GetFieldByTag((int)Tags.Side) == "1" ? Side.Buy : Side.Sell;
@@ -624,6 +632,7 @@ namespace OsEngine.Market.Servers.Lmax
                     order.TimeCallBack = DateTime.UtcNow;
                     var numUser = entity.GetFieldByTag((int)Tags.OrigClOrdID);
 
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
                     try
                     {
                         order.NumberUser = Convert.ToInt32(numUser);
@@ -632,6 +641,7 @@ namespace OsEngine.Market.Servers.Lmax
                     {
                         return;
                     }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
                     order.State = OrderStateType.Fail;
                     MyOrderEvent?.Invoke(order);
                     return;

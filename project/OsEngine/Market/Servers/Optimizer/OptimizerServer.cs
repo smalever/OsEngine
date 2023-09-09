@@ -1178,7 +1178,9 @@ namespace OsEngine.Market.Servers.Optimizer
 		/// changed portfolio
         /// изменился портфель
         /// </summary>
+#pragma warning disable CS0067 // Событие "OptimizerServer.PortfoliosChangeEvent" никогда не используется.
         public event Action<List<Portfolio>> PortfoliosChangeEvent;
+#pragma warning restore CS0067 // Событие "OptimizerServer.PortfoliosChangeEvent" никогда не используется.
 
 // securities
 // бумаги
@@ -1237,7 +1239,9 @@ namespace OsEngine.Market.Servers.Optimizer
 		/// tester instruments changed
         /// инструменты тестера изменились
         /// </summary>
+#pragma warning disable CS0067 // Событие "OptimizerServer.SecuritiesChangeEvent" никогда не используется.
         public event Action<List<Security>> SecuritiesChangeEvent;
+#pragma warning restore CS0067 // Событие "OptimizerServer.SecuritiesChangeEvent" никогда не используется.
 
         /// <summary>
 		/// show instruments
@@ -1467,7 +1471,9 @@ namespace OsEngine.Market.Servers.Optimizer
 		/// connectors connected to the server need to get a new data
         /// коннекторам подключеным к серверу необходимо перезаказать данные
         /// </summary>
+#pragma warning disable CS0067 // Событие "OptimizerServer.NeadToReconnectEvent" никогда не используется.
         public event Action NeadToReconnectEvent;
+#pragma warning restore CS0067 // Событие "OptimizerServer.NeadToReconnectEvent" никогда не используется.
 
 // candles
 // свечи

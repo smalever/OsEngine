@@ -284,7 +284,9 @@ namespace OsEngine.OsaExtension.Robots.PairTrading
         /// <summary>
         /// объем второй бумаги
         /// </summary>
+#pragma warning disable CS0169 // Поле "PairTrading.Volume2" никогда не используется.
         private StrategyParameterDecimal Volume2;
+#pragma warning restore CS0169 // Поле "PairTrading.Volume2" никогда не используется.
 
         /// <summary>
         /// bollinger

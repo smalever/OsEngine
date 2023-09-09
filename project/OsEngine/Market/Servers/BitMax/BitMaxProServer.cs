@@ -528,6 +528,7 @@ namespace OsEngine.Market.Servers.BitMax
 
             for (int i = 0; i < candlesResponce.data.Count; i++)
             {
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
                 try
                 {
                     candles.Add(new Candle()
@@ -545,6 +546,7 @@ namespace OsEngine.Market.Servers.BitMax
                 {
                     //ignore
                 }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
 
             }
 

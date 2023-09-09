@@ -571,10 +571,12 @@ namespace OsEngine.Market.Servers.Binance.Futures
             {
                 return;
 
+#pragma warning disable CS0162 // Обнаружен недостижимый код
                 if (portfs == null)
                 {
                     return;
                 }
+#pragma warning restore CS0162 // Обнаружен недостижимый код
 
                 if (_portfolios == null)
                 {

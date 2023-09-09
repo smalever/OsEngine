@@ -40,7 +40,9 @@ namespace OsEngine.OsTrader.Panels.Tab.Internal
             return newDeal;
         }
 
+#pragma warning disable CS0414 // Полю "PositionCreator._ordersNumInOptimizer" присвоено значение, но оно ни разу не использовано.
         private int _ordersNumInOptimizer = 1;
+#pragma warning restore CS0414 // Полю "PositionCreator._ordersNumInOptimizer" присвоено значение, но оно ни разу не использовано.
 
         /// <summary>
         /// Create order

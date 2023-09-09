@@ -269,6 +269,7 @@ namespace OsEngine.Indicators
 
         private void _gridVisual_Click(object sender, EventArgs e)
         {
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
             try
             {
                 int rowIndex = _gridVisual.SelectedCells[0].RowIndex;
@@ -288,6 +289,7 @@ namespace OsEngine.Indicators
             {
 
             }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
         }
 
         private void SaveVisual()

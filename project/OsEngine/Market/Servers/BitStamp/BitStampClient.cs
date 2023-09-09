@@ -461,6 +461,7 @@ namespace OsEngine.Market.Servers.BitStamp
                 return;
             }
 
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
             try
             {
                 var resp = JsonConvert.DeserializeObject<OrderBookResponse>(message);
@@ -493,6 +494,7 @@ namespace OsEngine.Market.Servers.BitStamp
                     //   LogMessageEvent(error.ToString(), LogMessageType.Error);
                 }
             }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
         }
 
         /// <summary>
@@ -507,6 +509,7 @@ namespace OsEngine.Market.Servers.BitStamp
             {
                 return;
             }
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
             try
             {
                 var resp = JsonConvert.DeserializeObject<TradeResponse>(message);
@@ -540,6 +543,7 @@ namespace OsEngine.Market.Servers.BitStamp
                     // LogMessageEvent(error.ToString(),LogMessageType.Error);
                 }
             }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
         }
 
         // listening thread of data throw HTTP

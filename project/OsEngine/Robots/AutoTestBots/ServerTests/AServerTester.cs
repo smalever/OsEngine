@@ -376,7 +376,9 @@ namespace OsEngine.Robots.AutoTestBots.ServerTests
 
         public AServer _myServer;
 
+#pragma warning disable CS0067 // Событие "AServerTester.LogMessage" никогда не используется.
         public event Action<string, LogMessageType> LogMessage;
+#pragma warning restore CS0067 // Событие "AServerTester.LogMessage" никогда не используется.
 
         public void TestEnded()
         {

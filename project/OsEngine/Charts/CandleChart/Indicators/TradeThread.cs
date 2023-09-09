@@ -235,7 +235,9 @@ namespace OsEngine.Charts.CandleChart.Indicators
         /// it's necessary to redraw indicator on chart
         /// необходимо перерисовать индикатор на графике
         /// </summary>
+#pragma warning disable CS0067 // Событие "TradeThread.NeadToReloadEvent" никогда не используется.
         public event Action<IIndicator> NeadToReloadEvent;
+#pragma warning restore CS0067 // Событие "TradeThread.NeadToReloadEvent" никогда не используется.
 
         /// <summary>
         /// to upload new candles

@@ -1333,6 +1333,7 @@ namespace OsEngine.OsOptimizer
 
             int indexRow = e.RowIndex;
 
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
             try
             {
                 DateTime time = Convert.ToDateTime(_gridFazes.Rows[indexRow].Cells[indexColumn].EditedFormattedValue.ToString(), _currentCulture);
@@ -1358,6 +1359,7 @@ namespace OsEngine.OsOptimizer
                     _gridFazes.Rows[indexRow].Cells[indexColumn].Value = _master.Fazes[indexRow].TimeEnd.ToString(OsLocalization.ShortDateFormatString);
                 }
             }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
 
             PaintTableOptimizeFazes();
 

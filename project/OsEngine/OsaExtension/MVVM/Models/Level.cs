@@ -542,7 +542,9 @@ namespace OsEngine.OsaExtension.MVVM.Models
         private void CalculatePosition(MyTrade myTrade, Security security)
         {
             //decimal volume =0;
+#pragma warning disable CS0219 // Переменная назначена, но ее значение не используется
             decimal openPrice = 0;
+#pragma warning restore CS0219 // Переменная назначена, но ее значение не используется
             decimal accum = 0;
 
             if (_calcVolume == 0)

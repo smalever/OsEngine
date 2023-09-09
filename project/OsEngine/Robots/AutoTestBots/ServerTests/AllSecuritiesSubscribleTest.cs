@@ -69,6 +69,8 @@ namespace OsEngine.Robots.AutoTestBots.ServerTests
 
                 for (int i = 0; i < _screener.Tabs.Count; i++)
                 {
+#pragma warning disable CS0472 // Результат значения всегда одинаковый, так как значение этого типа никогда не равно NULL
+#pragma warning disable CS0472 // Результат значения всегда одинаковый, так как значение этого типа никогда не равно NULL
                     if (_screener.Tabs[i].PriceBestAsk == null  ||
                         _screener.Tabs[i].PriceBestAsk == null ||
                         _screener.Tabs[i].Trades == null )
@@ -76,6 +78,8 @@ namespace OsEngine.Robots.AutoTestBots.ServerTests
                         IsAllLoadSec = false;
                         break;
                     }
+#pragma warning restore CS0472 // Результат значения всегда одинаковый, так как значение этого типа никогда не равно NULL
+#pragma warning restore CS0472 // Результат значения всегда одинаковый, так как значение этого типа никогда не равно NULL
                     if (_screener.Tabs[i].Trades.Count == 0 ||
                         _screener.Tabs[i].PriceBestAsk == 0 ||
                         _screener.Tabs[i].PriceBestAsk == 0)
@@ -122,6 +126,8 @@ namespace OsEngine.Robots.AutoTestBots.ServerTests
 
             for (int i = 0; i < _screener.Tabs.Count; i++)
             {
+#pragma warning disable CS0472 // Результат значения всегда одинаковый, так как значение этого типа никогда не равно NULL
+#pragma warning disable CS0472 // Результат значения всегда одинаковый, так как значение этого типа никогда не равно NULL
                 if (_screener.Tabs[i].PriceBestAsk == null ||
                     _screener.Tabs[i].PriceBestAsk == null ||
                     _screener.Tabs[i].Trades == null)
@@ -140,6 +146,8 @@ namespace OsEngine.Robots.AutoTestBots.ServerTests
                 {
                     CounterToLoad++;
                 }
+#pragma warning restore CS0472 // Результат значения всегда одинаковый, так как значение этого типа никогда не равно NULL
+#pragma warning restore CS0472 // Результат значения всегда одинаковый, так как значение этого типа никогда не равно NULL
             }
 
             return $"To Load Tabs: {CounterToLoad}; Fail Load Tabs: {CountToFail}";

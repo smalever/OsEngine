@@ -656,7 +656,9 @@ namespace OsEngine.Market.Servers
         /// место в котором контролируется соединение. опрашиваются потоки данных
         /// </summary>
         [System.Runtime.ExceptionServices.HandleProcessCorruptedStateExceptionsAttribute]
+#pragma warning disable CS1998 // В асинхронном методе отсутствуют операторы await, будет выполнен синхронный метод
         private async void PrimeThreadArea()
+#pragma warning restore CS1998 // В асинхронном методе отсутствуют операторы await, будет выполнен синхронный метод
         {
             while (true)
             {

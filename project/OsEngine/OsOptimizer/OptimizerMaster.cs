@@ -135,6 +135,7 @@ namespace OsEngine.OsOptimizer
             {
                 return;
             }
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
             try
             {
                 using (StreamReader reader = new StreamReader(@"Engine\OptimizerSettings.txt"))
@@ -171,6 +172,7 @@ namespace OsEngine.OsOptimizer
             {
                 //SendLogMessage(error.ToString(), LogMessageType.Error);
             }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
         }
 
         // work with the progress of the optimization process/работа с прогрессом процесса оптимизации

@@ -105,10 +105,16 @@ namespace OsEngine.Market.Servers.MFD
 
         }
 
+#pragma warning disable CS0067 // Событие "MfdServerRealization.MyOrderEvent" никогда не используется.
         public event Action<Order> MyOrderEvent;
+#pragma warning restore CS0067 // Событие "MfdServerRealization.MyOrderEvent" никогда не используется.
+#pragma warning disable CS0067 // Событие "MfdServerRealization.MyTradeEvent" никогда не используется.
         public event Action<MyTrade> MyTradeEvent;
+#pragma warning restore CS0067 // Событие "MfdServerRealization.MyTradeEvent" никогда не используется.
         public event Action<List<Portfolio>> PortfolioEvent;
+#pragma warning disable CS0067 // Событие "MfdServerRealization.MarketDepthEvent" никогда не используется.
         public event Action<MarketDepth> MarketDepthEvent;
+#pragma warning restore CS0067 // Событие "MfdServerRealization.MarketDepthEvent" никогда не используется.
 
         #endregion
 
@@ -559,11 +565,15 @@ namespace OsEngine.Market.Servers.MFD
 
         public event Action<List<Security>> SecurityEvent;
 
+#pragma warning disable CS0067 // Событие "MfdServerRealization.NewTradesEvent" никогда не используется.
         public event Action<Trade> NewTradesEvent;
+#pragma warning restore CS0067 // Событие "MfdServerRealization.NewTradesEvent" никогда не используется.
 
         public event Action ConnectEvent;
 
+#pragma warning disable CS0067 // Событие "MfdServerRealization.DisconnectEvent" никогда не используется.
         public event Action DisconnectEvent;
+#pragma warning restore CS0067 // Событие "MfdServerRealization.DisconnectEvent" никогда не используется.
 
         public event Action<string, LogMessageType> LogMessageEvent;
 

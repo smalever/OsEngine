@@ -60,6 +60,7 @@ namespace Kraken.WebSockets
         /// <param name="cancellationToken"></param>
         public async Task ConnectAsync(CancellationToken cancellationToken = default)
         {
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
             try
             {
                // logger?.LogInformation("Trying to connect to '{uri}'", uri);
@@ -75,6 +76,7 @@ namespace Kraken.WebSockets
                 //logger?.LogError(ex, "Error while connecting to '{uri}'", uri);
                 throw;
             }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
         }
 
         /// <summary>
@@ -119,6 +121,7 @@ namespace Kraken.WebSockets
         private async Task StartListening(CancellationToken cancellationToken = default)
 #pragma warning restore S3241 // Methods should not return values that are never used
         {
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
             try
             {
                 while (webSocket.State == WebSocketState.Open)
@@ -168,6 +171,7 @@ namespace Kraken.WebSockets
               //  logger?.LogInformation("Closing WebSocket");
                 webSocket.Dispose();
             }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
         }
 
         private async Task<string> ReadNextMessage(CancellationToken cancellationToken = default)

@@ -298,6 +298,7 @@ namespace OsEngine.Entity
                 return;
             }
 
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
             try
             {
                 List<MenuItem> items = new List<MenuItem>();
@@ -317,6 +318,7 @@ namespace OsEngine.Entity
             {
 
             }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
         }
 
         void CloseOrdersAddOrder_Click(object sender, EventArgs e)
@@ -388,6 +390,7 @@ namespace OsEngine.Entity
                 return;
             }
 
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
             try
             {
                 List<MenuItem> items = new List<MenuItem>();
@@ -407,6 +410,7 @@ namespace OsEngine.Entity
             {
 
             }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
         }
 
         private void CheckOpenOrdersTimeButtonClick(List<Order> orders, DataGridView grid)
@@ -664,6 +668,7 @@ namespace OsEngine.Entity
                 return;
             }
 
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
             try
             {
                 List<MenuItem> items = new List<MenuItem>();
@@ -709,6 +714,7 @@ namespace OsEngine.Entity
             {
 
             }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
         }
 
         void MyTradeAddInOpenOrders_Click(object sender, EventArgs e)

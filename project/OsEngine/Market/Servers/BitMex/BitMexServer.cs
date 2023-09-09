@@ -545,7 +545,9 @@ namespace OsEngine.Market.Servers.BitMex
         /// downloading candle master
         /// мастер загрузки свечек
         /// </summary>
+#pragma warning disable CS0169 // Поле "BitMexServerRealization._candleManager" никогда не используется.
         private CandleManager _candleManager;
+#pragma warning restore CS0169 // Поле "BitMexServerRealization._candleManager" никогда не используется.
 
         /// <summary>
         /// securities already subscribed to data updates

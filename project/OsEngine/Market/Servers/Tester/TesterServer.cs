@@ -3152,7 +3152,9 @@ namespace OsEngine.Market.Servers.Tester
 		/// tester instrument changed
         /// инструменты тестера изменились
         /// </summary>
+#pragma warning disable CS0067 // Событие "TesterServer.SecuritiesChangeEvent" никогда не используется.
         public event Action<List<Security>> SecuritiesChangeEvent;
+#pragma warning restore CS0067 // Событие "TesterServer.SecuritiesChangeEvent" никогда не используется.
 
         /// <summary>
 		/// show instruments

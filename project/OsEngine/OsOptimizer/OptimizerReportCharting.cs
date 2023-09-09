@@ -326,7 +326,9 @@ namespace OsEngine.OsOptimizer
                     return;
                 }
 
+#pragma warning disable CS0219 // Переменная назначена, но ее значение не используется
                 int num = 0;
+#pragma warning restore CS0219 // Переменная назначена, но ее значение не используется
 
                 OptimizerReport inSampleReport = null;
 
@@ -504,7 +506,9 @@ namespace OsEngine.OsOptimizer
                     return;
                 }
 
+#pragma warning disable CS0219 // Переменная назначена, но ее значение не используется
                 int num = 0;
+#pragma warning restore CS0219 // Переменная назначена, но ее значение не используется
 
                 OptimizerReport inSampleReport = null;
 

@@ -258,7 +258,9 @@ namespace OsEngine.OsTrader
         private TabControl _tabBotTab;
         private ConnectorWorkType _typeWorkKeeper;
         private TextBox _textBoxLimitPrice;
+#pragma warning disable CS0649 // Полю "OsTraderMaster._textBoxVolume" нигде не присваивается значение, поэтому оно всегда будет иметь значение по умолчанию null.
         private TextBox _textBoxVolume;
+#pragma warning restore CS0649 // Полю "OsTraderMaster._textBoxVolume" нигде не присваивается значение, поэтому оно всегда будет иметь значение по умолчанию null.
         private Grid _gridChartControlPanel;
 
         /// <summary>

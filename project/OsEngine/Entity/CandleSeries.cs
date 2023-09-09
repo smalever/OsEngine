@@ -1568,7 +1568,9 @@ namespace OsEngine.Entity
 
         private Side _rencoLastSide;
 
+#pragma warning disable CS0169 // Поле "CandleSeries._rencoIsBuildShadows" никогда не используется.
         private bool _rencoIsBuildShadows;
+#pragma warning restore CS0169 // Поле "CandleSeries._rencoIsBuildShadows" никогда не используется.
 
         private void UpDateRencoTimeFrame(DateTime time, decimal price, decimal volume, bool canPushUp)
         {

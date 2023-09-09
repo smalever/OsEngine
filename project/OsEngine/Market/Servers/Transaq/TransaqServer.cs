@@ -766,6 +766,7 @@ namespace OsEngine.Market.Servers.Transaq
 
         private List<Candle> ParseCandles(Candles candles)
         {
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
             try
             {
                 List<Candle> osCandles = new List<Candle>();
@@ -789,6 +790,7 @@ namespace OsEngine.Market.Servers.Transaq
             {
                 return null;
             }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
         }
 
         /// <summary>
@@ -1313,6 +1315,7 @@ namespace OsEngine.Market.Servers.Transaq
                     security.PriceStep = securityData.Minstep.ToDecimal();
 
                     decimal pointCost;
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
                     try
                     {
                         pointCost = securityData.Point_cost.ToDecimal();
@@ -1321,6 +1324,7 @@ namespace OsEngine.Market.Servers.Transaq
                     {
                         decimal.TryParse(securityData.Point_cost, NumberStyles.Float, CultureInfo.InvariantCulture, out pointCost);
                     }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
 
                     if (security.PriceStep > 1)
                     {

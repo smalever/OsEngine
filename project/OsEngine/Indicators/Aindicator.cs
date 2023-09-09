@@ -53,7 +53,9 @@ namespace OsEngine.Indicators
             }
         }
 
+#pragma warning disable CS0414 // Полю "Aindicator._isDeleted" присвоено значение, но оно ни разу не использовано.
         private bool _isDeleted;
+#pragma warning restore CS0414 // Полю "Aindicator._isDeleted" присвоено значение, но оно ни разу не использовано.
 
         public void Delete()
         {

@@ -154,10 +154,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
             set
             {
+#pragma warning disable CS0472 // Результат значения всегда одинаковый, так как значение этого типа никогда не равно NULL
                 if (value != null && value != _serverType)
                 {
                     _serverType = value;
                 }
+#pragma warning restore CS0472 // Результат значения всегда одинаковый, так как значение этого типа никогда не равно NULL
             }
         }
         ServerType _serverType = ServerType.None;

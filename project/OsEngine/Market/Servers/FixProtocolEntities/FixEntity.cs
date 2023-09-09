@@ -27,6 +27,7 @@ namespace OsEngine.Market.Servers.FixProtocolEntities
         {
             string value;
 
+#pragma warning disable CS0168 // Переменная объявлена, но не используется
             try
             {
                 value = Fields.Find(field => field.Tag == tag).Value;
@@ -35,6 +36,7 @@ namespace OsEngine.Market.Servers.FixProtocolEntities
             {
                 throw new ArgumentException("Запрошено отсутствующее поле");
             }
+#pragma warning restore CS0168 // Переменная объявлена, но не используется
 
             return value;
         }

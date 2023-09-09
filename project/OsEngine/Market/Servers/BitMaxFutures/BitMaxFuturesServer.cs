@@ -59,8 +59,12 @@ namespace OsEngine.Market.Servers.BitMaxFutures
         public List<IServerParameter> ServerParameters { get; set; }
         public DateTime ServerTime { get; set; }
 
+#pragma warning disable CS0067 // Событие "BitMaxFuturesServerRealization.MyOrderEvent" никогда не используется.
         public event Action<Order> MyOrderEvent;
+#pragma warning restore CS0067 // Событие "BitMaxFuturesServerRealization.MyOrderEvent" никогда не используется.
+#pragma warning disable CS0067 // Событие "BitMaxFuturesServerRealization.MyTradeEvent" никогда не используется.
         public event Action<MyTrade> MyTradeEvent;
+#pragma warning restore CS0067 // Событие "BitMaxFuturesServerRealization.MyTradeEvent" никогда не используется.
         public event Action<List<Portfolio>> PortfolioEvent;
         public event Action<List<Security>> SecurityEvent;
         public event Action<MarketDepth> MarketDepthEvent;
