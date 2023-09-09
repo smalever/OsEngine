@@ -1738,7 +1738,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             if (order.SecurityNameCode == SelectedSecurity.Name
                 && order.ServerType == Server.ServerType) // 
             {
-                //  дальше запись в лог ответа с биржи по ордеру  и уровню 
+                //  дальше запись в лог ответа с биржи по ордеру и уровню 
                 bool rec = true;
                 if (order.State == OrderStateType.Activ
                     && order.TimeCallBack.AddSeconds(2) < Server.ServerTime)
