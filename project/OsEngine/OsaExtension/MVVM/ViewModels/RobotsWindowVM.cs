@@ -506,8 +506,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         #endregion
 
         public delegate void selectedSecurity();
-#pragma warning disable CS0067 // Событие "RobotsWindowVM.OnSelectedSecurity" никогда не используется.
+
         public event selectedSecurity OnSelectedSecurity;
-#pragma warning restore CS0067 // Событие "RobotsWindowVM.OnSelectedSecurity" никогда не используется.
+
     }
 }
