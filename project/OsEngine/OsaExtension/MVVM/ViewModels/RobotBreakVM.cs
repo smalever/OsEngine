@@ -631,56 +631,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             PriceOpenPos = _priceOpenPos;
         }
 
-        ///// <summary>
-        /////  перезапись состояния оредра с биржи в мое хранилище
-        ///// </summary>
-        //private Order CopyOrder(Order newOrder, Order order)
-        //{
-        //    order.State = newOrder.State;
-        //    order.TimeCancel = newOrder.TimeCancel;
-        //    order.Volume = newOrder.Volume;
-        //    order.VolumeExecute = newOrder.VolumeExecute;
-        //    order.TimeDone = newOrder.TimeDone;
-        //    order.TimeCallBack = newOrder.TimeCallBack;
-        //    order.NumberUser = newOrder.NumberUser;
-
-        //    return order;
-        //}
-
-        ///// <summary>
-        ///// принадлежит ли ордер списку
-        ///// </summary>
-        //public bool NewOrder(Order newOrder)
-        //{
-        //    //if(OrdersForOpen == null || OrdersForOpen.Count == 0) return false;
-        //    //for (int i = 0; i < OrdersForOpen.Count; i++)
-        //    //{
-        //    //    if (OrdersForOpen[i].NumberMarket == newOrder.NumberMarket)
-        //    //    {
-        //    //        CopyOrder(newOrder, OrdersForOpen[i]);
-
-        //    //        CalculateOrders();
-
-        //    //        StatusLevel = PositionStatus.OPEN;
-
-        //    //        return true;
-        //    //    }
-        //    //}
-        //    //for (int i = 0; i < OrdersForClose.Count; i++)
-        //    //{
-        //    //    if (OrdersForClose[i].NumberMarket == newOrder.NumberMarket)
-        //    //    {
-        //    //        CopyOrder(newOrder, OrdersForClose[i]);
-
-        //    //        CalculateOrders();
-
-        //    //        StatusLevel = PositionStatus.DONE;
-        //    //        return true;
-        //    //    }
-        //    //}
-        //    return false;
-        //}
-
         /// <summary>
         /// проверка ордера
         /// </summary>
@@ -690,8 +640,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 bool newOrderBool = PositionsBots[i].NewOrder(checkOrder);
             }
-            // проверить номер юзера,
-            // если мой - обновить данные о нем в сделке
         }
  
         /// <summary>
@@ -836,11 +784,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private void _server_NewOrderIncomeEvent(Order myOrder)
         {
             CheckMyOrder(myOrder);
-            /*  проверить номер юзера,
-             *  если мой - обновить данные о нем в сделке 
+            /*  
              *  продолжить логику 
              *   
-             * 
              */
         }
 
