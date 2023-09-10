@@ -631,75 +631,67 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             PriceOpenPos = _priceOpenPos;
         }
 
-        /// <summary>
-        ///  перезапись состояния оредра с биржи в мое хранилище
-        /// </summary>
-        private Order CopyOrder(Order newOrder, Order order)
-        {
-            order.State = newOrder.State;
-            order.TimeCancel = newOrder.TimeCancel;
-            order.Volume = newOrder.Volume;
-            order.VolumeExecute = newOrder.VolumeExecute;
-            order.TimeDone = newOrder.TimeDone;
-            order.TimeCallBack = newOrder.TimeCallBack;
-            order.NumberUser = newOrder.NumberUser;
+        ///// <summary>
+        /////  перезапись состояния оредра с биржи в мое хранилище
+        ///// </summary>
+        //private Order CopyOrder(Order newOrder, Order order)
+        //{
+        //    order.State = newOrder.State;
+        //    order.TimeCancel = newOrder.TimeCancel;
+        //    order.Volume = newOrder.Volume;
+        //    order.VolumeExecute = newOrder.VolumeExecute;
+        //    order.TimeDone = newOrder.TimeDone;
+        //    order.TimeCallBack = newOrder.TimeCallBack;
+        //    order.NumberUser = newOrder.NumberUser;
 
-            return order;
-        }
+        //    return order;
+        //}
 
-        /// <summary>
-        /// принадлежит ли ордер списку
-        /// </summary>
-        public bool NewOrder(Order newOrder)
-        {
-            //if(OrdersForOpen == null || OrdersForOpen.Count == 0) return false;
-            //for (int i = 0; i < OrdersForOpen.Count; i++)
-            //{
-            //    if (OrdersForOpen[i].NumberMarket == newOrder.NumberMarket)
-            //    {
-            //        CopyOrder(newOrder, OrdersForOpen[i]);
+        ///// <summary>
+        ///// принадлежит ли ордер списку
+        ///// </summary>
+        //public bool NewOrder(Order newOrder)
+        //{
+        //    //if(OrdersForOpen == null || OrdersForOpen.Count == 0) return false;
+        //    //for (int i = 0; i < OrdersForOpen.Count; i++)
+        //    //{
+        //    //    if (OrdersForOpen[i].NumberMarket == newOrder.NumberMarket)
+        //    //    {
+        //    //        CopyOrder(newOrder, OrdersForOpen[i]);
 
-            //        CalculateOrders();
+        //    //        CalculateOrders();
 
-            //        StatusLevel = PositionStatus.OPEN;
+        //    //        StatusLevel = PositionStatus.OPEN;
 
-            //        return true;
-            //    }
-            //}
-            //for (int i = 0; i < OrdersForClose.Count; i++)
-            //{
-            //    if (OrdersForClose[i].NumberMarket == newOrder.NumberMarket)
-            //    {
-            //        CopyOrder(newOrder, OrdersForClose[i]);
+        //    //        return true;
+        //    //    }
+        //    //}
+        //    //for (int i = 0; i < OrdersForClose.Count; i++)
+        //    //{
+        //    //    if (OrdersForClose[i].NumberMarket == newOrder.NumberMarket)
+        //    //    {
+        //    //        CopyOrder(newOrder, OrdersForClose[i]);
 
-            //        CalculateOrders();
+        //    //        CalculateOrders();
 
-            //        StatusLevel = PositionStatus.DONE;
-            //        return true;
-            //    }
-            //}
-            return false;
-        }
+        //    //        StatusLevel = PositionStatus.DONE;
+        //    //        return true;
+        //    //    }
+        //    //}
+        //    return false;
+        //}
+
         /// <summary>
         /// проверка ордера
         /// </summary>
-        private void CheckMyOrder()
+        private void CheckMyOrder(Order checkOrder)
         {
+            for (int i = 0; i < PositionsBots.Count; i++)
+            {
+                bool newOrderBool = PositionsBots[i].NewOrder(checkOrder);
+            }
             // проверить номер юзера,
             // если мой - обновить данные о нем в сделке
-
-            //if (order.NumberMarket != "")
-            //{
-            //    foreach (Level level in Levels)
-            //    {
-            //        bool newOrderBool = level.NewOrder(order);
-
-            //        if (newOrderBool)
-            //        {
-            //            RobotsWindowVM.Log(Header, " Обновился Уровень = " + level.GetStringForSave());
-            //        }
-            //    }
-            //}
         }
  
         /// <summary>
@@ -843,6 +835,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void _server_NewOrderIncomeEvent(Order myOrder)
         {
+            CheckMyOrder(myOrder);
             /*  проверить номер юзера,
              *  если мой - обновить данные о нем в сделке 
              *  продолжить логику 

@@ -226,7 +226,59 @@ namespace OsEngine.OsaExtension.MVVM.Models
         /// <summary>
         ///  список трейдов принадлежащих позиции 
         /// </summary>
-        private List<MyTrade> _myTrades = new List<MyTrade>();  
+        private List<MyTrade> _myTrades = new List<MyTrade>();
+
+
+        /// <summary>
+        ///  перезапись состояния оредра с биржи в мое хранилище
+        /// </summary>
+        private Order CopyOrder(Order newOrder, Order order)
+        {
+            order.State = newOrder.State;
+            order.TimeCancel = newOrder.TimeCancel;
+            order.Volume = newOrder.Volume;
+            order.VolumeExecute = newOrder.VolumeExecute;
+            order.TimeDone = newOrder.TimeDone;
+            order.TimeCallBack = newOrder.TimeCallBack;
+            order.NumberUser = newOrder.NumberUser;
+
+            return order;
+        }
+
+
+        /// <summary>
+        /// принадлежит ли ордер списку
+        /// </summary>
+        public bool NewOrder(Order newOrder)
+        {
+            if (OrdersForOpen == null || OrdersForOpen.Count == 0) return false;
+            for (int i = 0; i < OrdersForOpen.Count; i++)
+            {
+                if (OrdersForOpen[i].NumberUser == newOrder.NumberUser)
+                {
+                    CopyOrder(newOrder, OrdersForOpen[i]);
+
+                    //CalculateOrders();
+                    // ordersForOpen[i].State = OrderStateType.Done;
+                    Status = PositionStatus.OPENING;
+
+                    return true;
+                }
+            }
+            for (int i = 0; i < OrdersForClose.Count; i++)
+            {
+                if (OrdersForClose[i].NumberUser == newOrder.NumberUser)
+                {
+                    CopyOrder(newOrder, OrdersForClose[i]);
+
+                    //CalculateOrders();
+
+                    Status = PositionStatus.DONE;
+                    return true;
+                }
+            }
+            return false;
+        }
 
         #endregion поля 
 
