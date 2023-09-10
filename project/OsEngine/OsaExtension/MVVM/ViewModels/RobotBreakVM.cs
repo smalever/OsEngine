@@ -376,7 +376,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// список позиций робота 
         /// </summary>
-        public ObservableCollection<PositionBot> PositionsBots { get; set; } = new ObservableCollection<PositionBot>();
+        public static ObservableCollection<PositionBot> PositionsBots { get; set; } = new ObservableCollection<PositionBot>();
 
         #endregion конец свойств =============================================
 
