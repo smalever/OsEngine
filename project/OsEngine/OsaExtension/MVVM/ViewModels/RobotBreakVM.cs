@@ -465,14 +465,14 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         ///  отправить ордер на биржу 
         /// </summary>
-        private void SendOrderExchange()
+        private void SendOrderExchange() 
         {
             PositionBot position = PositionsBots.Last();
             List<Order> orders = position.OrdersForOpen;
 
             if (position.PassOpenOrder)
             {
-                position.PassOpenOrder = false;
+                position.PassOpenOrder = false; // TODO: осуществить смену статусов позиции и разрешений 
 
                 foreach (Order order in orders) // взять из позиции ордер
                 {
@@ -480,7 +480,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     {
                         // отправить ордер на биржу
                         Server.ExecuteOrder(order);
-                        position.Status = PositionStatus.OPENING;
+                        //position.Status = PositionStatus.OPENING;
+                        //PositionsBots[0] = position;
                         SendStrStatus(" Ордер отправлен на биржу");
                     }
                 }
@@ -638,7 +639,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             for (int i = 0; i < PositionsBots.Count; i++)
             {
-                bool newOrderBool = PositionsBots[i].NewOrder(checkOrder);
+                bool newOrderBool = PositionsBots[i].NewOrder(checkOrder); // проверяем и обновляем ордер
+                PositionsBots[i].MonitiringStatusPos(checkOrder); // проверяем  изменяем статус позиции
             }
         }
  

@@ -236,7 +236,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
         /// <summary>
         /// Слежение (изсменение) статуса позиции
         /// </summary>
-        private void MonitiringStatusPos(Order order)
+        public void MonitiringStatusPos(Order order)
         {
             if (OrdersForOpen == null || OrdersForOpen.Count == 0) return;
             for (int i = 0; i < OrdersForOpen.Count; i++)
@@ -255,10 +255,11 @@ namespace OsEngine.OsaExtension.MVVM.Models
                 }
             }
         }
+
         /// <summary>
         ///  перезапись состояния оредра с биржи в мое хранилище
         /// </summary>
-        private Order CopyOrder(Order newOrder, Order order)
+        public Order CopyOrder(Order newOrder, Order order)
         {
             order.State = newOrder.State;
             order.TimeCancel = newOrder.TimeCancel;
@@ -272,7 +273,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
         }
 
         /// <summary>
-        /// принадлежит ли ордер списку
+        /// если принадлежит ордер списку обновляет
         /// </summary>
         public bool NewOrder(Order newOrder)
         {
