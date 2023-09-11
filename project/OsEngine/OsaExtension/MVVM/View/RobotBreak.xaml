@@ -5,7 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:OsEngine.OsaExtension.MVVM.View"
         xmlns:conver="clr-namespace:OsEngine.OsaExtension.MVVM.Converters"
-        xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro" xmlns:models="clr-namespace:OsEngine.OsaExtension.MVVM.Models" d:DataContext="{d:DesignInstance Type=models:PositionBot}"
+        xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro" 
+             xmlns:models="clr-namespace:OsEngine.OsaExtension.MVVM.Models" 
+             xmlns:viewmodels="clr-namespace:OsEngine.OsaExtension.MVVM.ViewModels"
+             d:DataContext="{d:DesignInstance Type=viewmodels:RobotBreakVM}"
              mc:Ignorable="d" d:DesignWidth="500">
     <UserControl.Resources>
         <Style TargetType="TextBlock">
@@ -22,7 +25,7 @@
         <StatusBar DockPanel.Dock="Top" Margin="3">
 
             <TextBlock Text="Сервер "  Margin="5,3,0,0" FontSize="16"/>
-            <TextBlock Text="{Binding ServerType}" FontSize="16" Height="20"  Margin="3" />
+            <TextBlock  Text="{Binding ServerType}" FontSize="16" Height="20"  Margin="3" />
 
             <Button Content="Выбрать бумагу"
                     ToolTip=" Выбрать / Сменить бумагу"
@@ -40,10 +43,16 @@
                        Margin="5,3,0,0"
                        FontSize="16"/>
 
-            <TextBlock Text="{Binding Status}" 
-                       
-                       Margin="5,3,0,0"
-                       FontSize="16"/>
+            <TextBlock FontSize="16"
+                       Margin="5,3,0,0">
+                <TextBlock.DataContext>
+                    <models:PositionBot/>                   
+                </TextBlock.DataContext>
+                <TextBlock.Text >
+                    <Binding Path="Status" />
+                </TextBlock.Text>
+
+            </TextBlock>
         </StatusBar>
         <Grid >
             <Grid.RowDefinitions>
