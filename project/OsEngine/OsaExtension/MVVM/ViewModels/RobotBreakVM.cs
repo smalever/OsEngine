@@ -632,7 +632,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         /// <summary>
-        /// проверка ордера
+        /// проверка и обновление состояния ордера
         /// </summary>
         private void CheckMyOrder(Order checkOrder)
         {

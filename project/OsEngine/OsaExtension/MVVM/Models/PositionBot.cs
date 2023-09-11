@@ -70,6 +70,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
             set
             {
                 _status = value;
+                OnPropertyChanged(nameof(Status));
             }
         }
         private PositionStatus _status;
@@ -229,6 +230,31 @@ namespace OsEngine.OsaExtension.MVVM.Models
         private List<MyTrade> _myTrades = new List<MyTrade>();
 
 
+        #endregion поля 
+        #region Metods =================================================================
+
+        /// <summary>
+        /// Слежение (изсменение) статуса позиции
+        /// </summary>
+        private void MonitiringStatusPos(Order order)
+        {
+            if (OrdersForOpen == null || OrdersForOpen.Count == 0) return;
+            for (int i = 0; i < OrdersForOpen.Count; i++)
+            {
+                if (OrdersForOpen[i].State == OrderStateType.Activ)
+                {
+                    Status = PositionStatus.OPENING;
+                }
+            }
+            if (OrdersForClose == null || OrdersForClose.Count == 0) return;
+            for (int i = 0; i < OrdersForClose.Count; i++)
+            {
+                if (OrdersForClose[i].State == OrderStateType.Activ)
+                {
+                    Status = PositionStatus.CLOSING;
+                }
+            }
+        }
         /// <summary>
         ///  перезапись состояния оредра с биржи в мое хранилище
         /// </summary>
@@ -245,7 +271,6 @@ namespace OsEngine.OsaExtension.MVVM.Models
             return order;
         }
 
-
         /// <summary>
         /// принадлежит ли ордер списку
         /// </summary>
@@ -257,11 +282,6 @@ namespace OsEngine.OsaExtension.MVVM.Models
                 if (OrdersForOpen[i].NumberUser == newOrder.NumberUser)
                 {
                     CopyOrder(newOrder, OrdersForOpen[i]);
-
-                    //CalculateOrders();
-                    // ordersForOpen[i].State = OrderStateType.Done;
-                    Status = PositionStatus.OPENING;
-
                     return true;
                 }
             }
@@ -270,17 +290,12 @@ namespace OsEngine.OsaExtension.MVVM.Models
                 if (OrdersForClose[i].NumberUser == newOrder.NumberUser)
                 {
                     CopyOrder(newOrder, OrdersForClose[i]);
-
-                    //CalculateOrders();
-
-                    Status = PositionStatus.DONE;
                     return true;
                 }
             }
             return false;
         }
-
-        #endregion поля 
+        #endregion end metods
 
     }
 
