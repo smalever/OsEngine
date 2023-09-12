@@ -467,13 +467,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void SendOrderExchange() 
         {
-            PositionBot position = PositionsBots.Last();
-            List<Order> orders = position.OrdersForOpen;
+            positionRun = GetPositionBot();
+            List<Order> orders = positionRun.OrdersForOpen;
 
-            if (position.PassOpenOrder)
+            if (positionRun.PassOpenOrder)
             {
-                position.PassOpenOrder = false; // TODO: осуществить смену статусов позиции и разрешений 
-
+                positionRun.PassOpenOrder = false; // TODO: осуществить смену статусов позиции и разрешений 
+                //PositionsBots.Add(position);
                 foreach (Order order in orders) // взять из позиции ордер
                 {
                     if (order.State == OrderStateType.None)
@@ -531,7 +531,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 //}
                 #endregion
             }
-            ObservableCollection<PositionBot> positionBots = new ObservableCollection<PositionBot>();
+            //ObservableCollection<PositionBot> positionBots = new ObservableCollection<PositionBot>();
 
             PositionBot positionBuy = new PositionBot() { Side = Side.Buy };
             PositionBot positionSell = new PositionBot() { Side = Side.Sell };
@@ -546,16 +546,16 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     positionBuy.Status = PositionStatus.NONE;
                     positionBuy.SecurityName = SelectedSecurity.Name;
                     AddOpderPosition(positionBuy);
-                    positionBots.Add(positionBuy);
+                    PositionsBots.Add(positionBuy);
                 }
                 if (Direction == Direction.SELL || Direction == Direction.BUYSELL)
                 {
                     positionSell.Status = PositionStatus.NONE;                    
                     positionSell.SecurityName = SelectedSecurity.Name;
                     AddOpderPosition(positionSell);
-                    positionBots.Insert(0, positionSell);
+                    PositionsBots.Insert(0, positionSell);
                 }
-                PositionsBots = positionBots;
+                //PositionsBots = positionBots;
                 SendStrStatus(" Позиция создана");
             }            
         }
@@ -605,7 +605,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             _priceOpenPos = 0;
             decimal stepPrice = 0;
 
-            if (Direction == Direction.BUY)
+            if (Direction == Direction.BUY || Direction == Direction.BUYSELL)
             {
                 if (BigСlusterPrice == 0 || BottomPositionPrice == 0)
                 {
@@ -616,7 +616,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 stepPrice = (BigСlusterPrice - BottomPositionPrice) / PartsPerInput;
                 _priceOpenPos = BigСlusterPrice - stepPrice;
             }
-            if (Direction == Direction.SELL)
+            if (Direction == Direction.SELL || Direction == Direction.BUYSELL)
             {
                 if (BigСlusterPrice == 0 || TopPositionPrice == 0)
                 {
@@ -634,7 +634,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             PriceOpenPos = _priceOpenPos;
         }
 
-        private PositionBot GetPositionBot()
+        static private PositionBot GetPositionBot()
         {
             /* берем список позиций
              * проверяем по всем 
@@ -643,20 +643,21 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             PositionBot _position = null;
 
             if (PositionsBots.Count == 0 || PositionsBots == null) return _position;
-       
-            for (int i = 0; i < PositionsBots.Count; i++)
-            {
-                PositionBot position = PositionsBots[i];
-                _position = position;
-            }
 
-            //foreach (PositionBot position in PositionsBots)
+            //for (int i = 0; i < PositionsBots.Count; i++)
             //{
-            //    return position;
+            //    PositionBot position = PositionsBots[i];
+            //    _position = position;
             //}
+            foreach (PositionBot position in PositionsBots)
+            {
+                _position = position;
+
+                return _position;
+            }
             return _position;
         }
-
+        static PositionBot positionRun;
         /// <summary>
         /// проверка и обновление состояния ордера
         /// </summary>
@@ -664,9 +665,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             //for (int i = 0; i < PositionsBots.Count; i++)
             //{
-                PositionBot position = GetPositionBot();
-                bool newOrderBool = position.NewOrder(checkOrder); // проверяем и обновляем ордер
-                position.MonitiringStatusPos(checkOrder); // TODO:  доделать проверку и изменяем статуса позиций
+                positionRun = GetPositionBot();
+                bool newOrderBool = positionRun.NewOrder(checkOrder); // проверяем и обновляем ордер
+                positionRun.MonitiringStatusPos(checkOrder); // TODO:  доделать проверку и изменяем статуса позиций
                 
             //}
         }
@@ -676,29 +677,31 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         public void MonitiringStatusBot(Order order)
         {
-            PositionBot position = GetPositionBot();
+            positionRun = GetPositionBot();
 
-            for (int i = 0; i < position.OrdersForOpen.Count; i++)
+            for (int i = 0; i < positionRun.OrdersForOpen.Count; i++)
             {
-                if (position.OrdersForOpen[i].State == OrderStateType.Activ)
+                if (positionRun.OrdersForOpen[i].State == OrderStateType.Activ)
                 {
                     ActionBot = ActionBot.OpeningPos;
                 }
-                if (position.OrdersForOpen[i].State == OrderStateType.Cancel)
+                if (positionRun.OrdersForOpen[i].State == OrderStateType.Cancel)
                 {
                     ActionBot = ActionBot.Stop;
+                    positionRun.PassOpenOrder = true;
                 }
             }
             
-            for (int i = 0; i < position.OrdersForClose.Count; i++)
+            for (int i = 0; i < positionRun.OrdersForClose.Count; i++)
             {
-                if (position.OrdersForClose[i].State == OrderStateType.Activ)
+                if (positionRun.OrdersForClose[i].State == OrderStateType.Activ)
                 {
                     ActionBot = ActionBot.ClosingPos;
                 }
-                if (position.OrdersForOpen[i].State == OrderStateType.Cancel)
+                if (positionRun.OrdersForOpen[i].State == OrderStateType.Cancel)
                 {
                     ActionBot = ActionBot.Stop;
+                    positionRun.PassOpenOrder = true;
                 }
             }
         }
