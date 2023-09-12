@@ -522,12 +522,14 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 SendStrStatus(" Есть открытый объем ");
                 return;
+                #region  проверка на открытые позиции
                 //MessageBoxResult result = MessageBox.Show(" Есть открытые позиции! \n Всеравно создать? ", " ВНИМАНИЕ !!! ",
                 //MessageBoxButton.YesNo);
                 //if (result == MessageBoxResult.No)
                 //{
                 //    return;
                 //}
+                #endregion
             }
             ObservableCollection<PositionBot> positionBots = new ObservableCollection<PositionBot>();
 
@@ -632,18 +634,75 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             PriceOpenPos = _priceOpenPos;
         }
 
+        private PositionBot GetPositionBot()
+        {
+            /* берем список позиций
+             * проверяем по всем 
+             * 
+             */
+            PositionBot _position = null;
+
+            if (PositionsBots.Count == 0 || PositionsBots == null) return _position;
+       
+            for (int i = 0; i < PositionsBots.Count; i++)
+            {
+                PositionBot position = PositionsBots[i];
+                _position = position;
+            }
+
+            //foreach (PositionBot position in PositionsBots)
+            //{
+            //    return position;
+            //}
+            return _position;
+        }
+
         /// <summary>
         /// проверка и обновление состояния ордера
         /// </summary>
         private void CheckMyOrder(Order checkOrder)
         {
-            for (int i = 0; i < PositionsBots.Count; i++)
+            //for (int i = 0; i < PositionsBots.Count; i++)
+            //{
+                PositionBot position = GetPositionBot();
+                bool newOrderBool = position.NewOrder(checkOrder); // проверяем и обновляем ордер
+                position.MonitiringStatusPos(checkOrder); // TODO:  доделать проверку и изменяем статуса позиций
+                
+            //}
+        }
+
+        /// <summary>
+        /// Изсменение статуса позиции
+        /// </summary>
+        public void MonitiringStatusBot(Order order)
+        {
+            PositionBot position = GetPositionBot();
+
+            for (int i = 0; i < position.OrdersForOpen.Count; i++)
             {
-                bool newOrderBool = PositionsBots[i].NewOrder(checkOrder); // проверяем и обновляем ордер
-                PositionsBots[i].MonitiringStatusPos(checkOrder); // проверяем  изменяем статус позиции
+                if (position.OrdersForOpen[i].State == OrderStateType.Activ)
+                {
+                    ActionBot = ActionBot.OpeningPos;
+                }
+                if (position.OrdersForOpen[i].State == OrderStateType.Cancel)
+                {
+                    ActionBot = ActionBot.Stop;
+                }
+            }
+            
+            for (int i = 0; i < position.OrdersForClose.Count; i++)
+            {
+                if (position.OrdersForClose[i].State == OrderStateType.Activ)
+                {
+                    ActionBot = ActionBot.ClosingPos;
+                }
+                if (position.OrdersForOpen[i].State == OrderStateType.Cancel)
+                {
+                    ActionBot = ActionBot.Stop;
+                }
             }
         }
- 
+
         /// <summary>
         /// берет названия кошельков (бирж)
         /// </summary>
@@ -790,6 +849,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
              *  продолжить логику 
              *   
              */
+            MonitiringStatusBot(myOrder);
         }
 
         /// <summary>

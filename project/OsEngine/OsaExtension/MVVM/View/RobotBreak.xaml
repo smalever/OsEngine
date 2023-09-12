@@ -38,7 +38,7 @@
             <TextBlock Text="{Binding Price}" 
                        Margin="5,3,0,0"
                        FontSize="16"/>
-            <TextBlock Text=" Статус позиции :" 
+            <!--<TextBlock Text=" Статус позиции :" 
                        ToolTip=" Статус позиции"
                        Margin="5,3,0,0"
                        FontSize="16"/>
@@ -49,10 +49,11 @@
                     <models:PositionBot/>                   
                 </TextBlock.DataContext>
                 <TextBlock.Text >
-                    <Binding Path="Status" />
+                    <Binding Path="Status" 
+                             NotifyOnSourceUpdated="True"/>
                 </TextBlock.Text>
 
-            </TextBlock>
+            </TextBlock>-->
         </StatusBar>
         <Grid >
             <Grid.RowDefinitions>
@@ -104,16 +105,16 @@
                         <TextBlock Text="Количество частей входа" />
                         <local:IntTextBox  Text="{Binding PartsPerInput}" Margin="0,2,1,0" />
 
-                        <Label/>
-                        <Label/>
+                        <TextBlock Text="Расчет цена входа"/>
+                        <local:DecimalTextBox Text="{Binding PriceOpenPos}" Margin="0,2,1,0"/>
+
+                        <Label Content=" Сделка сейчас: "/>
+                        <Label Content="{Binding ActionBot}"/>
 
                         <!--<TextBlock Text="Тип шага"/>
              <ComboBox ItemsSource="{Binding StepTypes}"
                        SelectedItem="{Binding StepType}"
                        Margin="0,2,1,0"/>-->
-
-                        <TextBlock Text="Расчет цена входа"/>
-                        <local:DecimalTextBox Text="{Binding PriceOpenPos}" Margin="0,2,1,0"/>
 
                     </UniformGrid>
                 </GroupBox>
