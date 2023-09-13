@@ -383,6 +383,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         #region Поля ==================================================
 
         /// <summary>
+        /// исполняемая позиция
+        /// </summary>
+        static PositionBot positionRun;
+
+        /// <summary>
         /// названия портфеля для отправки ордера на биржу
         /// </summary>
         Portfolio _portfolio;
@@ -445,7 +450,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             if (IsRun)
             {
                 // сейчас логика запускается в свойстве вкл/выкл
-
+                if (PositionsBots.Count != 0)
+                {
+                    positionRun = GetPositionBot();
+                    positionRun.PassOpenOrder = true;
+                    positionRun.PassCloseOrder = true;
+                }
                 //level.SetVolumeStart();
                 //level.PassVolume = true;
                 //level.PassTake = true;               
@@ -541,6 +551,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             if (VolumePerOrder != 0 && PriceOpenPos != 0 && IsRun == true) // формируем позиции
             {
+                PositionsBots.Clear();
+
                 if (Direction == Direction.BUY || Direction == Direction.BUYSELL)
                 {
                     positionBuy.Status = PositionStatus.NONE;
@@ -634,6 +646,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             PriceOpenPos = _priceOpenPos;
         }
 
+        /// <summary>
+        /// взять позицию
+        /// </summary>
         static private PositionBot GetPositionBot()
         {
             /* берем список позиций
@@ -643,12 +658,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             PositionBot _position = null;
 
             if (PositionsBots.Count == 0 || PositionsBots == null) return _position;
-
+            #region
             //for (int i = 0; i < PositionsBots.Count; i++)
             //{
             //    PositionBot position = PositionsBots[i];
             //    _position = position;
             //}
+            #endregion
             foreach (PositionBot position in PositionsBots)
             {
                 _position = position;
@@ -657,19 +673,15 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
             return _position;
         }
-        static PositionBot positionRun;
+        
         /// <summary>
         /// проверка и обновление состояния ордера
         /// </summary>
         private void CheckMyOrder(Order checkOrder)
         {
-            //for (int i = 0; i < PositionsBots.Count; i++)
-            //{
                 positionRun = GetPositionBot();
                 bool newOrderBool = positionRun.NewOrder(checkOrder); // проверяем и обновляем ордер
                 positionRun.MonitiringStatusPos(checkOrder); // TODO:  доделать проверку и изменяем статуса позиций
-                
-            //}
         }
 
         /// <summary>
@@ -689,6 +701,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
                     ActionBot = ActionBot.Stop;
                     positionRun.PassOpenOrder = true;
+                    IsRun = false;
                 }
             }
             
@@ -702,6 +715,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
                     ActionBot = ActionBot.Stop;
                     positionRun.PassOpenOrder = true;
+                    IsRun = false;
                 }
             }
         }
