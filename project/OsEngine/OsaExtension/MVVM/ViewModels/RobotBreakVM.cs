@@ -432,7 +432,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void StopTradeLogic()
         {
-            
+            /* проверить наличие ордеров на бирже
+             * проверить открытый объем
+             * отозвать  ордера с биржи 
+             * изменить разрешения 
+             */
         }
 
         /// <summary>
@@ -456,17 +460,15 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     positionRun.PassOpenOrder = true;
                     positionRun.PassCloseOrder = true;
                 }
-                //level.SetVolumeStart();
-                //level.PassVolume = true;
-                //level.PassTake = true;               
+                   
             }
             else
             {
                 Task.Run(() =>
                 {
-                    while (true)
+                    while (true) // пока есть открытые обемы и ордера на бирже
                     {
-                        // StopLogic();  
+                        StopTradeLogic();
                     }
                 });
             }
@@ -478,20 +480,19 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private void SendOrderExchange() 
         {
             positionRun = GetPositionBot();
-            List<Order> orders = positionRun.OrdersForOpen;
+            List<Order> orders = positionRun.OrdersForOpen;// взять из позиции ордера
 
             if (positionRun.PassOpenOrder)
             {
                 positionRun.PassOpenOrder = false; // TODO: осуществить смену статусов позиции и разрешений 
-                //PositionsBots.Add(position);
-                foreach (Order order in orders) // взять из позиции ордер
+                
+                foreach (Order order in orders) 
                 {
                     if (order.State == OrderStateType.None)
                     {
                         // отправить ордер на биржу
                         Server.ExecuteOrder(order);
-                        //position.Status = PositionStatus.OPENING;
-                        //PositionsBots[0] = position;
+             
                         SendStrStatus(" Ордер отправлен на биржу");
                     }
                 }
