@@ -441,7 +441,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         /// <summary>
-        /// отменяем все активные ордера
+        /// отменяем активные ордера из позиции
         /// </summary>
         private void CanсelActivOrders()
         {
@@ -461,6 +461,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     }
                 }
                 Thread.Sleep(300);
+                if (!ActivOrders())
+                {
+                    break;
+                }
             }
         }
 
