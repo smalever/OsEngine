@@ -432,11 +432,57 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void StopTradeLogic()
         {
-            /* проверить наличие ордеров на бирже
-             * проверить открытый объем
-             * отозвать  ордера с биржи 
+            CanсelActivOrders();
+
+            /*  
+             * проверить открытый объем            
              * изменить разрешения 
              */
+        }
+
+        /// <summary>
+        /// отменяем все активные ордера
+        /// </summary>
+        private void CanсelActivOrders()
+        {
+            while (ActivOrders()) // пока есть открытые ордера на бирже
+            {
+                positionRun = GetPositionBot();
+                if (positionRun == null) return;
+
+                List<Order> ordersAll = positionRun.OrdersForOpen;// взять из позиции ордера открытия 
+                ordersAll.AddRange(positionRun.OrdersForClose); // добавили ордера закрытия 
+                foreach (Order order in ordersAll)
+                {
+                    if (order.State == OrderStateType.Activ)
+                    {
+                        Server.CancelOrder(order);
+                        SendStrStatus(" Отменили ордер на бирже");
+                    }
+                }
+                Thread.Sleep(300);
+            }
+        }
+
+        /// <summary>
+        /// есть активные ордера
+        /// </summary>
+        private bool ActivOrders()
+        {
+            positionRun = GetPositionBot();
+            if (positionRun == null) return false;
+
+            List<Order> ordersAll = positionRun.OrdersForOpen;// взять из позиции ордера открытия 
+            ordersAll.AddRange(positionRun.OrdersForClose); // добавили ордера закрытия 
+            bool res = false;
+            foreach (Order order in ordersAll)
+            {
+                if (order.State == OrderStateType.Activ)
+                {
+                    res = true;
+                }
+            }
+            return res;
         }
 
         /// <summary>
@@ -466,9 +512,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 Task.Run(() =>
                 {
-                    while (true) // пока есть открытые обемы и ордера на бирже
+                    while (ActivOrders() || MonitoringOpenVolumePosition()) // пока есть открытые обемы и ордера на бирже
                     {
-                        StopTradeLogic();
+                        //StopTradeLogic();
+                        //Thread.Sleep(300);
+                        break; // test
                     }
                 });
             }
@@ -480,7 +528,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private void SendOrderExchange() 
         {
             positionRun = GetPositionBot();
-            List<Order> orders = positionRun.OrdersForOpen;// взять из позиции ордера
+
+            if (positionRun == null) return;
+
+            List <Order> orders = positionRun.OrdersForOpen;// взять из позиции ордера
 
             if (positionRun.PassOpenOrder)
             {
@@ -574,7 +625,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         /// <summary>
-        /// проверка открытого объема в позиция
+        /// есть открытый объем в позиция
         /// </summary> 
         private bool MonitoringOpenVolumePosition()
         {
