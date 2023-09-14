@@ -432,21 +432,55 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void StopTradeLogic()
         {
-            CanсelActivOrders();
+            CanсelActivOrders(); // отменили ордера
 
-            /*  
-             * проверить открытый объем            
+            CloseMarketOpenVolume(); // закрыли объем по маркет
+            /*       
              * изменить разрешения 
              */
         }
 
         /// <summary>
-        /// отменяем активные ордера из позиции
+        /// закрыть оп меркету открытый объем
+        /// </summary>
+        private void CloseMarketOpenVolume()
+        {
+            if (!MonitoringOpenVolumePosition()) return;
+
+            foreach (PositionBot pos in PositionsBots)
+            {
+                decimal volume = 0;
+                volume = pos.OpenVolume;
+                Side side = Side.None;
+                if (volume > 0)
+                {
+                    side = Side.Sell;
+                }
+                if (volume < 0)
+                {
+                    side = Side.Buy;
+                }
+                decimal lotClose = Math.Abs(volume);
+
+                Order ordClose = CreateMarketOrder(SelectedSecurity, Price, lotClose, side);
+                if (ordClose != null && MonitoringOpenVolumePosition())
+                {
+                    Server.ExecuteOrder(ordClose);
+                    RobotsWindowVM.Log(Header, "CloseOpenVolume - Отправлен Маркет на закрытие объема ");
+                    SendStrStatus(" Отправлен Маркет на закрытие объема на бирже");
+
+                }
+                else  SendStrStatus(" Ошибка закрытия объема на бирже");
+            }
+        }
+
+        /// <summary>
+        /// отменяет активные ордера 
         /// </summary>
         private void CanсelActivOrders()
         {
-            while (ActivOrders()) // пока есть открытые ордера на бирже
-            {
+          while (ActivOrders()) // пока есть открытые ордера на бирже
+          {
                 positionRun = GetPositionBot();
                 if (positionRun == null) return;
 
@@ -465,7 +499,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
                     break;
                 }
-            }
+          }
         }
 
         /// <summary>
@@ -671,6 +705,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private void CalculPriceStartPos()
         {
             _priceOpenPos = 0;
+            if (SelectedSecurity == null)
+            {
+                SendStrStatus(" уще нет бумаги ");
+                PriceOpenPos = _priceOpenPos;
+                return;
+            }
+            _priceOpenPos = 0;
             decimal stepPrice = 0;
 
             if (Direction == Direction.BUY || Direction == Direction.BUYSELL)
@@ -736,6 +777,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private void CheckMyOrder(Order checkOrder)
         {
                 positionRun = GetPositionBot();
+                if (positionRun == null) return;
                 bool newOrderBool = positionRun.NewOrder(checkOrder); // проверяем и обновляем ордер
                 positionRun.MonitiringStatusPos(checkOrder); // TODO:  доделать проверку и изменяем статуса позиций
         }
