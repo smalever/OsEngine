@@ -1,8 +1,10 @@
-﻿using OsEngine.Charts.CandleChart.Indicators;
+﻿using MahApps.Metro.Controls;
+using OsEngine.Charts.CandleChart.Indicators;
 using OsEngine.Entity;
 using OsEngine.Logging;
 using OsEngine.Market;
 using OsEngine.Market.Servers;
+using OsEngine.Market.Servers.GateIo.Futures.Response;
 using OsEngine.OsaExtension.MVVM.Commands;
 using OsEngine.OsaExtension.MVVM.Models;
 using OsEngine.OsaExtension.MVVM.View;
@@ -13,6 +15,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -434,7 +437,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             CanсelActivOrders(); // отменили ордера
 
-            CloseMarketOpenVolume(); // закрыли объем по маркет
+            if (MonitoringOpenVolumePosition())
+            {
+                CloseMarketOpenVolume(); // закрыли объем по маркет
+            }
+            else  PositionsBots.Clear();
             /*       
              * изменить разрешения 
              */
@@ -465,12 +472,20 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 Order ordClose = CreateMarketOrder(SelectedSecurity, Price, lotClose, side);
                 if (ordClose != null && MonitoringOpenVolumePosition())
                 {
+                    pos.PassCloseOrder = false;
+                    pos.PassOpenOrder = false;
+
                     Server.ExecuteOrder(ordClose);
                     RobotsWindowVM.Log(Header, "CloseOpenVolume - Отправлен Маркет на закрытие объема ");
                     SendStrStatus(" Отправлен Маркет на закрытие объема на бирже");
-
                 }
-                else  SendStrStatus(" Ошибка закрытия объема на бирже");
+                else
+                {
+                    SendStrStatus(" Ошибка закрытия объема на бирже");
+                    pos.PassCloseOrder = true;
+                    pos.PassOpenOrder = true;
+                    RobotsWindowVM.Log(Header, " Ошибка отправки Маркет на закрытие объема ");
+                }
             }
         }
 
@@ -481,24 +496,26 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
           while (ActivOrders()) // пока есть открытые ордера на бирже
           {
-                positionRun = GetPositionBot();
-                if (positionRun == null) return;
-
-                List<Order> ordersAll = positionRun.OrdersForOpen;// взять из позиции ордера открытия 
-                ordersAll.AddRange(positionRun.OrdersForClose); // добавили ордера закрытия 
-                foreach (Order order in ordersAll)
+                foreach (PositionBot position in PositionsBots)
                 {
-                    if (order.State == OrderStateType.Activ)
+                    List<Order> ordersAll = position.OrdersForOpen;// взять из позиции ордера открытия 
+                    ordersAll.AddRange(position.OrdersForClose); // добавили ордера закрытия 
+                    foreach (Order order in ordersAll)
                     {
-                        Server.CancelOrder(order);
-                        SendStrStatus(" Отменили ордер на бирже");
+                        if (order.State == OrderStateType.Activ)
+                        {
+                            Server.CancelOrder(order);
+                            SendStrStatus(" Отменили ордер на бирже");
+                        }
+                    }
+                    Thread.Sleep(300);
+                    if (!ActivOrders())
+                    {
+                        break;
                     }
                 }
-                Thread.Sleep(300);
-                if (!ActivOrders())
-                {
-                    break;
-                }
+
+ 
           }
         }
 
@@ -507,17 +524,18 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private bool ActivOrders()
         {
-            positionRun = GetPositionBot();
-            if (positionRun == null) return false;
-
-            List<Order> ordersAll = positionRun.OrdersForOpen;// взять из позиции ордера открытия 
-            ordersAll.AddRange(positionRun.OrdersForClose); // добавили ордера закрытия 
             bool res = false;
-            foreach (Order order in ordersAll)
+            foreach (PositionBot position in PositionsBots)
             {
-                if (order.State == OrderStateType.Activ)
+                List<Order> ordersAll = position.OrdersForOpen;// взять из позиции ордера открытия 
+                ordersAll.AddRange(position.OrdersForClose); // добавили ордера закрытия 
+                
+                foreach (Order order in ordersAll)
                 {
-                    res = true;
+                    if (order.State == OrderStateType.Activ)
+                    {
+                        res = true;
+                    }
                 }
             }
             return res;
@@ -540,11 +558,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 // сейчас логика запускается в свойстве вкл/выкл
                 if (PositionsBots.Count != 0)
                 {
-                    positionRun = GetPositionBot();
-                    positionRun.PassOpenOrder = true;
-                    positionRun.PassCloseOrder = true;
+                    foreach (PositionBot position in PositionsBots)
+                    {
+                        position.PassOpenOrder = true;
+                        position.PassCloseOrder = true;
+                    }
                 }
-                   
             }
             else
             {
@@ -552,7 +571,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
                     while (ActivOrders() || MonitoringOpenVolumePosition()) // пока есть открытые обемы и ордера на бирже
                     {
-                        //StopTradeLogic();
+                        StopTradeLogic();
                         //Thread.Sleep(300);
                         break; // test
                     }
@@ -565,24 +584,23 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void SendOrderExchange() 
         {
-            positionRun = GetPositionBot();
-
-            if (positionRun == null) return;
-
-            List <Order> orders = positionRun.OrdersForOpen;// взять из позиции ордера
-
-            if (positionRun.PassOpenOrder)
+            foreach (PositionBot position in PositionsBots)
             {
-                positionRun.PassOpenOrder = false; // TODO: осуществить смену статусов позиции и разрешений 
-                
-                foreach (Order order in orders) 
+                List<Order> orders = position.OrdersForOpen;// взять из позиции ордера
+
+                if (position.PassOpenOrder)
                 {
-                    if (order.State == OrderStateType.None)
+                    position.PassOpenOrder = false; // TODO: осуществить смену статусов позиции и разрешений 
+
+                    foreach (Order order in orders)
                     {
-                        // отправить ордер на биржу
-                        Server.ExecuteOrder(order);
-             
-                        SendStrStatus(" Ордер отправлен на биржу");
+                        if (order.State == OrderStateType.None)
+                        {
+                            // отправить ордер на биржу
+                            Server.ExecuteOrder(order);
+
+                            SendStrStatus(" Ордер отправлен на биржу");
+                        }
                     }
                 }
             }
@@ -595,15 +613,32 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             if (Direction == Direction.BUY || Direction == Direction.BUYSELL)
             {// создать ордер
+                PriceOpenPos =  CalculPriceStartPos(position.Side);
+                if (BigСlusterPrice == 0 || BottomPositionPrice == 0 || PriceOpenPos == 0)
+                {
+                    SendStrStatus(" BigСlusterPrice или BottomPositionPrice = 0 ");
+                    return;
+                }
                 Order order = CreateLimitOrder(SelectedSecurity, PriceOpenPos, VolumePerOrder, Side.Buy);
-                // отправить ордер в позицию
-                position.OrdersForOpen.Add(order);
+                if (order != null)
+                {  // отправить ордер в позицию
+                    position.OrdersForOpen.Add(order);
+                }
+                
             }
             if (Direction == Direction.SELL || Direction == Direction.BUYSELL)
             {// создать ордер
+                PriceOpenPos = CalculPriceStartPos(position.Side);
+                if (BigСlusterPrice == 0 || TopPositionPrice == 0 || PriceOpenPos == 0)
+                {
+                    SendStrStatus(" BigСlusterPrice или TopPositionPrice = 0 ");
+                    return ;
+                }
                 Order order = CreateLimitOrder(SelectedSecurity, PriceOpenPos, VolumePerOrder, Side.Sell);
-                // отправить ордер в позицию
-                position.OrdersForOpen.Add(order);
+                if (order != null)
+                {   // отправить ордер в позицию
+                    position.OrdersForOpen.Add(order);
+                }
             }
         }
 
@@ -636,10 +671,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             PositionBot positionBuy = new PositionBot() { Side = Side.Buy };
             PositionBot positionSell = new PositionBot() { Side = Side.Sell };
 
-            CalculPriceStartPos();
-            CalculateVolumeTrades();
+            
+            CalculateVolumeTrades();            
 
-            if (VolumePerOrder != 0 && PriceOpenPos != 0 && IsRun == true) // формируем позиции
+            if (VolumePerOrder != 0  && IsRun == true) // формируем позиции
             {
                 PositionsBots.Clear();
 
@@ -647,6 +682,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
                     positionBuy.Status = PositionStatus.NONE;
                     positionBuy.SecurityName = SelectedSecurity.Name;
+                    
                     AddOpderPosition(positionBuy);
                     PositionsBots.Add(positionBuy);
                 }
@@ -654,6 +690,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
                     positionSell.Status = PositionStatus.NONE;                    
                     positionSell.SecurityName = SelectedSecurity.Name;
+
                     AddOpderPosition(positionSell);
                     PositionsBots.Insert(0, positionSell);
                 }
@@ -702,37 +739,24 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// расчитать стартовую цену (начала открытия позиции)
         /// </summary>
-        private void CalculPriceStartPos()
+        private decimal CalculPriceStartPos(Side side)
         {
             _priceOpenPos = 0;
             if (SelectedSecurity == null)
             {
                 SendStrStatus(" уще нет бумаги ");
-                PriceOpenPos = _priceOpenPos;
-                return;
+                
+                return _priceOpenPos;
             }
-            _priceOpenPos = 0;
             decimal stepPrice = 0;
 
-            if (Direction == Direction.BUY || Direction == Direction.BUYSELL)
-            {
-                if (BigСlusterPrice == 0 || BottomPositionPrice == 0)
-                {
-                    SendStrStatus(" BigСlusterPrice или BottomPositionPrice = 0 ");
-                    return; 
-                }
-
+            if (side == Side.Buy )
+            {       
                 stepPrice = (BigСlusterPrice - BottomPositionPrice) / PartsPerInput;
                 _priceOpenPos = BigСlusterPrice - stepPrice;
             }
-            if (Direction == Direction.SELL || Direction == Direction.BUYSELL)
+            if (side == Side.Sell)
             {
-                if (BigСlusterPrice == 0 || TopPositionPrice == 0)
-                {
-                    SendStrStatus(" BigСlusterPrice или TopPositionPrice = 0 ");
-                    return;
-                }
-
                 stepPrice = (TopPositionPrice - BigСlusterPrice) / PartsPerInput;
                 _priceOpenPos = BigСlusterPrice + stepPrice;
             }
@@ -740,35 +764,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             _priceOpenPos = Decimal.Round(_priceOpenPos, SelectedSecurity.Decimals);
 
-            PriceOpenPos = _priceOpenPos;
-        }
-
-        /// <summary>
-        /// взять позицию
-        /// </summary>
-        static private PositionBot GetPositionBot()
-        {
-            /* берем список позиций
-             * проверяем по всем 
-             * 
-             */
-            PositionBot _position = null;
-
-            if (PositionsBots.Count == 0 || PositionsBots == null) return _position;
-            #region
-            //for (int i = 0; i < PositionsBots.Count; i++)
-            //{
-            //    PositionBot position = PositionsBots[i];
-            //    _position = position;
-            //}
-            #endregion
-            foreach (PositionBot position in PositionsBots)
-            {
-                _position = position;
-
-                return _position;
-            }
-            return _position;
+            return  _priceOpenPos;
         }
         
         /// <summary>
@@ -776,10 +772,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void CheckMyOrder(Order checkOrder)
         {
-                positionRun = GetPositionBot();
-                if (positionRun == null) return;
-                bool newOrderBool = positionRun.NewOrder(checkOrder); // проверяем и обновляем ордер
-                positionRun.MonitiringStatusPos(checkOrder); // TODO:  доделать проверку и изменяем статуса позиций
+            foreach (PositionBot position in PositionsBots)
+            {
+                bool newOrderBool = position.NewOrder(checkOrder); // проверяем и обновляем ордер
+                position.MonitiringStatusPos(checkOrder); // TODO:  доделать проверку и изменяем статуса позиций
+            }
         }
 
         /// <summary>
@@ -787,33 +784,42 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         public void MonitiringStatusBot(Order order)
         {
-            positionRun = GetPositionBot();
+            foreach (PositionBot position in PositionsBots)
+            {
+                for (int i = 0; i < position.OrdersForOpen.Count; i++)
+                {
+                    if (position.OrdersForOpen[i].State == OrderStateType.Activ)
+                    {
+                        ActionBot = ActionBot.OpeningPos;
+                    }
+                    if (position.OrdersForOpen[i].State == OrderStateType.Cancel)
+                    {
+                        ActionBot = ActionBot.Stop;
+                        position.PassOpenOrder = true;
+                        IsRun = false;
+                    }
+                    if (position.OrdersForOpen[i].State == OrderStateType.Done)
+                    {
+                        ActionBot = ActionBot.Open;
+                    }
+                }
 
-            for (int i = 0; i < positionRun.OrdersForOpen.Count; i++)
-            {
-                if (positionRun.OrdersForOpen[i].State == OrderStateType.Activ)
+                for (int i = 0; i < position.OrdersForClose.Count; i++)
                 {
-                    ActionBot = ActionBot.OpeningPos;
-                }
-                if (positionRun.OrdersForOpen[i].State == OrderStateType.Cancel)
-                {
-                    ActionBot = ActionBot.Stop;
-                    positionRun.PassOpenOrder = true;
-                    IsRun = false;
-                }
-            }
-            
-            for (int i = 0; i < positionRun.OrdersForClose.Count; i++)
-            {
-                if (positionRun.OrdersForClose[i].State == OrderStateType.Activ)
-                {
-                    ActionBot = ActionBot.ClosingPos;
-                }
-                if (positionRun.OrdersForOpen[i].State == OrderStateType.Cancel)
-                {
-                    ActionBot = ActionBot.Stop;
-                    positionRun.PassOpenOrder = true;
-                    IsRun = false;
+                    if (position.OrdersForClose[i].State == OrderStateType.Activ)
+                    {
+                        ActionBot = ActionBot.ClosingPos;
+                    }
+                    if (position.OrdersForClose[i].State == OrderStateType.Cancel)
+                    {
+                        ActionBot = ActionBot.Stop;
+                        position.PassOpenOrder = true;
+                        IsRun = false;
+                    }
+                    if (position.OrdersForClose[i].State == OrderStateType.Done)
+                    {
+                        ActionBot = ActionBot.Stop;
+                    }
                 }
             }
         }
@@ -968,6 +974,32 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         /// <summary>
+        /// измениля портфель (кошелек) 
+        /// </summary>
+        private void _server_PortfoliosChangeEvent(List<Portfolio> portfolios)
+        {
+            StringPortfolios = GetStringPortfolios(_server); // грузим портфели
+
+            OnPropertyChanged(nameof(StringPortfolios));
+
+            if (StringPortfolios != null && StringPortfolios.Count > 0)
+            {
+                if (StringPortfolio == "")
+                {
+                    StringPortfolio = StringPortfolios[0];
+                }
+                for (int i = 0; i < portfolios.Count; i++)
+                {
+                    if (portfolios[i].Number == StringPortfolio)
+                    {
+                        _portfolio = portfolios[i];
+                    }
+                }
+            }
+            OnPropertyChanged(nameof(StringPortfolios));
+        }
+
+        /// <summary>
         /// пришел новый терейд 
         /// </summary>
         private void _NewTradeEvent(List<Trade> trades)
@@ -994,7 +1026,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             _server.NewOrderIncomeEvent += _server_NewOrderIncomeEvent;
             _server.NewTradeEvent += _NewTradeEvent;
             _server.SecuritiesChangeEvent += _server_SecuritiesChangeEvent;
-            //_server.PortfoliosChangeEvent += _server_PortfoliosChangeEvent;
+            _server.PortfoliosChangeEvent += _server_PortfoliosChangeEvent;
             //_server.NewBidAscIncomeEvent += _server_NewBidAscIncomeEvent;
             _server.ConnectStatusChangeEvent += _server_ConnectStatusChangeEvent;
 
@@ -1010,7 +1042,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             _server.NewOrderIncomeEvent -= _server_NewOrderIncomeEvent;
             _server.NewTradeEvent -= _NewTradeEvent;
             _server.SecuritiesChangeEvent -= _server_SecuritiesChangeEvent;
-            //_server.PortfoliosChangeEvent -= _server_PortfoliosChangeEvent;
+            _server.PortfoliosChangeEvent -= _server_PortfoliosChangeEvent;
             //_server.NewBidAscIncomeEvent -= _server_NewBidAscIncomeEvent;
             _server.ConnectStatusChangeEvent -= _server_ConnectStatusChangeEvent;
 
