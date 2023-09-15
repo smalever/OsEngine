@@ -375,7 +375,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 OnPropertyChanged(nameof(SelectSecurBalans));
             }
         }
-        private decimal _selectSecurBalans =0;
+        private decimal _selectSecurBalans;
 
         /// <summary>
         /// список типов расчета шага 
@@ -440,8 +440,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         private void TradeLogic()
         {
-            CreateNewPosition(); // создали позиции
-            SendOrderExchange(); // отправили ордер на биржу
+            if (IsRun)
+            {
+                CreateNewPosition(); // создали позиции
+                AddOpderPosition();
+                SendOrderExchange(); // отправили ордер на биржу
+            }
         }
 
         /// <summary>
@@ -464,23 +468,24 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void CloseMarketOpenVolume()
         {
-            if (!MonitoringOpenVolumePosition()) return;
+            GetBalansSecur();
+            if (SelectSecurBalans == 0 ) return;
 
             foreach (PositionBot pos in PositionsBots)
             {
-                decimal volume = 0;
-                volume = pos.OpenVolume;
                 Side side = Side.None;
-                if (volume > 0)
+                if (pos.Side == Side.Buy)
                 {
                     side = Side.Sell;
                 }
-                if (volume < 0)
+                if (pos.Side == Side.Sell)
                 {
                     side = Side.Buy;
                 }
-                decimal lotClose = Math.Abs(volume);
-
+                GetBalansSecur();
+                decimal lotClose = 0;
+                lotClose = SelectSecurBalans;
+                if (lotClose == 0) return;
                 Order ordClose = CreateMarketOrder(SelectedSecurity, Price, lotClose, side);
                 if (ordClose != null && MonitoringOpenVolumePosition())
                 {
@@ -526,8 +531,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         break;
                     }
                 }
-
- 
           }
         }
 
@@ -570,11 +573,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 // сейчас логика запускается в свойстве вкл/выкл
                 if (PositionsBots.Count != 0)
                 {
-                    foreach (PositionBot position in PositionsBots)
-                    {
-                        position.PassOpenOrder = true;
-                        position.PassCloseOrder = true;
-                    }
+                    //foreach (PositionBot position in PositionsBots)
+                    //{
+                    //    position.PassOpenOrder = true;
+                    //    position.PassCloseOrder = true;
+                    //}
                 }
             }
             else
@@ -584,7 +587,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     while (ActivOrders() || MonitoringOpenVolumePosition()) // пока есть открытые обемы и ордера на бирже
                     {
                         StopTradeLogic();
-                        //Thread.Sleep(300);
+                        Thread.Sleep(300);
                         break; // test
                     }
                 });
@@ -621,34 +624,19 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// добавить открывающий ордер в позицию
         /// </summary>  
-        private void AddOpderPosition(PositionBot position)
+        private void AddOpderPosition()
         {
-            if (Direction == Direction.BUY || Direction == Direction.BUYSELL)
-            {// создать ордер
-                PriceOpenPos =  CalculPriceStartPos(position.Side);
+            foreach (PositionBot position in PositionsBots)
+            {
+                PriceOpenPos = CalculPriceStartPos(position.Side);
                 if (BigСlusterPrice == 0 || BottomPositionPrice == 0 || PriceOpenPos == 0)
                 {
                     SendStrStatus(" BigСlusterPrice или BottomPositionPrice = 0 ");
                     return;
                 }
-                Order order = CreateLimitOrder(SelectedSecurity, PriceOpenPos, VolumePerOrder, Side.Buy);
+                Order order = CreateLimitOrder(SelectedSecurity, PriceOpenPos, VolumePerOrder, position.Side);
                 if (order != null)
                 {  // отправить ордер в позицию
-                    position.OrdersForOpen.Add(order);
-                }
-                
-            }
-            if (Direction == Direction.SELL || Direction == Direction.BUYSELL)
-            {// создать ордер
-                PriceOpenPos = CalculPriceStartPos(position.Side);
-                if (BigСlusterPrice == 0 || TopPositionPrice == 0 || PriceOpenPos == 0)
-                {
-                    SendStrStatus(" BigСlusterPrice или TopPositionPrice = 0 ");
-                    return ;
-                }
-                Order order = CreateLimitOrder(SelectedSecurity, PriceOpenPos, VolumePerOrder, Side.Sell);
-                if (order != null)
-                {   // отправить ордер в позицию
                     position.OrdersForOpen.Add(order);
                 }
             }
@@ -665,7 +653,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 return;
             }
 
-            if (MonitoringOpenVolumePosition() == true)
+            if (MonitoringOpenVolumePosition())
             {
                 SendStrStatus(" Есть открытый объем ");
                 return;
@@ -678,11 +666,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 //}
                 #endregion
             }
-            //ObservableCollection<PositionBot> positionBots = new ObservableCollection<PositionBot>();
-
+    
             PositionBot positionBuy = new PositionBot() { Side = Side.Buy };
             PositionBot positionSell = new PositionBot() { Side = Side.Sell };
-
             
             CalculateVolumeTrades();            
 
@@ -695,7 +681,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     positionBuy.Status = PositionStatus.NONE;
                     positionBuy.SecurityName = SelectedSecurity.Name;
                     
-                    AddOpderPosition(positionBuy);
+                    //AddOpderPosition(positionBuy);
                     PositionsBots.Add(positionBuy);
                 }
                 if (Direction == Direction.SELL || Direction == Direction.BUYSELL)
@@ -703,7 +689,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     positionSell.Status = PositionStatus.NONE;                    
                     positionSell.SecurityName = SelectedSecurity.Name;
 
-                    AddOpderPosition(positionSell);
+                    //AddOpderPosition(positionSell);
                     PositionsBots.Insert(0, positionSell);
                 }
                 //PositionsBots = positionBots;
@@ -724,12 +710,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             else return false;
         }
 
-
         ///<summary>
         /// взять текущий объем на бирже выбаной  бумаги
         /// </summary>
         private void GetBalansSecur()
         {
+            if (SelectedSecurity == null)return;
+
             List<Portfolio> portfolios = new List<Portfolio>();
             if (Server.Portfolios != null)
             {
@@ -999,6 +986,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void _server_NewMyTradeEvent(MyTrade myTrade)
         {
+            GetBalansSecur();
             /* проверить обем трейда
              * продолжить логику 
              * 
@@ -1016,6 +1004,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
              *   
              */
             MonitiringStatusBot(myOrder);
+            GetBalansSecur();
         }
 
         /// <summary>
@@ -1201,7 +1190,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 e.PropertyName == "FullPositionVolume")            
             {
                 SaveParamsBot();
-            }  
+            } 
         }
 
         /// <summary>

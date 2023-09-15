@@ -105,7 +105,7 @@
                         <TextBlock Text="Количество частей входа" />
                         <local:IntTextBox  Text="{Binding PartsPerInput}" Margin="0,2,1,0" />
 
-                        <TextBlock Text="Монет на бирже"/>
+                        <TextBlock Text="Cейчас куплено монет"/>
                         <local:DecimalTextBox Text="{Binding SelectSecurBalans}" Margin="0,2,1,0"/>
 
                         <Label Content=" Сделка сейчас: "/>
