@@ -364,6 +364,20 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private string _stringportfolio = "";
 
         /// <summary>
+        /// Объем выбраной бумаги на бирже
+        /// </summary>
+        public decimal SelectSecurBalans
+        {
+            get => _selectSecurBalans;
+            set
+            {
+                _selectSecurBalans = value;
+                OnPropertyChanged(nameof(SelectSecurBalans));
+            }
+        }
+        private decimal _selectSecurBalans =0;
+
+        /// <summary>
         /// список типов расчета шага 
         /// </summary>
         public List<StepType> StepTypes { get; set; } = new List<StepType>()
@@ -437,11 +451,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             CanсelActivOrders(); // отменили ордера
 
-            if (MonitoringOpenVolumePosition())
-            {
-                CloseMarketOpenVolume(); // закрыли объем по маркет
-            }
-            else  PositionsBots.Clear();
+            CloseMarketOpenVolume(); // закрыли объем по маркет
+
+            PositionsBots.Clear();
             /*       
              * изменить разрешения 
              */
@@ -704,13 +716,46 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary> 
         private bool MonitoringOpenVolumePosition()
         {
+            if(SelectedSecurity == null) return false;
             decimal volume = 0;
-            foreach (PositionBot pos in PositionsBots)
-            {
-                volume += Math.Abs(pos.OpenVolume);
-            }
+            GetBalansSecur();
+            volume = SelectSecurBalans;
             if (volume > 0) return true;
             else return false;
+        }
+
+
+        ///<summary>
+        /// взять текущий объем на бирже выбаной  бумаги
+        /// </summary>
+        private void GetBalansSecur()
+        {
+            List<Portfolio> portfolios = new List<Portfolio>();
+            if (Server.Portfolios != null)
+            {
+                portfolios = Server.Portfolios;
+            }
+            if (portfolios.Count > 0 && portfolios != null
+                && _selectedSecurity != null)
+            {
+                int count = portfolios[0].GetPositionOnBoard().Count;
+                string nam = SelectedSecurity.Name;
+                string suf = "_BOTH";
+                string SecurName = nam + suf;
+                for (int i = 0; i < count; i++)
+                {
+                    string seсurCode = portfolios[0].GetPositionOnBoard()[i].SecurityNameCode;
+                    if (seсurCode == SecurName)
+                    {
+                        decimal d = portfolios[0].GetPositionOnBoard()[i].ValueCurrent;
+                        SelectSecurBalans = d; // отправка значения в свойство
+                    }
+                }
+            }
+            //decimal balans = portfolios[0].GetPositionOnBoard()[0].Find(pos =>
+            //    pos.SecurityNameCode == _securName).ValueCurrent;
+            //return balans;
+
         }
 
         /// <summary>
@@ -800,7 +845,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     }
                     if (position.OrdersForOpen[i].State == OrderStateType.Done)
                     {
-                        ActionBot = ActionBot.Open;
+                        //ActionBot = ActionBot.Open;
                     }
                 }
 
@@ -818,7 +863,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     }
                     if (position.OrdersForClose[i].State == OrderStateType.Done)
                     {
-                        ActionBot = ActionBot.Stop;
+                        //ActionBot = ActionBot.Stop;
                     }
                 }
             }
