@@ -20,15 +20,15 @@ Buy:
  3. AO growing;
  4. Macd > 0.
 
-Sale:
+Sell:
  1. EmaFastLoc below EmaSlowLoc;
  2. EmaFastGlob below EmaSlowGlob;
  3. AO falling;
  4. Macd < 0.
 
-Exit from the buy:trailing stop in % of the loy of the candle on which you entered.
+Exit from buy:trailing stop in % of the loy of the candle on which you entered.
 
-Exit from sale: trailing stop in % of the high of the candle on which you entered.
+Exit from sell: trailing stop in % of the high of the candle on which you entered.
  
  */
 
@@ -78,7 +78,7 @@ namespace OsEngine.Robots.AO
         private decimal _prevAO;
 
         // Exit 
-        private StrategyParameterInt TrailingValue;
+        private StrategyParameterDecimal TrailingValue;
 
         public StrategyForFourEmaAOAndMacdHistogram(string name, StartProgram startProgram) : base(name, startProgram)
         {
@@ -148,13 +148,27 @@ namespace OsEngine.Robots.AO
             _AO.Save();
 
             // Exit
-            TrailingValue = CreateParameter("TrailingValue", 1, 1, 10, 1, "Exit");
+            TrailingValue = CreateParameter("TrailingValue", 1.0m, 1, 10, 1, "Exit");
 
             // Subscribe to the indicator update event
             ParametrsChangeByUser += StrategyForFourEmaAOAndMacdHistogram_ParametrsChangeByUser;
 
             // Subscribe to the candle finished event
             _tab.CandleFinishedEvent += _tab_CandleFinishedEvent;
+
+            Description = "The trend robot on strategy for 4 Ema, Awesome Oscillator and Macd Histogram. " +
+                "Buy: " +
+                " 1. EmaFastLoc above EmaSlowLoc; " +
+                " 2. EmaFastGlob above EmaSlowGlob; " +
+                " 3. AO growing; " +
+                " 4. Macd > 0. " +
+                "Sell: " +
+                " 1. EmaFastLoc below EmaSlowLoc; " +
+                " 2. EmaFastGlob below EmaSlowGlob; " +
+                " 3. AO falling; " +
+                " 4. Macd < 0. " +
+                "Exit from buy:trailing stop in % of the loy of the candle on which you entered. " +
+                "Exit from sell: trailing stop in % of the high of the candle on which you entered.";
         }
 
         // Indicator Update event
@@ -305,12 +319,12 @@ namespace OsEngine.Robots.AO
                 if (openPositions[i].Direction == Side.Buy) // If the direction of the position is purchase
                 {
                     decimal lov = candles[candles.Count - 1].Low;
-                    stopPrice = lov - lov * TrailingValue.ValueInt / 100;
+                    stopPrice = lov - lov * TrailingValue.ValueDecimal / 100;
                 }
                 else // If the direction of the position is sale
                 {
                     decimal high = candles[candles.Count - 1].High;
-                    stopPrice = high + high * TrailingValue.ValueInt / 100;
+                    stopPrice = high + high * TrailingValue.ValueDecimal / 100;
                 }
                 _tab.CloseAtTrailingStop(pos, stopPrice, stopPrice);
             }

@@ -1527,7 +1527,7 @@ namespace OsEngine.OsTrader
         {
             try
             {
-                BotCreateUi ui = new BotCreateUi(BotFactory.GetNamesStrategy(),
+                BotCreateUi2 ui = new BotCreateUi2(BotFactory.GetNamesStrategy(),
                     BotFactory.GetScriptsNamesStrategy(), StartProgram.IsOsTrader);
 
                 ui.ShowDialog();
@@ -1537,18 +1537,11 @@ namespace OsEngine.OsTrader
                     return;
                 }
 
-                if (ui.NameStrategy == "Martingale")
+                if(string.IsNullOrEmpty(ui.NameStrategy))
                 {
-                    if (ui.NameBot.Split('h').Length != 1)
-                    {
-                        MessageBox.Show(OsLocalization.Trader.Label6);
-                        return;
-                    }
-                    if (ui.NameBot.Split('l').Length != 1)
-                    {
-                        MessageBox.Show(OsLocalization.Trader.Label7);
-                        return;
-                    }
+                    CustomMessageBoxUi box = new CustomMessageBoxUi(OsLocalization.Trader.Label304);
+                    box.ShowDialog();
+                    return;
                 }
 
                 if (File.Exists(@"Engine\" + @"SettingsRealKeeper.txt"))
@@ -1561,7 +1554,8 @@ namespace OsEngine.OsTrader
 
                             if (str[0] == ui.NameBot)
                             {
-                                MessageBox.Show(OsLocalization.Trader.Label8);
+                                CustomMessageBoxUi box = new CustomMessageBoxUi(OsLocalization.Trader.Label8);
+                                box.ShowDialog();
                                 return;
                             }
                         }
@@ -1578,7 +1572,8 @@ namespace OsEngine.OsTrader
 
                             if (str[0] == ui.NameBot)
                             {
-                                MessageBox.Show(OsLocalization.Trader.Label8);
+                                CustomMessageBoxUi box = new CustomMessageBoxUi(OsLocalization.Trader.Label8);
+                                box.ShowDialog();
                                 return;
                             }
                         }

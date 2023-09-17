@@ -47,6 +47,7 @@ namespace OsEngine.Robots.Vwma
         // The last value of the indicators
         private decimal _lastVWMAFast;
         private decimal _lastVWMASlow;
+
         public IntersectionOfTheTwoVwma(string name, StartProgram startProgram) : base(name, startProgram)
         {
             TabCreate(BotTabType.Simple);
@@ -82,6 +83,11 @@ namespace OsEngine.Robots.Vwma
 
             // Subscribe to the candle finished event
             _tab.CandleFinishedEvent += _tab_CandleFinishedEvent;
+
+            Description = "The trend robot on intersection of two VWMA " +
+                "Buy: Fast Sma is higher than slow Vwma " +
+                "Sell: Fast Sma below slow Vwma " +
+                "Exit: on the opposite signal";
         }
 
         // Indicator Update event

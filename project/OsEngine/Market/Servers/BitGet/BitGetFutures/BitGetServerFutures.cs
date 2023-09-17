@@ -113,11 +113,15 @@ namespace OsEngine.Market.Servers.BitGet.BitGetFutures
             {
                 HandlerExeption(exeption);
             }
-            finally
+
+            FIFOListWebSocketMessage = new ConcurrentQueue<string>();
+
+            if (ServerStatus != ServerConnectStatus.Disconnect)
             {
-                FIFOListWebSocketMessage = new ConcurrentQueue<string>();
                 ServerStatus = ServerConnectStatus.Disconnect;
+                DisconnectEvent();
             }
+
         }
 
         public void Subscrible(Security security)
@@ -147,7 +151,7 @@ namespace OsEngine.Market.Servers.BitGet.BitGetFutures
         private DateTime TimeToSendPing = DateTime.Now;
         private DateTime TimeToUprdatePortfolio = DateTime.Now;
         private ConcurrentQueue<string> FIFOListWebSocketMessage = new ConcurrentQueue<string>();
-        private RateGate rateGateSubscrible = new RateGate(1, TimeSpan.FromMilliseconds(150));
+        private RateGate rateGateSubscrible = new RateGate(1, TimeSpan.FromMilliseconds(250));
         private RateGate rateGateSendOrder = new RateGate(1, TimeSpan.FromMilliseconds(250));
         private RateGate rateGateCancelOrder = new RateGate(1, TimeSpan.FromMilliseconds(250));
 
@@ -189,7 +193,15 @@ namespace OsEngine.Market.Servers.BitGet.BitGetFutures
                 {
                     if (webSocket != null)
                     {
-                        webSocket.Close();
+                        try
+                        {
+                            webSocket.Close();
+                        }
+                        catch
+                        {
+                            // ignore
+                        }
+
                         webSocket.Opened -= WebSocket_Opened;
                         webSocket.Closed -= WebSocket_Closed;
                         webSocket.MessageReceived -= WebSocket_MessageReceived;
@@ -410,8 +422,11 @@ namespace OsEngine.Market.Servers.BitGet.BitGetFutures
                 }
                 else
                 {
-                    ServerStatus = ServerConnectStatus.Disconnect;
-                    DisconnectEvent();
+                    if(ServerStatus != ServerConnectStatus.Disconnect)
+                    {
+                        ServerStatus = ServerConnectStatus.Disconnect;
+                        DisconnectEvent();
+                    }
                 }
             }
         }
@@ -1059,7 +1074,7 @@ namespace OsEngine.Market.Servers.BitGet.BitGetFutures
 
         #endregion
 
-        #region Querys
+        #region Queries
 
         private void CreateQueryPortfolio()
         {

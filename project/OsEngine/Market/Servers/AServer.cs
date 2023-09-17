@@ -42,30 +42,42 @@ namespace OsEngine.Market.Servers
                 CreateParameterBoolean(OsLocalization.Market.ServerParam1, false);
                 _neadToSaveTicksParam = (ServerParameterBool)ServerParameters[ServerParameters.Count - 1];
                 _neadToSaveTicksParam.ValueChange += SaveTradesHistoryParam_ValueChange;
+                ServerParameters[0].Comment = OsLocalization.Market.Label87;
 
                 CreateParameterInt(OsLocalization.Market.ServerParam2, 5);
                 _neadToSaveTicksDaysCountParam = (ServerParameterInt)ServerParameters[ServerParameters.Count - 1];
                 _neadToSaveTicksDaysCountParam.ValueChange += _neadToSaveTicksDaysCountParam_ValueChange;
+                ServerParameters[1].Comment = OsLocalization.Market.Label88;
 
                 CreateParameterBoolean(OsLocalization.Market.ServerParam5, true);
                 _neadToSaveCandlesParam = (ServerParameterBool)ServerParameters[ServerParameters.Count - 1];
                 _neadToSaveCandlesParam.ValueChange += SaveCandleHistoryParam_ValueChange;
+                ServerParameters[2].Comment = OsLocalization.Market.Label89;
 
                 CreateParameterInt(OsLocalization.Market.ServerParam6, 300);
                 _neadToSaveCandlesCountParam = (ServerParameterInt)ServerParameters[ServerParameters.Count - 1];
                 _neadToSaveCandlesCountParam.ValueChange += _neadToSaveCandlesCountParam_ValueChange;
+                ServerParameters[3].Comment = OsLocalization.Market.Label90;
 
                 CreateParameterBoolean(OsLocalization.Market.ServerParam7, false);
                 _needToLoadBidAskInTrades = (ServerParameterBool)ServerParameters[ServerParameters.Count - 1];
+                ServerParameters[4].Comment = OsLocalization.Market.Label91;
 
                 CreateParameterBoolean(OsLocalization.Market.ServerParam8, true);
                 _needToRemoveTradesFromMemory = (ServerParameterBool)ServerParameters[ServerParameters.Count - 1];
+                ServerParameters[5].Comment = OsLocalization.Market.Label92;
 
                 CreateParameterBoolean(OsLocalization.Market.ServerParam9, false);
                 _needToRemoveCandlesFromMemory = (ServerParameterBool)ServerParameters[ServerParameters.Count - 1];
-               
+                ServerParameters[6].Comment = OsLocalization.Market.Label93;
+
                 CreateParameterBoolean(OsLocalization.Market.ServerParam10, true);
                 _needToUseFullMarketDepth = (ServerParameterBool)ServerParameters[ServerParameters.Count - 1];
+                ServerParameters[7].Comment = OsLocalization.Market.Label94;
+
+                CreateParameterBoolean(OsLocalization.Market.ServerParam11, true);
+                _needToUpdateOnlyTradesWithNewPrice = (ServerParameterBool)ServerParameters[ServerParameters.Count - 1];
+                ServerParameters[8].Comment = OsLocalization.Market.Label95;
 
                 _serverRealization.ServerParameters = ServerParameters;
 
@@ -243,6 +255,8 @@ namespace OsEngine.Market.Servers
 
         public ServerParameterBool _needToUseFullMarketDepth;
 
+        public ServerParameterBool _needToUpdateOnlyTradesWithNewPrice;
+
         public bool NeedToHideParams = false;
 
         /// <summary>
@@ -264,7 +278,7 @@ namespace OsEngine.Market.Servers
             newParam = (ServerParameterString)LoadParam(newParam);
             if (_serverIsStart)
             {
-                ServerParameters.Insert(ServerParameters.Count - 8, newParam);
+                ServerParameters.Insert(ServerParameters.Count - 9, newParam);
             }
             else
             {
@@ -287,7 +301,7 @@ namespace OsEngine.Market.Servers
             newParam = (ServerParameterInt)LoadParam(newParam);
             if (_serverIsStart)
             {
-                ServerParameters.Insert(ServerParameters.Count - 8, newParam);
+                ServerParameters.Insert(ServerParameters.Count - 9, newParam);
             }
             else
             {
@@ -307,7 +321,7 @@ namespace OsEngine.Market.Servers
 
             if (_serverIsStart)
             {
-                ServerParameters.Insert(ServerParameters.Count - 8, newParam);
+                ServerParameters.Insert(ServerParameters.Count - 9, newParam);
             }
             else
             {
@@ -330,7 +344,7 @@ namespace OsEngine.Market.Servers
             newParam = (ServerParameterDecimal)LoadParam(newParam);
             if (_serverIsStart)
             {
-                ServerParameters.Insert(ServerParameters.Count - 8, newParam);
+                ServerParameters.Insert(ServerParameters.Count - 9, newParam);
             }
             else
             {
@@ -353,7 +367,7 @@ namespace OsEngine.Market.Servers
             newParam = (ServerParameterBool)LoadParam(newParam);
             if (_serverIsStart)
             {
-                ServerParameters.Insert(ServerParameters.Count - 8, newParam);
+                ServerParameters.Insert(ServerParameters.Count - 9, newParam);
             }
             else
             {
@@ -377,7 +391,7 @@ namespace OsEngine.Market.Servers
             newParam = (ServerParameterPassword)LoadParam(newParam);
             if (_serverIsStart)
             {
-                ServerParameters.Insert(ServerParameters.Count - 8, newParam);
+                ServerParameters.Insert(ServerParameters.Count - 9, newParam);
             }
             else
             {
@@ -399,7 +413,7 @@ namespace OsEngine.Market.Servers
             newParam = (ServerParameterPath)LoadParam(newParam);
             if (_serverIsStart)
             {
-                ServerParameters.Insert(ServerParameters.Count - 8, newParam);
+                ServerParameters.Insert(ServerParameters.Count - 9, newParam);
             }
             else
             {
@@ -421,7 +435,7 @@ namespace OsEngine.Market.Servers
             newParam = (ServerParameterButton)LoadParam(newParam);
             if (_serverIsStart)
             {
-                ServerParameters.Insert(ServerParameters.Count - 8, newParam);
+                ServerParameters.Insert(ServerParameters.Count - 9, newParam);
             }
             else
             {
@@ -1366,7 +1380,13 @@ namespace OsEngine.Market.Servers
                             continue;
                         }
                         if (_securities[i].Name == securityName &&
-                            _securities[i].NameClass == securityClass)
+                            (_securities[i].NameClass == securityClass))
+                        {
+                            security = _securities[i];
+                            break;
+                        }
+                        if (_securities[i].Name == securityName &&
+                            (securityClass == null))
                         {
                             security = _securities[i];
                             break;
@@ -1835,6 +1855,17 @@ namespace OsEngine.Market.Servers
                             if (trade.Time < curList[curList.Count - 1].Time)
                             {
                                 return;
+                            }
+
+                            if(_needToUpdateOnlyTradesWithNewPrice.Value == true)
+                            {
+                                Trade lastTrade = curList[curList.Count - 1];
+
+                                if(lastTrade == null 
+                                    || lastTrade.Price == trade.Price)
+                                {
+                                    return;
+                                }
                             }
 
                             curList.Add(trade);
