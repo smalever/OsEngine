@@ -311,6 +311,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
         private decimal _volumePerOrder = 0;
 
+
+
         /// <summary>
         /// направление сделок 
         /// </summary>
