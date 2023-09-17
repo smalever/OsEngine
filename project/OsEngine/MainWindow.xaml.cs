@@ -27,7 +27,6 @@ using OsEngine.OsaExtension.MVVM.View;
 
 namespace OsEngine
 {
-
     /// <summary>
     /// Application start screen
     /// Стартовое окно приложения
