@@ -15,11 +15,11 @@ The trend robot on strategy on two Ema and two Vwma
 
 Buy: Fast Vwma and slow Vwma punch up (above) both Emas (also fast and slow).
 
-Sale: Fast Vwma and slow Vwma punch down (below) both Emas (also fast and slow).
+Sell: Fast Vwma and slow Vwma punch down (below) both Emas (also fast and slow).
 
-Exit from purchase: Fast Vwma below slow Vwma.
+Exit from buy: Fast Vwma below slow Vwma.
 
-Exit from sale: Fast Vwma above slow Vwma.
+Exit from sell: Fast Vwma above slow Vwma.
 
 */
 
@@ -105,6 +105,12 @@ namespace OsEngine.Robots.Vwma
 
             // Subscribe to the candle finished event
             _tab.CandleFinishedEvent += _tab_CandleFinishedEvent;
+
+            Description = "The trend robot on strategy on two Ema and two Vwma " +
+                "Buy: Fast Vwma and slow Vwma punch up (above) both Emas (also fast and slow). " +
+                "Sell: Fast Vwma and slow Vwma punch down (below) both Emas (also fast and slow). " +
+                "Exit from buy: Fast Vwma below slow Vwma. " +
+                "Exit from sell: Fast Vwma above slow Vwma.";
         }
 
         // Indicator Update event

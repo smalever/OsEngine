@@ -12,9 +12,13 @@ using OsEngine.OsTrader.Panels.Tab;
 trading robot for osengine
 
 The trend robot on intersection of the Alligator, Bears Power and Bulls Power Strategy
+
+Buy:
 1. Fast line (lips) above the middle line (teeth), medium above the slow line (jaw)
 2. Bears Power columns should be below 0, but constantly growing
 3. Bulls Power columns should be above 0 and grow - enter into a long position
+
+Sell:
 1. fast line (lips) below the midline (teeth), medium below the slow line (jaw)
 2. Bulls Power columns should be above 0, but decrease
 3. Bears Power columns should be below 0 and decrease - enter short position
@@ -76,9 +80,9 @@ namespace OsEngine.Robots.Aligator
             EndTradeTime = CreateParameterTimeOfDay("End Trade Time", 24, 0, 0, 0, "Base");
 
             // Setting indicator
-            AlligatorFastLineLength = CreateParameter("Period Simple Moving Average Fast", 20, 10, 300, 10, "Indicator");
+            AlligatorFastLineLength = CreateParameter("Period Simple Moving Average Fast", 10, 10, 300, 10, "Indicator");
             AlligatorMiddleLineLength = CreateParameter("Period Simple Moving Middle", 20, 10, 300, 10, "Indicator");
-            AlligatorSlowLineLength = CreateParameter("Period Simple Moving Slow", 20, 10, 300, 10, "Indicator");
+            AlligatorSlowLineLength = CreateParameter("Period Simple Moving Slow", 30, 10, 300, 10, "Indicator");
             BearsPeriod = CreateParameter("Bears Period", 20, 10, 300, 10, "Indicator");
             BullsPeriod = CreateParameter("Bulls Period", 20, 10, 300, 10, "Indicator");
 
@@ -105,6 +109,18 @@ namespace OsEngine.Robots.Aligator
 
             // Subscribe to the candle finished event
             _tab.CandleFinishedEvent += _tab_CandleFinishedEvent;
+
+            Description = "The trend robot on intersection of the Alligator, Bears Power and Bulls Power Strategy " +
+                "Buy: " +
+                "1. Fast line (lips) above the middle line (teeth), medium above the slow line (jaw) " +
+                "2. Bears Power columns should be below 0, but constantly growing " +
+                "3. Bulls Power columns should be above 0 and grow - enter into a long position " +
+                "Sell: " +
+                "1. fast line (lips) below the midline (teeth), medium below the slow line (jaw) " +
+                "2. Bulls Power columns should be above 0, but decrease " +
+                "3. Bears Power columns should be below 0 and decrease - enter short position " +
+                "Exit from the purchase: the fast line is lower than the slow one " +
+                "Exit from sale: fast line above slow line";
         }
 
         // Indicator Update event

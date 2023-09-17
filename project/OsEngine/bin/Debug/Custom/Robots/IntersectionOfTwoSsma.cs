@@ -14,7 +14,7 @@ Trend robot at the intersection of two smoothed averages.
 
 Buy: the fast Ssma is higher than the slow Ssma and the value of the last candle is greater than the fast Ssma.
 
-Sale: the fast Ssma is lower than the slow Ssma and the value of the last candle is less than the slow Ssma.
+Sell: the fast Ssma is lower than the slow Ssma and the value of the last candle is less than the slow Ssma.
 
 Exit: on the opposite signal
 */
@@ -44,10 +44,6 @@ namespace OsEngine.Robots.MyRobots
         // The last value of the indicators
         private decimal _lastSsmaSlow;
         private decimal _lastSsmaFast;
-
-        // Exit
-        private StrategyParameterDecimal StopValue;
-        private StrategyParameterDecimal ProfitValue;
 
         public IntersectionOfTwoSsma(string name, StartProgram startProgram) : base(name, startProgram)
         {
@@ -82,16 +78,19 @@ namespace OsEngine.Robots.MyRobots
             _ssma2.Save();
 
             // Subscribe to the indicator update event
-            ParametrsChangeByUser += Break_EMA_ParametrsChangeByUser;
+            ParametrsChangeByUser += IntersectionOfTwoSsma_ParametrsChangeByUser;
 
             // Subscribe to the candle completion event
             _tab.CandleFinishedEvent += _tab_CandleFinishedEvent;
-            StopValue = CreateParameter("Stop percent", 0.5m, 1, 10, 1, "Exit settings");
-            ProfitValue = CreateParameter("Profit percent", 0.5m, 1, 10, 1, "Exit settings");
+
+            Description = "Trend robot at the intersection of two smoothed averages. " +
+                "Buy: the fast Ssma is higher than the slow Ssma and the value of the last candle is greater than the fast Ssma. " +
+                "Sell: the fast Ssma is lower than the slow Ssma and the value of the last candle is less than the slow Ssma. " +
+                "Exit: on the opposite signal";
         }
 
         // Indicator Update event
-        private void Break_EMA_ParametrsChangeByUser()
+        private void IntersectionOfTwoSsma_ParametrsChangeByUser()
         {
             ((IndicatorParameterInt)_ssma1.Parameters[0]).ValueInt = _periodSsmaFast.ValueInt;
             _ssma1.Save();

@@ -12,16 +12,20 @@ using OsEngine.OsTrader.Panels.Tab;
 trading robot for osengine
 
 The trend robot on intersection of the Alligator indicator with Fractal.
-Fast line (lips) above the middle line (teeth), medium above the slow line (jaw) and 
-the price is higher than the last ascending fractal - enter into a long position.
-Fast line (lips) below the midline (teeth), medium below the slow line (jaw) and
-the price is lower than the last descending fractal.- enter short position
 
-Exit from a long position: The trailing stop is placed at the minimum for the period 
+Buy:
+Fast line (lips) above the middle line (teeth), medium above the slow line (jaw) and 
+the price is higher than the last ascending fractal.
+
+Sell:
+Fast line (lips) below the midline (teeth), medium below the slow line (jaw) and
+the price is lower than the last descending fractal.
+
+Exit from buy: The trailing stop is placed at the minimum for the period 
 specified for the trailing stop and is transferred, (slides), to new price lows, also
 for the specified period.
 
-Exit from the short position: The trailing stop is placed at the maximum for the period
+Exit from sell: The trailing stop is placed at the maximum for the period
 specified for the trailing stop and is transferred (slides) to the new maximum of the 
 price, also for the specified period.
  
@@ -77,9 +81,9 @@ namespace OsEngine.Robots.Aligator
             EndTradeTime = CreateParameterTimeOfDay("End Trade Time", 24, 0, 0, 0, "Base");
 
             // Setting indicator
-            AlligatorFastLineLength = CreateParameter("Period Simple Moving Average Fast", 20, 10, 300, 10, "Indicator");
+            AlligatorFastLineLength = CreateParameter("Period Simple Moving Average Fast", 10, 10, 300, 10, "Indicator");
             AlligatorMiddleLineLength = CreateParameter("Period Simple Moving Middle", 20, 10, 300, 10, "Indicator");
-            AlligatorSlowLineLength = CreateParameter("Period Simple Moving Slow", 20, 10, 300, 10, "Indicator");
+            AlligatorSlowLineLength = CreateParameter("Period Simple Moving Slow", 30, 10, 300, 10, "Indicator");
 
             // Create indicator Alligator
             _Alligator = IndicatorsFactory.CreateIndicatorByName("Alligator", name + "Alligator", false);
@@ -102,6 +106,20 @@ namespace OsEngine.Robots.Aligator
 
             // Subscribe to the candle finished event
             _tab.CandleFinishedEvent += _tab_CandleFinishedEvent;
+
+            Description = "The trend robot on intersection of the Alligator indicator with Fractal. " +
+                "Buy: " +
+                "Fast line (lips) above the middle line (teeth), medium above the slow line (jaw) and" +
+                " the price is higher than the last ascending fractal. " +
+                "Sell: " +
+                "Fast line (lips) below the midline (teeth), medium below the slow line (jaw) and " +
+                "the price is lower than the last descending fractal. " +
+                "Exit from buy: The trailing stop is placed at the minimum for the period " +
+                "specified for the trailing stop and is transferred, (slides), to new price lows, also " +
+                "for the specified period. " +
+                "Exit from sell: The trailing stop is placed at the maximum for the period " +
+                "specified for the trailing stop and is transferred (slides) to the new maximum of the  " +
+                "price, also for the specified period.";
         }
 
         // Indicator Update event

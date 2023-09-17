@@ -12,8 +12,12 @@ using OsEngine.OsTrader.Panels.Tab;
 trading robot for osengine
 
 The trend robot on intersection of the Alligator indicator with the price.
-The price is above the fast (lips) line, the fast is above the average line (teeth), the average is above the slow (jaw) - enter into a long position.
-The price is below the fast (lips) line, the fast is below the average line (teeth), the average is below the slow (jaw) - enter short position
+
+Buy:
+The price is above the fast (lips) line, the fast is above the average line (teeth), the average is above the slow (jaw).
+
+Sell:
+The price is below the fast (lips) line, the fast is below the average line (teeth), the average is below the slow (jaw).
 
 Exit the position the price crosses the middle line. 
  
@@ -61,9 +65,9 @@ namespace OsEngine.Robots.Aligator
             EndTradeTime = CreateParameterTimeOfDay("End Trade Time", 24, 0, 0, 0, "Base");
 
             // Setting indicator
-            AlligatorFastLineLength = CreateParameter("Period Simple Moving Average Fast", 20, 10, 300, 10, "Indicator");
+            AlligatorFastLineLength = CreateParameter("Period Simple Moving Average Fast", 10, 10, 300, 10, "Indicator");
             AlligatorMiddleLineLength = CreateParameter("Period Simple Moving Middle", 20, 10, 300, 10, "Indicator");
-            AlligatorSlowLineLength = CreateParameter("Period Simple Moving Slow", 20, 10, 300, 10, "Indicator");
+            AlligatorSlowLineLength = CreateParameter("Period Simple Moving Slow", 30, 10, 300, 10, "Indicator");
 
             // Create indicator
             _Alligator = IndicatorsFactory.CreateIndicatorByName("Alligator", name + "Alligator", false);
@@ -78,6 +82,13 @@ namespace OsEngine.Robots.Aligator
 
             // Subscribe to the candle finished event
             _tab.CandleFinishedEvent += _tab_CandleFinishedEvent;
+
+            Description = "The trend robot on intersection of the Alligator indicator with the price. " +
+                "Buy: " +
+                "The price is above the fast (lips) line, the fast is above the average line (teeth), the average is above the slow (jaw). " +
+                "Sell: " +
+                "The price is below the fast (lips) line, the fast is below the average line (teeth), the average is below the slow (jaw). " +
+                "Exit the position the price crosses the middle line.";
         }
 
         // Indicator Update event
