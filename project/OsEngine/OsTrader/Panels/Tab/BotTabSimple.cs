@@ -1274,8 +1274,6 @@ namespace OsEngine.OsTrader.Panels.Tab
             }
         }
 
-
-
         /// <summary>
         /// Show profit order window
         /// </summary>
@@ -2438,6 +2436,18 @@ namespace OsEngine.OsTrader.Panels.Tab
             {
                 SetNewLogMessage(error.ToString(), LogMessageType.Error);
             }
+        }
+
+        /// <summary>
+        /// Add new order to Short position at market 
+        /// </summary>
+        /// <param name="position">position to which the order will be added</param>
+        /// <param name="volume">volume</param>
+        /// <param name="signalType">the opening signal. It will be written to the position as SignalTypeOpen</param>
+        public void SellAtMarketToPosition(Position position, decimal volume, string signalType)
+        {
+            position.SignalTypeOpen = signalType;
+            SellAtMarketToPosition(position, volume);
         }
 
         /// <summary>
@@ -3805,10 +3815,8 @@ namespace OsEngine.OsTrader.Panels.Tab
                             position.StopOrderRedLine
                             + " LastMarketPrice: " + lastTrade,
                             LogMessageType.System);
-                        if (IsMarketStopOrderSupport())
-                            CloseDeal(position, OrderPriceType.Market, position.StopOrderPrice, ManualPositionSupport.SecondToClose, true);
-                        else
-                            CloseDeal(position, OrderPriceType.Limit, position.StopOrderPrice, ManualPositionSupport.SecondToClose, true);
+
+                        CloseDeal(position, OrderPriceType.Limit, position.StopOrderPrice, ManualPositionSupport.SecondToClose, true);
                         PositionStopActivateEvent?.Invoke(position);
                         return true;
                     }
@@ -3825,10 +3833,7 @@ namespace OsEngine.OsTrader.Panels.Tab
                             + " LastMarketPrice: " + lastTrade,
                             LogMessageType.System);
 
-                        if (IsMarketStopOrderSupport())
-                            CloseDeal(position, OrderPriceType.Market, position.StopOrderPrice, ManualPositionSupport.SecondToClose, true);
-                        else
-                            CloseDeal(position, OrderPriceType.Limit, position.StopOrderPrice, ManualPositionSupport.SecondToClose, true);
+                        CloseDeal(position, OrderPriceType.Limit, position.StopOrderPrice, ManualPositionSupport.SecondToClose, true);
                         PositionStopActivateEvent?.Invoke(position);
                         return true;
                     }
@@ -4149,7 +4154,7 @@ namespace OsEngine.OsTrader.Panels.Tab
 
             if (neadSave == true)
             {
-                UpdateStopLimits(); ;
+                UpdateStopLimits();
             }
         }
 

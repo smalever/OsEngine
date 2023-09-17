@@ -15,7 +15,7 @@ The trend robot on intersection of three Vwma
 
 Buy: Fast Vwma above average Vwma and medium above slow.
 
-Sale: Fast Vwma below average Vwma and medium below slow.
+Sell: Fast Vwma below average Vwma and medium below slow.
 
 Exit: on the opposite signal.
 
@@ -50,6 +50,7 @@ namespace OsEngine.Robots.Vwma
         private decimal _lastVwmaFast;
         private decimal _lastVwmaMiddle;
         private decimal _lastVwmaSlow;
+
         public IntersectionOfTheThreeVwma(string name, StartProgram startProgram) : base(name, startProgram)
         {
             TabCreate(BotTabType.Simple);
@@ -94,6 +95,11 @@ namespace OsEngine.Robots.Vwma
 
             // Subscribe to the candle finished event
             _tab.CandleFinishedEvent += _tab_CandleFinishedEvent;
+
+            Description = "The trend robot on intersection of three Vwma " +
+                "Buy: Fast Vwma above average Vwma and medium above slow. " +
+                "Sell: Fast Vwma below average Vwma and medium below slow. " +
+                "Exit: on the opposite signal.";
         }
 
         // Indicator Update event

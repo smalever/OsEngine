@@ -56,6 +56,8 @@ namespace OsEngine
             InitializeComponent();
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
+            this.Closed += MainWindow_Closed;
+
             try
             {
                 int winVersion = Environment.OSVersion.Version.Major;
@@ -72,6 +74,12 @@ namespace OsEngine
                 if (!CheckWorkWithDirectory())
                 {
                     MessageBox.Show(OsLocalization.MainWindow.Message2);
+                    Close();
+                }
+
+                if(!CheckOutSomeLibrariesNearby())
+                {
+                    MessageBox.Show(OsLocalization.MainWindow.Message6);
                     Close();
                 }
             }
@@ -103,13 +111,14 @@ namespace OsEngine
 
             GlobalGUILayout.Listen(this, "mainWindow");
 
-            this.Closed += MainWindow_Closed;
+            
         }
 
         private void MainWindow_Closed(object sender, EventArgs e)
         {
             ProccesIsWorked = false;
             GlobalGUILayout.IsClosed = true;
+            Process.GetCurrentProcess().Kill();
         }
 
         private void ChangeText()
@@ -170,6 +179,18 @@ namespace OsEngine
 
                 return false;
             }
+        }
+
+        private bool CheckOutSomeLibrariesNearby()
+        {
+            // проверяем чтобы пользователь не запустился с рабочего стола, но не ярлыком, а экзешником
+
+            if(File.Exists("QuikSharp.dll") == false)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>

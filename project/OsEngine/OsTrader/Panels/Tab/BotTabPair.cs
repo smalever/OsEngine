@@ -14,6 +14,7 @@ using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using System.Threading;
 using OsEngine.Market;
+using Kraken.WebSockets.Messages;
 
 namespace OsEngine.OsTrader.Panels.Tab
 {
@@ -176,10 +177,18 @@ namespace OsEngine.OsTrader.Panels.Tab
                 for (int i = 0; i < Pairs.Count; i++)
                 {
                     Pairs[i].Delete();
+
                     Pairs[i].CointegrationPositionSideChangeEvent -= Pair_CointegrationPositionSideChangeEvent;
                     Pairs[i].CorrelationChangeEvent -= NewPair_CorrelationChangeEvent;
                     Pairs[i].CointegrationChangeEvent -= Pair_CointegrationChangeEvent;
+                    Pairs[i].CandlesInPairSyncFinishedEvent -= Pair_CandlesInPairSyncFinishedEvent;
+                    Pairs[i].LogMessageEvent -= SendNewLogMessage;
+                }
 
+                if(Pairs != null)
+                {
+                    Pairs.Clear();
+                    Pairs = null;
                 }
 
                 if (_grid != null)
@@ -311,6 +320,16 @@ namespace OsEngine.OsTrader.Panels.Tab
         #region Common settings
 
         /// <summary>
+        /// Cointegration calculation enabled
+        /// </summary>
+        public bool AutoRebuildCointegration = true;
+
+        /// <summary>
+        /// Correlation calculation enabled
+        /// </summary>
+        public bool AutoRebuildCorrelation = true;
+
+        /// <summary>
         /// Security 1. Trade Mode
         /// </summary>
         public PairTraderSecurityTradeRegime Sec1TradeRegime;
@@ -416,7 +435,8 @@ namespace OsEngine.OsTrader.Panels.Tab
                     writer.WriteLine(_emulatorIsOn);
                     writer.WriteLine(Sec1TradeRegime);
                     writer.WriteLine(Sec2TradeRegime);
-
+                    writer.WriteLine(AutoRebuildCointegration);
+                    writer.WriteLine(AutoRebuildCorrelation);
 
                     writer.Close();
                 }
@@ -458,6 +478,9 @@ namespace OsEngine.OsTrader.Panels.Tab
 
                     Enum.TryParse(reader.ReadLine(), out Sec1TradeRegime);
                     Enum.TryParse(reader.ReadLine(), out Sec2TradeRegime);
+
+                    AutoRebuildCointegration = Convert.ToBoolean(reader.ReadLine());
+                    AutoRebuildCorrelation = Convert.ToBoolean(reader.ReadLine());
 
                     reader.Close();
                 }
@@ -526,6 +549,7 @@ namespace OsEngine.OsTrader.Panels.Tab
                 pair.CorrelationChangeEvent += NewPair_CorrelationChangeEvent;
                 pair.CointegrationChangeEvent += Pair_CointegrationChangeEvent;
                 pair.LogMessageEvent += SendNewLogMessage;
+                pair.CandlesInPairSyncFinishedEvent += Pair_CandlesInPairSyncFinishedEvent;
 
                 if (PairToTradeCreateEvent != null)
                 {
@@ -586,6 +610,7 @@ namespace OsEngine.OsTrader.Panels.Tab
                         Pairs[i].CorrelationChangeEvent -= NewPair_CorrelationChangeEvent;
                         Pairs[i].CointegrationChangeEvent -= Pair_CointegrationChangeEvent;
                         Pairs[i].LogMessageEvent -= SendNewLogMessage;
+                        Pairs[i].CandlesInPairSyncFinishedEvent -= Pair_CandlesInPairSyncFinishedEvent;
                         Pairs[i].Delete();
                         Pairs.RemoveAt(i);
                         SavePairNames();
@@ -645,6 +670,7 @@ namespace OsEngine.OsTrader.Panels.Tab
                         newPair.CorrelationChangeEvent += NewPair_CorrelationChangeEvent;
                         newPair.CointegrationChangeEvent += Pair_CointegrationChangeEvent;
                         newPair.LogMessageEvent += SendNewLogMessage;
+                        newPair.CandlesInPairSyncFinishedEvent += Pair_CandlesInPairSyncFinishedEvent;
                         Pairs.Add(newPair);
                     }
 
@@ -681,6 +707,8 @@ namespace OsEngine.OsTrader.Panels.Tab
                     pair.Sec2VolumeType = Sec2VolumeType;
                     pair.Sec1TradeRegime = Sec1TradeRegime;
                     pair.Sec2TradeRegime = Sec2TradeRegime;
+                    pair.AutoRebuildCointegration = AutoRebuildCointegration;
+                    pair.AutoRebuildCorrelation = AutoRebuildCorrelation;
 
                     CopyPositionControllerSettings(pair.Tab1, StandartManualControl);
                     CopyPositionControllerSettings(pair.Tab2, StandartManualControl);
@@ -982,6 +1010,14 @@ namespace OsEngine.OsTrader.Panels.Tab
             }
         }
 
+        private void Pair_CandlesInPairSyncFinishedEvent(List<Candle> arg1, BotTabSimple arg2, List<Candle> arg3, BotTabSimple arg4, PairToTrade arg5)
+        {
+            if (CandlesInPairSyncFinishedEvent != null)
+            {
+                CandlesInPairSyncFinishedEvent(arg1, arg2, arg3, arg4, arg5);
+            }
+        }
+
         /// <summary>
         /// Some pair has updated correlation value. 
         /// List<PairIndicatorValue> - An array with correlation values. The actual value is the last. 
@@ -1009,6 +1045,16 @@ namespace OsEngine.OsTrader.Panels.Tab
         /// The source has a new pair for trading
         /// </summary>
         public event Action<PairToTrade> PairToTradeCreateEvent;
+
+        /// <summary>
+        /// Candlesticks on the instruments in the pair have completed and have the same times
+        /// 1. List<Candle> - candles of first security
+        /// 2. BotTabSimple - source of first security
+        /// 3. List<Candle> - candles of second security
+        /// 4. BotTabSimple - source of second security
+        /// 5. PairToTrade - the pair on which the event occurred
+        /// </summary>
+        public event Action<List<Candle>, BotTabSimple, List<Candle>, BotTabSimple, PairToTrade> CandlesInPairSyncFinishedEvent;
 
         #endregion
 
@@ -1838,6 +1884,8 @@ namespace OsEngine.OsTrader.Panels.Tab
                     Enum.TryParse(reader.ReadLine(), out Sec2TradeRegime);
                     Enum.TryParse(reader.ReadLine(), out _lastEntryCointegrationSide);
                     _showTradePanelOnChart = Convert.ToBoolean(reader.ReadLine());
+                    AutoRebuildCointegration = Convert.ToBoolean(reader.ReadLine());
+                    AutoRebuildCorrelation = Convert.ToBoolean(reader.ReadLine());
 
                     reader.Close();
                 }
@@ -1874,6 +1922,8 @@ namespace OsEngine.OsTrader.Panels.Tab
                     writer.WriteLine(Sec2TradeRegime);
                     writer.WriteLine(_lastEntryCointegrationSide);
                     writer.WriteLine(_showTradePanelOnChart);
+                    writer.WriteLine(AutoRebuildCointegration);
+                    writer.WriteLine(AutoRebuildCorrelation);
 
                     writer.Close();
                 }
@@ -2372,6 +2422,11 @@ namespace OsEngine.OsTrader.Panels.Tab
         #region Correlation calculation and storage
 
         /// <summary>
+        /// Correlation calculation enabled
+        /// </summary>
+        public bool AutoRebuildCorrelation = true;
+
+        /// <summary>
         /// Object responsible for the calculation of the correlation
         /// </summary>
         CorrelationBuilder correlationBuilder = new CorrelationBuilder();
@@ -2458,6 +2513,11 @@ namespace OsEngine.OsTrader.Panels.Tab
         #endregion
 
         #region Cointegration calculation and storage
+
+        /// <summary>
+        /// Cointegration calculation enabled
+        /// </summary>
+        public bool AutoRebuildCointegration = true;
 
         /// <summary>
         /// Object responsible for the calculation of the cointegration
@@ -2615,6 +2675,16 @@ namespace OsEngine.OsTrader.Panels.Tab
         /// </summary>
         public event Action<CointegrationLineSide, PairToTrade> CointegrationPositionSideChangeEvent;
 
+        /// <summary>
+        /// Candlesticks on the instruments in the pair have completed and have the same times
+        /// 1. List<Candle> - candles of first security
+        /// 2. BotTabSimple - source of first security
+        /// 3. List<Candle> - candles of second security
+        /// 4. BotTabSimple - source of second security
+        /// 5. PairToTrade - the pair on which the event occurred
+        /// </summary>
+        public event Action<List<Candle>, BotTabSimple, List<Candle>, BotTabSimple, PairToTrade> CandlesInPairSyncFinishedEvent;
+
         #endregion
 
         #region Event processing and indicator recalculation call
@@ -2704,8 +2774,20 @@ namespace OsEngine.OsTrader.Panels.Tab
                 return;
             }
 
-            ReloadCorrelation(_candles1, _candles2);
-            ReloadCointegration(_candles1, _candles2);
+            if(AutoRebuildCorrelation)
+            {
+                ReloadCorrelation(_candles1, _candles2);
+            }
+
+            if(AutoRebuildCointegration)
+            {
+                ReloadCointegration(_candles1, _candles2);
+            }
+
+            if(CandlesInPairSyncFinishedEvent != null)
+            {
+                CandlesInPairSyncFinishedEvent(_candles1, Tab1, _candles2, Tab2, this);
+            }
         }
 
         /// <summary>

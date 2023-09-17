@@ -50,6 +50,7 @@ namespace OsEngine.Robots.SMA
         private decimal _lastSmaFast;
         private decimal _lastSmaMiddle;
         private decimal _lastSmaSlow;
+
         public IntersectionOfThreeSma(string name, StartProgram startProgram) : base(name, startProgram)
         {
             TabCreate(BotTabType.Simple);
@@ -94,6 +95,11 @@ namespace OsEngine.Robots.SMA
 
             // Subscribe to the candle finished event
             _tab.CandleFinishedEvent += _tab_CandleFinishedEvent;
+
+            Description = "The trend robot on intersection of three SMA " +
+                "Buy: Fast Sma is above average Sma and medium is above slow " +
+                "Sell: Fast Sma is below average Sma and average is below slow " +
+                "Exit: on the opposite signal";
         }
 
         // Indicator Update event

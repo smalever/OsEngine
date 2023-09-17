@@ -60,7 +60,7 @@
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Images\OsLogo.ico</ApplicationIcon>
+    <ApplicationIcon>OsLogo.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>
@@ -382,6 +382,9 @@
       <DependentUpon>ColorCustomDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Entity\CorrelationBuilder.cs" />
+    <Compile Include="Entity\CustomMessageBoxUi.xaml.cs">
+      <DependentUpon>CustomMessageBoxUi.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Entity\DataGridFactory.cs" />
     <Compile Include="Entity\DateTimeSelectionDialog.xaml.cs">
       <DependentUpon>DateTimeSelectionDialog.xaml</DependentUpon>
@@ -740,10 +743,6 @@
     <Compile Include="Market\Servers\Entity\MarshalUTF8.cs" />
     <Compile Include="Market\Servers\Entity\ServerWorkingTimeSettings.cs" />
     <Compile Include="Market\Servers\Entity\TimeManager.cs" />
-    <Compile Include="Market\Servers\SmartCom\SmartComServer.cs" />
-    <Compile Include="Market\Servers\SmartCom\SmartComServerUi.xaml.cs">
-      <DependentUpon>SmartComServerUi.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Market\Servers\Tester\GoToUi.xaml.cs">
       <DependentUpon>GoToUi.xaml</DependentUpon>
     </Compile>
@@ -980,19 +979,33 @@
     <Compile Include="OsTrader\Panels\Tab\Internal\PositionOpenUi2.xaml.cs">
       <DependentUpon>PositionOpenUi2.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Robots\AutoTestBots\ServerTests\AllSecuritiesSubscribleTest.cs" />
     <Compile Include="Robots\AutoTestBots\ServerTests\AServerTester.cs" />
-    <Compile Include="Robots\AutoTestBots\ServerTests\DataTest1_IntegrityOfData.cs" />
-    <Compile Include="Robots\AutoTestBots\ServerTests\DataTest2_StrangeRequests.cs" />
-    <Compile Include="Robots\AutoTestBots\ServerTests\MarketDepthTester.cs" />
-    <Compile Include="Robots\AutoTestBots\ServerTests\TestSpamEntity.cs" />
-    <Compile Include="Robots\AutoTestBots\ServerTests\SecuritiesTester.cs" />
+    <Compile Include="Robots\AutoTestBots\ServerTests\Conn_1_Status.cs" />
+    <Compile Include="Robots\AutoTestBots\ServerTests\Conn_2_Spam_Subscr.cs" />
+    <Compile Include="Robots\AutoTestBots\ServerTests\Conn_3_SubscrAllSec.cs" />
+    <Compile Include="Robots\AutoTestBots\ServerTests\Conn_4_Stress_Memory.cs" />
+    <Compile Include="Robots\AutoTestBots\ServerTests\Conn_5_Validation_Candles.cs" />
+    <Compile Include="Robots\AutoTestBots\ServerTests\Data_1_Integrity.cs" />
+    <Compile Include="Robots\AutoTestBots\ServerTests\Data_2_Validation_Candles.cs" />
+    <Compile Include="Robots\AutoTestBots\ServerTests\Data_3_Validation_Trades.cs" />
+    <Compile Include="Robots\AutoTestBots\ServerTests\Data_4_Stress_Candles.cs" />
+    <Compile Include="Robots\AutoTestBots\ServerTests\Data_5_Stress_Trades.cs" />
+    <Compile Include="Robots\AutoTestBots\ServerTests\Orders_1_FakeOrders.cs" />
+    <Compile Include="Robots\AutoTestBots\ServerTests\Orders_2_LimitsExecute.cs" />
+    <Compile Include="Robots\AutoTestBots\ServerTests\Orders_3_MarketOrders.cs" />
+    <Compile Include="Robots\AutoTestBots\ServerTests\Orders_4_LimitCancel.cs" />
+    <Compile Include="Robots\AutoTestBots\ServerTests\Portfolio_1_Validation.cs" />
+    <Compile Include="Robots\AutoTestBots\ServerTests\Var_2_MarketDepth.cs" />
+    <Compile Include="Robots\AutoTestBots\ServerTests\Var_1_Securities.cs" />
     <Compile Include="Robots\AutoTestBots\TestBotCandlesComparison.cs" />
     <Compile Include="Robots\AutoTestBots\TestBotConnection.cs" />
     <Compile Include="Robots\AutoTestBots\TestBotConnectionParams.xaml.cs">
       <DependentUpon>TestBotConnectionParams.xaml</DependentUpon>
     </Compile>
     <Compile Include="Robots\AutoTestBots\TestBotOpenAndCanselOrders.cs" />
+    <Compile Include="Robots\BotCreateUi2.xaml.cs">
+      <DependentUpon>BotCreateUi2.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Robots\BotFactory.cs" />
     <Compile Include="Robots\CounterTrend\ClusterCountertrend.cs" />
     <Compile Include="Robots\Engines\EnginePair.cs" />
@@ -1345,6 +1358,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Entity\CustomMessageBoxUi.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Entity\DateTimeSelectionDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -1402,10 +1419,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Market\Servers\Optimizer\OptimizerDataStorageUi.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Market\Servers\SmartCom\SmartComServerUi.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1593,6 +1606,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Robots\BotCreateUi2.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Robots\CounterTrend\StrategyBollingerUi.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -1755,17 +1772,6 @@
     <None Include="Resources\Bird.wav" />
   </ItemGroup>
   <ItemGroup>
-    <COMReference Include="SmartCOM4Lib">
-      <Guid>{D12929CB-4569-46B7-99CE-FFF546E41866}</Guid>
-      <VersionMajor>1</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>tlbimp</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
-    </COMReference>
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Robots\1readme.txt" />
   </ItemGroup>
   <ItemGroup>
@@ -1825,6 +1831,9 @@
     <Resource Include="Images\Support\No.png" />
     <Resource Include="Images\Support\Prime.png" />
     <Resource Include="Images\Support\Standart.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="OsLogo.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

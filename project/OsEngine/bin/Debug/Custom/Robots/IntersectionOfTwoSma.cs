@@ -47,6 +47,7 @@ namespace OsEngine.Robots.SMA
         // The last value of the indicators
         private decimal _lastSmaFast;
         private decimal _lastSmaSlow;
+
         public IntersectionOfTwoSma(string name, StartProgram startProgram) : base(name, startProgram)
         {
             TabCreate(BotTabType.Simple);
@@ -82,6 +83,11 @@ namespace OsEngine.Robots.SMA
 
             // Subscribe to the candle finished event
             _tab.CandleFinishedEvent += _tab_CandleFinishedEvent;
+
+            Description = "The trend robot on intersection of two SMA " +
+                "Buy: Fast Sma is higher than slow Sma " +
+                "Sell: Fast Sma below slow Sma " +
+                "Exit: on the opposite signal";
         }
 
         // Indicator Update event
