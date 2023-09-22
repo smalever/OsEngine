@@ -473,20 +473,21 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
                     foreach (PositionBot pos in PositionsBots)
                     {
+                        GetBalansSecur();
                         if (!pos.PassCloseOrder || !pos.PassOpenOrder) break;
-
+                        decimal lotClose = 0;
+                        lotClose = SelectSecurBalans;
                         Side side = Side.None;
-                        if (pos.Side == Side.Buy)
+
+                        if (lotClose < 0)
                         {
                             side = Side.Buy;
                         }
-                        if (pos.Side == Side.Sell)
+                        if (lotClose > 0)
                         {
                             side = Side.Sell;
                         }
-                        GetBalansSecur();
-                        decimal lotClose = 0;
-                        lotClose = SelectSecurBalans;
+
                         if (lotClose == 0) return;
                         Order ordClose = CreateMarketOrder(SelectedSecurity, Price, lotClose, side);
                         if (ordClose != null )

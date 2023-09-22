@@ -502,7 +502,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
            this.StrStatus = text;
         }
-
+        
         #endregion
 
         public delegate void selectedSecurity();
