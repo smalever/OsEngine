@@ -552,7 +552,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         if (order.State == OrderStateType.Activ)
                         {
                             Server.CancelOrder(order);
-                            _logger.Information("Method {Method} Order {@Order}", nameof(CreateLimitOrder), order);
+                            _logger.Information("Method {Method} Order {@Order}", nameof(CanсelActivOrders), order);
                             SendStrStatus(" Отменили ордер на бирже");
                         }
                     }
@@ -1280,6 +1280,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 return;
             }
+            _logger.Information("Method {@Method} Header {@Header}", nameof(LoadParamsBot), Header);
             RobotsWindowVM.Log(Header, " LoadParamsBot \n загрузили параметры ");
             string servType = "";
             try
