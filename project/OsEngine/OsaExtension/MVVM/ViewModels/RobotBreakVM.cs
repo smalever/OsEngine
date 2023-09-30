@@ -427,6 +427,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         public RobotBreakVM(string header, int numberTab, RobotsWindowVM MainWindows)
         {
+            _logger = Serilog.Log.Logger.ForContext<RobotBreakVM>();
+
             NumberTab = numberTab;
             Header = header;
             _robotsWindowVM = MainWindows;
@@ -502,7 +504,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                             pos.PassOpenOrder = false;
 
                             Server.ExecuteOrder(ordClose);
-                            RobotsWindowVM.Log(Header, "CloseOpenVolume - Отправлен Маркет на закрытие объема ");
+                        
+                            _logger.Information(" Отправлен Маркет на закрытие объема ", nameof(CloseMarketOpenVolume));                        
+
                             SendStrStatus(" Отправлен Маркет на закрытие объема на бирже");
                             GetBalansSecur();
                             Thread.Sleep(50);
@@ -513,7 +517,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                             SendStrStatus(" Ошибка закрытия объема на бирже");
                             pos.PassCloseOrder = true;
                             pos.PassOpenOrder = true;
-                            RobotsWindowVM.Log(Header, " Ошибка отправки Маркет на закрытие объема ");
+                            _logger.Information(" Ошибка отправки Маркет на закрытие объема  ", nameof(CloseMarketOpenVolume));
+                            //RobotsWindowVM.Log(Header, " Ошибка отправки Маркет на закрытие объема ");
                         }
                     }
                     //Thread.Sleep(1500);
@@ -547,6 +552,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         if (order.State == OrderStateType.Activ)
                         {
                             Server.CancelOrder(order);
+                            _logger.Information("Method {Method} Order {@Order}", nameof(CreateLimitOrder), order);
                             SendStrStatus(" Отменили ордер на бирже");
                         }
                     }
@@ -930,6 +936,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 SecurityNameCode = sec.Name,
                 SecurityClassCode = sec.NameClass,
             };
+            
+            _logger.Information("Method {Method} Order {@Order}", nameof(CreateLimitOrder), order);
             //RobotsWindowVM.Log(Header, "SendLimitOrder\n " + " отправляем лимитку на биржу\n" + GetStringForSave(order));
             RobotsWindowVM.SendStrTextDb(" Создали ордер " + order.NumberUser);
 
@@ -960,8 +968,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 SecurityNameCode = sec.Name,
                 SecurityClassCode = sec.NameClass,
             };
-            RobotsWindowVM.Log(Header, "CreateMarketOrder\n " + "сформировали  маркет на биржу\n" + GetStringForSave(order));
+            //RobotsWindowVM.Log(Header, "CreateMarketOrder\n " + "сформировали  маркет на биржу\n" + GetStringForSave(order));
             RobotsWindowVM.SendStrTextDb(" CreateMarketOrder " + order.NumberUser);
+            _logger.Information("Method {Method} Order {@Order}", nameof(CreateMarketOrder), order);
+            // ("Method {Method} Exception {@Exception}", nameof(SaveHeaderBot), ex)
             //Server.ExecuteOrder(order);
 
             return order;

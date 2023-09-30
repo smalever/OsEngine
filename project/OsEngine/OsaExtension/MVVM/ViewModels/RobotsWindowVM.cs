@@ -370,6 +370,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// конструктор отправки строки в лог
         /// </summary>
+        
         public static void Log(string name, string str)
         {
             MessageForLog mess = new MessageForLog()
@@ -379,7 +380,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             };
             _logMessges.Enqueue(mess);
         }
-
         /// <summary>
         /// Запись логa 
         /// </summary>
@@ -441,7 +441,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
             catch (Exception ex)
             {
-                Log("App", " Ошибка сохранения параметров = " + ex.Message);
+                _logger.Error("Method {Method} Exception {@Exception}", nameof(SaveHeaderBot), ex);
+                // Log("App", " Ошибка сохранения параметров = " + ex.Message);
             }
         }
 
@@ -467,7 +468,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
             catch (Exception ex)
             {
-                Log("App", " Ошибка выгрузки параметров = " + ex.Message);
+                //Log("App", " Ошибка выгрузки параметров = " + ex.Message);
+                _logger.Error(" Ошибка выгрузки параметров = " + ex.Message);
             }
 
             if (string.IsNullOrEmpty(strTabs)) { return; }
