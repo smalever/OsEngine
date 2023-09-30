@@ -16,6 +16,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using OsEngine.Market.Servers;
+using Serilog;
 
 namespace OsEngine.OsaExtension.MVVM.ViewModels
 {
@@ -23,13 +24,17 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
     {
         public RobotsWindowVM()
         {
+            _logger = Serilog.Log.Logger.ForContext<RobotsWindowVM>();
+
             ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
 
             // поток для записи логирования 
+            /*
             Task.Run(() =>
             {
                 RecordLog();
             });
+            */
 
             LoadHeaderBot();
 
@@ -116,6 +121,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         #endregion
 
         #region  ================================ Поля =====================================
+
+        /// <summary>
+        /// поле логера RobotsWindowVM
+        /// </summary>
+        ILogger _logger;
 
         /// <summary>
         /// коллекция  для логов из разных потоков 

@@ -8,6 +8,7 @@ using OsEngine.Market.Servers.GateIo.Futures.Response;
 using OsEngine.OsaExtension.MVVM.Commands;
 using OsEngine.OsaExtension.MVVM.Models;
 using OsEngine.OsaExtension.MVVM.View;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -398,6 +399,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         #endregion конец свойств =============================================
 
         #region Поля ==================================================
+
+        /// <summary>
+        /// поле логера RobotBreakVM
+        /// </summary>
+        ILogger _logger;
 
         /// <summary>
         /// исполняемая позиция
@@ -1220,7 +1226,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// сохранение параметров робота
         /// </summary>
-        private void SaveParamsBot()
+        public void SaveParamsBot()
         {
             if (!Directory.Exists(@"Parametrs\Tabs"))
             {
