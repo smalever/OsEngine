@@ -22,6 +22,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Documents;
+using System.Windows.Forms.DataVisualization.Charting;
 using Order = OsEngine.Entity.Order;
 using Security = OsEngine.Entity.Security;
 
@@ -545,16 +546,17 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
           {
                 foreach (PositionBot position in PositionsBots)
                 {
-                    List<Order> ordersAll = position.OrdersForOpen;// взять из позиции ордера открытия 
-                    ordersAll.AddRange(position.OrdersForClose); // добавили ордера закрытия 
+                    List<Order> orders = position.OrdersForOpen;// взять из позиции ордера открытия 
+                    //ordersAll.AddRange(position.OrdersForClose); // добавили ордера закрытия 
 
-                    for (int i = 0; i < ordersAll.Count; i++)
+                    for (int i = 0; i < orders.Count; i++)
                     {
-                        if (ordersAll[i].State == OrderStateType.Activ)
+                        if (orders[i].State == OrderStateType.Activ)
                         {
-                            Server.CancelOrder(ordersAll[i]);
-                            _logger.Information("Method {Method} Order {@Order}", nameof(CanсelActivOrders), ordersAll[i]);
+                            Server.CancelOrder(orders[i]);
+                            _logger.Information("Method {Method} Order {@Order}", nameof(CanсelActivOrders), orders[i]);
                             SendStrStatus(" Отменили ордер на бирже");
+                            Thread.Sleep(300);
                         }
                     }
 
@@ -599,7 +601,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             IsRun = !IsRun;
 
-            RobotsWindowVM.Log(Header, " \n\n StartStop = " + IsRun);
+            _logger.Information("StartStop = {IsRun} {Method}",  IsRun, nameof(StartStop));
+            //RobotsWindowVM.Log(Header, " \n\n StartStop = " + IsRun);
 
             SaveParamsBot();
             if (IsRun)
@@ -901,7 +904,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             ObservableCollection<string> stringPortfolios = new ObservableCollection<string>();
             if (server == null)
             {
-                RobotsWindowVM.Log(Header, "GetStringPortfolios server == null ");
+                _logger.Information("GetStringPortfolios server == null {Method}", nameof(GetStringPortfolios));
+                //RobotsWindowVM.Log(Header, "GetStringPortfolios server == null ");
                 return stringPortfolios;
             }
             if (server.Portfolios == null)
@@ -1027,7 +1031,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void _server_NewMyTradeEvent(MyTrade myTrade)
         {
-            RobotsWindowVM.Log(Header, "Пришел трейд \n " + GetStringForSave(myTrade));
+            _logger.Information(" Come myTrade {Method} {MyTrade}", nameof(_server_NewMyTradeEvent), myTrade);
+            //RobotsWindowVM.Log(Header, "Пришел трейд \n " + GetStringForSave(myTrade));
             GetBalansSecur();
             /* проверить обем трейда
              * продолжить логику 
@@ -1047,7 +1052,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
              */
             MonitiringStatusBot(myOrder);
             GetBalansSecur();
-            RobotsWindowVM.Log(Header, "Пришел ордер\n " + GetStringForSave(myOrder));
+            _logger.Information(" Come myOrder {@Order} {Method} ", myOrder, nameof(_server_NewOrderIncomeEvent));
+            //RobotsWindowVM.Log(Header, "Пришел ордер\n " + GetStringForSave(myOrder));
         }
 
         /// <summary>
@@ -1108,7 +1114,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             //_server.NewBidAscIncomeEvent += _server_NewBidAscIncomeEvent;
             _server.ConnectStatusChangeEvent += _server_ConnectStatusChangeEvent;
 
-            RobotsWindowVM.Log(Header, " Подключаемся к серверу = " + _server.ServerType);
+            _logger.Information(" Connecting to the server = {ServerType} {Method} ", _server.ServerType, nameof(SubscribeToServer));
+            //RobotsWindowVM.Log(Header, " Подключаемся к серверу = " + _server.ServerType);
         }
 
         /// <summary>
@@ -1124,7 +1131,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             //_server.NewBidAscIncomeEvent -= _server_NewBidAscIncomeEvent;
             _server.ConnectStatusChangeEvent -= _server_ConnectStatusChangeEvent;
 
-            RobotsWindowVM.Log(Header, " Отключились от сервера = " + _server.ServerType);
+            _logger.Information(" Disnnecting to server = {ServerType} {Method} ", _server.ServerType, nameof(UnSubscribeToServer));
+            //RobotsWindowVM.Log(Header, " Отключились от сервера = " + _server.ServerType);
         } 
 
         #endregion
@@ -1137,7 +1145,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             if (security == null)
             {
-                RobotsWindowVM.Log(Header, "StartSecuritiy  security = null ");
+                _logger.Error("StartSecuritiy  security = null {Method} ", nameof(StartSecuritiy));
+                //RobotsWindowVM.Log(Header, "StartSecuritiy  security = null ");
                 return;
             }
 
@@ -1148,7 +1157,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     var series = Server.StartThisSecurity(security.Name, new TimeFrameBuilder(), security.NameClass);
                     if (series != null)
                     {
-                        RobotsWindowVM.Log(Header, "StartSecuritiy  security = " + series.Security.Name);
+                        _logger.Information("StartSecuritiy security = {Security} {Method} ", series.Security.Name, nameof(StartSecuritiy));
+                        //RobotsWindowVM.Log(Header, "StartSecuritiy  security = " + series.Security.Name);
                         // DesirializerLevels();
                         SaveParamsBot();
                         //GetOrderStatusOnBoard();
@@ -1211,13 +1221,14 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
                     if (portf.Number == number)
                     {
-                        RobotsWindowVM.Log(Header, " Выбран портфель =  " + portf.Number);
+                        _logger.Information("Portfolio selected = {Portfolio} {Method} ", portf.Number, nameof(GetPortfolio));
+                        //RobotsWindowVM.Log(Header, " Выбран портфель =  " + portf.Number);
                         return portf;
                     }
                 }
             }
-
-            RobotsWindowVM.Log(Header, "GetStringPortfolios  портфель = null ");
+            _logger.Error("GetStringPortfolios = null {Method} ", nameof(GetPortfolio));
+            //RobotsWindowVM.Log(Header, "GetStringPortfolios  портфель = null ");
             return null;
         }
 
@@ -1266,12 +1277,15 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     writer.WriteLine(PartsPerInput);     
 
                     writer.Close();
-                    RobotsWindowVM.Log(Header, "SaveParamsBot  \n cохраненили  параметры ");
+
+                    _logger.Information("Saving parameters {Header} {Method} ", Header , nameof(SaveParamsBot));
+                    //RobotsWindowVM.Log(Header, "SaveParamsBot  \n cохраненили  параметры ");
                 }
             }
             catch (Exception ex)
             {
-                RobotsWindowVM.Log(Header, " Ошибка сохранения параметров = " + ex.Message);
+                _logger.Error("Error saving parameters {Error} {Method} ", ex.Message, nameof(SaveParamsBot));
+                //RobotsWindowVM.Log(Header, " Ошибка сохранения параметров = " + ex.Message);
             }
         }
         /// <summary>
@@ -1283,8 +1297,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 return;
             }
-            _logger.Information("{@Method} Header {@Header}", nameof(LoadParamsBot), Header);
-            RobotsWindowVM.Log(Header, " LoadParamsBot \n загрузили параметры ");
+            
+  
             string servType = "";
             try
             {
@@ -1321,11 +1335,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     //Levels = JsonConvert.DeserializeAnonymousType(reader.ReadLine(), new ObservableCollection<Level>());
 
                     reader.Close();
+                    _logger.Information("LoadParamsBot {Method} {Header}", nameof(LoadParamsBot), Header);
                 }
             }
             catch (Exception ex)
             {
-                RobotsWindowVM.Log(Header, " Ошибка выгрузки параметров = " + ex.Message);
+                _logger.Error(" Error LoadParamsBot {Error} {Method} ", ex.Message, nameof(LoadParamsBot));
+                //RobotsWindowVM.Log(Header, " Ошибка выгрузки параметров = " + ex.Message);
             }
             StartServer(servType);
 

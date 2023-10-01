@@ -370,7 +370,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// конструктор отправки строки в лог
         /// </summary>
-        
         public static void Log(string name, string str)
         {
             MessageForLog mess = new MessageForLog()
