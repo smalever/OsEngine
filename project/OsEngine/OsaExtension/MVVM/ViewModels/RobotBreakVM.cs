@@ -547,15 +547,17 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
                     List<Order> ordersAll = position.OrdersForOpen;// взять из позиции ордера открытия 
                     ordersAll.AddRange(position.OrdersForClose); // добавили ордера закрытия 
-                    foreach (Order order in ordersAll)
+
+                    for (int i = 0; i < ordersAll.Count; i++)
                     {
-                        if (order.State == OrderStateType.Activ)
+                        if (ordersAll[i].State == OrderStateType.Activ)
                         {
-                            Server.CancelOrder(order);
-                            _logger.Information("Method {Method} Order {@Order}", nameof(CanсelActivOrders), order);
+                            Server.CancelOrder(ordersAll[i]);
+                            _logger.Information("Method {Method} Order {@Order}", nameof(CanсelActivOrders), ordersAll[i]);
                             SendStrStatus(" Отменили ордер на бирже");
                         }
                     }
+
                     Thread.Sleep(300);
                     if (!ActivOrders())
                     {
@@ -639,13 +641,14 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
                     position.PassOpenOrder = false; // TODO: осуществить смену статусов позиции и разрешений 
 
-                    foreach (Order order in orders)
+                    for (int i = 0; i < orders.Count; i++)
                     {
-                        if (order.State == OrderStateType.None)
+                        if (orders[i].State == OrderStateType.None)
                         {
                             // отправить ордер на биржу
-                            Server.ExecuteOrder(order);
-                            RobotsWindowVM.Log(Header, " Ордер отправлен на биржу " + GetStringForSave(order));
+                            Server.ExecuteOrder(orders[i]);
+                            _logger.Information("Method {Method} Order {@Order}", nameof(SendOrderExchange), orders[i]);
+                       
                             SendStrStatus(" Ордер отправлен на биржу");
                         }
                     }

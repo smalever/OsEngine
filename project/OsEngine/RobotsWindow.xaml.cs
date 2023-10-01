@@ -10,6 +10,7 @@ using MahApps.Metro.Controls;
 using Serilog;
 using System.IO;
 using Serilog.Formatting.Compact;
+using TelegramSink;
 
 namespace OsEngine.OsaExtension.MVVM.View
 {
@@ -50,7 +51,7 @@ namespace OsEngine.OsaExtension.MVVM.View
         private void RobotWindow_Closed(object sender, EventArgs e)
         {
             _logger.Information("Method {Method}", nameof(RobotWindow_Closed));
-
+             
             MainWindow.ProccesIsWorked = false;
             Thread.Sleep(7000);
             Process.GetCurrentProcess().Kill();
@@ -77,6 +78,8 @@ namespace OsEngine.OsaExtension.MVVM.View
                     .WriteTo.File(new CompactJsonFormatter(), @"Logs\" + dateTime.ToShortDateString() + "_bot.log", 
                             rollingInterval: RollingInterval.Day, //  временной интревал записи в файл
                             restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Verbose) // уровень записываемых сообщений
+                    .WriteTo.TeleSink(telegramApiKey: "6408089963:AAF90upSeKuuHoTXK91EoiMXyaZhMMgW_z8",
+                                       telegramChatId: "569566399")
                     .CreateLogger(); 
 
             return logger;
