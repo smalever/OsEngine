@@ -50,7 +50,7 @@ namespace OsEngine.OsaExtension.MVVM.View
         /// </summary>
         private void RobotWindow_Closed(object sender, EventArgs e)
         {
-            _logger.Information("Method {Method}", nameof(RobotWindow_Closed));
+            _logger.Information("Bot Close {Method}", nameof(RobotWindow_Closed));
              
             MainWindow.ProccesIsWorked = false;
             Thread.Sleep(7000);

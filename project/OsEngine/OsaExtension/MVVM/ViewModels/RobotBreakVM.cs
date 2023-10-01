@@ -505,7 +505,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                             Server.ExecuteOrder(ordClose);
                         
-                            _logger.Information(" Отправлен Маркет на закрытие объема ", nameof(CloseMarketOpenVolume));                        
+                            _logger.Information("Sending the Market to close the volume ", nameof(CloseMarketOpenVolume));                        
 
                             SendStrStatus(" Отправлен Маркет на закрытие объема на бирже");
                             GetBalansSecur();
@@ -517,7 +517,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                             SendStrStatus(" Ошибка закрытия объема на бирже");
                             pos.PassCloseOrder = true;
                             pos.PassOpenOrder = true;
-                            _logger.Information(" Ошибка отправки Маркет на закрытие объема  ", nameof(CloseMarketOpenVolume));
+                            _logger.Information(" Error sending the Market to close the volume  ", nameof(CloseMarketOpenVolume));
                             //RobotsWindowVM.Log(Header, " Ошибка отправки Маркет на закрытие объема ");
                         }
                     }
@@ -1283,7 +1283,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 return;
             }
-            _logger.Information("Method {@Method} Header {@Header}", nameof(LoadParamsBot), Header);
+            _logger.Information("{@Method} Header {@Header}", nameof(LoadParamsBot), Header);
             RobotsWindowVM.Log(Header, " LoadParamsBot \n загрузили параметры ");
             string servType = "";
             try
