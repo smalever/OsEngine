@@ -245,6 +245,10 @@ namespace OsEngine.OsaExtension.MVVM.Models
                 {
                     Status = PositionStatus.OPENING;
                 }
+                if(OrdersForOpen[i].State == OrderStateType.Cancel)
+                {
+                    Status = PositionStatus.CANCELED;
+                }
             }
             if (OrdersForClose == null || OrdersForClose.Count == 0) return;
             for (int i = 0; i < OrdersForClose.Count; i++)
@@ -252,6 +256,10 @@ namespace OsEngine.OsaExtension.MVVM.Models
                 if (OrdersForClose[i].State == OrderStateType.Activ)
                 {
                     Status = PositionStatus.CLOSING;
+                }
+                if (OrdersForClose[i].State == OrderStateType.Cancel)
+                {
+                    Status = PositionStatus.CANCELED;
                 }
             }
         }
@@ -268,6 +276,8 @@ namespace OsEngine.OsaExtension.MVVM.Models
             order.TimeDone = newOrder.TimeDone;
             order.TimeCallBack = newOrder.TimeCallBack;
             order.NumberUser = newOrder.NumberUser;
+            order.NumberMarket = newOrder.NumberMarket;
+            order.Comment = newOrder.Comment;
 
             return order;
         }
@@ -319,6 +329,11 @@ namespace OsEngine.OsaExtension.MVVM.Models
         /// закрыта (исполнена)
         /// </summary>
         DONE,
+
+        /// <summary>
+        /// отменина 
+        /// </summary>
+        CANCELED,
 
         /// <summary>
         /// ошибка

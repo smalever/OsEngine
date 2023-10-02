@@ -546,20 +546,22 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
           {
                 foreach (PositionBot position in PositionsBots)
                 {
-                    List<Order> orders = position.OrdersForOpen;// взять из позиции ордера открытия 
-                    //ordersAll.AddRange(position.OrdersForClose); // добавили ордера закрытия 
+                    List<Order> ordersAll = new List<Order>();
+                    ordersAll = position.OrdersForOpen;// взять из позиции ордера открытия 
+                    ordersAll.AddRange(position.OrdersForClose); // добавили ордера закрытия 
 
-                    for (int i = 0; i < orders.Count; i++)
+                    for (int i = 0; i < ordersAll.Count; i++)
                     {
-                        if (orders[i].State == OrderStateType.Activ)
+                        bool b = ActivOrders();
+                        if (ordersAll[i].State == OrderStateType.Activ)
                         {
-                            Server.CancelOrder(orders[i]);
-                            _logger.Information("Method {Method} Order {@Order}", nameof(CanсelActivOrders), orders[i]);
+                            Server.CancelOrder(ordersAll[i]);
+                            _logger.Information("Method {Method} Order {@Order}", nameof(CanсelActivOrders), ordersAll[i]);
                             SendStrStatus(" Отменили ордер на бирже");
-                            Thread.Sleep(300);
+                            Thread.Sleep(30);
                         }
                     }
-
+                   
                     Thread.Sleep(300);
                     if (!ActivOrders())
                     {
@@ -650,7 +652,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         {
                             // отправить ордер на биржу
                             Server.ExecuteOrder(orders[i]);
-                            _logger.Information("Method {Method} Order {@Order}", nameof(SendOrderExchange), orders[i]);
+                            _logger.Information("Send order Exchange {Method} Order {@Order}", nameof(SendOrderExchange), orders[i]);
                        
                             SendStrStatus(" Ордер отправлен на биржу");
                         }
@@ -789,6 +791,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void CalculateVolumeTrades()
         {
+            if (SelectedSecurity == null || Price==0 || PartsPerInput==0) return;
             GetBalansSecur();
             VolumePerOrder = 0;
             decimal workLot = 0;
