@@ -542,7 +542,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void CanсelActivOrders()
         {
-            while (ActivOrders()) // пока есть открытые ордера на бирже
+            while (ActivOrders()) // пока есть открытые ордера на бирже нодо сменить условия 
             {
                 bool b = ActivOrders();
                 foreach (PositionBot position in PositionsBots)
@@ -1051,6 +1051,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void _server_NewOrderIncomeEvent(Order myOrder)
         {
+            ActivOrders();
             CheckMyOrder(myOrder);
             /*  
              *  продолжить логику 
