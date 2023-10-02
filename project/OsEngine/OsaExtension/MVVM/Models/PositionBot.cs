@@ -236,7 +236,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
         /// <summary>
         /// Слежение (изсменение) статуса позиции
         /// </summary>
-        public void MonitiringStatusPos(Order order)
+        public void MonitoringStatusPos(Order order)
         {
             if (OrdersForOpen == null || OrdersForOpen.Count == 0) return;
             for (int i = 0; i < OrdersForOpen.Count; i++)

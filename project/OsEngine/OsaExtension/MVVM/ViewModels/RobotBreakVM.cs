@@ -537,38 +537,39 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 }
         }
 
+        static List<Order> ordersForCancel = new List<Order>();
+
+        private void ChekOrderForCancel() 
+        {
+            /* собрать номера ордеров на отмену 
+             проверить что вернулось по ним сс биржи
+             если кансел удалить
+             если актив повторить окончание 
+            */
+        }
+
         /// <summary>
         /// отменяет активные ордера 
         /// </summary>
         private void CanсelActivOrders()
         {
-            while (ActivOrders()) // пока есть открытые ордера на бирже нодо сменить условия 
+            bool activ = ActivOrders();
+            foreach (PositionBot position in PositionsBots)
             {
-                bool b = ActivOrders();
-                foreach (PositionBot position in PositionsBots)
-                {
-                    List<Order> ordersAll = new List<Order>();
-                    ordersAll = position.OrdersForOpen;// взять из позиции ордера открытия 
-                    ordersAll.AddRange(position.OrdersForClose); // добавили ордера закрытия 
+                List<Order> ordersAll = new List<Order>();
+                ordersAll = position.OrdersForOpen;// взять из позиции ордера открытия 
+                ordersAll.AddRange(position.OrdersForClose); // добавили ордера закрытия 
 
-                    for (int i = 0; i < ordersAll.Count; i++)
-                    {
-                        
-                        if (ordersAll[i].State == OrderStateType.Activ && b)
-                        {
-                            Server.CancelOrder(ordersAll[i]);
-                            _logger.Information("Method {Method} Order {@Order}", nameof(CanсelActivOrders), ordersAll[i]);
-                            SendStrStatus(" Отменили ордер на бирже");
-                            b = ActivOrders();
-                            Thread.Sleep(50);
-                        }
-                    }
-                }
-                b = ActivOrders();
-                Thread.Sleep(100);
-                if (!b)
+                for (int i = 0; i < ordersAll.Count; i++)
                 {
-                    break;
+                    if (ordersAll[i].State == OrderStateType.Activ && activ)
+                    {
+                        Server.CancelOrder(ordersAll[i]);
+                        _logger.Information("Method {Method} Order {@Order}", nameof(CanсelActivOrders), ordersAll[i]);
+                        SendStrStatus(" Отменили ордер на бирже");
+                        activ = ActivOrders();
+                        //Thread.Sleep(50);
+                    }
                 }
             }
         }
@@ -853,7 +854,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             foreach (PositionBot position in PositionsBots)
             {
                 bool newOrderBool = position.NewOrder(checkOrder); // проверяем и обновляем ордер
-                position.MonitiringStatusPos(checkOrder); // TODO:  доделать проверку и изменяем статуса позиций
+                position.MonitoringStatusPos(checkOrder); // TODO:  доделать проверку и изменяем статуса позиций
             }
         }
 
