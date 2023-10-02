@@ -542,8 +542,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void CanсelActivOrders()
         {
-          while (ActivOrders()) // пока есть открытые ордера на бирже
-          {
+            while (ActivOrders()) // пока есть открытые ордера на бирже
+            {
+                bool b = ActivOrders();
                 foreach (PositionBot position in PositionsBots)
                 {
                     List<Order> ordersAll = new List<Order>();
@@ -552,23 +553,24 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                     for (int i = 0; i < ordersAll.Count; i++)
                     {
-                        bool b = ActivOrders();
-                        if (ordersAll[i].State == OrderStateType.Activ)
+                        
+                        if (ordersAll[i].State == OrderStateType.Activ && b)
                         {
                             Server.CancelOrder(ordersAll[i]);
                             _logger.Information("Method {Method} Order {@Order}", nameof(CanсelActivOrders), ordersAll[i]);
                             SendStrStatus(" Отменили ордер на бирже");
-                            Thread.Sleep(30);
+                            b = ActivOrders();
+                            Thread.Sleep(50);
                         }
                     }
-                   
-                    Thread.Sleep(300);
-                    if (!ActivOrders())
-                    {
-                        break;
-                    }
                 }
-          }
+                b = ActivOrders();
+                Thread.Sleep(100);
+                if (!b)
+                {
+                    break;
+                }
+            }
         }
 
         /// <summary>
@@ -580,12 +582,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             GetBalansSecur();
             foreach (PositionBot position in PositionsBots)
             {
-                List<Order> ordersAll = position.OrdersForOpen;// взять из позиции ордера открытия 
+                List<Order> ordersAll= new List<Order>();
+                ordersAll = position.OrdersForOpen;// взять из позиции ордера открытия 
                 ordersAll.AddRange(position.OrdersForClose); // добавили ордера закрытия 
                 
-                foreach (Order order in ordersAll)
+                for(int i = 0; i < ordersAll.Count; i++)
                 {
-                    if (order.State == OrderStateType.Activ)
+                    if (ordersAll[i].State == OrderStateType.Activ)
                     {
                         res = true;
                     }
