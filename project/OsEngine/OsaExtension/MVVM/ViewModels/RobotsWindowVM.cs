@@ -28,14 +28,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
 
-            // поток для записи логирования 
-            /*
-            Task.Run(() =>
-            {
-                RecordLog();
-            });
-            */
-
             LoadHeaderBot();
 
             ServerMaster.ActivateAutoConnection();
