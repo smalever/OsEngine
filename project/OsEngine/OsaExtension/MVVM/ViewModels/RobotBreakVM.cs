@@ -474,67 +474,51 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         /// <summary>
-        /// закрыть оп меркету открытый объем
+        /// закрыть по меркету открытый объем
         /// </summary>
         private void CloseMarketOpenVolume()
         {
-                while (SelectSecurBalans !=0)
+            foreach (PositionBot pos in PositionsBots)
+            {
+                if (!pos.PassCloseOrder || !pos.PassOpenOrder) break;
+                decimal lotClose = 0;
+                lotClose = pos.OpenVolume;
+                Side side = Side.None;
+
+                if (lotClose < 0)
                 {
-                    foreach (PositionBot pos in PositionsBots)
-                    {
-                        GetBalansSecur();
-                        if (!pos.PassCloseOrder || !pos.PassOpenOrder) break;
-                        decimal lotClose = 0;
-                        lotClose = SelectSecurBalans;
-                        Side side = Side.None;
-
-                        if (lotClose < 0)
-                        {
-                            side = Side.Buy;
-                        }
-                        if (lotClose > 0)
-                        {
-                            side = Side.Sell;
-                        }
-
-                        if (lotClose == 0) return;
-                        Order ordClose = CreateMarketOrder(SelectedSecurity, Price, lotClose, side);
-                        if (ordClose != null )
-                        {
-                            pos.PassCloseOrder = false;
-                            pos.PassOpenOrder = false;
-
-                            Server.ExecuteOrder(ordClose);
-                        
-                            _logger.Information("Sending the Market to close the volume ", nameof(CloseMarketOpenVolume));                        
-
-                            SendStrStatus(" Отправлен Маркет на закрытие объема на бирже");
-                            GetBalansSecur();
-                            Thread.Sleep(50);
-                            return;
-                        }
-                        else
-                        {
-                            SendStrStatus(" Ошибка закрытия объема на бирже");
-                            pos.PassCloseOrder = true;
-                            pos.PassOpenOrder = true;
-                            _logger.Information(" Error sending the Market to close the volume  ", nameof(CloseMarketOpenVolume));
-                            //RobotsWindowVM.Log(Header, " Ошибка отправки Маркет на закрытие объема ");
-                        }
-                    }
-                    //Thread.Sleep(1500);
-
-                    //bool flag = true;
-                    //foreach (PositionBot pos in PositionsBots)
-                    //{
-                    //    if (pos.OpenVolume != 0)
-                    //    {
-                    //        flag = false;
-                    //        break;
-                    //    }
-                    //}
-                    //if (flag) break;
+                    side = Side.Buy;
                 }
+                if (lotClose > 0)
+                {
+                    side = Side.Sell;
+                }
+
+                if (lotClose == 0) return;
+                Order ordClose = CreateMarketOrder(SelectedSecurity, Price, lotClose, side);
+                if (ordClose != null)
+                {
+                    pos.PassCloseOrder = false;
+                    pos.PassOpenOrder = false;
+
+                    Server.ExecuteOrder(ordClose);
+
+                    _logger.Information("Sending the Market to close the volume {@Order} {Metod} ", ordClose, nameof(CloseMarketOpenVolume));
+
+                    SendStrStatus(" Отправлен Маркет на закрытие объема на бирже");
+                    GetBalansSecur();
+                    Thread.Sleep(50);
+                    return;
+                }
+                else
+                {
+                    SendStrStatus(" Ошибка закрытия объема на бирже");
+                    pos.PassCloseOrder = true;
+                    pos.PassOpenOrder = true;
+                    _logger.Error(" Error sending the Market to close the volume {@Order} {Metod} ", ordClose, nameof(CloseMarketOpenVolume));
+                    //RobotsWindowVM.Log(Header, " Ошибка отправки Маркет на закрытие объема ");
+                }
+            }
         }
 
         static List<Order> ordersForCancel = new List<Order>();
@@ -553,7 +537,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void CanсelActivOrders()
         {
-            bool activ = ActivOrders();
+            bool activ = ActivOrders();  //TODO: разобраться c перепроверкой отмены
             foreach (PositionBot position in PositionsBots)
             {
                 List<Order> ordersAll = new List<Order>();
@@ -982,9 +966,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 SecurityNameCode = sec.Name,
                 SecurityClassCode = sec.NameClass,
             };
-            //RobotsWindowVM.Log(Header, "CreateMarketOrder\n " + "сформировали  маркет на биржу\n" + GetStringForSave(order));
+         
             RobotsWindowVM.SendStrTextDb(" CreateMarketOrder " + order.NumberUser);
-            _logger.Information("Method {Method} Order {@Order}", nameof(CreateMarketOrder), order);
+            _logger.Information("Create Market Order {@Order} {Method}", order, nameof(CreateMarketOrder));
             // ("Method {Method} Exception {@Exception}", nameof(SaveHeaderBot), ex)
             //Server.ExecuteOrder(order);
 
@@ -1038,13 +1022,15 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void _server_NewMyTradeEvent(MyTrade myTrade)
         {
-            _logger.Information(" Come myTrade {Method} {MyTrade}", nameof(_server_NewMyTradeEvent), myTrade);
-            //RobotsWindowVM.Log(Header, "Пришел трейд \n " + GetStringForSave(myTrade));
+            _logger.Information(" Come myTrade {Method} {@myTrade}", nameof(_server_NewMyTradeEvent), myTrade);
+            
             GetBalansSecur();
-            /* проверить обем трейда
+            /* проверить обем трейда если ордер исполнен полностью 
              * продолжить логику 
-             * 
+             * проверить номер от ордера - спросить состояние на бирже 
              */
+
+            //MonitiringStatusBot(myTrade);
         }
 
         /// <summary>

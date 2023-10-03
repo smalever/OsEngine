@@ -1,5 +1,7 @@
 ﻿using OsEngine.Entity;
+using OsEngine.Market.Servers.GateIo.Futures.Response;
 using OsEngine.OsaExtension.MVVM.ViewModels;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -15,10 +17,10 @@ namespace OsEngine.OsaExtension.MVVM.Models
     /// </summary>
     public class PositionBot : BaseVM
     {
-        //public PositionBot()
-        //{
-        //    Status = PositionStatus.NONE;
-        //}
+        public PositionBot()
+        {
+            _logger = Serilog.Log.Logger.ForContext<PositionBot>();
+        }
 
         #region ====== Свойства Position ==========================================================================
 
@@ -100,6 +102,47 @@ namespace OsEngine.OsaExtension.MVVM.Models
         private List<Order> _ordersForClose = new List<Order>();
 
         /// <summary>
+        /// список трейдов позиции
+        /// </summary>
+        public List<MyTrade> MyTrades
+        {
+            get
+            {
+                List<MyTrade> trades = _myTrades;
+                if (trades != null)
+                {
+                    return trades;
+                }
+                trades = new List<MyTrade>();
+
+                for (int i = 0; _ordersForOpen != null && i < _ordersForOpen.Count; i++)
+                {
+                    List<MyTrade> newTrades = _ordersForOpen[i].MyTrades;
+                    if (newTrades != null &&
+                        newTrades.Count != 0)
+                    {
+                        trades.AddRange(newTrades);
+                    }
+                }
+
+                for (int i = 0; _ordersForClose != null && i < _ordersForClose.Count; i++)
+                {
+                    List<MyTrade> newTrades = _ordersForClose[i].MyTrades;
+                    if (newTrades != null &&
+                        newTrades.Count != 0)
+                    {
+                        trades.AddRange(newTrades);
+                    }
+                }
+
+                _myTrades = trades;
+                return trades;
+            }
+        }
+
+        private List<MyTrade> _myTrades;
+
+        /// <summary>
         /// Position number / номер позиции
         /// </summary>
         public int Number;
@@ -151,6 +194,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
 
                 decimal value = volumeOpen - valueClose;
 
+                _logger.Information(" Open Volume {Volume} {OpenVolume} ", value, nameof(OpenVolume));
                 return value;
             }
         }
@@ -225,10 +269,9 @@ namespace OsEngine.OsaExtension.MVVM.Models
         CultureInfo CultureInfo = new CultureInfo("ru-RU"); 
 
         /// <summary>
-        ///  список трейдов принадлежащих позиции 
+        /// поле логера PositionBot
         /// </summary>
-        private List<MyTrade> _myTrades = new List<MyTrade>();
-
+        ILogger _logger;
 
         #endregion поля 
         #region Metods =================================================================
@@ -279,6 +322,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
             order.NumberMarket = newOrder.NumberMarket;
             order.Comment = newOrder.Comment;
 
+            _logger.Information(" Copy Order {@order} {@newOrder} {Method} ", order, newOrder, nameof(CopyOrder));
             return order;
         }
 
