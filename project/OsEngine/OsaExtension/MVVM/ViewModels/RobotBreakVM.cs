@@ -843,6 +843,17 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         /// <summary>
+        /// проврка и обновление трейдами ордеров 
+        /// </summary>
+        private void ChekEditOrderPosition(MyTrade newTrade)
+        {
+            foreach (PositionBot position in PositionsBots)
+            {
+                position.SetTrade(newTrade);
+            }
+        }
+
+        /// <summary>
         /// Изсменение статуса позиции
         /// </summary>
         public void MonitiringStatusBot(Order order)
@@ -1022,7 +1033,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void _server_NewMyTradeEvent(MyTrade myTrade)
         {
-            //SetTrade
+            ChekEditOrderPosition(myTrade);
             _logger.Information(" Come myTrade {Method} {@myTrade}", nameof(_server_NewMyTradeEvent), myTrade);
             
             GetBalansSecur();
