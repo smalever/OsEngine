@@ -171,6 +171,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
                     {
                         volume += _ordersForOpen[i].VolumeExecute;
                     }
+                    _logger.Information(" Open Volume {Volume} {OpenVolume} ", volume, nameof(OpenVolume));
                     return volume;
                 }
 
