@@ -463,10 +463,14 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void StopTradeLogic()
         {
-            CanсelActivOrders(); // отменили ордера
-
-            CloseMarketOpenVolume(); // закрыли объем по маркет
-
+            foreach (PositionBot pos in PositionsBots)
+            {
+                if (pos.OpenVolume != 0)
+                {
+                    CloseMarketOpenVolume();
+                }
+                else CanсelActivOrders(); // отменили ордера;
+            }
             //PositionsBots.Clear();
             /*       
              * изменить разрешения 
@@ -506,8 +510,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     _logger.Information("Sending the Market to close the volume {@Order} {Metod} ", ordClose, nameof(CloseMarketOpenVolume));
 
                     SendStrStatus(" Отправлен Маркет на закрытие объема на бирже");
+                   
                     GetBalansSecur();
                     Thread.Sleep(50);
+                    //CanсelActivOrders(); // отменили ордера
                     return;
                 }
                 else
@@ -522,15 +528,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         static List<Order> ordersForCancel = new List<Order>();
-
-        private void ChekOrderForCancel() 
-        {
-            /* собрать номера ордеров на отмену 
-             проверить что вернулось по ним сс биржи
-             если кансел удалить
-             если актив повторить окончание 
-            */
-        }
 
         /// <summary>
         /// отменяет активные ордера 
@@ -591,7 +588,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             IsRun = !IsRun;
 
-            _logger.Information("StartStop = {IsRun} {Method}",  IsRun, nameof(StartStop));
+            _logger.Information("StartStop = {@IsRun} {Method}",  IsRun, nameof(StartStop));
             //RobotsWindowVM.Log(Header, " \n\n StartStop = " + IsRun);
 
             SaveParamsBot();
@@ -613,8 +610,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
                     while (ActivOrders() || MonitoringOpenVolumePosition()) // пока есть открытые обемы и ордера на бирже
                     {
-                        StopTradeLogic();
-                        Thread.Sleep(300);
+                        //StopTradeLogic();
+                        //Thread.Sleep(300);
                         break; // test
                     }
                 });

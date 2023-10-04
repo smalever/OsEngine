@@ -897,34 +897,34 @@ namespace OsEngine.Logging
         private static void SetNewErrorMessage(LogMessage message)
         {//todo: логер критических ошибок
 
+            _logger.Error(" Critical error {@message}  {Method} ", message.Message.ToString(), nameof(SetNewErrorMessage));
+
             //if (!MainWindow.GetDispatcher.CheckAccess())
             //{
             //    MainWindow.GetDispatcher.Invoke(new Action<LogMessage>(SetNewErrorMessage), message);
             //    return;
             //}
 
-            if (_gridErrorLog.Rows.Count == 500)
-            {
-                DataGridViewRow row1 = new DataGridViewRow();
-                row1.Cells.Add(new DataGridViewTextBoxCell());
-                row1.Cells[0].Value = DateTime.Now.ToString(OsLocalization.CurCulture);
+            //if (_gridErrorLog.Rows.Count == 500)
+            //{
+            //    DataGridViewRow row1 = new DataGridViewRow();
+            //    row1.Cells.Add(new DataGridViewTextBoxCell());
+            //    row1.Cells[0].Value = DateTime.Now.ToString(OsLocalization.CurCulture);
 
-                row1.Cells.Add(new DataGridViewTextBoxCell());
-                row1.Cells[1].Value = LogMessageType.Error;
+            //    row1.Cells.Add(new DataGridViewTextBoxCell());
+            //    row1.Cells[1].Value = LogMessageType.Error;
 
-                row1.Cells.Add(new DataGridViewTextBoxCell());
-                row1.Cells[2].Value = "To much ERRORS. Error log shut down.";
-                _gridErrorLog.Rows.Insert(0, row1);
+            //    row1.Cells.Add(new DataGridViewTextBoxCell());
+            //    row1.Cells[2].Value = "To much ERRORS. Error log shut down.";
+            //    _gridErrorLog.Rows.Insert(0, row1);
 
-                _logger.Error(" Critical error {@message}  {Method} ", row1, nameof(SetNewErrorMessage));
-                return;
-            }
-            else if (_gridErrorLog.Rows.Count > 500)
-            {
-                return;
-            }
-            //_logger.Error(" Critical error {@message}  {Method} ", message, nameof(SetNewErrorMessage));
-
+            //    _logger.Error(" Critical error {@message}  {Method} ", row1, nameof(SetNewErrorMessage));
+            //    return;
+            //}
+            //else if (_gridErrorLog.Rows.Count > 500)
+            //{
+            //    return;
+            //}
 
             //DataGridViewRow row = new DataGridViewRow();
             //row.Cells.Add(new DataGridViewTextBoxCell());
@@ -944,9 +944,11 @@ namespace OsEngine.Logging
             //        _logErrorUi = new LogErrorUi(_gridErrorLog);
             //        _logErrorUi.Closing += delegate (object sender, CancelEventArgs args)
             //        {
+            //            _logger.Error(" Critical logErrorUi.Closing {@message}  {Method} ", row, nameof(SetNewErrorMessage));
             //            _logErrorUi = null;
             //        };
-            //        _logErrorUi.Show();
+
+            //        //_logErrorUi.Show();
             //    }
             //}
 
