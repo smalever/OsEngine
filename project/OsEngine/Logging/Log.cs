@@ -22,6 +22,7 @@ using OsEngine.Market;
 using OsEngine.Market.Servers;
 using OsEngine.Market.Servers.Miner;
 using OsEngine.Market.Servers.Optimizer;
+using OsEngine.OsaExtension.MVVM.ViewModels;
 using OsEngine.OsConverter;
 using OsEngine.OsData;
 using OsEngine.OsMiner;
@@ -29,6 +30,7 @@ using OsEngine.OsOptimizer;
 using OsEngine.OsTrader;
 using OsEngine.OsTrader.Panels;
 using OsEngine.PrimeSettings;
+using Serilog;
 
 namespace OsEngine.Logging
 {
@@ -114,6 +116,11 @@ namespace OsEngine.Logging
         private string _starterLocker = "logStarterLocker";
 
         /// <summary>
+        /// поле логера классa  LOG (логирования сообщений программы)
+        /// </summary>
+         static ILogger _logger;
+
+        /// <summary>
         /// constructor
         /// конструктор
         /// </summary>
@@ -124,6 +131,8 @@ namespace OsEngine.Logging
             _uniqName = uniqName;
             _startProgram = startProgram;
             _currentCulture = OsLocalization.CurCulture;
+
+            _logger = Serilog.Log.Logger.ForContext<Log>();
 
             lock (_starterLocker)
             {
@@ -880,18 +889,19 @@ namespace OsEngine.Logging
             column.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             _gridErrorLog.Columns.Add(column);
         }
-
+        
         /// <summary>
         /// send new error message
         /// выслать новое сообщение об ошибке
         /// </summary>
         private static void SetNewErrorMessage(LogMessage message)
-        {
-            if (!MainWindow.GetDispatcher.CheckAccess())
-            {
-                MainWindow.GetDispatcher.Invoke(new Action<LogMessage>(SetNewErrorMessage), message);
-                return;
-            }
+        {//todo: логер критических ошибок
+
+            //if (!MainWindow.GetDispatcher.CheckAccess())
+            //{
+            //    MainWindow.GetDispatcher.Invoke(new Action<LogMessage>(SetNewErrorMessage), message);
+            //    return;
+            //}
 
             if (_gridErrorLog.Rows.Count == 500)
             {
@@ -905,37 +915,40 @@ namespace OsEngine.Logging
                 row1.Cells.Add(new DataGridViewTextBoxCell());
                 row1.Cells[2].Value = "To much ERRORS. Error log shut down.";
                 _gridErrorLog.Rows.Insert(0, row1);
+
+                _logger.Error(" Critical error {@message}  {Method} ", row1, nameof(SetNewErrorMessage));
                 return;
             }
             else if (_gridErrorLog.Rows.Count > 500)
             {
                 return;
             }
+            //_logger.Error(" Critical error {@message}  {Method} ", message, nameof(SetNewErrorMessage));
 
 
-            DataGridViewRow row = new DataGridViewRow();
-            row.Cells.Add(new DataGridViewTextBoxCell());
-            row.Cells[0].Value = DateTime.Now.ToString(OsLocalization.CurCulture);
+            //DataGridViewRow row = new DataGridViewRow();
+            //row.Cells.Add(new DataGridViewTextBoxCell());
+            //row.Cells[0].Value = DateTime.Now.ToString(OsLocalization.CurCulture);
 
-            row.Cells.Add(new DataGridViewTextBoxCell());
-            row.Cells[1].Value = LogMessageType.Error;
+            //row.Cells.Add(new DataGridViewTextBoxCell());
+            //row.Cells[1].Value = LogMessageType.Error;
 
-            row.Cells.Add(new DataGridViewTextBoxCell());
-            row.Cells[2].Value = message.Message;
-            _gridErrorLog.Rows.Insert(0, row);
+            //row.Cells.Add(new DataGridViewTextBoxCell());
+            //row.Cells[2].Value = message.Message;
+            //_gridErrorLog.Rows.Insert(0, row);
 
-            if (PrimeSettingsMaster.ErrorLogMessageBoxIsActiv)
-            {
-                if (_logErrorUi == null)
-                {
-                    _logErrorUi = new LogErrorUi(_gridErrorLog);
-                    _logErrorUi.Closing += delegate (object sender, CancelEventArgs args)
-                    {
-                        _logErrorUi = null;
-                    };
-                    _logErrorUi.Show();
-                }
-            }
+            //if (PrimeSettingsMaster.ErrorLogMessageBoxIsActiv)
+            //{
+            //    if (_logErrorUi == null)
+            //    {
+            //        _logErrorUi = new LogErrorUi(_gridErrorLog);
+            //        _logErrorUi.Closing += delegate (object sender, CancelEventArgs args)
+            //        {
+            //            _logErrorUi = null;
+            //        };
+            //        _logErrorUi.Show();
+            //    }
+            //}
 
             if (PrimeSettingsMaster.ErrorLogBeepIsActiv)
             {

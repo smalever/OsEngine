@@ -293,7 +293,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
                     {
                         //trade.NumberPosition = Number.ToString();
                         curOrdOpen.SetTrade(trade);
-
+                        _logger.Information(" Set Trade open position {@trade} {@curOrdOpen} {Method} ", trade, curOrdOpen, nameof(SetTrade));
                         if (OpenVolume != 0 &&
                             Status == PositionStatus.OPENING)
                         {
@@ -317,6 +317,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
                     if (curOrdClose.NumberMarket == trade.NumberOrderParent
                         && curOrdClose.SecurityNameCode == trade.SecurityNameCode)
                     {
+                        _logger.Information(" Set Trade Close position {@trade} {@curOrdClose} {Method} ", trade, curOrdClose, nameof(SetTrade));
                         //trade.NumberPosition = Number.ToString();
                         curOrdClose.SetTrade(trade);
 

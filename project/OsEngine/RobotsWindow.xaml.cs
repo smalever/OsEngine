@@ -75,9 +75,9 @@ namespace OsEngine.OsaExtension.MVVM.View
             DateTime dateTime = DateTime.Now;
 
             ILogger logger = new LoggerConfiguration()
-                    .WriteTo.File(new CompactJsonFormatter(), @"Logs\" + dateTime.ToShortDateString() + "_bot.log", 
-                            rollingInterval: RollingInterval.Day, //  временной интревал записи в файл
-                            restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Verbose) // уровень записываемых сообщений
+                    .WriteTo.File(new CompactJsonFormatter(), @"Logs\" + dateTime.ToShortDateString() + "_bot.log",
+                            rollingInterval: RollingInterval.Day) //  временной интревал записи в файл
+                            //restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Verbose) // уровень записываемых сообщений
                     .WriteTo.TeleSink(telegramApiKey: "6408089963:AAF90upSeKuuHoTXK91EoiMXyaZhMMgW_z8",
                                        telegramChatId: "569566399")
                     .CreateLogger(); 
