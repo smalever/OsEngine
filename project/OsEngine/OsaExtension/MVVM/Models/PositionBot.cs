@@ -139,7 +139,6 @@ namespace OsEngine.OsaExtension.MVVM.Models
                 return trades;
             }
         }
-
         private List<MyTrade> _myTrades;
 
         /// <summary>
@@ -275,6 +274,85 @@ namespace OsEngine.OsaExtension.MVVM.Models
 
         #endregion поля 
         #region Metods =================================================================
+
+        /// <summary>
+        ///  загрузить трейд в мои ордера
+        /// </summary>
+        public void SetTrade(MyTrade trade)
+        {
+            _myTrades = null;
+
+            if (_ordersForOpen != null)
+            {
+                for (int i = 0; i < _ordersForOpen.Count; i++)
+                {
+                    Order curOrdOpen = _ordersForOpen[i];
+
+                    if (curOrdOpen.NumberMarket == trade.NumberOrderParent
+                        && curOrdOpen.SecurityNameCode == trade.SecurityNameCode)
+                    {
+                        //trade.NumberPosition = Number.ToString();
+                        curOrdOpen.SetTrade(trade);
+
+                        if (OpenVolume != 0 &&
+                            Status == PositionStatus.OPENING)
+                        {
+                            Status = PositionStatus.OPEN;
+                        }
+                        else if (OpenVolume == 0)
+                        {
+                            curOrdOpen.TimeDone = trade.Time;
+                            Status = PositionStatus.DONE;
+                        }
+                    }
+                }
+            }
+
+            if (_ordersForClose != null)
+            {
+                for (int i = 0; i < _ordersForClose.Count; i++)
+                {
+                    Order curOrdClose = _ordersForClose[i];
+
+                    if (curOrdClose.NumberMarket == trade.NumberOrderParent
+                        && curOrdClose.SecurityNameCode == trade.SecurityNameCode)
+                    {
+                        //trade.NumberPosition = Number.ToString();
+                        curOrdClose.SetTrade(trade);
+
+                        if (OpenVolume == 0)
+                        {
+                            Status = PositionStatus.DONE;
+                            curOrdClose.TimeDone = trade.Time;
+                        }
+                        else if (OpenVolume < 0)
+                        {
+                            Status = PositionStatus.CLOSING;
+                        }
+                    }
+                }
+            }
+
+            //if (State == PositionStateType.Done && CloseOrders != null)
+            //{
+            //    decimal entryPrice = EntryPrice;
+            //    decimal closePrice = ClosePrice;
+
+            //    if (entryPrice != 0 && closePrice != 0)
+            //    {
+            //        if (Direction == Side.Buy)
+            //        {
+            //            ProfitOperationPersent = closePrice / entryPrice * 100 - 100;
+            //            ProfitOperationPunkt = closePrice - entryPrice;
+            //        }
+            //        else
+            //        {
+            //            ProfitOperationPunkt = entryPrice - closePrice;
+            //            ProfitOperationPersent = -(closePrice / entryPrice * 100 - 100);
+            //        }
+            //    }
+            //}
+        }
 
         /// <summary>
         /// Слежение (изсменение) статуса позиции

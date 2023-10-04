@@ -1022,6 +1022,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void _server_NewMyTradeEvent(MyTrade myTrade)
         {
+            //SetTrade
             _logger.Information(" Come myTrade {Method} {@myTrade}", nameof(_server_NewMyTradeEvent), myTrade);
             
             GetBalansSecur();
