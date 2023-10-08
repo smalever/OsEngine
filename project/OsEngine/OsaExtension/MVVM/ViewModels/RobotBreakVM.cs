@@ -917,10 +917,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             decimal baks = 0;
             baks = FullPositionVolume / PartsPerExit; // это в баксах
             decimal moni = baks / Price; // в монете
+
             //  взять открытый объем
+
             if (true) // набран весь обем
             {
-                
+                // todo: сделать расчет объема на ордер выхода
             }
             workLot = Decimal.Round(moni, SelectedSecurity.DecimalsVolume);
             decimal minVolume = SelectedSecurity.MinTradeAmount;
