@@ -452,7 +452,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             if (IsRun)
             {
                 CreateNewPosition(); // создали позиции
-                AddOpderPosition();
+                AddOpenOpderPosition();
                 SendOrderExchange(); // отправили ордер на биржу
             }
              // надо тестить закрытие открытого обема 
@@ -467,7 +467,20 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 if (pos.OpenVolume != 0)
                 {
-                    CloseMarketOpenVolume();
+                    while (true)
+                    {
+                        bool flag = true;
+                       
+                        if (pos.OpenVolume != 0)
+                        {
+                            CloseMarketOpenVolume();
+                            flag = false;
+                            Thread.Sleep(1000);
+                            break;
+                        }
+                     
+                        if (flag) break;
+                    }
                 }
                 else CanсelActivOrders(); // отменили ордера;
             }
@@ -482,26 +495,28 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void CloseMarketOpenVolume()
         {
+            
             foreach (PositionBot pos in PositionsBots)
             {
-                if (!pos.PassCloseOrder || !pos.PassOpenOrder) break;
                 decimal lotClose = 0;
-                lotClose = pos.OpenVolume;
+                lotClose = pos.OpenVolume; // берем открытый объем
                 Side side = Side.None;
-
+                int num = pos.Number;
                 if (lotClose < 0)
                 {
                     side = Side.Buy;
+                    _logger.Information("In Position volume {lotClose} {side} {Metod} ", lotClose, side, nameof(CloseMarketOpenVolume));
                 }
                 if (lotClose > 0)
                 {
                     side = Side.Sell;
+                    _logger.Information("In Position volume {lotClose} {side} {Metod} ", lotClose, side, nameof(CloseMarketOpenVolume));
                 }
-
-                if (lotClose == 0) return;
+                
                 Order ordClose = CreateMarketOrder(SelectedSecurity, Price, lotClose, side);
-                if (ordClose != null)
+                if (ordClose != null )
                 {
+                    if (lotClose == 0 || side == Side.None) return;
                     pos.PassCloseOrder = false;
                     pos.PassOpenOrder = false;
 
@@ -513,8 +528,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                    
                     GetBalansSecur();
                     Thread.Sleep(50);
-                    //CanсelActivOrders(); // отменили ордера
-                    return;
+                    
                 }
                 else
                 {
@@ -608,7 +622,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 Task.Run(() =>
                 {
-                    while (ActivOrders() || MonitoringOpenVolumePosition()) // пока есть открытые обемы и ордера на бирже
+                    while (ActivOrders() || MonitoringOpenVolumeExchange()) // пока есть открытые обемы и ордера на бирже
                     {
                         //StopTradeLogic();
                         //Thread.Sleep(300);
@@ -649,7 +663,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// добавить открывающий ордер в позицию
         /// </summary>  
-        private void AddOpderPosition()
+        private void AddOpenOpderPosition()
         {
             foreach (PositionBot position in PositionsBots)
             {
@@ -678,7 +692,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 return;
             }
 
-            if (MonitoringOpenVolumePosition())
+            if (MonitoringOpenVolumeExchange())
             {
                 SendStrStatus(" Есть открытый объем ");
                 return;
@@ -723,15 +737,15 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         /// <summary>
-        /// есть открытый объем в позиция
+        /// наличие открытого объема на бирже (проверка)
         /// </summary> 
-        private bool MonitoringOpenVolumePosition()
+        private bool MonitoringOpenVolumeExchange()
         {
             if(SelectedSecurity == null) return false;
             decimal volume = 0;
             GetBalansSecur();
             volume = SelectSecurBalans;
-            if (volume > 0) return true;
+            if (volume != 0) return true;
             else return false;
         }
 
@@ -840,7 +854,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         /// <summary>
-        /// проврка и обновление трейдами ордеров 
+        /// проверка и обновление трейдами ордеров 
         /// </summary>
         private void ChekEditOrderPosition(MyTrade newTrade)
         {
@@ -1055,7 +1069,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
              */
             MonitiringStatusBot(myOrder);
             GetBalansSecur();
-            _logger.Information(" Come myOrder {@Order} {Method} ", myOrder, nameof(_server_NewOrderIncomeEvent));
+            _logger.Information(" New myOrder {@Order} {Method} ", myOrder, nameof(_server_NewOrderIncomeEvent));
             //RobotsWindowVM.Log(Header, "Пришел ордер\n " + GetStringForSave(myOrder));
         }
 

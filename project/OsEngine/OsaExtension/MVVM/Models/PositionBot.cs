@@ -200,7 +200,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
         }
 
         /// <summary>
-        /// Position opening price / цена открытия позиции (средняя)
+        /// Цена открытия позиции (средняя) +/- криво
         /// </summary>
         public decimal EntryPrice
         {
@@ -274,6 +274,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
         ILogger _logger;
 
         #endregion поля 
+
         #region Metods =================================================================
 
         /// <summary>
@@ -296,11 +297,12 @@ namespace OsEngine.OsaExtension.MVVM.Models
                         curOrdOpen.SetTrade(trade);
                         _logger.Information(" Set Trade open position {@trade} {@curOrdOpen} {Method} ", trade, curOrdOpen, nameof(SetTrade));
                         if (OpenVolume != 0 &&
-                            Status == PositionStatus.OPENING)
+                            Status == PositionStatus.OPENING )
                         {
                             Status = PositionStatus.OPEN;
                         }
-                        else if (OpenVolume == 0)
+                        else if (OpenVolume == 0 &&
+                                trade.Volume == curOrdOpen.Volume)
                         {
                             curOrdOpen.TimeDone = trade.Time;
                             Status = PositionStatus.DONE;
@@ -322,7 +324,8 @@ namespace OsEngine.OsaExtension.MVVM.Models
                         //trade.NumberPosition = Number.ToString();
                         curOrdClose.SetTrade(trade);
 
-                        if (OpenVolume == 0)
+                        if (OpenVolume == 0 &&
+                            trade.Volume == curOrdClose.Volume)
                         {
                             Status = PositionStatus.DONE;
                             curOrdClose.TimeDone = trade.Time;
@@ -355,6 +358,15 @@ namespace OsEngine.OsaExtension.MVVM.Models
             //    }
             //}
         }
+
+        // контролер позиций 
+        /*
+         * создали
+         * открытые
+         * трейды
+         * закрытие
+         * трейды
+         */
 
         /// <summary>
         /// Слежение (изсменение) статуса позиции
@@ -433,6 +445,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
         #endregion end metods
 
     }
+
 
     /// <summary>
     /// перечисление состояний статусов позиции в роботе

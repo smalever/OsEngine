@@ -897,7 +897,8 @@ namespace OsEngine.Logging
         private static void SetNewErrorMessage(LogMessage message)
         {//todo: логер критических ошибок
 
-            _logger.Error(" Critical error {@message}  {Method} ", message.Message.ToString(), nameof(SetNewErrorMessage));
+            string messageText = message.Message.ToString();
+            _logger.Error(" Critical error {@message}  {Method} ", messageText, nameof(SetNewErrorMessage));
 
             //if (!MainWindow.GetDispatcher.CheckAccess())
             //{
