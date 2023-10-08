@@ -1372,7 +1372,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 e.PropertyName == "PartsPerInput" ||
                 e.PropertyName == "TopPositionPrice" ||
                 e.PropertyName == "BigСlusterPrice" ||
-                e.PropertyName == "FullPositionVolume")            
+                e.PropertyName == "FullPositionVolume" ||
+                e.PropertyName == "TakePriceLong" ||
+                e.PropertyName == "TakePriceShort" ||
+                e.PropertyName == "PartsPerExit" ||
+                e.PropertyName == "Direction")
             {
                 SaveParamsBot();
             } 
@@ -1397,15 +1401,18 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     writer.WriteLine(ServerType);
                     writer.WriteLine(StringPortfolio);
 
+                    writer.WriteLine(TakePriceLong);
                     writer.WriteLine(TopPositionPrice);
                     writer.WriteLine(BigСlusterPrice);
                     writer.WriteLine(Direction);
 
                     writer.WriteLine(BottomPositionPrice);
+                    writer.WriteLine(TakePriceShort);
 
                     writer.WriteLine(FullPositionVolume);
 
-                    writer.WriteLine(PartsPerInput);     
+                    writer.WriteLine(PartsPerInput);
+                    writer.WriteLine(PartsPerExit);
 
                     writer.Close();
 
@@ -1444,6 +1451,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     servType = reader.ReadLine(); // загружаем название сервера
                     StringPortfolio = reader.ReadLine();
 
+                    TakePriceLong = GetDecimalForString(reader.ReadLine());                    
                     TopPositionPrice = GetDecimalForString(reader.ReadLine());
                     BigСlusterPrice = GetDecimalForString(reader.ReadLine());
 
@@ -1454,8 +1462,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     }
 
                     BottomPositionPrice = GetDecimalForString(reader.ReadLine());
+                    TakePriceShort = GetDecimalForString(reader.ReadLine());
                     FullPositionVolume = GetDecimalForString(reader.ReadLine());
                     PartsPerInput = (int)GetDecimalForString(reader.ReadLine());
+                    PartsPerExit = (int)GetDecimalForString(reader.ReadLine());
 
                     //StepType step = StepType.PUNKT;
                     //if (Enum.TryParse(reader.ReadLine(), out step))
