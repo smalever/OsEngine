@@ -1,4 +1,5 @@
-﻿using MahApps.Metro.Controls;
+﻿using CryptoExchange.Net.CommonObjects;
+using MahApps.Metro.Controls;
 using OsEngine.Charts.CandleChart.Indicators;
 using OsEngine.Entity;
 using OsEngine.Logging;
@@ -356,18 +357,32 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private int _partsPerExit = 1;
 
         /// <summary>
-        /// Oбъем на ордер (часть позиции)
+        /// Oбъем на ордер закрытия (части позиции)
         /// </summary>
-        public decimal VolumePerOrder
+        public decimal VolumePerOrderClose
         {
-            get => _volumePerOrder;
+            get => _volumePerOrderClose;
             set
             {
-                _volumePerOrder = value;
-                OnPropertyChanged(nameof(VolumePerOrder));
+                _volumePerOrderClose = value;
+                OnPropertyChanged(nameof(VolumePerOrderClose));
             }
         }
-        private decimal _volumePerOrder = 0;
+        private decimal _volumePerOrderClose = 0;
+
+        /// <summary>
+        /// Oбъем на ордер открытия (часть позиции)
+        /// </summary>
+        public decimal VolumePerOrderOpen
+        {
+            get => _volumePerOrderOpen;
+            set
+            {
+                _volumePerOrderOpen = value;
+                OnPropertyChanged(nameof(VolumePerOrderOpen));
+            }
+        }
+        private decimal _volumePerOrderOpen = 0;
 
         /// <summary>
         /// направление сделок 
@@ -517,7 +532,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                  */
                 
                 CreateNewPosition(); // создали позиции
-                SendOpenOpderPosition();
+                SendOpenOrderPosition();
                 
             }
         }
@@ -583,7 +598,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     if (lotClose == 0 || side == Side.None) return;
                     pos.PassCloseOrder = false;
                     pos.PassOpenOrder = false;
-
+                    pos.OrdersForClose.Add(ordClose);// отправили ордер в позицию
                     Server.ExecuteOrder(ordClose);
 
                     _logger.Information("Sending the Market to close the volume {@Order} {Metod} ", ordClose, nameof(CloseMarketOpenVolume));
@@ -604,8 +619,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 }
             }
         }
-
-        static List<Order> ordersForCancel = new List<Order>();
 
         /// <summary>
         /// отменяет активные ордера 
@@ -721,7 +734,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// добавить открывающий ордер в позицию
         /// </summary>  
-        private void SendOpenOpderPosition()
+        private void SendOpenOrderPosition()
         {
             foreach (PositionBot position in PositionsBots)
             {
@@ -731,9 +744,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     SendStrStatus(" BigСlusterPrice или BottomPositionPrice = 0 ");
                     return;
                 }
-                Order order = CreateLimitOrder(SelectedSecurity, PriceOpenPos, VolumePerOrder, position.Side);
+                Order order = CreateLimitOrder(SelectedSecurity, PriceOpenPos, VolumePerOrderOpen, position.Side);
                 if (order != null)
-                {  // отправить ордер в позицию
+                {  
                     position.OrdersForOpen.Add(order);// отправили ордер в позицию
                     SendOrderExchange(order); // отправили ордер на биржу
                 }
@@ -743,7 +756,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// добавить закрывающий ордер в позицию
         /// </summary>  
-        private void SendCloseOpderPosition()
+        private void SendCloseOrderPosition()
         {
             foreach (PositionBot position in PositionsBots)
             {
@@ -753,7 +766,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     SendStrStatus(" BigСlusterPrice или BottomPositionPrice = 0 ");
                     return;
                 }
-                Order order = CreateLimitOrder(SelectedSecurity, PriceClosePos, VolumePerOrder, position.Side);
+                Order order = CreateLimitOrder(SelectedSecurity, PriceClosePos, VolumePerOrderOpen, position.Side);
                 if (order != null)
                 {  // отправить ордер в позицию
                     position.OrdersForClose.Add(order);
@@ -790,9 +803,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             PositionBot positionBuy = new PositionBot() { Side = Side.Buy };
             PositionBot positionSell = new PositionBot() { Side = Side.Sell };
             
-            CalculateVolumeTrades();            
+            CalculateVolumeTradesOpen();            
 
-            if (VolumePerOrder != 0  && IsRun == true) // формируем позиции
+            if (VolumePerOrderOpen != 0  && IsRun == true) // формируем позиции
             {
                 PositionsBots.Clear();
 
@@ -869,11 +882,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// расчет объема на ордер
         /// </summary>
-        private void CalculateVolumeTrades()
+        private void CalculateVolumeTradesOpen()
         {
             if (SelectedSecurity == null || Price==0 || PartsPerInput==0) return;
             GetBalansSecur();
-            VolumePerOrder = 0;
+            VolumePerOrderOpen = 0;
             decimal workLot = 0;
             decimal baks = 0;
             baks = FullPositionVolume/ PartsPerInput; // это в баксах
@@ -887,7 +900,37 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
             else
             {
-                VolumePerOrder = workLot;
+                VolumePerOrderOpen = workLot;
+            }
+        }
+
+        /// <summary>
+        /// расчет объема на ордер
+        /// </summary>
+        private void CalculateVolumeTradesClose()
+        {
+            if (SelectedSecurity == null || Price == 0 || PartsPerExit == 0) return;
+            GetBalansSecur();
+            VolumePerOrderClose = 0;
+            decimal workLot = 0;
+            decimal baks = 0;
+            baks = FullPositionVolume / PartsPerExit; // это в баксах
+            decimal moni = baks / Price; // в монете
+            //  взять открытый объем
+            if (true) // набран весь обем
+            {
+                
+            }
+            workLot = Decimal.Round(moni, SelectedSecurity.DecimalsVolume);
+            decimal minVolume = SelectedSecurity.MinTradeAmount;
+            if (workLot < minVolume)
+            {
+                SendStrStatus("Объем ордера меньше допустимого");
+                // IsRun = false;
+            }
+            else
+            {
+                VolumePerOrderClose = workLot;
             }
         }
 
@@ -1216,11 +1259,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// пришел новый терейд 
         /// </summary>
-        private void _NewTradeEvent(List<Trade> trades)
+        private void _NewTradeEvent(List<Entity.Trade> trades)
         {
             if (trades != null && trades[0].SecurityNameCode == SelectedSecurity.Name)
             {
-                Trade trade = trades.Last();
+                Entity.Trade trade = trades.Last();
 
                 Price = trade.Price;
 
@@ -1506,44 +1549,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             decimal value = 0;
             decimal.TryParse(str, out value);
             return value;
-        }
-
-        /// <summary>
-        ///  формируем строку для сохранения ордера
-        /// </summary>
-        private string GetStringForSave(Order order)
-        {
-            string str = "";
-            str += "ордер = \n";
-            str += order.SecurityNameCode + " | ";
-            str += order.PortfolioNumber + " | ";
-            str += order.TimeCreate + " | ";
-            str += order.State + " | ";
-            str += order.Side + " | ";
-            str += "Объем = " + order.Volume + " | ";
-            str += "Цена = " + order.Price + " | ";
-            str += "Мой Номер = " + order.NumberUser + " | ";
-            str += "Номер биржи = " + order.NumberMarket + " | ";
-            //str += order.SecurityNameCode + " | ";
-
-            return str;
-        }
-
-        /// <summary>
-        ///  формируем строку для сохранения моих трейдов 
-        /// </summary>
-        private string GetStringForSave(MyTrade myTrade)
-        {
-            string str = "";
-            str += "мой трейд = \n";
-            str += myTrade.SecurityNameCode + " | ";
-            str += myTrade.Side + " | ";
-            str += "Объем = " + myTrade.Volume + " | ";
-            str += "Цена = " + myTrade.Price + " | ";
-            str += "NumberOrderParent = " + myTrade.NumberOrderParent + " | ";
-            str += "NumberTrade = " + myTrade.NumberTrade + " | ";
-
-            return str;
         }
 
         #endregion
