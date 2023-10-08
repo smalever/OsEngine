@@ -70,6 +70,20 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private decimal _priceOpenPos = 0;
 
         /// <summary>
+        /// расчетная цена закрытия позиции 
+        /// </summary>
+        public decimal PriceClosePos
+        {
+            get => _priceClosePos;
+            set
+            {
+                _priceClosePos = value;
+                OnPropertyChanged(nameof(PriceClosePos));
+            }
+        }
+        private decimal _priceClosePos = 0;
+
+        /// <summary>
         /// заголовок вкладки робота 
         /// </summary>
         public string Header
@@ -207,6 +221,34 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private decimal _price;
 
         /// <summary>
+        /// Цена профита лонг
+        /// </summary>
+        public decimal TakePriceLong
+        {
+            get => _takePriceLong;
+            set
+            {
+                _takePriceLong = value;
+                OnPropertyChanged(nameof(TakePriceLong));
+            }
+        }
+        private decimal _takePriceLong;
+
+        /// <summary>
+        /// Цена профита шорт
+        /// </summary>
+        public decimal TakePriceShort
+        {
+            get => _takePriceShort;
+            set
+            {
+                _takePriceShort = value;
+                OnPropertyChanged(nameof(TakePriceShort));
+            }
+        }
+        private decimal _takePriceShort;
+
+        /// <summary>
         /// Цена большого кластера 
         /// </summary>
         public decimal BigСlusterPrice
@@ -298,6 +340,20 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
         }
         private int _partsPerInput = 1;
+
+        /// <summary>
+        /// количесвто частей на выход (закрытие)
+        /// </summary>
+        public int PartsPerExit
+        {
+            get => _partsPerExit;
+            set
+            {
+                _partsPerExit = value;
+                OnPropertyChanged(nameof(PartsPerExit));
+            }
+        }
+        private int _partsPerExit = 1;
 
         /// <summary>
         /// Oбъем на ордер (часть позиции)
@@ -451,11 +507,19 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             if (IsRun)
             {
+
+                /*
+                 * создали
+                 * открытые
+                 * трейды
+                 * закрытие
+                 * трейды
+                 */
+                
                 CreateNewPosition(); // создали позиции
-                AddOpenOpderPosition();
-                SendOrderExchange(); // отправили ордер на биржу
+                SendOpenOpderPosition();
+                
             }
-             // надо тестить закрытие открытого обема 
         }
 
         /// <summary>
@@ -635,26 +699,20 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         ///  отправить ордер на биржу 
         /// </summary>
-        private void SendOrderExchange() 
+        private void SendOrderExchange(Order sendOpder) 
         {
             foreach (PositionBot position in PositionsBots)
             {
-                List<Order> orders = position.OrdersForOpen;// взять из позиции ордера
-
                 if (position.PassOpenOrder)
                 {
                     position.PassOpenOrder = false; // TODO: осуществить смену статусов позиции и разрешений 
-
-                    for (int i = 0; i < orders.Count; i++)
+                    if (sendOpder.State == OrderStateType.None)
                     {
-                        if (orders[i].State == OrderStateType.None)
-                        {
-                            // отправить ордер на биржу
-                            Server.ExecuteOrder(orders[i]);
-                            _logger.Information("Send order Exchange {Method} Order {@Order}", nameof(SendOrderExchange), orders[i]);
-                       
-                            SendStrStatus(" Ордер отправлен на биржу");
-                        }
+                        // отправить ордер на биржу
+                        Server.ExecuteOrder(sendOpder);
+                        _logger.Information("Send order Exchange {Method} Order {@Order}", nameof(SendOrderExchange), sendOpder);
+
+                        SendStrStatus(" Ордер отправлен на биржу");
                     }
                 }
             }
@@ -663,7 +721,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// добавить открывающий ордер в позицию
         /// </summary>  
-        private void AddOpenOpderPosition()
+        private void SendOpenOpderPosition()
         {
             foreach (PositionBot position in PositionsBots)
             {
@@ -676,7 +734,30 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 Order order = CreateLimitOrder(SelectedSecurity, PriceOpenPos, VolumePerOrder, position.Side);
                 if (order != null)
                 {  // отправить ордер в позицию
-                    position.OrdersForOpen.Add(order);
+                    position.OrdersForOpen.Add(order);// отправили ордер в позицию
+                    SendOrderExchange(order); // отправили ордер на биржу
+                }
+            }
+        }
+
+        /// <summary>
+        /// добавить закрывающий ордер в позицию
+        /// </summary>  
+        private void SendCloseOpderPosition()
+        {
+            foreach (PositionBot position in PositionsBots)
+            {
+                PriceClosePos = CalculPriceClosePos(position.Side);
+                if (BigСlusterPrice == 0 || BottomPositionPrice == 0 || PriceOpenPos == 0)
+                {
+                    SendStrStatus(" BigСlusterPrice или BottomPositionPrice = 0 ");
+                    return;
+                }
+                Order order = CreateLimitOrder(SelectedSecurity, PriceClosePos, VolumePerOrder, position.Side);
+                if (order != null)
+                {  // отправить ордер в позицию
+                    position.OrdersForClose.Add(order);
+                    SendOrderExchange(order); // отправили ордер на биржу
                 }
             }
         }
@@ -840,7 +921,40 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             return  _priceOpenPos;
         }
-        
+
+        /// <summary>
+        /// расчитать цену закрытия позиции
+        /// </summary>
+        private decimal CalculPriceClosePos(Side side)
+        {
+            _priceClosePos = 0;
+            if (SelectedSecurity == null)
+            {
+                SendStrStatus(" уще нет бумаги ");
+
+                return _priceClosePos;
+            }
+            decimal stepPrice = 0;
+
+            if (side == Side.Buy)
+            {
+                // расчет шага цены закрытия
+
+                stepPrice = (TakePriceLong - TopPositionPrice) / PartsPerExit;
+                _priceClosePos = TopPositionPrice + stepPrice;
+            }
+            if (side == Side.Sell)
+            {
+                stepPrice = (BottomPositionPrice - TakePriceShort) / PartsPerExit;
+                _priceClosePos = BottomPositionPrice - stepPrice;
+            }
+            //  бобавить расчет для разнонаправленных сделок
+
+            _priceClosePos = Decimal.Round(_priceOpenPos, SelectedSecurity.Decimals);
+
+            return _priceClosePos;
+        }
+
         /// <summary>
         /// проверка и обновление состояния ордера
         /// </summary>
