@@ -61,67 +61,68 @@
                 <RowDefinition Height ="*" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="550"/>
+                <ColumnDefinition Width="450"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <StackPanel  Orientation="Vertical" Margin="1">
                 <GroupBox Header="Параметры позиции"    
-               Grid.Row="0" 
-               HorizontalAlignment="Left"
-               Margin="1,1,1,1"
-               FontSize="18" Width="530">
+                        Grid.Row="0" 
+                        HorizontalAlignment="Left"
+                        Margin="1,1,1,1"
+                        FontSize="18" Width="440">
 
-                    <UniformGrid Columns="2" 
-                                Margin="1"
+                    <UniformGrid Columns="2"
+ 
+                                Margin="1,0,1,1"
                                 Grid.Row="0" >
-                        
+
                         <TextBlock Text="Цена профита логн позиции" 
-                                   ToolTip=" Цена при достиженни которой робот закроет некий объем)"/>
+                                   ToolTip=" Цена при достиженни которой робот закроет некий объем)" Margin="0,0,-65,0"/>
                         <local:DecimalTextBox Text="{Binding TakePriceLong}" 
-                                               Margin="0,2,117,0"/>
+                                               Margin="78,2,10,0"/>
 
                         <TextBlock Text="Верхняя цена позиции" 
-                        ToolTip=" Цена при достиженни которой робот примет действие (ЗАКРЫТИЯ/ ПЕРЕВОРОТ И Т,Д,)"/>
+                        ToolTip=" Цена при достиженни которой робот примет действие (ЗАКРЫТИЯ/ ПЕРЕВОРОТ И Т,Д,)" Margin="0,0,-65,0"/>
                         <local:DecimalTextBox Text="{Binding TopPositionPrice}" 
-                                    Margin="0,2,117,0"/>
-                        <Label/>
-                        <Label Margin="0,0,117,0"/>
+                                    Margin="78,2,10,0"/>
+                        <Label Margin="0,0,-73,0"/>
+                        <Label Margin="78,0,10,0"/>
 
-                        <TextBlock Text="Цена большого кластера " />
-                        <local:DecimalTextBox   Text="{Binding BigСlusterPrice}" Margin="0,2,117,0"/>
+                        <TextBlock Text="Цена большого кластера " Margin="0,0,-65,0" />
+                        <local:DecimalTextBox   Text="{Binding BigСlusterPrice}" Margin="0,2,10,0" HorizontalAlignment="Right" Width="126"/>
 
-                        <TextBlock Text="Направление сделок"/>
+                        <TextBlock Text="Направление сделок" Margin="0,0,-65,0"/>
                         <ComboBox ItemsSource="{Binding Directions}"
-                        SelectedItem="{Binding Direction}" Margin="0,2,117,0"/>
-                        <Label/>
-                        <Label Margin="0,0,117,0"/>
+                        SelectedItem="{Binding Direction}" Margin="78,2,10,0"/>
+                        <Label Margin="0,0,-65,0"/>
+                        <Label Margin="78,0,14,0"/>
 
                         <TextBlock Text="Нижняя цена набора позиций" 
-                        ToolTip=" Тут робот примет действие (ЗАКРЫТИЯ/ ПЕРЕВОРОТ И Т,Д,)"/>
-                        <local:DecimalTextBox  Text="{Binding BottomPositionPrice}" Margin="0,2,117,0"/>
-                        
-                        <TextBlock Text="Цена профита шорт позиций" 
-                          ToolTip=" Тут робот закроет часть объема"/>
-                        <local:DecimalTextBox  Text="{Binding TakePriceShort}" Margin="0,2,117,0"/>
+                        ToolTip=" Тут робот примет действие (ЗАКРЫТИЯ/ ПЕРЕВОРОТ И Т,Д,)" Margin="0,0,-62,0"/>
+                        <local:DecimalTextBox  Text="{Binding BottomPositionPrice}" Margin="78,0,13,0"/>
 
-                        <Label/>
-                        <Label Margin="0,0,117,0"/>
+                        <TextBlock Text="Цена профита шорт позиций" 
+                          ToolTip=" Тут робот закроет часть объема" Margin="0,0,-37,0"/>
+                        <local:DecimalTextBox  Text="{Binding TakePriceShort}" Margin="78,0,13,0"/>
+
+                        <Label Margin="0,0,-62,0"/>
+                        <Label Margin="78,0,13,0"/>
 
                         <TextBlock Text="Объем для робота $" 
-                        ToolTip=" Максимальный объем набираемый роботом на бирже"/>
-                        <local:DecimalTextBox  Text="{Binding FullPositionVolume}" Margin="0,2,117,0" />
+                        ToolTip=" Максимальный объем набираемый роботом на бирже" Margin="0,0,-62,0"/>
+                        <local:DecimalTextBox  Text="{Binding FullPositionVolume}" Margin="78,0,13,0" />
 
-                        <TextBlock Text="Количество частей входа" />
-                        <local:IntTextBox  Text="{Binding PartsPerInput}" Margin="0,2,117,0" />
+                        <TextBlock Text="Количество частей входа" Margin="0,0,-62,0" />
+                        <local:IntTextBox  Text="{Binding PartsPerInput}" Margin="78,0,13,0" />
 
-                        <TextBlock Text="Количество частей на выход" />
-                        <local:IntTextBox  Text="{Binding PartsPerExit}" Margin="0,2,117,0" />
+                        <TextBlock Text="Количество частей на выход" Margin="0,0,-51,0" />
+                        <local:IntTextBox  Text="{Binding PartsPerExit}" Margin="78,0,13,0" />
 
-                        <TextBlock Text="Cейчас куплено монет"/>
-                        <local:DecimalTextBox Text="{Binding SelectSecurBalans}" Margin="0,2,117,0"/>
+                        <TextBlock Text="Cейчас куплено монет" Margin="0,0,-62,0"/>
+                        <local:DecimalTextBox Text="{Binding SelectSecurBalans}" Margin="78,0,13,0"/>
 
-                        <Label Content=" Сделка сейчас: "/>
-                        <Label Content="{Binding ActionBot}" Margin="0,0,127,0"/>
+                        <Label Content=" Сделка сейчас: " Margin="0,0,-51,0"/>
+                        <Label Content="{Binding ActionBot}" Margin="78,0,14,0"/>
 
                         <!--<TextBlock Text="Тип шага"/>
              <ComboBox ItemsSource="{Binding StepTypes}"
