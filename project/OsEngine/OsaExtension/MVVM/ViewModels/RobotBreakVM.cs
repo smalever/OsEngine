@@ -45,7 +45,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                 if (IsRun)
                 {
-                    TradeLogic();
+                    OpenPositionLogic();
                 }
                 else
                 {
@@ -517,23 +517,27 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         #region  Metods ======================================================================
         #region  методы логики ===============================================
 
-        private void TradeLogic()
+        /// <summary>
+        /// открытие позиции
+        /// </summary>
+        private void OpenPositionLogic()
         {
             if (IsRun)
             {
-
-                /*
-                 * создали
-                 * открытые
-                 * трейды
-                 * закрытие
-                 * трейды
-                 */
-                
                 CreateNewPosition(); // создали позиции
-                SendOpenOrderPosition();
-                
+                SendOpenOrderPosition();// открытие позиции
             }
+        }
+        /// <summary>
+        /// выставить ордера закрытия сделки (прибыли)
+        /// </summary>
+        private void SendOrderProfitPositions()
+        {
+            /* проверить обем трейда если ордер исполнен полностью 
+  
+
+             * смотрим объём - выставляем на него профит
+             */
         }
 
         /// <summary>
@@ -566,6 +570,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             /*       
              * изменить разрешения 
              */
+            CanсelActivOrders();
         }
 
         /// <summary>
@@ -720,7 +725,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         /// <summary>
-        /// добавить открывающий ордер в позицию
+        /// добавить открывающий ордер в позицию и на биржу 
         /// </summary>  
         private void SendOpenOrderPosition()
         {
@@ -1202,12 +1207,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 _logger.Information(" Come myTrade {Method} {@myTrade}", nameof(_server_NewMyTradeEvent), myTrade);
 
                 GetBalansSecur();
+                // если открылась сделка выставить тейк
+                SendOrderProfitPositions();
             }
-            else
-            /* проверить обем трейда если ордер исполнен полностью 
-             * продолжить логику 
-             * проверить номер от ордера - спросить состояние на бирже 
-             */
+            else                 
             _logger.Information(" Levak ! Secur Trade {@Trade} {Security} {Method}", myTrade, myTrade.SecurityNameCode, nameof(_server_NewOrderIncomeEvent));
         }
 
