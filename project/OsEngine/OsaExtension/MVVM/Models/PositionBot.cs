@@ -171,7 +171,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
                     {
                         volume += _ordersForOpen[i].VolumeExecute;
                     }
-                    _logger.Information(" Open Volume {Volume} {OpenVolume} ", volume, nameof(OpenVolume));
+                    //_logger.Information(" Open Volume {Volume} {OpenVolume} ", volume, nameof(OpenVolume));
                     return volume;
                 }
 
@@ -194,7 +194,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
 
                 decimal value = volumeOpen - valueClose;
 
-                _logger.Information(" Open Volume {Volume} {OpenVolume} ", value, nameof(OpenVolume));
+                //_logger.Information(" Open Volume {Volume} {OpenVolume} ", value, nameof(OpenVolume));
                 return value;
             }
         }
@@ -264,7 +264,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
 
         #endregion  end Свойства ========================
 
-        #region ======================================Поля===========================================
+        #region ============Поля=====================================================================
 
         CultureInfo CultureInfo = new CultureInfo("ru-RU"); 
 
@@ -276,6 +276,15 @@ namespace OsEngine.OsaExtension.MVVM.Models
         #endregion поля 
 
         #region Metods =================================================================
+
+        // контролер позиций 
+        /*
+         * создали
+         * открытые
+         * трейды
+         * закрытие
+         * трейды
+         */
 
         /// <summary>
         ///  загрузить трейд в мои ордера
@@ -359,15 +368,6 @@ namespace OsEngine.OsaExtension.MVVM.Models
             //}
         }
 
-        // контролер позиций 
-        /*
-         * создали
-         * открытые
-         * трейды
-         * закрытие
-         * трейды
-         */
-
         /// <summary>
         /// Слежение (изсменение) статуса позиции
         /// </summary>
@@ -442,10 +442,10 @@ namespace OsEngine.OsaExtension.MVVM.Models
             }
             return false;
         }
+
         #endregion end metods
 
     }
-
 
     /// <summary>
     /// перечисление состояний статусов позиции в роботе
