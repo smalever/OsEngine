@@ -1,5 +1,4 @@
-﻿using CryptoExchange.Net.CommonObjects;
-using MahApps.Metro.Controls;
+﻿using MahApps.Metro.Controls;
 using OsEngine.Charts.CandleChart.Indicators;
 using OsEngine.Entity;
 using OsEngine.Logging;
@@ -637,7 +636,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     if (ordersAll[i].State == OrderStateType.Activ && activ)
                     {
                         Server.CancelOrder(ordersAll[i]);
-                        _logger.Information("Method {Method} Order {@Order}", nameof(CanсelActivOrders), ordersAll[i]);
+                        _logger.Information("Canсel Activ Orders {Method} Order {@Order} {Number}", nameof(CanсelActivOrders), ordersAll[i], ordersAll[i].NumberUser);
                         SendStrStatus(" Отменили ордер на бирже");
                         activ = ActivOrders();
                         //Thread.Sleep(50);
@@ -714,21 +713,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void SendOrderExchange(Order sendOpder) 
         {
-            foreach (PositionBot position in PositionsBots)
-            {
-                if (position.PassOpenOrder)
-                {
-                    position.PassOpenOrder = false; // TODO: осуществить смену статусов позиции и разрешений 
-                    if (sendOpder.State == OrderStateType.None)
-                    {
-                        // отправить ордер на биржу
-                        Server.ExecuteOrder(sendOpder);
-                        _logger.Information("Send order Exchange {Method} Order {@Order}", nameof(SendOrderExchange), sendOpder);
+            Server.ExecuteOrder(sendOpder);
+            _logger.Information("Send order Exchange {Method} Order {@Order} {NumberUser} ", nameof(SendOrderExchange), sendOpder, sendOpder.NumberUser);
 
-                        SendStrStatus(" Ордер отправлен на биржу");
-                    }
-                }
-            }
+            SendStrStatus(" Ордер отправлен на биржу");
         }
 
         /// <summary>
@@ -749,6 +737,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {  
                     position.OrdersForOpen.Add(order);// отправили ордер в позицию
                     SendOrderExchange(order); // отправили ордер на биржу
+                    Thread.Sleep(50);
+                    _logger.Information("Send Open order into position {Method} {@Order} {NumberUser}", nameof(SendOrderExchange), order, order.NumberUser);
                 }
             }
         }
@@ -766,10 +756,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     SendStrStatus(" BigСlusterPrice или BottomPositionPrice = 0 ");
                     return;
                 }
-                Order order = CreateLimitOrder(SelectedSecurity, PriceClosePos, VolumePerOrderOpen, position.Side);
+                Order order = CreateLimitOrder(SelectedSecurity, PriceClosePos, VolumePerOrderClose, position.Side);
                 if (order != null)
                 {  // отправить ордер в позицию
                     position.OrdersForClose.Add(order);
+                    _logger.Information("Send order for Close {Method} {@Order} {NumberUser}", nameof(SendOrderExchange), order, order.NumberUser);
                     SendOrderExchange(order); // отправили ордер на биржу
                 }
             }
@@ -880,7 +871,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         /// <summary>
-        /// расчет объема на ордер
+        /// расчет объема на ордер открытия
         /// </summary>
         private void CalculateVolumeTradesOpen()
         {
@@ -906,7 +897,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         /// <summary>
-        /// расчет объема на ордер
+        /// расчет объема на ордер закрытия
         /// </summary>
         private void CalculateVolumeTradesClose()
         {
@@ -1118,7 +1109,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 SecurityClassCode = sec.NameClass,
             };
             
-            _logger.Information("Method {Method} Order {@Order}", nameof(CreateLimitOrder), order);
+            _logger.Information("Create Limit Order {Method} {@Order} {Number} ", nameof(CreateLimitOrder), order , order.NumberUser);
             //RobotsWindowVM.Log(Header, "SendLimitOrder\n " + " отправляем лимитку на биржу\n" + GetStringForSave(order));
             RobotsWindowVM.SendStrTextDb(" Создали ордер " + order.NumberUser);
 
@@ -1205,16 +1196,19 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void _server_NewMyTradeEvent(MyTrade myTrade)
         {
-            ChekEditOrderPosition(myTrade);
-            _logger.Information(" Come myTrade {Method} {@myTrade}", nameof(_server_NewMyTradeEvent), myTrade);
-            
-            GetBalansSecur();
+            if (myTrade.SecurityNameCode == SelectedSecurity.Name)
+            {
+                ChekEditOrderPosition(myTrade);
+                _logger.Information(" Come myTrade {Method} {@myTrade}", nameof(_server_NewMyTradeEvent), myTrade);
+
+                GetBalansSecur();
+            }
+            else
             /* проверить обем трейда если ордер исполнен полностью 
              * продолжить логику 
              * проверить номер от ордера - спросить состояние на бирже 
              */
-
-            //MonitiringStatusBot(myTrade);
+            _logger.Information(" Levak ! Secur Trade {@Trade} {Security} {Method}", myTrade, myTrade.SecurityNameCode, nameof(_server_NewOrderIncomeEvent));
         }
 
         /// <summary>
@@ -1222,16 +1216,20 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void _server_NewOrderIncomeEvent(Order myOrder)
         {
-            ActivOrders();
-            CheckMyOrder(myOrder);
-            /*  
-             *  продолжить логику 
-             *   
-             */
-            MonitiringStatusBot(myOrder);
-            GetBalansSecur();
-            _logger.Information(" New myOrder {@Order} {Method} ", myOrder, nameof(_server_NewOrderIncomeEvent));
-            //RobotsWindowVM.Log(Header, "Пришел ордер\n " + GetStringForSave(myOrder));
+            if (myOrder.SecurityNameCode == SelectedSecurity.Name)
+            {
+                ActivOrders();
+                CheckMyOrder(myOrder);
+                /*  
+                 *  продолжить логику 
+                 *   
+                 */
+                MonitiringStatusBot(myOrder);
+                GetBalansSecur();
+                _logger.Information(" New myOrder {@Order} {NumberUser} {Method}", myOrder, myOrder.NumberUser, nameof(_server_NewOrderIncomeEvent));
+            }
+            else
+            _logger.Information(" Levak ! Secur Order {Security} {Method}", myOrder, myOrder.SecurityNameCode, nameof(_server_NewOrderIncomeEvent));
         }
 
         /// <summary>
@@ -1261,13 +1259,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         /// <summary>
-        /// пришел новый терейд 
+        /// пришел новый терейд по бумаге
         /// </summary>
-        private void _NewTradeEvent(List<Entity.Trade> trades)
+        private void _NewTradeEvent(List<Trade> trades)
         {
             if (trades != null && trades[0].SecurityNameCode == SelectedSecurity.Name)
             {
-                Entity.Trade trade = trades.Last();
+                Trade trade = trades.Last();
 
                 Price = trade.Price;
 

@@ -414,7 +414,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
             order.NumberMarket = newOrder.NumberMarket;
             order.Comment = newOrder.Comment;
 
-            _logger.Information(" Copy Order {@order} {@newOrder} {Method} ", order, newOrder, nameof(CopyOrder));
+            _logger.Information(" Copy Order {@order}{OrdNumberUser} {@newOrder}{NewNumberUser} {Method} ", order,order.NumberUser, newOrder, newOrder.NumberUser, nameof(CopyOrder));
             return order;
         }
 
