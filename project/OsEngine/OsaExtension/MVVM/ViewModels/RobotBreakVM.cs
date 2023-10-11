@@ -56,9 +56,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private bool _isRun;
 
         /// <summary>
-        /// расчетная цена открытия позиции 
+        /// расчетные цены открытия позиции 
         /// </summary>
-        public decimal PriceOpenPos
+        public List<decimal> PriceOpenPos
         {
             get => _priceOpenPos;
             set
@@ -67,12 +67,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 OnPropertyChanged(nameof(PriceOpenPos));
             }
         }
-        private decimal _priceOpenPos = 0;
+        private List<decimal> _priceOpenPos = new List<decimal>();
 
         /// <summary>
-        /// расчетная цена закрытия позиции 
+        /// расчетные цены закрытия позиции 
         /// </summary>
-        public decimal PriceClosePos
+        public List<decimal> PriceClosePos
         {
             get => _priceClosePos;
             set
@@ -81,7 +81,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 OnPropertyChanged(nameof(PriceClosePos));
             }
         }
-        private decimal _priceClosePos = 0;
+        private List<decimal> _priceClosePos = new List<decimal>();
 
         /// <summary>
         /// заголовок вкладки робота 
@@ -729,6 +729,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>  
         private void SendOpenOrderPosition()
         {
+            /* сколько частей в позиции
+             * расчитать цены открытия для каждой части
+             * расчитать объем для каждой части
+             * отправить на биржу
+             */
             foreach (PositionBot position in PositionsBots)
             {
                 PriceOpenPos = CalculPriceStartPos(position.Side);
@@ -785,14 +790,16 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             if (MonitoringOpenVolumeExchange())
             {
                 SendStrStatus(" Есть открытый объем ");
-                return;
+
+                _logger.Information("! Open Volume Exchange {Method} {Balans}", nameof(CreateNewPosition), SelectSecurBalans);
+                
                 #region  проверка на открытые позиции
-                //MessageBoxResult result = MessageBox.Show(" Есть открытые позиции! \n Всеравно создать? ", " ВНИМАНИЕ !!! ",
-                //MessageBoxButton.YesNo);
-                //if (result == MessageBoxResult.No)
-                //{
-                //    return;
-                //}
+                MessageBoxResult result = MessageBox.Show(" Есть открытые позиции! \n Всеравно создать? ", " ВНИМАНИЕ !!! ",
+                MessageBoxButton.YesNo);
+                if (result == MessageBoxResult.No)
+                {
+                    return;
+                }
                 #endregion
             }
     
@@ -937,9 +944,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// расчитать стартовую цену (начала открытия позиции)
         /// </summary>
-        private decimal CalculPriceStartPos(Side side)
+        private List<decimal> CalculPriceStartPos(Side side)
         {
-            _priceOpenPos = 0;
+            _priceOpenPos.Clear();
+
             if (SelectedSecurity == null)
             {
                 SendStrStatus(" уще нет бумаги ");
@@ -947,20 +955,35 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 return _priceOpenPos;
             }
             decimal stepPrice = 0;
+            decimal price =0;
 
             if (side == Side.Buy )
             {       
                 stepPrice = (BigСlusterPrice - BottomPositionPrice) / PartsPerInput;
-                _priceOpenPos = BigСlusterPrice - stepPrice;
+                price = BigСlusterPrice - stepPrice;
+                for (int i = 0; i < PartsPerInput; i++)
+                {
+                    price = Decimal.Round(price, SelectedSecurity.Decimals);
+                    _priceOpenPos.Add(price);
+                    price = - stepPrice;
+                }
+                //_priceOpenPos = BigСlusterPrice - stepPrice;
             }
             if (side == Side.Sell)
             {
                 stepPrice = (TopPositionPrice - BigСlusterPrice) / PartsPerInput;
-                _priceOpenPos = BigСlusterPrice + stepPrice;
+                price = BigСlusterPrice + stepPrice;
+                for (int i = 0; i < PartsPerInput; i++)
+                {
+                    price = Decimal.Round(price, SelectedSecurity.Decimals);
+                    _priceOpenPos.Add(price);
+                    price = + stepPrice;
+                }
+                //_priceOpenPos = BigСlusterPrice + stepPrice;
             }
             //  todo : бобавить расчет для разнонаправленных сделок
 
-            _priceOpenPos = Decimal.Round(_priceOpenPos, SelectedSecurity.Decimals);
+            //_priceOpenPos = Decimal.Round(_priceOpenPos, SelectedSecurity.Decimals);
 
             return  _priceOpenPos;
         }

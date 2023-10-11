@@ -243,7 +243,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
             {
                 _passOpenOrder = value;
                 //Change();
-                //OnPropertyChanged(nameof(PassVolume));
+                OnPropertyChanged(nameof(PassOpenOrder));
             }
         }
         public bool _passOpenOrder = true;
@@ -261,6 +261,20 @@ namespace OsEngine.OsaExtension.MVVM.Models
             }
         }
         public bool _passCloseOrder = true;
+
+        /// <summary>
+        /// количесвто частей в позиции
+        /// </summary>
+        public int PartsInPosition
+        {
+            get => _partsInPosition;
+            set
+            {
+                _partsInPosition = value;
+                OnPropertyChanged(nameof(PartsInPosition));
+            }
+        }
+        private int _partsInPosition = 1;
 
         #endregion  end Свойства ========================
 
@@ -302,7 +316,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
                     if (curOrdOpen.NumberMarket == trade.NumberOrderParent
                         && curOrdOpen.SecurityNameCode == trade.SecurityNameCode)
                     {
-                        //trade.NumberPosition = Number.ToString();
+                        trade.NumberPosition = Number.ToString();
                         curOrdOpen.SetTrade(trade);
                         _logger.Information(" Set Trade open position {@trade} {@curOrdOpen} {Method} ", trade, curOrdOpen, nameof(SetTrade));
                         if (OpenVolume != 0 &&
@@ -311,10 +325,11 @@ namespace OsEngine.OsaExtension.MVVM.Models
                             Status = PositionStatus.OPEN;
                         }
                         else if (OpenVolume == 0 &&
-                                trade.Volume == curOrdOpen.Volume)
+                                trade.Volume == curOrdOpen.Volume &&
+                                Status == PositionStatus.OPENING)
                         {
                             curOrdOpen.TimeDone = trade.Time;
-                            Status = PositionStatus.DONE;
+                            Status = PositionStatus.OPEN;
                         }
                     }
                 }
@@ -330,7 +345,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
                         && curOrdClose.SecurityNameCode == trade.SecurityNameCode)
                     {
                         _logger.Information(" Set Trade Close position {@trade} {@curOrdClose} {Method} ", trade, curOrdClose, nameof(SetTrade));
-                        //trade.NumberPosition = Number.ToString();
+                        trade.NumberPosition = Number.ToString();
                         curOrdClose.SetTrade(trade);
 
                         if (OpenVolume == 0 &&
@@ -339,7 +354,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
                             Status = PositionStatus.DONE;
                             curOrdClose.TimeDone = trade.Time;
                         }
-                        else if (OpenVolume < 0)
+                        else if (OpenVolume != 0)
                         {
                             Status = PositionStatus.CLOSING;
                         }
