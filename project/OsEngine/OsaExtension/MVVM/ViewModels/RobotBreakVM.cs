@@ -737,18 +737,21 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             foreach (PositionBot position in PositionsBots)
             {
                 PriceOpenPos = CalculPriceStartPos(position.Side);
-                if (BigСlusterPrice == 0 || BottomPositionPrice == 0 || PriceOpenPos == 0)
+                if (BigСlusterPrice == 0 || BottomPositionPrice == 0 || PriceOpenPos.Count == 0)
                 {
                     SendStrStatus(" BigСlusterPrice или BottomPositionPrice = 0 ");
                     return;
                 }
-                Order order = CreateLimitOrder(SelectedSecurity, PriceOpenPos, VolumePerOrderOpen, position.Side);
-                if (order != null)
-                {  
-                    position.OrdersForOpen.Add(order);// отправили ордер в позицию
-                    SendOrderExchange(order); // отправили ордер на биржу
-                    Thread.Sleep(50);
-                    _logger.Information("Send Open order into position {Method} {@Order} {NumberUser}", nameof(SendOrderExchange), order, order.NumberUser);
+                foreach (decimal price in PriceOpenPos)
+                {
+                    Order order = CreateLimitOrder(SelectedSecurity, price, VolumePerOrderOpen, position.Side);
+                    if (order != null)
+                    {
+                        position.OrdersForOpen.Add(order);// отправили ордер в позицию
+                        SendOrderExchange(order); // отправили ордер на биржу
+                        Thread.Sleep(50);
+                        _logger.Information("Send Open order into position {Method} {@Order} {NumberUser}", nameof(SendOrderExchange), order, order.NumberUser);
+                    }
                 }
             }
         }
@@ -761,18 +764,22 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             foreach (PositionBot position in PositionsBots)
             {
                 PriceClosePos = CalculPriceClosePos(position.Side);
-                if (BigСlusterPrice == 0 || BottomPositionPrice == 0 || PriceOpenPos == 0)
+                if (BigСlusterPrice == 0 || BottomPositionPrice == 0 || PriceOpenPos.Count == 0)
                 {
                     SendStrStatus(" BigСlusterPrice или BottomPositionPrice = 0 ");
                     return;
                 }
-                Order order = CreateLimitOrder(SelectedSecurity, PriceClosePos, VolumePerOrderClose, position.Side);
-                if (order != null)
-                {  // отправить ордер в позицию
-                    position.OrdersForClose.Add(order);
-                    _logger.Information("Send order for Close {Method} {@Order} {NumberUser}", nameof(SendOrderExchange), order, order.NumberUser);
-                    SendOrderExchange(order); // отправили ордер на биржу
+                for (int i = 0; i < PriceClosePos.Count; i++)
+                {/*
+                    Order order = CreateLimitOrder(SelectedSecurity, PriceClosePos[i], VolumePerOrderClose, position.Side);
+                    if (order != null)
+                    {  // отправить ордер в позицию
+                        position.OrdersForClose.Add(order);
+                        _logger.Information("Send order for Close {Method} {@Order} {NumberUser}", nameof(SendOrderExchange), order, order.NumberUser);
+                        SendOrderExchange(order); // отправили ордер на биржу
+                    }*/
                 }
+  
             }
         }
 
@@ -991,9 +998,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// расчитать цену закрытия позиции
         /// </summary>
-        private decimal CalculPriceClosePos(Side side)
+        private  List<decimal> CalculPriceClosePos(Side side)
         {
-            _priceClosePos = 0;
+            _priceClosePos.Clear();
             if (SelectedSecurity == null)
             {
                 SendStrStatus(" уще нет бумаги ");
@@ -1007,16 +1014,16 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 // расчет шага цены закрытия
 
                 stepPrice = (TakePriceLong - TopPositionPrice) / PartsPerExit;
-                _priceClosePos = TopPositionPrice + stepPrice;
+                //_priceClosePos = TopPositionPrice + stepPrice;
             }
             if (side == Side.Sell)
             {
                 stepPrice = (BottomPositionPrice - TakePriceShort) / PartsPerExit;
-                _priceClosePos = BottomPositionPrice - stepPrice;
+               // _priceClosePos = BottomPositionPrice - stepPrice;
             }
             //  бобавить расчет для разнонаправленных сделок
 
-            _priceClosePos = Decimal.Round(_priceOpenPos, SelectedSecurity.Decimals);
+            //_priceClosePos = Decimal.Round(_priceOpenPos, SelectedSecurity.Decimals);
 
             return _priceClosePos;
         }
