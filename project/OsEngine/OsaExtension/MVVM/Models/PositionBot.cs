@@ -318,12 +318,17 @@ namespace OsEngine.OsaExtension.MVVM.Models
                     {
                         trade.NumberPosition = Number.ToString();
                         curOrdOpen.SetTrade(trade);
+                        if (trade.Volume == curOrdOpen.Volume)
+                        {
+                            curOrdOpen.TimeDone = trade.Time;
+                            curOrdOpen.State = OrderStateType.Done;
+                        }
                         _logger.Information(" Set Trade open position {@trade} {@curOrdOpen} {Method} ", trade, curOrdOpen, nameof(SetTrade));
                         if (OpenVolume != 0 &&
                             Status == PositionStatus.OPENING )
                         {
                             Status = PositionStatus.OPEN;
-                        }
+                        } //todo: вынести логигу смены статусов ордеров в отдельный метод
                         else if (OpenVolume == 0 &&
                                 trade.Volume == curOrdOpen.Volume &&
                                 Status == PositionStatus.OPENING)
