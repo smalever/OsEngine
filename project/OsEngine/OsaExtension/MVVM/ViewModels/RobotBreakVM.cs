@@ -525,21 +525,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             if (IsRun)
             {
                 CreateNewPosition(); // создали позиции
-                //SendOpenOrderPosition();// открытие позиции
-
-                SendCloseOrderPosition();// закрытие позиции
+                SendOpenOrderPosition();// открытие позиции
             }
-        }
-        /// <summary>
-        /// выставить ордера закрытия сделки (прибыли)
-        /// </summary>
-        private void SendOrderProfitPositions()
-        {
-            /* проверить обем трейда если ордер исполнен полностью 
-  
-
-             * смотрим объём - выставляем на него профит
-             */
         }
 
         /// <summary>
@@ -762,6 +749,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private void SendCloseOrderPosition()
         {
             // получить открытый  объем
+            /* проверить обем трейда если ордер исполнен полностью 
+             * * смотрим объём - выставляем на него профит
+             */
+
             foreach (PositionBot position in PositionsBots)
             {
                 PriceClosePos = CalculPriceClosePos(position.Side); // расчет цены закрытия позиции
