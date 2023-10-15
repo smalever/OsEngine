@@ -774,7 +774,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                             {
                                 // если в  лимит ордерах закрытия объема меньше чем открыто на бирже
                                 // добавить лимит ордер на закрытие)
-                                SendCloseOrderPosition(myTrade.Volume);
+                                SendCloseOrderPosition(myTrade.Volume);.
                             }
                             
                         }
