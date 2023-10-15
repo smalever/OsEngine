@@ -776,6 +776,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                             if (position.Status == PositionStatus.OPEN // позиция открыта
                                 && curOrdOpen.State == OrderStateType.Done) // ордер исполнен
                             {
+                                if (position.OrdersForClose != null && position.OrdersForClose.Count == 0)
+                                {
+                                    // добавить лимит ордер на закрытие)
+                                    SendCloseOrderPosition(myTrade.Volume);
+                                }
                                 // ищем актиыные ордера на закрытия
                                 if (position.OrdersForClose != null && position.OrdersForClose.Count > 0)
                                 {
@@ -796,7 +801,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                                         }
                                     }
                                     // проверяем в ордерах закрытия объема меньше чем открыто на бирже
-                                    if (Math.Abs(volumeCl) > Math.Abs(position.OpenVolume))
+                                    if (Math.Abs(volumeCl) < Math.Abs(position.OpenVolume))
                                     {
                                         // добавить лимит ордер на закрытие)
                                         SendCloseOrderPosition(myTrade.Volume);
@@ -869,7 +874,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 if (order != null && position.PassCloseOrder)
                 {  // отправить ордер в позицию
                     position.OrdersForClose.Add(order);
-                    _logger.Information("Send Limit order for Close {Method} {@Order} {NumberUser}", nameof(SendCloseOrderPosition), order, order.NumberUser);
+                    _logger.Information("Send Limit order for Close {Method} {@Order} {NumberUser}", 
+                                            nameof(SendCloseOrderPosition), order, order.NumberUser);
                     position.PassCloseOrder= false;
                     SendOrderExchange(order); // отправили ордер на биржу
                 }
