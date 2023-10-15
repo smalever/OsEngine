@@ -749,39 +749,66 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         /// <summary>
-        /// проверяет открывающий или закрывающий трейд
+        /// выставить ордер закрытия
         /// </summary>
-        private void СheckTrade(MyTrade myTrade)
+        private void SendCloseOrder(MyTrade myTrade)
         {
             foreach (PositionBot position in PositionsBots) // заходим в позицию
             {
                 // проверяем откуда трейд
-                // 
-                if (position.OrdersForOpen != null) // если открывающий выствит тейк
+                if (position.OrdersForOpen != null) // если открывающий выствить тейк
                 {
+                    /* для этого
+                     *  берем открытую позицию
+                     *  ищем актиыные ордера на закрытия если их нет
+                     *  берем открытый обем позиции
+                     *   создаем оредр на его закрытие и отрпавляем его в позицию
+                     */
+
                     for (int i = 0; i < position.OrdersForOpen.Count; i++) 
                     {
                         Order curOrdOpen = position.OrdersForOpen[i];
 
-                        if (curOrdOpen.NumberMarket == myTrade.NumberOrderParent // принадлежит ордеру открытия
-                            && curOrdOpen.SecurityNameCode == myTrade.SecurityNameCode) // наша бумага
-                            
-                               // значит трейд открывающий
+                        if (curOrdOpen.NumberMarket == myTrade.NumberOrderParent) // принадлежит ордеру открытия
+                        {    
+                            // значит трейд открывающий
                       
-                        {
                             if (position.Status == PositionStatus.OPEN // позиция открыта
-                                && curOrdOpen.Volume == myTrade.Volume) // совпадает объем
+                                && curOrdOpen.State == OrderStateType.Done) // ордер исполнен
                             {
-                                // если в  лимит ордерах закрытия объема меньше чем открыто на бирже
-                                // добавить лимит ордер на закрытие)
-                                SendCloseOrderPosition(myTrade.Volume);.
+                                // ищем актиыные ордера на закрытия
+                                if (position.OrdersForClose != null && position.OrdersForClose.Count > 0)
+                                {
+                                    decimal volumeCl = 0;
+                                    for (int s = 0; s < position.OrdersForClose.Count; s++)
+                                    {
+                                        Order currOrdOpen = position.OrdersForClose[i];
+
+                                        if (currOrdOpen.State == OrderStateType.Activ)
+                                        {
+                                            volumeCl += position.OrdersForClose[s].Volume;
+                                        }
+                                        if (currOrdOpen.State != OrderStateType.Activ ||
+                                            currOrdOpen.State != OrderStateType.Patrial ||
+                                            currOrdOpen.State != OrderStateType.Pending)
+                                        {
+                                            //
+                                        }
+                                    }
+                                    // проверяем в ордерах закрытия объема меньше чем открыто на бирже
+                                    if (Math.Abs(volumeCl) > Math.Abs(position.OpenVolume))
+                                    {
+                                        // добавить лимит ордер на закрытие)
+                                        SendCloseOrderPosition(myTrade.Volume);
+                                    }
+                                }
                             }
-                            
                         }
                     }
                 }
                 if (position.OrdersForClose != null) // если закрывающий 
                 {
+                    /*
                     for (int i = 0; i < position.OrdersForClose.Count; i++)
                     {
                         Order curOrdOpen = position.OrdersForClose[i];
@@ -798,10 +825,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                                 position.Status = PositionStatus.DONE;
                                 SendStrStatus(" Позиция закрылась по профиту");
                                 _logger.Information("Position close, STOP open {Method} {@Order} {NumberUser}", 
-                                                                  nameof(СheckTrade), curOrdOpen, curOrdOpen.NumberUser);
+                                                                  nameof(SendCloseOrder), curOrdOpen, curOrdOpen.NumberUser);
                             }
                         }
-                    }
+                    }*/
                 }
             }
         }
@@ -1305,7 +1332,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                 GetBalansSecur();
                 // если открылась сделка выставить тейк
-                СheckTrade(myTrade);
+                SendCloseOrder(myTrade);
             }
             else                 
             _logger.Information(" Levak ! Secur Trade {@Trade} {Security} {Method}", myTrade, myTrade.SecurityNameCode, nameof(_server_NewOrderIncomeEvent));
