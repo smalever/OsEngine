@@ -1,17 +1,12 @@
 ﻿using OsEngine.Entity;
-using OsEngine.Market.Servers.GateIo.Futures.Response;
 using OsEngine.OsaExtension.MVVM.ViewModels;
 using Serilog;
-using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OsEngine.OsaExtension.MVVM.Models
 {
-  
+
     /// <summary>
     /// позиция робота по инструменту 
     /// </summary>
@@ -299,13 +294,32 @@ namespace OsEngine.OsaExtension.MVVM.Models
          * закрытие
          * трейды
          */
+        /// <summary>
+        ///  добавление новых трейдов в ордера
+        /// </summary>
+        public void AddNewTradeMyOrders(MyTrade chektrade)
+        {
+            if (_myTrades != null)
+            {
+                for (int i = 0; i < MyTrades.Count; i++)
+                {
+                    if (!MyTrades[i].NumberTrade.Contains(chektrade.NumberTrade))
+                    // если такого трейда ещё не было в списке трейдов - добавляем
+                    {
+                        _logger.Information(" Add new trade in Order {NewNumberTrade} {Method} ", 
+                                                        chektrade.NumberTrade, nameof(AddNewTradeMyOrders));
+                        SetTradeInOrder(chektrade);
+                    }
+                }
+            }
+        }
 
         /// <summary>
         ///  загрузить трейд в мои ордера
         /// </summary>
-        public void SetTrade(MyTrade trade)
+        public void SetTradeInOrder(MyTrade trade)
         {
-            _myTrades = null;
+            // новый трейд (проверка в AddTradeMyList) добавляем в ордер
 
             if (_ordersForOpen != null)
             {
@@ -322,8 +336,9 @@ namespace OsEngine.OsaExtension.MVVM.Models
                         {
                             curOrdOpen.TimeDone = trade.Time;
                             curOrdOpen.State = OrderStateType.Done;
+
                         }
-                        _logger.Information(" Set Trade open position {@trade} {@curOrdOpen} {Method} ", trade, curOrdOpen, nameof(SetTrade));
+                        _logger.Information(" Add Trade open position {@trade} {@curOrdOpen} {Method} ", trade, curOrdOpen, nameof(SetTradeInOrder));
                         if (OpenVolume != 0 &&
                             Status == PositionStatus.OPENING )
                         {
@@ -349,7 +364,7 @@ namespace OsEngine.OsaExtension.MVVM.Models
                     if (curOrdClose.NumberMarket == trade.NumberOrderParent
                         && curOrdClose.SecurityNameCode == trade.SecurityNameCode)
                     {
-                        _logger.Information(" Set Trade Close position {@trade} {@curOrdClose} {Method} ", trade, curOrdClose, nameof(SetTrade));
+                        _logger.Information(" Add Trade Close position {@trade} {@curOrdClose} {Method} ", trade, curOrdClose, nameof(SetTradeInOrder));
                         trade.NumberPosition = Number.ToString();
                         curOrdClose.SetTrade(trade);
 
