@@ -539,7 +539,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 CanselActivOrders();
             }
-            FinalCloseMarketOpenVolume();
+            if (SelectSecurBalans !=0)
+            {
+                FinalCloseMarketOpenVolume();
+            }
         }
 
         /// <summary>
@@ -547,13 +550,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void FinalCloseMarketOpenVolume()
         {
-
-            foreach (PositionBot pos in PositionsBots) //отозвали все актиыные ордера
+            if (SelectSecurBalans == 0)
             {
-                pos.PassOpenOrder = false;
-                pos.PassCloseOrder = false;
-                CanselActivOrders();
-            }
+                _logger.Error(" SelectSecurBalans == 0 , exit metod {Metod} ",  nameof(FinalCloseMarketOpenVolume));
+                return;
+            } 
 
             GetBalansSecur();  // берем открытый объем на бирже 
             decimal finalVolumClose = 0;
@@ -563,12 +564,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             if (finalVolumClose < 0)
             {
                 side = Side.Buy;
-                _logger.Information("In Position volume {Volume} {side} {Metod} ", finalVolumClose, side, nameof(FinalCloseMarketOpenVolume));
+                _logger.Information("In Position volume {Volume} {side} {Metod} ", SelectSecurBalans, side, nameof(FinalCloseMarketOpenVolume));
             }
             if (finalVolumClose > 0)
             {
                 side = Side.Sell;
-                _logger.Information("In Position volume {Volume} {side} {Metod} ", finalVolumClose, side, nameof(FinalCloseMarketOpenVolume));
+                _logger.Information("In Position volume {Volume} {side} {Metod} ", SelectSecurBalans, side, nameof(FinalCloseMarketOpenVolume));
             }
             if (finalVolumClose == 0 || side == Side.None )
             {
@@ -580,23 +581,29 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 return;
             }
 
-            Order ordClose = CreateMarketOrder(SelectedSecurity, Price, finalVolumClose, side);
+            Order ordClose = CreateMarketOrder(SelectedSecurity, Price, SelectSecurBalans, side);
 
-
-            if (ordClose != null && finalVolumClose != 0)
+            if (ordClose != null && SelectSecurBalans != 0)
             {
-                if (finalVolumClose == 0 || side == Side.None) return;
-
-                Server.ExecuteOrder(ordClose);
-
-                _logger.Information("Sending Market order to close " +
-                                      " {volume} {numberUser} {@Order} {Metod} ",
-                                       finalVolumClose, ordClose.NumberUser, ordClose, nameof(FinalCloseMarketOpenVolume));
-
-                SendStrStatus(" Отправлен Маркет на закрытие объема на бирже");
-
                 GetBalansSecur();
-                Thread.Sleep(50);
+
+                if (SelectSecurBalans == 0 || side == Side.None) return;
+
+                bool activ = false;
+                activ = ActivOrders();
+                if (!activ)
+                {
+                    SendOrderExchange(ordClose);
+                    Thread.Sleep(100);
+
+                    _logger.Information("Sending Market order to close " +
+                    " {volume} {numberUser} {@Order} {Metod} ",
+                     finalVolumClose, ordClose.NumberUser, ordClose, nameof(FinalCloseMarketOpenVolume));
+
+                    SendStrStatus(" Отправлен Маркет на закрытие объема на бирже");
+
+                    return;
+                }
             }
             if (ordClose == null)
             {
@@ -703,6 +710,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private void SendOrderExchange(Order sendOpder) 
         {
             Server.ExecuteOrder(sendOpder);
+            Thread.Sleep(100);
             _logger.Information("Send order Exchange {Method} Order {@Order} {NumberUser} ", nameof(SendOrderExchange), sendOpder, sendOpder.NumberUser);
 
             SendStrStatus(" Ордер отправлен на биржу");
@@ -787,7 +795,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                             // проверяем в ордерах закрытия объема меньше чем открыто на бирже
                             if (Math.Abs(volumeClose) < Math.Abs(position.OpenVolume))
                             {
-                                _logger.Information("Call metod  SendCloseLimitOrderPosition" +
+                                _logger.Information("Called metod  SendCloseLimitOrderPosition" +
                                             " {Method} Order {VolumeForClose} {OpenVolumePosition} "
                                     , nameof(SendCloseOrder), volumeClose, position.OpenVolume);
                                 // добавить лимит ордер на закрытие)
@@ -981,6 +989,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             if (portfolios.Count > 0 && portfolios != null
                 && _selectedSecurity != null)
             {
+                //SelectSecurBalans = 0;
                 int count = portfolios[0].GetPositionOnBoard().Count;
                 string nam = SelectedSecurity.Name;
                 string suf = "_BOTH";
@@ -991,8 +1000,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     if (seсurCode == SecurName)
                     {
                         decimal d = portfolios[0].GetPositionOnBoard()[i].ValueCurrent;
-                        SelectSecurBalans = d; // отправка значения в свойство
-                        //RobotsWindowVM.Log(Header, " баланс SelectedSecurity = " + SelectSecurBalans);
+                        if (d != SelectSecurBalans)
+                        {
+                            SelectSecurBalans = d; // отправка значения в свойство
+                            _logger.Information(" SelectSecurBalans = {SelectSecurBalans} {Method} "
+                                                           , SelectSecurBalans, nameof(GetBalansSecur));
+                        }
                     }
                 }
             }

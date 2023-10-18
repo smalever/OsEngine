@@ -1969,7 +1969,7 @@ namespace OsEngine.Market.Servers
             {
                 if (LastStartServerTime.AddSeconds(WaitTimeAfterFirstStart) > DateTime.Now)
                 {
-                    await Task.Delay(1000);
+                    await Task.Delay(300);
                     continue;
                 }
                 try
