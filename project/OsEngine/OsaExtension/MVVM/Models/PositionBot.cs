@@ -99,42 +99,42 @@ namespace OsEngine.OsaExtension.MVVM.Models
         /// <summary>
         /// список трейдов позиции
         /// </summary>
-        public List<MyTrade> MyTrades
-        {
-            get
-            {
-                List<MyTrade> trades = _myTrades;
-                if (trades != null)
-                {
-                    return trades;
-                }
-                trades = new List<MyTrade>();
+        //public List<MyTrade> MyTrades
+        //{
+        //    get
+        //    {
+        //        List<MyTrade> trades = _myTrades;
+        //        if (trades != null)
+        //        {
+        //            return trades;
+        //        }
+        //        trades = new List<MyTrade>();
 
-                for (int i = 0; _ordersForOpen != null && i < _ordersForOpen.Count; i++)
-                {
-                    List<MyTrade> newTrades = _ordersForOpen[i].MyTrades;
-                    if (newTrades != null &&
-                        newTrades.Count != 0)
-                    {
-                        trades.AddRange(newTrades);
-                    }
-                }
+        //        for (int i = 0; _ordersForOpen != null && i < _ordersForOpen.Count; i++)
+        //        {
+        //            List<MyTrade> newTrades = _ordersForOpen[i].MyTrades;
+        //            if (newTrades != null &&
+        //                newTrades.Count != 0)
+        //            {
+        //                trades.AddRange(newTrades);
+        //            }
+        //        }
 
-                for (int i = 0; _ordersForClose != null && i < _ordersForClose.Count; i++)
-                {
-                    List<MyTrade> newTrades = _ordersForClose[i].MyTrades;
-                    if (newTrades != null &&
-                        newTrades.Count != 0)
-                    {
-                        trades.AddRange(newTrades);
-                    }
-                }
+        //        for (int i = 0; _ordersForClose != null && i < _ordersForClose.Count; i++)
+        //        {
+        //            List<MyTrade> newTrades = _ordersForClose[i].MyTrades;
+        //            if (newTrades != null &&
+        //                newTrades.Count != 0)
+        //            {
+        //                trades.AddRange(newTrades);
+        //            }
+        //        }
 
-                _myTrades = trades;
-                return trades;
-            }
-        }
-        private List<MyTrade> _myTrades;
+        //        _myTrades = trades;
+        //        return trades;
+        //    }
+        //}
+        //private List<MyTrade> _myTrades;
 
         /// <summary>
         /// Position number / номер позиции
@@ -294,33 +294,12 @@ namespace OsEngine.OsaExtension.MVVM.Models
          * закрытие
          * трейды
          */
-        /// <summary>
-        ///  добавление новых трейдов в ордера
-        /// </summary>
-        public void AddNewTradeMyOrders(MyTrade chektrade)
-        {
-            if (_myTrades != null)
-            {
-                for (int i = 0; i < MyTrades.Count; i++)
-                {
-                    if (!MyTrades[i].NumberTrade.Contains(chektrade.NumberTrade))
-                    // если такого трейда ещё не было в списке трейдов - добавляем
-                    {
-                        _logger.Information(" Add new trade in Order {NewNumberTrade} {Method} ", 
-                                                        chektrade.NumberTrade, nameof(AddNewTradeMyOrders));
-                        SetTradeInOrder(chektrade);
-                    }
-                }
-            }
-        }
 
         /// <summary>
         ///  загрузить трейд в мои ордера
         /// </summary>
         public void SetTradeInOrder(MyTrade trade)
         {
-            // новый трейд (проверка в AddTradeMyList) добавляем в ордер
-
             if (_ordersForOpen != null)
             {
                 for (int i = 0; i < _ordersForOpen.Count; i++)
@@ -329,16 +308,23 @@ namespace OsEngine.OsaExtension.MVVM.Models
 
                     if (curOrdOpen.NumberMarket == trade.NumberOrderParent
                         && curOrdOpen.SecurityNameCode == trade.SecurityNameCode)
+                        //&& !curOrdOpen.MyTrades.Contains(trade))
                     {
-                        trade.NumberPosition = Number.ToString();
                         curOrdOpen.SetTrade(trade);
+                        //if (curOrdOpen.MyTrades != null)
+                        //{
+                        //    curOrdOpen.SetTrade(trade);
+                        //}
+                        trade.NumberPosition = Number.ToString();
+                        
                         if (trade.Volume == curOrdOpen.Volume)
                         {
                             curOrdOpen.TimeDone = trade.Time;
                             curOrdOpen.State = OrderStateType.Done;
 
                         }
-                        _logger.Information(" Add Trade open position {@trade} {@curOrdOpen} {Method} ", trade, curOrdOpen, nameof(SetTradeInOrder));
+                        _logger.Information(" Add Trade open position {@trade} {@curOrdOpen} {@MyTrades} {Method} "
+                                                        , trade, curOrdOpen, curOrdOpen.MyTrades, nameof(SetTradeInOrder));
                         if (OpenVolume != 0 &&
                             Status == PositionStatus.OPENING )
                         {
@@ -363,11 +349,17 @@ namespace OsEngine.OsaExtension.MVVM.Models
 
                     if (curOrdClose.NumberMarket == trade.NumberOrderParent
                         && curOrdClose.SecurityNameCode == trade.SecurityNameCode)
+                        //&& !curOrdClose.MyTrades.Contains(trade))
                     {
-                        _logger.Information(" Add Trade Close position {@trade} {@curOrdClose} {Method} ", trade, curOrdClose, nameof(SetTradeInOrder));
+                        _logger.Information(" Add Trade Close position {@trade} {@curOrdClose} {@MyTrades} {Method} "
+                            , trade, curOrdClose, curOrdClose.MyTrades, nameof(SetTradeInOrder));
                         trade.NumberPosition = Number.ToString();
                         curOrdClose.SetTrade(trade);
-
+                        //if (curOrdClose.MyTrades != null)
+                        //{
+                        //    curOrdClose.SetTrade(trade);
+                        //}
+                           
                         if (OpenVolume == 0 &&
                             trade.Volume == curOrdClose.Volume)
                         {
@@ -449,7 +441,8 @@ namespace OsEngine.OsaExtension.MVVM.Models
             order.NumberMarket = newOrder.NumberMarket;
             order.Comment = newOrder.Comment;
 
-            _logger.Information(" Copy Order {@order}{OrdNumberUser} {@newOrder}{NewNumberUser} {Method} ", order,order.NumberUser, newOrder, newOrder.NumberUser, nameof(CopyOrder));
+            _logger.Information(" Copy Order {@order}{OrdNumberUser} {NumberMarket}      {@newOrder}    {NewNumberUser}     {NumberMarket} {@MyTrades}  {Method} "
+                                            , order,order.NumberUser,order.NumberMarket, newOrder, newOrder.NumberUser, newOrder.NumberMarket, newOrder.MyTrades, nameof(CopyOrder));
             return order;
         }
 
