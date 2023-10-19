@@ -558,11 +558,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void FinalCloseMarketOpenVolume(Position pos, decimal volume)
         {
-            if (SelectSecurBalans == 0)
-            {
-                _logger.Error(" SelectSecurBalans == 0 , exit metod {Metod} ",  nameof(FinalCloseMarketOpenVolume));
-                return;
-            } 
+            //if (SelectSecurBalans == 0)
+            //{
+            //    _logger.Error(" SelectSecurBalans == 0 , exit metod {Metod} ",  nameof(FinalCloseMarketOpenVolume));
+            //    return;
+            //} 
             decimal finalVolumClose = 0;
             finalVolumClose = volume;// берем открытый объем 
 
@@ -589,16 +589,16 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             Order ordClose = CreateMarketOrder(SelectedSecurity, Price, finalVolumClose, side);
 
-            if (ordClose != null && SelectSecurBalans != 0)
+            if (ordClose != null )
             {
                 GetBalansSecur();
 
-                if (SelectSecurBalans == 0 || side == Side.None) return;
+                if (side == Side.None) return;
 
-                pos.AddNewOpenOrder(ordClose);
-                Thread.Sleep(500);
+                pos.AddNewCloseOrder(ordClose);
+                //Thread.Sleep(100);
                 SendOrderExchange(ordClose);
-                Thread.Sleep(1500);
+                //Thread.Sleep(100);
 
                 _logger.Information("Sending Market order to close " +
                 " {volume} {numberUser} {@Order} {Metod} ",
@@ -873,8 +873,15 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             //объем пришел сверху
             decimal priceClose = 0;
             //выбираем цену закрытия
-            int i = position.CloseOrders.Count;
-            priceClose = PriceClosePos[i];
+            if (position.CloseOrders == null )
+            {
+                priceClose = PriceClosePos[0];
+            }
+            else
+            {
+                int i = position.CloseOrders.Count;
+                priceClose = PriceClosePos[i];
+            }
             Debug.WriteLine("цена на закрытие= " + priceClose);
 
             if (priceClose == 0)
