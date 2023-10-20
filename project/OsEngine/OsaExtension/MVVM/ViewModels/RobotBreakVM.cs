@@ -16,6 +16,8 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
 using System.Security.Policy;
 using System.Text;
 using System.Threading;
@@ -462,10 +464,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// список названий портфелей 
         /// </summary>
         public ObservableCollection<string> StringPortfolios { get; set; } = new ObservableCollection<string>();
-        
+
         /// <summary>
         /// список позиций робота 
         /// </summary>
+        [DataMember]
         public static ObservableCollection<Position> PositionsBots { get; set; } = new ObservableCollection<Position>();
 
         #endregion конец свойств =============================================
@@ -476,11 +479,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// поле логера RobotBreakVM
         /// </summary>
         ILogger _logger;
-
-        /// <summary>
-        /// исполняемая позиция
-        /// </summary>
-        static PositionBot positionRun;
 
         /// <summary>
         /// названия портфеля для отправки ордера на биржу
@@ -558,11 +556,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void FinalCloseMarketOpenVolume(Position pos, decimal volume)
         {
-            //if (SelectSecurBalans == 0)
-            //{
-            //    _logger.Error(" SelectSecurBalans == 0 , exit metod {Metod} ",  nameof(FinalCloseMarketOpenVolume));
-            //    return;
-            //} 
             decimal finalVolumClose = 0;
             finalVolumClose = volume;// берем открытый объем 
 
@@ -718,7 +711,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private void SendOrderExchange(Order sendOpder) 
         {
             Server.ExecuteOrder(sendOpder);
-            Thread.Sleep(100);
+            Thread.Sleep(50);
             _logger.Information("Send order Exchange {Method} Order {@Order} {NumberUser} ", nameof(SendOrderExchange), sendOpder, sendOpder.NumberUser);
 
             SendStrStatus(" Ордер отправлен на биржу");
@@ -1346,6 +1339,105 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             return order;
         }
 
+        /// <summary>
+        /// Для восстановления состояния ордеров и трейдов в позициях поле выключения
+        /// </summary>
+        private void RebootStatePosition()
+        {
+            /*
+            сохранять Позиции робота после каждого ордера и трейда
+            */
+
+            DesirializerPosition(); // 1 после загрузки формы или восстановления соединения загружаем из(из сохрана) позиции, 
+
+            SelectRequiredOrders(); // 2 выбираем номера ордеров из активных сделок
+
+            //3 отправляем запрос состояния этих ордеров на бирже и обновляем их
+
+            //4 запрашиваем историю трейдов с биржи и обновляем ордера
+            
+        }
+        /// <summary>
+        /// выбрать нужные ордера для проверки
+        /// </summary>
+        private List<Order> SelectRequiredOrders()
+        {
+            //выбираем номера ордеров из
+            //активных сделок(есть открытый объем или активные ордера)
+            List<Order> selectOrders = new List<Order>();
+            bool flag = false;
+            flag = ActivOrders();
+            if (flag)
+            {
+                
+                foreach (Position position in PositionsBots)
+                {
+                    List<Order> ordersAll = new List<Order>();
+                    if (position.OpenActiv)
+                    {
+                        ordersAll = position.OpenOrders;// взять из позиции ордера открытия 
+                    }
+                    if (position.CloseActiv)
+                    {
+                        ordersAll.AddRange(position.CloseOrders); // добавили ордера закрытия 
+                    }
+                    for (int i = 0; i < ordersAll.Count; i++)
+                    {
+                        if (ordersAll[i].State == OrderStateType.Activ ||
+                            ordersAll[i].State == OrderStateType.Patrial ||
+                            ordersAll[i].State == OrderStateType.None ||
+                            ordersAll[i].State == OrderStateType.Pending)
+                        {
+                            selectOrders.Add(ordersAll[i]);
+                        }
+                    }
+                }
+            }
+            _logger.Information("Select the required orders {Method} Order {@Orders} "
+                                         , nameof(SelectRequiredOrders), selectOrders);
+            return selectOrders;
+        }
+
+        /// <summary>
+        /// проверить состояние ордеров
+        /// </summary>
+        public void CheckMissedOrders()
+        {
+            if (SelectedSecurity == null) return;
+            if (RobotsWindowVM.Orders == null || RobotsWindowVM.Orders.Count == 0) return;
+
+            foreach (var val in RobotsWindowVM.Orders)
+            {
+                if (val.Key == SelectedSecurity.Name)
+                {
+                    foreach (var value in val.Value)
+                    {
+                        _server_NewOrderIncomeEvent(value.Value);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// проверить состояние моих трейдов
+        /// </summary>
+        public void CheckMissedMyTrades()
+        {
+            if (SelectedSecurity == null) return;
+            if (RobotsWindowVM.MyTrades == null || RobotsWindowVM.MyTrades.Count == 0) return;
+
+            foreach (var val in RobotsWindowVM.MyTrades)
+            {
+                if (val.Key == SelectedSecurity.Name)
+                {
+                    foreach (var value in val.Value)
+                    {
+                        _server_NewMyTradeEvent(value.Value);
+                    }
+                }
+            }
+        }
+
         #endregion
         #region  методы сервера ===========================
 
@@ -1742,6 +1834,51 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             decimal value = 0;
             decimal.TryParse(str, out value);
             return value;
+        }
+
+        /// <summary>
+        /// сохраяие сделок в файл 
+        /// </summary>
+        public void SerializerPosition()
+        {
+            if (!Directory.Exists(@"Parametrs\Tabs"))
+            {
+                Directory.CreateDirectory(@"Parametrs\Tabs");
+            }
+
+            DataContractJsonSerializer PositionsBotsSerialazer = new DataContractJsonSerializer(typeof(ObservableCollection<Position>));
+
+            using (var file = new FileStream(@"Parametrs\Tabs\positions_" + Header + "=" + NumberTab + ".json", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
+            {
+                PositionsBotsSerialazer.WriteObject(file, PositionsBots);
+
+                _logger.Information("Serializer in file Positions {Method} {@PositionsBots}", nameof(SerializerPosition), PositionsBots);
+            }
+        }
+
+        /// <summary>
+        /// загружаеи из фала сохраненные сделки
+        /// </summary>
+        public void DesirializerPosition()
+        {
+            if (!File.Exists(@"Parametrs\Tabs\positions_" + Header + "=" + NumberTab + ".json"))
+            {
+                _logger.Error("Desirializer  Positions  Error no file - positions.json {Method} {@PositionsBots}", nameof(DesirializerPosition), PositionsBots);
+                return;
+            }
+
+            DataContractJsonSerializer PositionsBotsDsSerialazer = new DataContractJsonSerializer(typeof(ObservableCollection<Position>));
+            using (var file = new FileStream(@"Parametrs\Tabs\positions_" + Header + "=" + NumberTab + ".json", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
+            {
+                ObservableCollection<Position> PositionDeseriolazer = PositionsBotsDsSerialazer.ReadObject(file) as ObservableCollection<Position>;
+                if (PositionDeseriolazer != null)
+                {
+                    PositionsBots = PositionDeseriolazer;
+
+                    _logger.Error("Desirializer  Positions from file - positions.json {Method} {@PositionsBots}",
+                                                                        nameof(DesirializerPosition), PositionsBots);
+                }
+            }
         }
 
         #endregion

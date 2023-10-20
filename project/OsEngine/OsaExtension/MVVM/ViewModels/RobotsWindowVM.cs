@@ -221,7 +221,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         /// <summary>
-        /// пока не используется 
+        /// запуск опроса ордеров и трейдов
         /// </summary>
         private void Server_ConnectStatusChangeEvent(string state)
         {
@@ -230,14 +230,14 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 Task.Run(async () =>
                 {
                     DateTime dt = DateTime.Now;
-                    while (dt.AddMinutes(1) > DateTime.Now)
+                    while (dt.AddMinutes(3) > DateTime.Now)
                     {
                         await Task.Delay(5000);
                         foreach (RobotBreakVM robot in Robots)
                         {
-                            //robot.CheckMissedOrders();
+                            robot.CheckMissedOrders();
 
-                            //robot.CheckMissedMyTrades();
+                            robot.CheckMissedMyTrades();
                         }
                     }
                 });
