@@ -1352,10 +1352,53 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             SelectRequiredOrders(); // 2 выбираем номера ордеров из активных сделок
 
-            //3 отправляем запрос состояния этих ордеров на бирже и обновляем их
+            GetStateOrdeps();//3 отправляем запрос состояния этих ордеров на бирже и обновляем их
 
             //4 запрашиваем историю трейдов с биржи и обновляем ордера
-            
+
+        }
+        /// <summary>
+        /// запросить статусы выбранных оредров 
+        /// </summary>
+        private void GetStateOrdeps()
+        {
+            if (Server != null)
+            {
+                if (Server.ServerType == ServerType.BinanceFutures)
+                {
+                    AServer aServer = (AServer)Server;
+
+                    List<Order> orders = new List<Order>(); // ордера статусы которых надо опросить
+
+                    foreach (Position position in PositionsBots)
+                    {
+                        GetStateOrdeps(position.CloseOrders, ref orders);
+                        GetStateOrdeps(position.OpenOrders, ref orders);
+                    }
+                    if (orders.Count > 0)
+                    {
+                        aServer.ServerRealization.GetOrdersState(orders);
+                    }
+                }
+            }
+        }
+        /// <summary>
+        ///  выбирает ордера для опроса 
+        /// </summary>
+        private void GetStateOrdeps(List<Order> orders, ref List<Order> stateOrders)
+        {
+            foreach (Order order in orders)
+            {
+                if (order != null)
+                {
+                    if (order.State == OrderStateType.Activ ||
+                       order.State == OrderStateType.Patrial ||
+                       order.State == OrderStateType.Pending)
+                    {
+                        stateOrders.Add(order);
+                    }
+                }
+            }
         }
         /// <summary>
         /// выбрать нужные ордера для проверки
