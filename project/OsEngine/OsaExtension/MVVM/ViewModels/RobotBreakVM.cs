@@ -468,7 +468,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// список позиций робота 
         /// </summary>
-        [DataMember]
+       
         public static ObservableCollection<Position> PositionsBots { get; set; } = new ObservableCollection<Position>();
 
         #endregion конец свойств =============================================
@@ -511,6 +511,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             PropertyChanged += RobotBreakVM_PropertyChanged;    
             SendStrStatus(" Ожидается подключение к бирже ");
+
+            DesirializerPosition();
         }
 
         #region  Metods ======================================================================
@@ -613,6 +615,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void CanselActivOrders()
         {
+            if(Server == null) return;
             if (ActivOrders())
             {
                 foreach (Position position in PositionsBots)
@@ -982,48 +985,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             else return false;
         }
 
-        ///<summary>
-        /// взять текущий объем на бирже выбаной  бумаги
-        /// </summary>
-        private void GetBalansSecur()
-        {
-            return;
-            if (SelectedSecurity == null)return;
-            //RobotsWindowVM.Log(Header, " Запущен GetBalansSecur");
-            List<Portfolio> portfolios = new List<Portfolio>();
-            if (Server.Portfolios != null)
-            {
-                portfolios = Server.Portfolios;
-            }
-            if (portfolios.Count > 0 && portfolios != null
-                && _selectedSecurity != null)
-            {
-                //SelectSecurBalans = 0;
-                int count = portfolios[0].GetPositionOnBoard().Count;
-                string nam = SelectedSecurity.Name;
-                string suf = "_BOTH";
-                string SecurName = nam + suf;
-                for (int i = 0; i < count; i++)
-                {
-                    string seсurCode = portfolios[0].GetPositionOnBoard()[i].SecurityNameCode;
-                    if (seсurCode == SecurName)
-                    {
-                        decimal d = portfolios[0].GetPositionOnBoard()[i].ValueCurrent;
-                        if (d != SelectSecurBalans)
-                        {
-                            SelectSecurBalans = d; // отправка значения в свойство
-                            _logger.Information(" SelectSecurBalans = {SelectSecurBalans} {Method} "
-                                                           , SelectSecurBalans, nameof(GetBalansSecur));
-                        }
-                    }
-                }
-            }
-            //decimal balans = portfolios[0].GetPositionOnBoard()[0].Find(pos =>
-            //    pos.SecurityNameCode == _securName).ValueCurrent;
-            //return balans;
-
-        }
-
         /// <summary>
         /// расчет объема на ордер открытия
         /// </summary>
@@ -1339,148 +1300,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             return order;
         }
 
-        /// <summary>
-        /// Для восстановления состояния ордеров и трейдов в позициях поле выключения
-        /// </summary>
-        private void RebootStatePosition()
-        {
-            /*
-            сохранять Позиции робота после каждого ордера и трейда
-            */
-
-            DesirializerPosition(); // 1 после загрузки формы или восстановления соединения загружаем из(из сохрана) позиции, 
-
-            SelectRequiredOrders(); // 2 выбираем номера ордеров из активных сделок
-
-            GetStateOrdeps();//3 отправляем запрос состояния этих ордеров на бирже и обновляем их
-
-            //4 запрашиваем историю трейдов с биржи и обновляем ордера
-
-        }
-        /// <summary>
-        /// запросить статусы выбранных оредров 
-        /// </summary>
-        private void GetStateOrdeps()
-        {
-            if (Server != null)
-            {
-                if (Server.ServerType == ServerType.BinanceFutures)
-                {
-                    AServer aServer = (AServer)Server;
-
-                    List<Order> orders = new List<Order>(); // ордера статусы которых надо опросить
-
-                    foreach (Position position in PositionsBots)
-                    {
-                        GetStateOrdeps(position.CloseOrders, ref orders);
-                        GetStateOrdeps(position.OpenOrders, ref orders);
-                    }
-                    if (orders.Count > 0)
-                    {
-                        aServer.ServerRealization.GetOrdersState(orders);
-                    }
-                }
-            }
-        }
-        /// <summary>
-        ///  выбирает ордера для опроса 
-        /// </summary>
-        private void GetStateOrdeps(List<Order> orders, ref List<Order> stateOrders)
-        {
-            foreach (Order order in orders)
-            {
-                if (order != null)
-                {
-                    if (order.State == OrderStateType.Activ ||
-                       order.State == OrderStateType.Patrial ||
-                       order.State == OrderStateType.Pending)
-                    {
-                        stateOrders.Add(order);
-                    }
-                }
-            }
-        }
-        /// <summary>
-        /// выбрать нужные ордера для проверки
-        /// </summary>
-        private List<Order> SelectRequiredOrders()
-        {
-            //выбираем номера ордеров из
-            //активных сделок(есть открытый объем или активные ордера)
-            List<Order> selectOrders = new List<Order>();
-            bool flag = false;
-            flag = ActivOrders();
-            if (flag)
-            {
-                
-                foreach (Position position in PositionsBots)
-                {
-                    List<Order> ordersAll = new List<Order>();
-                    if (position.OpenActiv)
-                    {
-                        ordersAll = position.OpenOrders;// взять из позиции ордера открытия 
-                    }
-                    if (position.CloseActiv)
-                    {
-                        ordersAll.AddRange(position.CloseOrders); // добавили ордера закрытия 
-                    }
-                    for (int i = 0; i < ordersAll.Count; i++)
-                    {
-                        if (ordersAll[i].State == OrderStateType.Activ ||
-                            ordersAll[i].State == OrderStateType.Patrial ||
-                            ordersAll[i].State == OrderStateType.None ||
-                            ordersAll[i].State == OrderStateType.Pending)
-                        {
-                            selectOrders.Add(ordersAll[i]);
-                        }
-                    }
-                }
-            }
-            _logger.Information("Select the required orders {Method} Order {@Orders} "
-                                         , nameof(SelectRequiredOrders), selectOrders);
-            return selectOrders;
-        }
-
-        /// <summary>
-        /// проверить состояние ордеров
-        /// </summary>
-        public void CheckMissedOrders()
-        {
-            if (SelectedSecurity == null) return;
-            if (RobotsWindowVM.Orders == null || RobotsWindowVM.Orders.Count == 0) return;
-
-            foreach (var val in RobotsWindowVM.Orders)
-            {
-                if (val.Key == SelectedSecurity.Name)
-                {
-                    foreach (var value in val.Value)
-                    {
-                        _server_NewOrderIncomeEvent(value.Value);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// проверить состояние моих трейдов
-        /// </summary>
-        public void CheckMissedMyTrades()
-        {
-            if (SelectedSecurity == null) return;
-            if (RobotsWindowVM.MyTrades == null || RobotsWindowVM.MyTrades.Count == 0) return;
-
-            foreach (var val in RobotsWindowVM.MyTrades)
-            {
-                if (val.Key == SelectedSecurity.Name)
-                {
-                    foreach (var value in val.Value)
-                    {
-                        _server_NewMyTradeEvent(value.Value);
-                    }
-                }
-            }
-        }
-
         #endregion
         #region  методы сервера ===========================
 
@@ -1514,8 +1333,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 
                 SendStrStatus(" Сервер подключен ");
-                //StartSecuritiy(SelectedSecurity);
-                //SubscribeToServer();
+
+                StartSecuritiy(SelectedSecurity);
+                
+                RebootStatePosition();
+
+       
             }
             else if (state == "Disconnect")
             {
@@ -1531,12 +1354,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             if (myTrade.SecurityNameCode == SelectedSecurity.Name)
             {
                 ChekTradePosition(myTrade);
-
+               
                 _logger.Information(" Come myTrade {Method} {NumberOrderParent} {@myTrade}", nameof(_server_NewMyTradeEvent),myTrade.NumberOrderParent , myTrade);
 
                 GetBalansSecur();
                 // если открылась сделка выставить тейк
                 SendCloseOrder(myTrade);
+                SerializerPosition();
             }
             else                 
             _logger.Information(" Levak ! Secur Trade {@Trade} {Security} {Method}", myTrade, myTrade.SecurityNameCode, nameof(_server_NewOrderIncomeEvent));
@@ -1547,15 +1371,20 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void _server_NewOrderIncomeEvent(Order myOrder)
         {
-            if (myOrder.SecurityNameCode == SelectedSecurity.Name)
+            if (SelectedSecurity != null)
             {
-                CheckMyOrder(myOrder);
-
-                GetBalansSecur();
-                _logger.Information(" New myOrder {@Order} {NumberUser} {NumberMarket} {Method}", myOrder, myOrder.NumberUser, myOrder.NumberMarket, nameof(_server_NewOrderIncomeEvent));
+                if (myOrder.SecurityNameCode == SelectedSecurity.Name)
+                {
+                    CheckMyOrder(myOrder);
+                    SerializerPosition();
+                    GetBalansSecur();
+                    _logger.Information(" New myOrder {@Order} {NumberUser} {NumberMarket} {Method}", myOrder,
+                        myOrder.NumberUser, myOrder.NumberMarket, nameof(_server_NewOrderIncomeEvent));
+                }
+                else
+                    _logger.Information(" Levak ! Secur Order {Security} {Method}", myOrder, myOrder.SecurityNameCode,
+                        nameof(_server_NewOrderIncomeEvent));
             }
-            else
-            _logger.Information(" Levak ! Secur Order {Security} {Method}", myOrder, myOrder.SecurityNameCode, nameof(_server_NewOrderIncomeEvent));
         }
 
         /// <summary>
@@ -1635,10 +1464,207 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             _logger.Information(" Disnnecting to server = {ServerType} {Method} ", _server.ServerType, nameof(UnSubscribeToServer));
             //RobotsWindowVM.Log(Header, " Отключились от сервера = " + _server.ServerType);
-        } 
+        }
 
         #endregion
+
         #region   сервисные методы ===========================
+
+        ///<summary>
+        /// взять текущий объем на бирже выбаной  бумаги
+        /// </summary>
+        private void GetBalansSecur()
+        {
+            if (SelectedSecurity == null) return;
+
+            List<Portfolio> portfolios = new List<Portfolio>();
+            if (Server.Portfolios != null)
+            {
+                portfolios = Server.Portfolios;
+            }
+            if (portfolios.Count > 0 && portfolios != null
+                && _selectedSecurity != null)
+            {
+                //SelectSecurBalans = 0;
+                int count = portfolios[0].GetPositionOnBoard().Count;
+                string nam = SelectedSecurity.Name;
+                string suf = "_BOTH";
+                string SecurName = nam + suf;
+                for (int i = 0; i < count; i++)
+                {
+                    string seсurCode = portfolios[0].GetPositionOnBoard()[i].SecurityNameCode;
+                    if (seсurCode == SecurName)
+                    {
+                        decimal d = portfolios[0].GetPositionOnBoard()[i].ValueCurrent;
+                        if (d != SelectSecurBalans)
+                        {
+                            SelectSecurBalans = d; // отправка значения в свойство
+                            _logger.Information(" SelectSecurBalans = {SelectSecurBalans} {Method} "
+                                                           , SelectSecurBalans, nameof(GetBalansSecur));
+                        }
+                    }
+                }
+            }
+            //decimal balans = portfolios[0].GetPositionOnBoard()[0].Find(pos =>
+            //    pos.SecurityNameCode == _securName).ValueCurrent;
+            //return balans;
+
+        }
+
+        /// <summary>
+        /// Для восстановления состояния ордеров и трейдов в позициях поле выключения
+        /// </summary>
+        private void RebootStatePosition()
+        {
+            /*
+            сохранять Позиции робота после каждого ордера и трейда
+            */
+
+            //DesirializerPosition(); // 1 после загрузки формы или восстановления соединения загружаем из(из сохрана) позиции, 
+
+            //SelectRequiredOrders(); // 2 выбираем номера ордеров из активных сделок
+
+            GetStateOrdeps();//3 отправляем запрос состояния этих ордеров на бирже и обновляем их
+
+            //4 запрашиваем историю трейдов с биржи и обновляем ордера
+
+        }
+
+        /// <summary>
+        /// запросить статусы выбранных оредров 
+        /// </summary>
+        private void GetStateOrdeps()
+        {
+            if (Server != null)
+            {
+                if (Server.ServerType == ServerType.BinanceFutures)
+                {
+                    AServer aServer = (AServer)Server;
+
+                    List<Order> orders = new List<Order>(); // ордера статусы которых надо опросить
+
+                    foreach (Position position in PositionsBots)
+                    {
+                        if (position.OpenOrders.Count != 0)
+                        {
+                            GetStateOrdeps(position.OpenOrders, ref orders);
+                        }
+
+                        if (position.CloseOrders != null)
+                        {
+                            if (position.CloseOrders.Count != 0)
+                            {
+                                GetStateOrdeps(position.CloseOrders, ref orders);
+                            }
+                        }
+                    }
+                    if (orders.Count > 0)
+                    {
+                        aServer.ServerRealization.GetOrdersState(orders);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        ///  выбирает ордера для опроса 
+        /// </summary>
+        private void GetStateOrdeps(List<Order> orders, ref List<Order> stateOrders)
+        {
+            foreach (Order order in orders)
+            {
+                if (order != null)
+                {
+                    if (order.State == OrderStateType.Activ ||
+                       order.State == OrderStateType.Patrial ||
+                       order.State == OrderStateType.Pending)
+                    {
+                        stateOrders.Add(order);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// выбрать нужные ордера для проверки
+        /// </summary>
+        private List<Order> SelectRequiredOrders()
+        {
+            //выбираем номера ордеров из
+            //активных сделок(есть открытый объем или активные ордера)
+            List<Order> selectOrders = new List<Order>();
+            bool flag = false;
+            flag = ActivOrders();
+            if (flag)
+            {
+
+                foreach (Position position in PositionsBots)
+                {
+                    List<Order> ordersAll = new List<Order>();
+                    if (position.OpenActiv)
+                    {
+                        ordersAll = position.OpenOrders;// взять из позиции ордера открытия 
+                    }
+                    if (position.CloseActiv)
+                    {
+                        ordersAll.AddRange(position.CloseOrders); // добавили ордера закрытия 
+                    }
+                    for (int i = 0; i < ordersAll.Count; i++)
+                    {
+                        if (ordersAll[i].State == OrderStateType.Activ ||
+                            ordersAll[i].State == OrderStateType.Patrial ||
+                            ordersAll[i].State == OrderStateType.None ||
+                            ordersAll[i].State == OrderStateType.Pending)
+                        {
+                            selectOrders.Add(ordersAll[i]);
+                        }
+                    }
+                }
+            }
+            _logger.Information("Select the required orders {Method} Order {@Orders} "
+                                         , nameof(SelectRequiredOrders), selectOrders);
+            return selectOrders;
+        }
+
+        /// <summary>
+        /// проверить состояние ордеров
+        /// </summary>
+        public void CheckMissedOrders()
+        {
+            if (SelectedSecurity == null) return;
+            if (RobotsWindowVM.Orders == null || RobotsWindowVM.Orders.Count == 0) return;
+
+            foreach (var val in RobotsWindowVM.Orders)
+            {
+                if (val.Key == SelectedSecurity.Name)
+                {
+                    foreach (var value in val.Value)
+                    {
+                        _server_NewOrderIncomeEvent(value.Value);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// проверить состояние моих трейдов
+        /// </summary>
+        public void CheckMissedMyTrades()
+        {
+            if (SelectedSecurity == null) return;
+            if (RobotsWindowVM.MyTrades == null || RobotsWindowVM.MyTrades.Count == 0) return;
+
+            foreach (var val in RobotsWindowVM.MyTrades)
+            {
+                if (val.Key == SelectedSecurity.Name)
+                {
+                    foreach (var value in val.Value)
+                    {
+                        _server_NewMyTradeEvent(value.Value);
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// Начать получать данные по бумаге
@@ -1797,6 +1823,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 //RobotsWindowVM.Log(Header, " Ошибка сохранения параметров = " + ex.Message);
             }
         }
+
         /// <summary>
         /// загрузка во вкладку параметров из файла сохрана
         /// </summary>
@@ -1884,6 +1911,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         public void SerializerPosition()
         {
+            if (PositionsBots == null || PositionsBots.Count == 0) return;
+    
             if (!Directory.Exists(@"Parametrs\Tabs"))
             {
                 Directory.CreateDirectory(@"Parametrs\Tabs");
@@ -1891,11 +1920,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             DataContractJsonSerializer PositionsBotsSerialazer = new DataContractJsonSerializer(typeof(ObservableCollection<Position>));
 
-            using (var file = new FileStream(@"Parametrs\Tabs\positions_" + Header + "=" + NumberTab + ".json", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
+            using (var file = new FileStream(@"Parametrs\Tabs\positions_" + Header + "=" + NumberTab + ".json"
+                                            , FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
             {
                 PositionsBotsSerialazer.WriteObject(file, PositionsBots);
 
-                _logger.Information("Serializer in file Positions {Method} {@PositionsBots}", nameof(SerializerPosition), PositionsBots);
+                _logger.Information("Serializer in file Positions {Method} {@PositionsBots}",
+                                                nameof(SerializerPosition), PositionsBots);
             }
         }
 
@@ -1904,16 +1935,21 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         public void DesirializerPosition()
         {
+            //if (PositionsBots == null || PositionsBots.Count == 0) return;
+
             if (!File.Exists(@"Parametrs\Tabs\positions_" + Header + "=" + NumberTab + ".json"))
             {
-                _logger.Error("Desirializer  Positions  Error no file - positions.json {Method} {@PositionsBots}", nameof(DesirializerPosition), PositionsBots);
+                _logger.Error("Desirializer  Positions  Error no file - positions.json {Method} {@PositionsBots}"
+                                                                    , nameof(DesirializerPosition), PositionsBots);
                 return;
             }
 
             DataContractJsonSerializer PositionsBotsDsSerialazer = new DataContractJsonSerializer(typeof(ObservableCollection<Position>));
-            using (var file = new FileStream(@"Parametrs\Tabs\positions_" + Header + "=" + NumberTab + ".json", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
+            using (var file = new FileStream(@"Parametrs\Tabs\positions_" + Header + "=" + NumberTab + ".json"
+                                            , FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
             {
-                ObservableCollection<Position> PositionDeseriolazer = PositionsBotsDsSerialazer.ReadObject(file) as ObservableCollection<Position>;
+                ObservableCollection<Position> PositionDeseriolazer = PositionsBotsDsSerialazer.ReadObject(file)
+                                                                            as ObservableCollection<Position>;
                 if (PositionDeseriolazer != null)
                 {
                     PositionsBots = PositionDeseriolazer;
@@ -1925,6 +1961,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         #endregion
+
         #endregion end metods==============================================
 
         /// <summary>

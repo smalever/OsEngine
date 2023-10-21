@@ -3,10 +3,12 @@
  * Ваши права на использование кода регулируются данной лицензией http://o-s-a.net/doc/license_simple_engine.pdf
 */
 
+using OsEngine.Charts.CandleChart.Indicators;
 using OsEngine.Market;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace OsEngine.Entity
@@ -14,6 +16,7 @@ namespace OsEngine.Entity
     /// <summary>
     /// Position
     /// </summary>
+    [DataContract]
     public class Position
     {
         /// <summary>
@@ -27,11 +30,16 @@ namespace OsEngine.Entity
         /// <summary>
         /// List of orders involved in opening a position
         /// </summary>
+        [DataMember]
         public List<Order> OpenOrders
         {
             get
             {
                 return _openOrders;
+            }
+            set
+            {
+                _openOrders = value;
             }
         }
         private List<Order> _openOrders;
@@ -69,11 +77,16 @@ namespace OsEngine.Entity
         /// <summary>
         /// List of orders involved in closing a position
         /// </summary>
+        [DataMember]
         public List<Order> CloseOrders
         {
             get
             {
                 return _closeOrders;
+            }
+            set
+            {
+                _closeOrders = value;
             }
         }
         private List<Order> _closeOrders;
@@ -81,6 +94,7 @@ namespace OsEngine.Entity
         /// <summary>
         /// Trades of this position
         /// </summary>
+        [DataMember]
         public List<MyTrade> MyTrades
         {
             get
@@ -115,8 +129,13 @@ namespace OsEngine.Entity
                 _myTrades = trades;
                 return trades;
             }
-        }
 
+            set
+            {
+                _myTrades = value;
+            }
+        }
+        [DataMember]
         private List<MyTrade> _myTrades;
 
         /// <summary>
@@ -152,6 +171,7 @@ namespace OsEngine.Entity
         /// <summary>
         /// Are there any active orders to open a position
         /// </summary>
+        
         public bool OpenActiv
         {
             get
@@ -171,11 +191,14 @@ namespace OsEngine.Entity
                 }
                 return false;
             }
+        
         }
 
         /// <summary>
         /// Are there any active orders to close a position
         /// </summary>
+
+        
         public bool CloseActiv
         {
             get
@@ -201,26 +224,31 @@ namespace OsEngine.Entity
         /// <summary>
         /// Whether stop is active
         /// </summary>
+        //[DataMember]
         public bool StopOrderIsActiv;
 
         /// <summary>
         /// Order price stop order
         /// </summary>
+        //[DataMember]
         public decimal StopOrderPrice;
 
         /// <summary>
         /// Stop - the price, the price after which the order will be entered into the system
         /// </summary>
+        //[DataMember]
         public decimal StopOrderRedLine;
 
         /// <summary>
         /// Is a profit active order
         /// </summary>
+        //[DataMember]
         public bool ProfitOrderIsActiv;
 
         /// <summary>
         /// Order price order profit
         /// </summary>
+        //[DataMember]
         public decimal ProfitOrderPrice;
 
         /// <summary>
@@ -231,13 +259,15 @@ namespace OsEngine.Entity
         /// <summary>
         /// Buy / sell direction
         /// </summary>
+        //[DataMember]
         public Side Direction;
-
+        [DataMember]
         private PositionStateType _state;
 
         /// <summary>
         /// Transaction status Open / Close / Opening
         /// </summary>
+        [DataMember]
         public PositionStateType State
         {
             get { return _state; }
@@ -294,6 +324,7 @@ namespace OsEngine.Entity
         /// <summary>
         /// Comment
         /// </summary>
+        [DataMember]
         public string Comment;
 
         /// <summary>
@@ -327,6 +358,8 @@ namespace OsEngine.Entity
         /// <summary>
         /// Number of contracts open per trade
         /// </summary>
+
+   
         public decimal OpenVolume 
         {
             get

@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Runtime.Serialization;
 using System.Text;
 using OsEngine.Market;
 
@@ -14,6 +15,7 @@ namespace OsEngine.Entity
     /// <summary>
     /// Order
     /// </summary>
+    [DataContract]
     public class Order
     {
         public Order()
@@ -30,8 +32,9 @@ namespace OsEngine.Entity
         /// <summary>
         /// Order number in the robot
         /// </summary>
+        [DataMember]
         public int NumberUser;
-
+        [DataMember]
         /// <summary>
         /// Order number on the exchange
         /// </summary>
@@ -40,17 +43,17 @@ namespace OsEngine.Entity
         /// <summary>
         /// Instrument code for which the transaction took place
         /// </summary>
-        public string SecurityNameCode;
+        [DataMember] public string SecurityNameCode;
 
         /// <summary>
         /// Code of the class to which the security belongs
         /// </summary>
-        public string SecurityClassCode;
+        [DataMember] public string SecurityClassCode;
 
         /// <summary>
         /// Account number to which the order belongs
         /// </summary>
-        public string PortfolioNumber;
+        [DataMember] public string PortfolioNumber;
 
         /// <summary>
         /// Direction
@@ -60,11 +63,12 @@ namespace OsEngine.Entity
         /// <summary>
         /// Bid price
         /// </summary>
-        public decimal Price;
+        [DataMember] public decimal Price;
 
         /// <summary>
         /// Real price
         /// </summary>
+        //[DataMember]
         public decimal PriceReal
         {
             get
@@ -84,11 +88,12 @@ namespace OsEngine.Entity
         /// <summary>
         /// Volume
         /// </summary>
-        public decimal Volume;
+        [DataMember] public decimal Volume;
 
         /// <summary>
         /// Execute volume
         /// </summary>
+        [DataMember]
         public decimal VolumeExecute
         {
             get
@@ -128,14 +133,17 @@ namespace OsEngine.Entity
         /// <summary>
         /// My trades belonging to this order
         /// </summary>
+        [DataMember]
         public List<MyTrade> MyTrades
         {
             get { return _trades; }
+            set { _trades = value; }
         }
 
         /// <summary>
         /// Order status: None, Pending, Done, Patrial, Fail
         /// </summary>
+        [DataMember]
         public OrderStateType State 
         {
             get { return _state; }
@@ -160,7 +168,7 @@ namespace OsEngine.Entity
         /// <summary>
         /// User comment
         /// </summary>
-        public string Comment;
+        [DataMember] public string Comment;
 
         /// <summary>
         /// Time of the first response from the stock exchange on the order. Server time

@@ -230,9 +230,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 Task.Run(async () =>
                 {
                     DateTime dt = DateTime.Now;
-                    while (dt.AddMinutes(3) > DateTime.Now)
+                    while (dt.AddMinutes(2) > DateTime.Now)
                     {
-                        await Task.Delay(5000);
+                        await Task.Delay(15000);
                         foreach (RobotBreakVM robot in Robots)
                         {
                             robot.CheckMissedOrders();
