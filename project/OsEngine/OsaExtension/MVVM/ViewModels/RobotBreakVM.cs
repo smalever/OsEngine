@@ -1355,7 +1355,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 ChekTradePosition(myTrade);
                
-                _logger.Information(" Come myTrade {Method} {NumberOrderParent} {@myTrade}", nameof(_server_NewMyTradeEvent),myTrade.NumberOrderParent , myTrade);
+                _logger.Warning(" Come myTrade {Method} {NumberOrderParent} {@myTrade}", nameof(_server_NewMyTradeEvent),myTrade.NumberOrderParent , myTrade);
 
                 GetBalansSecur();
                 // если открылась сделка выставить тейк
@@ -1363,7 +1363,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 SerializerPosition();
             }
             else                 
-            _logger.Information(" Levak ! Secur Trade {@Trade} {Security} {Method}", myTrade, myTrade.SecurityNameCode, nameof(_server_NewOrderIncomeEvent));
+            _logger.Warning(" Levak ! Secur Trade {@Trade} {Security} {Method}", myTrade, myTrade.SecurityNameCode, nameof(_server_NewOrderIncomeEvent));
         }
 
         /// <summary>
@@ -1445,7 +1445,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             //_server.NewBidAscIncomeEvent += _server_NewBidAscIncomeEvent;
             _server.ConnectStatusChangeEvent += _server_ConnectStatusChangeEvent;
 
-            _logger.Information(" Connecting to the server = {ServerType} {Method} ", _server.ServerType, nameof(SubscribeToServer));
+            _logger.Warning(" Connecting to the server = {ServerType} {Method} ", _server.ServerType, nameof(SubscribeToServer));
             //RobotsWindowVM.Log(Header, " Подключаемся к серверу = " + _server.ServerType);
         }
 
@@ -1462,7 +1462,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             //_server.NewBidAscIncomeEvent -= _server_NewBidAscIncomeEvent;
             _server.ConnectStatusChangeEvent -= _server_ConnectStatusChangeEvent;
 
-            _logger.Information(" Disnnecting to server = {ServerType} {Method} ", _server.ServerType, nameof(UnSubscribeToServer));
+            _logger.Warning(" Disnnecting to server = {ServerType} {Method} ", _server.ServerType, nameof(UnSubscribeToServer));
             //RobotsWindowVM.Log(Header, " Отключились от сервера = " + _server.ServerType);
         }
 
@@ -1529,6 +1529,21 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
 
             //4 запрашиваем историю трейдов с биржи и обновляем ордера
+
+            //Task.Run(async () =>
+            //{
+            //    DateTime dt = DateTime.Now;
+            //    while (dt.AddMinutes(2) > DateTime.Now)
+            //    {
+            //        await Task.Delay(15000);
+            //        foreach (RobotBreakVM robot in Robots)
+            //        {
+            //            robot.CheckMissedOrders();
+
+            //            robot.CheckMissedMyTrades();
+            //        }
+            //    }
+            //});
 
         }
 
@@ -1628,46 +1643,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             _logger.Information("Select the required orders {Method} Order {@Orders} "
                                          , nameof(SelectRequiredOrders), selectOrders);
             return selectOrders;
-        }
-
-        /// <summary>
-        /// проверить состояние ордеров
-        /// </summary>
-        public void CheckMissedOrders()
-        {
-            if (SelectedSecurity == null) return;
-            if (RobotsWindowVM.Orders == null || RobotsWindowVM.Orders.Count == 0) return;
-
-            foreach (var val in RobotsWindowVM.Orders)
-            {
-                if (val.Key == SelectedSecurity.Name)
-                {
-                    foreach (var value in val.Value)
-                    {
-                        _server_NewOrderIncomeEvent(value.Value);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// проверить состояние моих трейдов
-        /// </summary>
-        public void CheckMissedMyTrades()
-        {
-            if (SelectedSecurity == null) return;
-            if (RobotsWindowVM.MyTrades == null || RobotsWindowVM.MyTrades.Count == 0) return;
-
-            foreach (var val in RobotsWindowVM.MyTrades)
-            {
-                if (val.Key == SelectedSecurity.Name)
-                {
-                    foreach (var value in val.Value)
-                    {
-                        _server_NewMyTradeEvent(value.Value);
-                    }
-                }
-            }
         }
 
         /// <summary>
@@ -1958,7 +1933,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
                     PositionsBots = PositionDeseriolazer;
 
-                    _logger.Error("Desirializer  Positions from file - positions.json {Method} {@PositionsBots}",
+                    _logger.Information("Desirializer  Positions from file - positions.json {Method} {@PositionsBots}",
                                                                         nameof(DesirializerPosition), PositionsBots);
                 }
             }
@@ -1967,6 +1942,48 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         #endregion
 
         #endregion end metods==============================================
+        #region  ЗАГОТОВКИ ==============================================
+
+        /// <summary>
+        /// проверить состояние ордеров из хранилища RobotsWindowVM.Orders
+        /// </summary>
+        public void CheckMissedOrders()
+        {
+            if (SelectedSecurity == null) return;
+            if (RobotsWindowVM.Orders == null || RobotsWindowVM.Orders.Count == 0) return;
+
+            foreach (var val in RobotsWindowVM.Orders)
+            {
+                if (val.Key == SelectedSecurity.Name)
+                {
+                    foreach (var value in val.Value)
+                    {
+                        _server_NewOrderIncomeEvent(value.Value);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// проверить состояние моих трейдов из хранилища RobotsWindowVM.MyTrades
+        /// </summary>
+        public void CheckMissedMyTrades()
+        {
+            if (SelectedSecurity == null) return;
+            if (RobotsWindowVM.MyTrades == null || RobotsWindowVM.MyTrades.Count == 0) return;
+
+            foreach (var val in RobotsWindowVM.MyTrades)
+            {
+                if (val.Key == SelectedSecurity.Name)
+                {
+                    foreach (var value in val.Value)
+                    {
+                        _server_NewMyTradeEvent(value.Value);
+                    }
+                }
+            }
+        }
+        #endregion конец  заготовки ===============================================================
 
         /// <summary>
         /// Выбранная бумага

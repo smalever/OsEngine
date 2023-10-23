@@ -225,22 +225,22 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void Server_ConnectStatusChangeEvent(string state)
         {
-            if (state == "Connect")
+            if (state == "Connect") // пока бесполезная кострукция для бинанса  (для опроса надо делать запросы) 
             {
-                Task.Run(async () =>
-                {
-                    DateTime dt = DateTime.Now;
-                    while (dt.AddMinutes(2) > DateTime.Now)
-                    {
-                        await Task.Delay(15000);
-                        foreach (RobotBreakVM robot in Robots)
-                        {
-                            robot.CheckMissedOrders();
+                //Task.Run(async () =>
+                //{
+                //    DateTime dt = DateTime.Now;
+                //    while (dt.AddMinutes(2) > DateTime.Now)
+                //    {
+                //        await Task.Delay(15000);
+                //        foreach (RobotBreakVM robot in Robots)
+                //        {
+                //            robot.CheckMissedOrders();
 
-                            robot.CheckMissedMyTrades();
-                        }
-                    }
-                });
+                //            robot.CheckMissedMyTrades();
+                //        }
+                //    }
+                //});
             }
         }
 

@@ -41,6 +41,8 @@ namespace OsEngine.OsaExtension.MVVM.View
             MainWindow.ProccesIsWorked = true;
 
             ServerMaster.ActivateLogging();
+
+            _logger.Warning("Bot START {Method}", nameof(RobotsWindow));
             this.Closed += RobotWindow_Closed; //событие закрытия окна
             DataContext = new RobotsWindowVM();
         }
@@ -50,7 +52,7 @@ namespace OsEngine.OsaExtension.MVVM.View
         /// </summary>
         private void RobotWindow_Closed(object sender, EventArgs e)
         {
-            _logger.Information("Bot Close {Method}", nameof(RobotWindow_Closed));
+            _logger.Warning("Bot Close {Method}", nameof(RobotWindow_Closed));
              
             MainWindow.ProccesIsWorked = false;
             Thread.Sleep(7000);
@@ -75,12 +77,13 @@ namespace OsEngine.OsaExtension.MVVM.View
             DateTime dateTime = DateTime.Now;
 
             ILogger logger = new LoggerConfiguration()
-                    .WriteTo.File(new CompactJsonFormatter(), @"Logs\" + dateTime.ToShortDateString() + "_bot.log",
-                            rollingInterval: RollingInterval.Day) //  временной интревал записи в файл
-                            //restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Verbose) // уровень записываемых сообщений
-                    .WriteTo.TeleSink(telegramApiKey: "6408089963:AAF90upSeKuuHoTXK91EoiMXyaZhMMgW_z8",
+
+                .WriteTo.File(new CompactJsonFormatter(), @"Logs\" + dateTime.ToShortDateString() + "_bot.log",
+                            rollingInterval: RollingInterval.Day, //  временной интревал записи в файл
+                            restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Warning) // уровень записываемых сообщений
+                .WriteTo.TeleSink(telegramApiKey: "6408089963:AAF90upSeKuuHoTXK91EoiMXyaZhMMgW_z8",
                                        telegramChatId: "569566399")
-                    .CreateLogger(); 
+                .CreateLogger(); 
 
             return logger;
         }
