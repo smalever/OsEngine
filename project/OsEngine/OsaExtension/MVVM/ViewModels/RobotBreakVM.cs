@@ -1334,7 +1334,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 
                 SendStrStatus(" Сервер подключен ");
 
-                StartSecuritiy(SelectedSecurity);
+                //StartSecuritiy(SelectedSecurity);
                 
                 RebootStatePosition();
 
@@ -1523,8 +1523,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             //DesirializerPosition(); // 1 после загрузки формы или восстановления соединения загружаем из(из сохрана) позиции, 
 
             //SelectRequiredOrders(); // 2 выбираем номера ордеров из активных сделок
-
-            GetStateOrdeps();//3 отправляем запрос состояния этих ордеров на бирже и обновляем их
+            if (PositionsBots !=null && PositionsBots.Count > 0)
+            {
+                GetStateOrdeps();//3 отправляем запрос состояния этих ордеров на бирже и обновляем их
+            }
 
             //4 запрашиваем историю трейдов с биржи и обновляем ордера
 
@@ -1545,11 +1547,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                     foreach (Position position in PositionsBots)
                     {
-                        if (position.OpenOrders.Count != 0)
+                        if (position.OpenOrders != null)
                         {
-                            GetStateOrdeps(position.OpenOrders, ref orders);
+                            if (position.OpenOrders.Count != 0)
+                            {
+                                GetStateOrdeps(position.OpenOrders, ref orders);
+                            }
                         }
-
                         if (position.CloseOrders != null)
                         {
                             if (position.CloseOrders.Count != 0)

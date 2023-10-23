@@ -5,53 +5,55 @@
 
 using System;
 using System.Globalization;
+using System.Runtime.Serialization;
 
 namespace OsEngine.Entity
 {
     /// <summary>
     /// customer transaction on the exchange
     /// </summary>
+    [DataContract]
     public class MyTrade
     {
         /// <summary>
         /// Volume
         /// </summary>
-        public decimal Volume;
+        [DataMember] public decimal Volume;
 
         /// <summary>
         /// Price
         /// </summary>
-        public decimal Price;
+        [DataMember] public decimal Price;
 
         /// <summary>
         /// Trade number
         /// </summary>
-        public string NumberTrade;
+        [DataMember] public string NumberTrade;
 
         /// <summary>
         /// Parent's warrant number
         /// </summary>
-        public string NumberOrderParent;
+        [DataMember] public string NumberOrderParent;
 
         /// <summary>
         /// The robot's position number in OsEngine
         /// </summary>
-        public string NumberPosition;
+        [DataMember] public string NumberPosition;
 
         /// <summary>
         /// Instrument code
         /// </summary>
-        public string SecurityNameCode;
+        [DataMember] public string SecurityNameCode;
 
         /// <summary>
         /// Time
         /// </summary>
-        public DateTime Time;
+        [DataMember] public DateTime Time;
 
         /// <summary>
         /// Microseconds
         /// </summary>
-        public int MicroSeconds;
+        [DataMember] public int MicroSeconds;
 
         /// <summary>
         /// Party to the transaction
@@ -99,6 +101,7 @@ namespace OsEngine.Entity
         /// <summary>
         /// To take a line for a hint
         /// </summary>
+       
         public string ToolTip
         {
             get
