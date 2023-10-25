@@ -34,6 +34,7 @@ namespace OsEngine.OsaExtension.MVVM.View
 
             // загружаем логер в стат свойство
             Log.Logger = BilderLogger();
+
             _logger = Log.Logger.ForContext<RobotsWindow>();
 
             Dispatcher = Dispatcher.CurrentDispatcher;
@@ -43,8 +44,11 @@ namespace OsEngine.OsaExtension.MVVM.View
             ServerMaster.ActivateLogging();
 
             _logger.Warning("Bot START {Method}", nameof(RobotsWindow));
+
             this.Closed += RobotWindow_Closed; //событие закрытия окна
+
             DataContext = new RobotsWindowVM();
+
         }
 
         /// <summary>
@@ -79,8 +83,8 @@ namespace OsEngine.OsaExtension.MVVM.View
             ILogger logger = new LoggerConfiguration()
 
                 .WriteTo.File(new CompactJsonFormatter(), @"Logs\" + dateTime.ToShortDateString() + "_bot.log",
-                            rollingInterval: RollingInterval.Hour, //  временной интревал записи в файл
-                            restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information) // уровень записываемых сообщений
+                            rollingInterval: RollingInterval.Hour)//  временной интревал записи в файл
+                            //restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information) // уровень записываемых сообщений
                 .WriteTo.TeleSink(telegramApiKey: "6408089963:AAF90upSeKuuHoTXK91EoiMXyaZhMMgW_z8",
                                        telegramChatId: "569566399")
                 .CreateLogger(); 

@@ -226,9 +226,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void Server_ConnectStatusChangeEvent(string state)
         {
-            if (state == "Connect") // пока бесполезная кострукция для бинанса  (для опроса надо делать запросы) 
+            if (state == "Connect") 
             {
-                Task.Run(async () =>
+                Task.Run(async () =>  // для опроса состояния позиций) 
                 {
                     DateTime dt = DateTime.Now;
                     while (dt.AddMinutes(1) > DateTime.Now)
@@ -237,8 +237,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         foreach (RobotBreakVM robot in Robots)
                         {
                             robot.RebootStatePosition();
-
-                            //robot.CheckMissedMyTrades();
                         }
                     }
                 });

@@ -1311,18 +1311,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
         }
 
-        private void _server_ConnectStatusChangeEvent(string state)
+        private void _server_ConnectStatusChangeEvent(string state) // ещё есть подписка из окна роботов 
         {
             if (state == "Connect")
             {
-                
                 SendStrStatus(" Сервер подключен ");
-
-                //StartSecuritiy(SelectedSecurity);
-                
-                RebootStatePosition();
-
-       
             }
             else if (state == "Disconnect")
             {
