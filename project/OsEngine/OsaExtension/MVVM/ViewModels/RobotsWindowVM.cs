@@ -371,8 +371,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             };
             _logMessges.Enqueue(mess);
         }
+
         /// <summary>
-        /// Запись логa 
+        /// Запись логa - отключена 
         /// </summary>
         private static void RecordLog()
         {
@@ -380,22 +381,22 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 Directory.CreateDirectory(@"Log");
             }
-            while (MainWindow.ProccesIsWorked)
-            {
-                MessageForLog mess;
+            //while (MainWindow.ProccesIsWorked)
+            //{
+            //    MessageForLog mess;
 
-                if (_logMessges.TryDequeue(out mess))
-                {
-                    string name = mess.Name + "_" + DateTime.Now.ToShortDateString() + ".log";
+            //    if (_logMessges.TryDequeue(out mess))
+            //    {
+            //        string name = mess.Name + "_" + DateTime.Now.ToShortDateString() + ".log";
 
-                    using (StreamWriter writer = new StreamWriter(@"Log\" + name, true))
-                    {
-                        writer.WriteLine(mess.Message);
-                        writer.Close();
-                    }
-                }
-                Thread.Sleep(5);
-            }
+            //        using (StreamWriter writer = new StreamWriter(@"Log\" + name, true))
+            //        {
+            //            writer.WriteLine(mess.Message);
+            //            writer.Close();
+            //        }
+            //    }
+            //    Thread.Sleep(5);
+            //}
         }
 
         /// <summary>
@@ -432,7 +433,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
             catch (Exception ex)
             {
-                _logger.Error("Method {Method} Exception {@Exception}", nameof(SaveHeaderBot), ex);
+                _logger.Error("Error saving parameters to file {Method} {@Exception}", nameof(SaveHeaderBot), ex);
                 // Log("App", " Ошибка сохранения параметров = " + ex.Message);
             }
         }
@@ -460,7 +461,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             catch (Exception ex)
             {
                 //Log("App", " Ошибка выгрузки параметров = " + ex.Message);
-                _logger.Error(" Ошибка выгрузки параметров = " + ex.Message);
+                _logger.Error("Error unloading parameters = " + ex.Message);
             }
 
             if (string.IsNullOrEmpty(strTabs)) { return; }

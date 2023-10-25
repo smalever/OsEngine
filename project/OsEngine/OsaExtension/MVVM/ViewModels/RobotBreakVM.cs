@@ -1136,6 +1136,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 position.SetOrder(checkOrder); // проверяем и обновляем ордер
                 // TODO:  придумать проверку и изменяем статуса позиций
+                _logger.Information(" CheckMyOrder {@order}{OrdNumberUser} {NumberMarket}{Method} ",
+                                      checkOrder, checkOrder.NumberUser, checkOrder.NumberMarket, nameof(CheckMyOrder));
             }
         }
         /// <summary>
@@ -1166,6 +1168,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             foreach (Position position in PositionsBots)
             {
                 position.SetTrade(newTrade);
+                _logger.Information(" ChekTradePosition {@Trade} {NumberTrade} {NumberOrderParent} {Method} "
+                    , newTrade, newTrade.NumberTrade, newTrade.NumberOrderParent, nameof(ChekTradePosition));
             }
         }
 
@@ -1378,12 +1382,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     CheckMyOrder(myOrder);
                     SerializerPosition();
                     GetBalansSecur();
-                    _logger.Information(" New myOrder {@Order} {NumberUser} {NumberMarket} {Method}", myOrder,
-                        myOrder.NumberUser, myOrder.NumberMarket, nameof(_server_NewOrderIncomeEvent));
+                    _logger.Information(" New myOrder {@Order} {NumberUser} {NumberMarket} {Method}",
+                                         myOrder, myOrder.NumberUser, myOrder.NumberMarket, nameof(_server_NewOrderIncomeEvent));
                 }
                 else
-                    _logger.Information(" Levak ! Secur Order {Security} {Method}", myOrder, myOrder.SecurityNameCode,
-                        nameof(_server_NewOrderIncomeEvent));
+                    _logger.Information(" Levak ! Secur {@Order} {Security} {Method}",
+                        myOrder, myOrder.SecurityNameCode,nameof(_server_NewOrderIncomeEvent));
             }
         }
 
