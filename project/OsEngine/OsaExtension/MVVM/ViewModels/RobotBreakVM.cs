@@ -595,7 +595,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 SendOrderExchange(ordClose);
                 //Thread.Sleep(100);
 
-                _logger.Information("Sending Market order to close " +
+                _logger.Information("Sending FINAL Market order to close " +
                 " {volume} {numberUser} {@Order} {Metod} ",
                  finalVolumClose, ordClose.NumberUser, ordClose, nameof(FinalCloseMarketOpenVolume));
 
@@ -605,7 +605,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 SendStrStatus(" Ошибка закрытия объема на бирже");
 
-                _logger.Error(" Error sending the Market to close the volume {@Order} {Metod} ", ordClose, nameof(FinalCloseMarketOpenVolume));
+                _logger.Error(" Error sending FINAL the Market to close the volume {@Order} {Metod} ", ordClose, nameof(FinalCloseMarketOpenVolume));
                 
             }
         }
@@ -856,13 +856,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>  
         private void SendCloseLimitOrderPosition(Position position, decimal volumeClose)
         {
-            // базовая проверка
-            if (BigСlusterPrice == 0 || BottomPositionPrice == 0 || PriceOpenPos.Count == 0)
-            {
-                SendStrStatus(" BigСlusterPrice или BottomPositionPrice = 0 ");
-                return;
-            }
-
+  
             PriceClosePos = null;
             PriceClosePos = CalculPriceClosePos(position.Direction); // расчет цен закрытия позиции
 
@@ -1140,25 +1134,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                                       checkOrder, checkOrder.NumberUser, checkOrder.NumberMarket, nameof(CheckMyOrder));
             }
         }
-        /// <summary>
-        ///  перезапись состояния оредра с биржи в мое хранилище
-        /// </summary>
-        public Order CopyOrder(Order newOrder, Order order)
-        {
-            order.State = newOrder.State;
-            order.TimeCancel = newOrder.TimeCancel;
-            order.Volume = newOrder.Volume;
-            order.VolumeExecute = newOrder.VolumeExecute;
-            order.TimeDone = newOrder.TimeDone;
-            order.TimeCallBack = newOrder.TimeCallBack;
-            order.NumberUser = newOrder.NumberUser;
-            order.NumberMarket = newOrder.NumberMarket;
-            order.Comment = newOrder.Comment;
-
-            _logger.Information(" Copy Order {@order}{OrdNumberUser} {NumberMarket}      {@newOrder}    {NewNumberUser}     {NumberMarket} {@MyTrades}  {Method} "
-                                            , order, order.NumberUser, order.NumberMarket, newOrder, newOrder.NumberUser, newOrder.NumberMarket, newOrder.MyTrades, nameof(CopyOrder));
-            return order;
-        }
 
         /// <summary>
         /// проверка и обновление трейдами ордеров 
@@ -1170,6 +1145,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 position.SetTrade(newTrade);
                 _logger.Information(" ChekTradePosition {@Trade} {NumberTrade} {NumberOrderParent} {Method} "
                     , newTrade, newTrade.NumberTrade, newTrade.NumberOrderParent, nameof(ChekTradePosition));
+
+                if (newTrade.SecurityNameCode == SelectedSecurity.Name)
+                {
+                    GetBalansSecur();
+                }    
             }
         }
 
@@ -1428,11 +1408,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                 Price = trade.Price;
 
-                if (trade.Time.Second % 2 == 0)
-                {
-                    GetBalansSecur();
-                    // test  LogicStartOpenPosition();
-                }
+                //if (trade.Time.Second % 2 == 0)
+                //{
+                //    GetBalansSecur();
+                //    // test  LogicStartOpenPosition();
+                //}
             }
         }
 
@@ -1516,83 +1496,54 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         /// <summary>
-        /// Для восстановления состояния ордеров и трейдов в позициях поле выключения
+        /// Восстановления состояния ордеров и трейдов в позициях поле выключения
         /// </summary>
-        private void RebootStatePosition()
+        public void RebootStatePosition()
         {
-            /*
-            сохранять Позиции робота после каждого ордера и трейда
-            */
-
-            //DesirializerPosition(); // 1 после загрузки формы или восстановления соединения загружаем из(из сохрана) позиции, 
-
-            //SelectRequiredOrders(); // 2 выбираем номера ордеров из активных сделок
             if (PositionsBots !=null && PositionsBots.Count > 0)
             {
-                GetStateOrdeps();//3 отправляем запрос состояния этих ордеров на бирже и обновляем их
-            }
-
-            //4 запрашиваем историю трейдов с биржи и обновляем ордера
-
-            //Task.Run(async () =>
-            //{
-            //    DateTime dt = DateTime.Now;
-            //    while (dt.AddMinutes(2) > DateTime.Now)
-            //    {
-            //        await Task.Delay(15000);
-            //        foreach (RobotBreakVM robot in Robots)
-            //        {
-            //            robot.CheckMissedOrders();
-
-            //            robot.CheckMissedMyTrades();
-            //        }
-            //    }
-            //});
-
-        }
-
-        /// <summary>
-        /// запросить статусы выбранных оредров 
-        /// </summary>
-        private void GetStateOrdeps()
-        {
-            if (Server != null)
-            {
-                if (Server.ServerType == ServerType.BinanceFutures)
+                // отправляем запрос состояния ордеров и их трейдов на бирже
+                if (Server != null)
                 {
-                    AServer aServer = (AServer)Server;
-
-                    List<Order> orders = new List<Order>(); // ордера статусы которых надо опросить
-
-                    foreach (Position position in PositionsBots)
+                    if (Server.ServerType == ServerType.BinanceFutures)
                     {
-                        if (position.OpenOrders != null)
+                        AServer aServer = (AServer)Server;
+
+                        List<Order> orders = new List<Order>(); // ордера статусы которых надо опросить
+
+                        foreach (Position position in PositionsBots)
                         {
-                            if (position.OpenOrders.Count != 0)
+                            if (position.OpenOrders != null)
                             {
-                                GetStateOrdeps(position.OpenOrders, ref orders);
+                                if (position.OpenOrders.Count != 0)
+                                {
+                                    GetStateActivOrdeps(position.OpenOrders, ref orders);
+                                }
+                            }
+                            if (position.CloseOrders != null)
+                            {
+                                if (position.CloseOrders.Count != 0)
+                                {
+                                    GetStateActivOrdeps(position.CloseOrders, ref orders);
+                                }
                             }
                         }
-                        if (position.CloseOrders != null)
+                        if (orders.Count > 0)
                         {
-                            if (position.CloseOrders.Count != 0)
-                            {
-                                GetStateOrdeps(position.CloseOrders, ref orders);
-                            }
+                            aServer.ServerRealization.GetOrdersState(orders); // запросить статусы выбранных оредров
+                            aServer.ServerRealization.ResearchTradesToOrders(orders); // и их трейдов
+                            _logger.Information(" GetOrdersState and ResearchTradesToOrders {@orders}{Method} ",
+                                                                                             orders, nameof(CheckMyOrder));
                         }
-                    }
-                    if (orders.Count > 0)
-                    {
-                        aServer.ServerRealization.GetOrdersState(orders);
                     }
                 }
             }
         }
 
         /// <summary>
-        ///  выбирает ордера для опроса 
+        ///  выбирает активные ордера для опроса 
         /// </summary>
-        private void GetStateOrdeps(List<Order> orders, ref List<Order> stateOrders)
+        private void GetStateActivOrdeps(List<Order> orders, ref List<Order> stateOrders)
         {
             foreach (Order order in orders)
             {
@@ -1986,6 +1937,26 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     }
                 }
             }
+        }
+
+        /// <summary>
+        ///  перезапись состояния оредра с биржи в мое хранилище
+        /// </summary>
+        public Order CopyOrder(Order newOrder, Order order)
+        {
+            order.State = newOrder.State;
+            order.TimeCancel = newOrder.TimeCancel;
+            order.Volume = newOrder.Volume;
+            order.VolumeExecute = newOrder.VolumeExecute;
+            order.TimeDone = newOrder.TimeDone;
+            order.TimeCallBack = newOrder.TimeCallBack;
+            order.NumberUser = newOrder.NumberUser;
+            order.NumberMarket = newOrder.NumberMarket;
+            order.Comment = newOrder.Comment;
+
+            //_logger.Information(" Copy Order {@order}{OrdNumberUser} {NumberMarket}      {@newOrder}    {NewNumberUser}     {NumberMarket} {@MyTrades}  {Method} "
+                                            //, order, order.NumberUser, order.NumberMarket, newOrder, newOrder.NumberUser, newOrder.NumberMarket, newOrder.MyTrades, nameof(CopyOrder));
+            return order;
         }
         #endregion конец  заготовки ===============================================================
 

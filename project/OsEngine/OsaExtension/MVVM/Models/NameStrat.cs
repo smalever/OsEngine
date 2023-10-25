@@ -11,9 +11,9 @@ namespace OsEngine.OsaExtension.MVVM
     /// </summary>
     public enum NameStrat
     {        
-        BREAKDOWN,
-        GRID,
-        NONE
+        BREAKDOWN
+        //GRID,
+        //NONE
     }
 }
 

@@ -100,7 +100,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 OnPropertyChanged(nameof(NameStrat));
             }
         }
-        private NameStrat _nameStrat = NameStrat.GRID;
+        private NameStrat _nameStrat;
 
         /// <summary>
         /// Выбранная бумага

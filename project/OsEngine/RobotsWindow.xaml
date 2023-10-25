@@ -62,12 +62,7 @@
 
                 <!--SelectedItem="{Binding SelectedRobot}"-->
                 <TabControl.Resources>
-                    <DataTemplate DataType="{x:Type vm:GridRobotVM}">
-                        <local:Grid>
-
-                        </local:Grid>
-                    </DataTemplate>
-
+              
                     <DataTemplate DataType="{x:Type vm:RobotBreakVM}">
                         <local:RobotBreak>
 

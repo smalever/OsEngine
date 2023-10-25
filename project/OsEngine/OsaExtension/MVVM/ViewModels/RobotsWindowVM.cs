@@ -87,8 +87,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         public List<NameStrat> NameStrategies { get; set; } = new List<NameStrat>()
         {
-            NameStrat.BREAKDOWN, NameStrat.GRID, NameStrat.NONE
+            NameStrat.BREAKDOWN
         };
+
         /// <summary>
         /// колекция созданых роботов
         /// </summary> 
@@ -227,20 +228,20 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             if (state == "Connect") // пока бесполезная кострукция для бинанса  (для опроса надо делать запросы) 
             {
-                //Task.Run(async () =>
-                //{
-                //    DateTime dt = DateTime.Now;
-                //    while (dt.AddMinutes(2) > DateTime.Now)
-                //    {
-                //        await Task.Delay(15000);
-                //        foreach (RobotBreakVM robot in Robots)
-                //        {
-                //            robot.CheckMissedOrders();
+                Task.Run(async () =>
+                {
+                    DateTime dt = DateTime.Now;
+                    while (dt.AddMinutes(1) > DateTime.Now)
+                    {
+                        await Task.Delay(15000);
+                        foreach (RobotBreakVM robot in Robots)
+                        {
+                            robot.RebootStatePosition();
 
-                //            robot.CheckMissedMyTrades();
-                //        }
-                //    }
-                //});
+                            //robot.CheckMissedMyTrades();
+                        }
+                    }
+                });
             }
         }
 
