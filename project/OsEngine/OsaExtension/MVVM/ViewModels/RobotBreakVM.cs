@@ -387,6 +387,34 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private decimal _volumePerOrderOpen = 0;
 
         /// <summary>
+        /// цена стопов для шота
+        /// </summary>
+        public decimal PriceStopShort
+        {
+            get => _priceStopShort;
+            set
+            {
+                _priceStopShort = value;
+                OnPropertyChanged(nameof(PriceStopShort));
+            }
+        }
+        private decimal _priceStopShort = 0;
+
+        /// <summary>
+        /// цена стопов для лонга
+        /// </summary>
+        public decimal PriceStopLong
+        {
+            get => _priceStopLong;
+            set
+            {
+                _priceStopLong = value;
+                OnPropertyChanged(nameof(PriceStopLong));
+            }
+        }
+        private decimal _priceStopLong = 0;
+
+        /// <summary>
         /// направление сделок 
         /// </summary>
         public Direction Direction
@@ -538,14 +566,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             //GetBalansSecur();
             foreach (Position pos in PositionsBots)
             {
-                if (pos.OpenActiv)
-                {
-                    CanselActivOrders();
-                }
-                if (pos.CloseActiv)
-                {
-                    CanselActivOrders();
-                }
+                CanselAllPositionActivOrders();
+
                 if (pos.OpenVolume!=0)
                 {
                     FinalCloseMarketOpenVolume( pos ,pos.OpenVolume);
@@ -558,14 +580,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void StopPosition( Position position)
         {
-            if (position.OpenActiv)
-            {
-                CanselActivOrders();
-            }
-            if (position.CloseActiv)
-            {
-                CanselActivOrders();
-            }
+            CanselPositionActivOrders(position);
+
             if (position.OpenVolume != 0)
             {
                 FinalCloseMarketOpenVolume(position, position.OpenVolume);
@@ -630,9 +646,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         /// <summary>
-        /// отменяет активные ордера 
+        /// отменяет все активные ордера во всех позициях
         /// </summary>
-        private void CanselActivOrders()
+        private void CanselAllPositionActivOrders()
         {
             if(Server == null) return;
             if (ActivOrders())
@@ -656,8 +672,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                             ordersAll[i].State == OrderStateType.Pending)
                         {
                             Server.CancelOrder(ordersAll[i]);
-                            _logger.Information("Cancel Activ Orders {Method} Order {@Order} {Number} {NumberMarket} "
-                                    , nameof(CanselActivOrders), ordersAll[i], ordersAll[i].NumberUser, ordersAll[i].NumberMarket);
+                            _logger.Information("Cancel All positions Activ Orders {Method} Order {@Order} {Number} {NumberMarket} "
+                                    , nameof(CanselAllPositionActivOrders), ordersAll[i], ordersAll[i].NumberUser, ordersAll[i].NumberMarket);
                             SendStrStatus(" Отменили ордер на бирже");
 
                             //Thread.Sleep(50);
@@ -665,7 +681,41 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     }
                 }
             }
-            //TODO: разобраться c перепроверкой отмены
+        }
+
+        /// <summary>
+        /// отменяет активные ордера в позиции
+        /// </summary>
+        private void CanselPositionActivOrders(Position position)
+        {
+            if (Server == null) return;
+            if (ActivOrders())
+            {
+                List<Order> ordersAll = new List<Order>();
+                if (position.OpenActiv)
+                {
+                    ordersAll = position.OpenOrders;// взять из позиции ордера открытия 
+                }
+                if (position.CloseActiv)
+                {
+                    ordersAll.AddRange(position.CloseOrders); // добавили ордера закрытия 
+                }
+                for (int i = 0; i < ordersAll.Count; i++)
+                {
+                    if (ordersAll[i].State == OrderStateType.Activ ||
+                        ordersAll[i].State == OrderStateType.Patrial ||
+                        ordersAll[i].State == OrderStateType.None ||
+                        ordersAll[i].State == OrderStateType.Pending)
+                    {
+                        Server.CancelOrder(ordersAll[i]);
+                        _logger.Information("Cancel Activ Orders {Method} Order {@Order} {Number} {NumberMarket} "
+                                , nameof(CanselPositionActivOrders), ordersAll[i], ordersAll[i].NumberUser, ordersAll[i].NumberMarket);
+                        SendStrStatus(" Отменили ордер на бирже");
+
+                        //Thread.Sleep(50);
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -1420,11 +1470,49 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                 Price = trade.Price;
 
-                //if (trade.Time.Second % 2 == 0)
-                //{
-                //    GetBalansSecur();
-                //    // test  LogicStartOpenPosition();
-                //}
+                if (trade.Time.Second % 2 == 0)
+                {
+                    MonitoringStop();
+                }
+            }
+        }
+        /// <summary>
+        /// проверяем стопы
+        /// </summary>
+        private void MonitoringStop()
+        {
+            if (PositionsBots == null) return;
+            if (PositionsBots.Count != 0)
+            {
+                if (Price != 0 && PriceStopLong != 0)
+                {
+                    if (Price < PriceStopLong && Direction == Direction.BUY ||
+                        Price < PriceStopLong && Direction == Direction.BUYSELL)
+                    {
+                        foreach (var pos in PositionsBots)
+                        {
+                            if (pos.Direction == Side.Buy)
+                            {
+                                StopPosition(pos);
+                            }
+                        }
+                    }
+                }
+
+                if (Price != 0 && PriceStopShort != 0)
+                {
+                    if (Price > PriceStopShort && Direction == Direction.SELL ||
+                        Price > PriceStopShort && Direction == Direction.BUYSELL)
+                    {
+                        foreach (var pos in PositionsBots)
+                        {
+                            if (pos.Direction == Side.Sell)
+                            {
+                                StopPosition(pos);
+                            }
+                        }
+                    }
+                }
             }
         }
 
