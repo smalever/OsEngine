@@ -224,20 +224,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private decimal _price;
 
         /// <summary>
-        /// Цена стоп шорта
-        /// </summary>
-        public decimal PriceStopShort
-        {
-            get => _priceStopShort;
-            set
-            {
-                _priceStopShort = value;
-                OnPropertyChanged(nameof(PriceStopShort));
-            }
-        }
-        private decimal _priceStopShort=0;
-
-        /// <summary>
         /// Цена профита лонг
         /// </summary>
         public decimal TakePriceLong
@@ -315,20 +301,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
         }
         private decimal _bottomPositionPrice = 0;
-
-        /// <summary>
-        /// Цена стоп лонга
-        /// </summary>
-        public decimal PriceStopLong
-        {
-            get => _priceStopLong;
-            set
-            {
-                _priceStopLong = value;
-                OnPropertyChanged(nameof(PriceStopLong));
-            }
-        }
-        private decimal _priceStopLong =0;
 
         /// <summary>
         /// Шаг набра позиции
