@@ -531,7 +531,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         /// <summary>
-        /// метод отработки кнопки стоп
+        /// остановить торговлю закрыть Все позиции
         /// </summary>
         private void StopTradeLogic()
         {
@@ -550,6 +550,25 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
                     FinalCloseMarketOpenVolume( pos ,pos.OpenVolume);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Закрыть позицию
+        /// </summary>
+        private void StopPosition( Position position)
+        {
+            if (position.OpenActiv)
+            {
+                CanselActivOrders();
+            }
+            if (position.CloseActiv)
+            {
+                CanselActivOrders();
+            }
+            if (position.OpenVolume != 0)
+            {
+                FinalCloseMarketOpenVolume(position, position.OpenVolume);
             }
         }
 
