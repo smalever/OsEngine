@@ -1476,6 +1476,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 }
             }
         }
+
         /// <summary>
         /// проверяем стопы
         /// </summary>
@@ -1494,6 +1495,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                             if (pos.Direction == Side.Buy)
                             {
                                 StopPosition(pos);
+                                _logger.Warning(" Triggered Stop Long Position {@Position}  {Method}",
+                                                                            pos, nameof(MonitoringStop));
                             }
                         }
                     }
@@ -1509,6 +1512,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                             if (pos.Direction == Side.Sell)
                             {
                                 StopPosition(pos);
+                                _logger.Warning(" Triggered Stop Short Position {@Position}  {Method}",
+                                                                            pos, nameof(MonitoringStop));
                             }
                         }
                     }
