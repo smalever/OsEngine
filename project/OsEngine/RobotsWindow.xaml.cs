@@ -17,7 +17,7 @@ namespace OsEngine.OsaExtension.MVVM.View
     /// <summary>
     /// Логика взаимодействия для RobotsWindow.xaml
     /// </summary>
-    public partial class RobotsWindow : MetroWindow
+    public partial class RobotsWindow : MetroWindow , IDisposable
     {
         /// <summary>
         /// поле логера RobotsWindow       
@@ -59,7 +59,9 @@ namespace OsEngine.OsaExtension.MVVM.View
             _logger.Warning("Bot Close {Method}", nameof(RobotWindow_Closed));
              
             MainWindow.ProccesIsWorked = false;
-            Thread.Sleep(7000);
+            Dispose();
+
+            Thread.Sleep(10000);
             Process.GetCurrentProcess().Kill();
         }
 
@@ -90,6 +92,16 @@ namespace OsEngine.OsaExtension.MVVM.View
                 .CreateLogger(); 
 
             return logger;
+        }
+
+        public void Dispose()
+        {
+            var VM = this.DataContext as IDisposable;
+            VM?.Dispose();
+            //if (VM != null)
+            //{
+            //    VM.Dispose();
+            //}
         }
     }
 }

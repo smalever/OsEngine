@@ -31,7 +31,7 @@ using Security = OsEngine.Entity.Security;
 
 namespace OsEngine.OsaExtension.MVVM.ViewModels
 {
-    public class RobotBreakVM : BaseVM, IRobotVM
+    public class RobotBreakVM : BaseVM, IRobotVM, IDisposable
     {
         #region Свойства  =====================================================
 
@@ -1887,6 +1887,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
         }
 
+        public void Dispose()
+        {
+            ServerMaster.ServerCreateEvent -= ServerMaster_ServerCreateEvent;
+            PropertyChanged -= RobotBreakVM_PropertyChanged;
+        }
         #endregion
 
         #endregion end metods==============================================
@@ -1951,6 +1956,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                                             //, order, order.NumberUser, order.NumberMarket, newOrder, newOrder.NumberUser, newOrder.NumberMarket, newOrder.MyTrades, nameof(CopyOrder));
             return order;
         }
+
+  
         #endregion конец  заготовки ===============================================================
 
         /// <summary>

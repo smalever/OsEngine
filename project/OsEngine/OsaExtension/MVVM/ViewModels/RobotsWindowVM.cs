@@ -20,7 +20,7 @@ using Serilog;
 
 namespace OsEngine.OsaExtension.MVVM.ViewModels
 {
-    public class RobotsWindowVM : BaseVM
+    public class RobotsWindowVM : BaseVM , IDisposable
     {
         public RobotsWindowVM()
         {
@@ -35,6 +35,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         #region  ================================ Свойства =====================================
+
+
+        public void Dispose()
+        {
+            
+            ServerMaster.ServerCreateEvent -= ServerMaster_ServerCreateEvent;
+        }
 
         /// <summary>
         /// название статегии 
@@ -505,7 +512,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
            this.StrStatus = text;
         }
-        
+
+
         #endregion
 
         public delegate void selectedSecurity();
