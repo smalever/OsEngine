@@ -98,10 +98,6 @@ namespace OsEngine.OsaExtension.MVVM.View
         {
             var VM = this.DataContext as IDisposable;
             VM?.Dispose();
-            //if (VM != null)
-            //{
-            //    VM.Dispose();
-            //}
         }
     }
 }

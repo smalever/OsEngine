@@ -39,8 +39,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         public void Dispose()
         {
-            
             ServerMaster.ServerCreateEvent -= ServerMaster_ServerCreateEvent;
+
+            //это вызывает ошибку переполнения стека
+            //_robotThis.Dispose(); 
         }
 
         /// <summary>
