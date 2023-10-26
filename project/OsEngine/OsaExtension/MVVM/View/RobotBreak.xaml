@@ -9,7 +9,7 @@
              xmlns:models="clr-namespace:OsEngine.OsaExtension.MVVM.Models" 
              xmlns:viewmodels="clr-namespace:OsEngine.OsaExtension.MVVM.ViewModels"
              d:DataContext="{d:DesignInstance Type=viewmodels:RobotBreakVM}"
-             mc:Ignorable="d" d:DesignWidth="500">
+             mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="755">
     <UserControl.Resources>
         <Style TargetType="TextBlock">
             <Setter Property="MinWidth" Value="30"/>
@@ -57,72 +57,99 @@
         </StatusBar>
         <Grid >
             <Grid.RowDefinitions>
-                <RowDefinition Height="550" />
-                <RowDefinition Height ="*" />
+                <RowDefinition Height="592" />
+                <RowDefinition />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="450"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <StackPanel  Orientation="Vertical" Margin="1">
+            <StackPanel  Orientation="Vertical" Margin="1,1,1,1">
                 <GroupBox Header="Параметры позиции"    
                         Grid.Row="0" 
                         HorizontalAlignment="Left"
                         Margin="1,1,1,1"
                         FontSize="18" Width="440">
 
-                    <UniformGrid Columns="2"
+                    <UniformGrid Columns="3"
  
                                 Margin="1,0,1,1"
                                 Grid.Row="0" >
+                        <TextBlock Text="Цена окончания шортовой позиции" 
+                        ToolTip=" Цена при достиженни которой робот произведет выбраное действие)" Margin="0,0,-65,0"/>
+                        <local:DecimalTextBox Text="{Binding PriceStopShort}" 
+                        Margin="78,2,-32,0"/>
+                        <Label Margin="47,0,2,0"/>
 
                         <TextBlock Text="Цена профита логн позиции" 
                                    ToolTip=" Цена при достиженни которой робот закроет некий объем)" Margin="0,0,-65,0"/>
                         <local:DecimalTextBox Text="{Binding TakePriceLong}" 
-                                               Margin="78,2,10,0"/>
+                                               Margin="78,2,-32,0"/>
+                        <Label Margin="47,0,2,0"/>
 
                         <TextBlock Text="Верхняя цена позиции" 
                         ToolTip=" Цена при достиженни которой робот примет действие (ЗАКРЫТИЯ/ ПЕРЕВОРОТ И Т,Д,)" Margin="0,0,-65,0"/>
                         <local:DecimalTextBox Text="{Binding TopPositionPrice}" 
-                                    Margin="78,2,10,0"/>
-                        <Label Margin="0,0,-73,0"/>
+                                    Margin="78,2,-32,0"/>
+                        <Label Margin="47,0,10,0"/>
+
+                        <Label Margin="0,0,14,0"/>
                         <Label Margin="78,0,10,0"/>
+                        <Label Margin="47,0,10,0"/>
 
                         <TextBlock Text="Цена большого кластера " Margin="0,0,-65,0" />
-                        <local:DecimalTextBox   Text="{Binding BigСlusterPrice}" Margin="0,2,10,0" HorizontalAlignment="Right" Width="126"/>
+                        <local:DecimalTextBox   Text="{Binding BigСlusterPrice}" Margin="0,2,-32,0" HorizontalAlignment="Right" Width="101"/>
+                        <Label Margin="47,0,2,0"/>
 
                         <TextBlock Text="Направление сделок" Margin="0,0,-65,0"/>
-                        <ComboBox ItemsSource="{Binding Directions}"
-                        SelectedItem="{Binding Direction}" Margin="78,2,10,0"/>
+                        <ComboBox ItemsSource="{Binding Directions}"                        
+                                  SelectedItem="{Binding Direction}" Margin="73,2,-32,0"/>
+                        <Label Margin="47,0,2,0"/>
+
+                        <Label Margin="2"/>
                         <Label Margin="0,0,-65,0"/>
                         <Label Margin="78,0,14,0"/>
 
                         <TextBlock Text="Нижняя цена набора позиций" 
                         ToolTip=" Тут робот примет действие (ЗАКРЫТИЯ/ ПЕРЕВОРОТ И Т,Д,)" Margin="0,0,-62,0"/>
-                        <local:DecimalTextBox  Text="{Binding BottomPositionPrice}" Margin="78,0,13,0"/>
+                        <local:DecimalTextBox  Text="{Binding BottomPositionPrice}" Margin="78,0,-32,0"/>
+                        <Label Margin="37,0,2,0"/>
 
                         <TextBlock Text="Цена профита шорт позиций" 
                           ToolTip=" Тут робот закроет часть объема" Margin="0,0,-37,0"/>
-                        <local:DecimalTextBox  Text="{Binding TakePriceShort}" Margin="78,0,13,0"/>
+                        <local:DecimalTextBox  Text="{Binding TakePriceShort}" Margin="78,0,-32,0"/>
+                        <Label Margin="47,0,2,0"/>
 
+                        <Label Content="Цена окончания лонга: " Margin="0,0,-65,0"
+                               ToolTip=" Цена при достиженни которой робот произведет выбраное действие)"/>
+                        <local:DecimalTextBox Text="{Binding PriceStopLong}" 
+                                              Margin="78,2,-32,0"/>
+                        <Label Margin="47,0,2,0"/>
+                        
                         <Label Margin="0,0,-62,0"/>
-                        <Label Margin="78,0,13,0"/>
+                        <Label Margin="78,0,-32,0"/>
+                        <Label Margin="2"/>
 
                         <TextBlock Text="Объем для робота $" 
                         ToolTip=" Максимальный объем набираемый роботом на бирже" Margin="0,0,-62,0"/>
-                        <local:DecimalTextBox  Text="{Binding FullPositionVolume}" Margin="78,0,13,0" />
+                        <local:DecimalTextBox  Text="{Binding FullPositionVolume}" Margin="78,0,-32,0" />
+                        <Label Margin="47,0,2,0"/>
 
                         <TextBlock Text="Количество частей входа" Margin="0,0,-62,0" />
-                        <local:IntTextBox  Text="{Binding PartsPerInput}" Margin="78,0,13,0" />
+                        <local:IntTextBox  Text="{Binding PartsPerInput}" Margin="78,0,-32,0" />
+                        <Label Margin="47,0,2,0"/>
 
                         <TextBlock Text="Количество частей на выход" Margin="0,0,-51,0" />
-                        <local:IntTextBox  Text="{Binding PartsPerExit}" Margin="78,0,13,0" />
+                        <local:IntTextBox  Text="{Binding PartsPerExit}" Margin="78,0,-32,0" />
+                        <Label Margin="47,0,2,0"/>
 
                         <TextBlock Text="Cейчас куплено монет" Margin="0,0,-62,0"/>
-                        <local:DecimalTextBox Text="{Binding SelectSecurBalans}" Margin="78,0,13,0"/>
+                        <local:DecimalTextBox Text="{Binding SelectSecurBalans}" Margin="78,0,-32,0"/>
+                        <Label Margin="47,0,2,0"/>
 
                         <Label Content=" Сделка сейчас: " Margin="0,0,-51,0"/>
-                        <Label Content="{Binding ActionBot}" Margin="78,0,14,0"/>
+                        <Label Content="{Binding ActionBot}" Margin="78,0,-32,0"/>
+                        <Label Margin="47,0,2,0"/>
 
                         <!--<TextBlock Text="Тип шага"/>
              <ComboBox ItemsSource="{Binding StepTypes}"
@@ -132,16 +159,15 @@
                     </UniformGrid>
                 </GroupBox>
             </StackPanel>
-            <Button Grid.Row="1" 
-                    Grid.Column ="0"
-                    Margin="5"
+            <Button Grid.Row="1"
+                    Margin="65,0,0,0"
               Content="{Binding IsRun, Converter={StaticResource ConverterIsRunToBool}}" 
               FontSize="30"
               Command="{Binding CommandStartStop}"
               ToolTip="ПУСК / СТОП робота"
               Height="60" Width="300" 
-              VerticalAlignment="Top"
-              HorizontalAlignment="Center"
+              VerticalAlignment="Center"
+              HorizontalAlignment="Left"
                     />
 
         </Grid>
