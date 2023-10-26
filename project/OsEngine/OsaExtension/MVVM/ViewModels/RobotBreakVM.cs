@@ -1888,9 +1888,22 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         public void Dispose()
-        {
+        {   //todo: прикрутить удаление файлов настроек и сохрана 
+
             ServerMaster.ServerCreateEvent -= ServerMaster_ServerCreateEvent;
             PropertyChanged -= RobotBreakVM_PropertyChanged;
+            string fileName = @"Parametrs\Tabs\positions_" + Header + "=" + NumberTab + ".json";
+            if (File.Exists(fileName))
+            {
+                try
+                {
+                    File.Delete(fileName);
+                }
+                catch (Exception e)
+                {
+                    _logger.Information("The deletion failed: {error} {Method}", e.Message, nameof(Dispose));
+                }
+            }
         }
         #endregion
 

@@ -361,6 +361,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 MessageBoxResult res = MessageBox.Show("Удалить вкладку " + SelectedRobot.Header + "?", SelectedRobot.Header, MessageBoxButton.YesNo);
                 if (res == MessageBoxResult.Yes)
                 {
+                    delRobot.Dispose();
                     Robots.Remove(delRobot);
                     SaveHeaderBot();
                 }
