@@ -221,7 +221,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 OnPropertyChanged(nameof(Price));
             }
         }
-        private decimal _price;
+        private decimal _price =0;
 
         /// <summary>
         /// Цена профита лонг
@@ -494,6 +494,21 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
         private bool _isChekTraelStopLong;
 
+
+        /// <summary>
+        /// вкл выкл трейлинг стоп шорта 
+        /// </summary>
+        public bool IsChekTraelStopShort
+        {
+            get => _isChekTraelStopShort;
+            set
+            {
+                _isChekTraelStopShort = value;
+                OnPropertyChanged(nameof(IsChekTraelStopShort));
+            }
+        }
+        private bool _isChekTraelStopShort;
+
         /// <summary>
         /// расстояние до трейлин стопа лонг в % 
         /// </summary>
@@ -507,6 +522,20 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
         }
         private decimal _stepPersentStopLong = 1;
+
+        /// <summary>
+        /// расстояние до трейлин стопа шорт в % 
+        /// </summary>
+        public decimal StepPersentStopShort
+        {
+            get => _stepPersentStopShort;
+            set
+            {
+                _stepPersentStopShort = value;
+                OnPropertyChanged(nameof(StepPersentStopShort));
+            }
+        }
+        private decimal _stepPersentStopShort = 1;
 
         /// <summary>
         /// список типов расчета шага 
@@ -1076,9 +1105,80 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             else return false;
         }
 
-        private void CalculateTrelingStop()
+        /// <summary>
+        ///  есть открытый лонг объем
+        /// </summary>
+        private bool OpenVolumePositionLong()
         {
+            if (SelectedSecurity == null) return false;
+        
+            foreach (Position position in PositionsBots)
+            {
+                if (position.Direction == Side.Buy && position.OpenVolume != 0)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
+        /// <summary>
+        ///  есть открытый объем в шорт
+        /// </summary>
+        private bool OpenVolumePositionShort()
+        {
+            if (SelectedSecurity == null) return false;
+
+            foreach (Position position in PositionsBots)
+            {
+                if (position.Direction == Side.Sell && position.OpenVolume != 0)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// рассчитать цену трейлиг стопа 
+        /// </summary>
+        private void CalculateTrelingStop()
+        {   
+            if (IsRun == false || Price == 0 || SelectedSecurity == null) return;
+
+            if (OpenVolumePositionLong()) // если есть открытый объем в лонг
+            {
+                if (IsChekTraelStopLong == true)
+                {
+                    decimal stepStop = 0;
+                    decimal priceStop = 0;
+                    stepStop = StepPersentStopLong * Price / 100;
+                    stepStop = Decimal.Round(stepStop, SelectedSecurity.Decimals);
+
+                    priceStop = Price - stepStop; //расчетная чена стопа 
+                    if (Price > PriceStopLong + stepStop)
+                    {
+                        PriceStopLong = Decimal.Round(priceStop, SelectedSecurity.Decimals);
+                    }
+                }
+            }
+            if (OpenVolumePositionShort())
+            {
+                decimal stepStop = 0;
+                decimal priceStop = 0;
+                stepStop = StepPersentStopShort * Price / 100;
+                stepStop = Decimal.Round(stepStop, SelectedSecurity.Decimals);
+
+                priceStop = Price + stepStop; //расчетная чена стопа 
+                if (PriceStopShort == 0 && IsChekTraelStopShort )
+                {
+                    PriceStopShort = priceStop;
+                }
+                if (Price < PriceStopShort + stepStop)
+                {
+                    PriceStopShort = Decimal.Round(priceStop, SelectedSecurity.Decimals);
+                }
+            }
         }
 
         /// <summary>
@@ -1517,6 +1617,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     }
                 }
             }
+
+            if (IsChekTraelStopLong == true) CalculateTrelingStop();
         }
 
         /// <summary>
@@ -1810,7 +1912,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 e.PropertyName == "TakePriceLong" ||
                 e.PropertyName == "TakePriceShort" ||
                 e.PropertyName == "PartsPerExit" ||
-                e.PropertyName == "Direction")
+                e.PropertyName == "Direction"||
+                e.PropertyName == "StepPersentStopLong" ||
+                e.PropertyName == "IsChekTraelStopLong" ||
+
+                e.PropertyName == "StepPersentStopShort" ||
+                e.PropertyName == "IsChekTraelStopShort")
             {
                 SaveParamsBot();
             } 
@@ -1851,6 +1958,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     writer.WriteLine(StepPersentStopLong);
                     writer.WriteLine(IsChekTraelStopLong);
 
+                    writer.WriteLine(StepPersentStopShort);
+                    writer.WriteLine(IsChekTraelStopShort);
+
+      
                     writer.Close();
 
                     _logger.Information("Saving parameters {Header} {Method} ", Header , nameof(SaveParamsBot));
@@ -1910,6 +2021,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     if (bool.TryParse(reader.ReadLine(), out IsChek))
                     {
                         IsChekTraelStopLong = IsChek;
+                    }
+
+                    StepPersentStopShort = GetDecimalForString(reader.ReadLine());
+                    bool IsCh = false;
+                    if (bool.TryParse(reader.ReadLine(), out IsCh))
+                    {
+                        IsChekTraelStopShort = IsCh;
                     }
 
                     //StepType step = StepType.PUNKT;
