@@ -1223,51 +1223,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         /// <summary>
-        /// Изсменение статуса позиции
-        /// </summary>
-        public void MonitiringStatusBot(Order order)
-        {
-            //foreach (Position position in PositionsBots)
-            //{
-            //    for (int i = 0; i < position.OrdersForOpen.Count; i++)
-            //    {
-            //        if (position.OrdersForOpen[i].State == OrderStateType.Activ)
-            //        {
-            //            ActionBot = ActionBot.OpeningPos;
-            //        }
-            //        if (position.OrdersForOpen[i].State == OrderStateType.Cancel)
-            //        {
-            //            ActionBot = ActionBot.Stop;
-            //            position.PassOpenOrder = true;
-            //            IsRun = false;
-            //        }
-            //        if (position.OrdersForOpen[i].State == OrderStateType.Done)
-            //        {
-            //            //ActionBot = ActionBot.Open;
-            //        }
-            //    }
-
-            //    for (int i = 0; i < position.OrdersForClose.Count; i++)
-            //    {
-            //        if (position.OrdersForClose[i].State == OrderStateType.Activ)
-            //        {
-            //            ActionBot = ActionBot.ClosingPos;
-            //        }
-            //        if (position.OrdersForClose[i].State == OrderStateType.Cancel)
-            //        {
-            //            ActionBot = ActionBot.Stop;
-            //            position.PassOpenOrder = true;
-            //            IsRun = false;
-            //        }
-            //        if (position.OrdersForClose[i].State == OrderStateType.Done)
-            //        {
-            //            //ActionBot = ActionBot.Stop;
-            //        }
-            //    }
-            //}
-        }
-
-        /// <summary>
         /// берет названия кошельков (бирж)
         /// </summary>
         public ObservableCollection<string> GetStringPortfolios(IServer server)
@@ -1485,7 +1440,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             if (PositionsBots == null) return;
             if (PositionsBots.Count != 0)
             {
-                if (Price != 0 && PriceStopLong != 0)
+                if (Price != 0 && PriceStopLong != 0) // если н0ль - стоп отключен
                 {
                     if (Price < PriceStopLong && Direction == Direction.BUY ||
                         Price < PriceStopLong && Direction == Direction.BUYSELL)
@@ -1496,7 +1451,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                             {
                                 StopPosition(pos);
                                 _logger.Warning(" Triggered Stop Long Position {@Position}  {Method}",
-                                                                            pos, nameof(MonitoringStop));
+                                                                       pos, nameof(MonitoringStop));
+
+                                if (pos.State == PositionStateType.Done)// отключаем стоп т.к. позиция уже закрыта
+                                {
+                                    PriceStopLong = 0;
+                                }
                             }
                         }
                     }
@@ -1514,6 +1474,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                                 StopPosition(pos);
                                 _logger.Warning(" Triggered Stop Short Position {@Position}  {Method}",
                                                                             pos, nameof(MonitoringStop));
+
+                                if (pos.State == PositionStateType.Done)// отключаем стоп т.к. позиция уже закрыта
+                                {
+                                    PriceStopShort = 0;
+                                }
                             }
                         }
                     }
