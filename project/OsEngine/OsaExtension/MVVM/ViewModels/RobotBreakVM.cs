@@ -481,6 +481,34 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private decimal _selectSecurBalans;
 
         /// <summary>
+        /// вкл выкл трейлинг стоп лонга
+        /// </summary>
+        public bool IsChekTraelStopLong
+        {
+            get => _isChekTraelStopLong;
+            set
+            {
+                _isChekTraelStopLong = value;
+                OnPropertyChanged(nameof(IsChekTraelStopLong));
+            }
+        }
+        private bool _isChekTraelStopLong;
+
+        /// <summary>
+        /// расстояние до трейлин стопа лонг в % 
+        /// </summary>
+        public decimal StepPersentStopLong
+        {
+            get => _stepPersentStopLong;
+            set
+            {
+                _stepPersentStopLong = value;
+                OnPropertyChanged(nameof(StepPersentStopLong));
+            }
+        }
+        private decimal _stepPersentStopLong = 1;
+
+        /// <summary>
         /// список типов расчета шага 
         /// </summary>
         public List<StepType> StepTypes { get; set; } = new List<StepType>()
@@ -1046,6 +1074,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             volume = SelectSecurBalans;
             if (volume != 0) return true;
             else return false;
+        }
+
+        private void CalculateTrelingStop()
+        {
+
         }
 
         /// <summary>
@@ -1815,6 +1848,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     writer.WriteLine(PartsPerInput);
                     writer.WriteLine(PartsPerExit);
 
+                    writer.WriteLine(StepPersentStopLong);
+                    writer.WriteLine(IsChekTraelStopLong);
+
                     writer.Close();
 
                     _logger.Information("Saving parameters {Header} {Method} ", Header , nameof(SaveParamsBot));
@@ -1868,6 +1904,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     FullPositionVolume = GetDecimalForString(reader.ReadLine());
                     PartsPerInput = (int)GetDecimalForString(reader.ReadLine());
                     PartsPerExit = (int)GetDecimalForString(reader.ReadLine());
+
+                    StepPersentStopLong = GetDecimalForString(reader.ReadLine());
+                    bool IsChek = false;
+                    if (bool.TryParse(reader.ReadLine(), out IsChek))
+                    {
+                        IsChekTraelStopLong = IsChek;
+                    }
 
                     //StepType step = StepType.PUNKT;
                     //if (Enum.TryParse(reader.ReadLine(), out step))
@@ -1985,6 +2028,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         #endregion
 
         #endregion end metods==============================================
+
         #region  ЗАГОТОВКИ ==============================================
 
         /// <summary>

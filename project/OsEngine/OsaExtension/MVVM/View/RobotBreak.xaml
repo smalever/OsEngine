@@ -9,7 +9,7 @@
              xmlns:models="clr-namespace:OsEngine.OsaExtension.MVVM.Models" 
              xmlns:viewmodels="clr-namespace:OsEngine.OsaExtension.MVVM.ViewModels"
              d:DataContext="{d:DesignInstance Type=viewmodels:RobotBreakVM}"
-             mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="755">
+             mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="830">
     <UserControl.Resources>
         <Style TargetType="TextBlock">
             <Setter Property="MinWidth" Value="30"/>
@@ -55,27 +55,27 @@
 
             </TextBlock>-->
         </StatusBar>
-        <Grid >
+        <Grid Height="777" >
             <Grid.RowDefinitions>
                 <RowDefinition Height="592" />
                 <RowDefinition />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="450"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="500"/>
+                <ColumnDefinition Width="0*"/>
             </Grid.ColumnDefinitions>
             <StackPanel  Orientation="Vertical" Margin="1,1,1,1">
                 <GroupBox Header="Параметры позиции"    
                         Grid.Row="0" 
                         HorizontalAlignment="Left"
                         Margin="1,1,1,1"
-                        FontSize="18" Width="440">
+                        FontSize="18" Width="493">
 
                     <UniformGrid Columns="3"
  
                                 Margin="1,0,1,1"
                                 Grid.Row="0" >
-                        <TextBlock Text="Цена окончания шортовой позиции" 
+                        <TextBlock Text="Цена СТОПА шортовой позиции" 
                         ToolTip=" Цена при достиженни которой робот произведет выбраное действие)" Margin="0,0,-65,0"/>
                         <local:DecimalTextBox Text="{Binding PriceStopShort}" 
                         Margin="78,2,-32,0"/>
@@ -98,12 +98,12 @@
                         <Label Margin="47,0,10,0"/>
 
                         <TextBlock Text="Цена большого кластера " Margin="0,0,-65,0" />
-                        <local:DecimalTextBox   Text="{Binding BigСlusterPrice}" Margin="0,2,-32,0" HorizontalAlignment="Right" Width="101"/>
+                        <local:DecimalTextBox   Text="{Binding BigСlusterPrice}" Margin="0,2,-32,0" HorizontalAlignment="Right" Width="113"/>
                         <Label Margin="47,0,2,0"/>
 
                         <TextBlock Text="Направление сделок" Margin="0,0,-65,0"/>
                         <ComboBox ItemsSource="{Binding Directions}"                        
-                                  SelectedItem="{Binding Direction}" Margin="73,2,-32,0"/>
+                                  SelectedItem="{Binding Direction}" Margin="78,2,-32,0"/>
                         <Label Margin="47,0,2,0"/>
 
                         <Label Margin="2"/>
@@ -120,15 +120,22 @@
                         <local:DecimalTextBox  Text="{Binding TakePriceShort}" Margin="78,0,-32,0"/>
                         <Label Margin="47,0,2,0"/>
 
-                        <Label Content="Цена окончания лонга: " Margin="0,0,-65,0"
+                        <Label Content="Цена СТОПА лонга: " Margin="0,0,-65,0"
                                ToolTip=" Цена при достиженни которой робот произведет выбраное действие)"/>
                         <local:DecimalTextBox Text="{Binding PriceStopLong}" 
                                               Margin="78,2,-32,0"/>
-                        <Label Margin="47,0,2,0"/>
-                        
-                        <Label Margin="0,0,-62,0"/>
-                        <Label Margin="78,0,-32,0"/>
-                        <Label Margin="2"/>
+                        <Label Margin="47,0,0,0"></Label>
+
+                        <Label Content="Расстояние до трейлг в % " Margin="0,0,-73,0"/>
+                        <local:DecimalTextBox Text="{Binding StepPersentStopLong}"
+                                              ToolTip ="Через сколько % тянуть стоп"
+                                              Margin="78,2,-32,0"/>
+                        <StackPanel Orientation="Horizontal" Margin="37,0,1,0">
+                            <CheckBox Content="Вкл Трейлинг" 
+                                      IsChecked="{Binding IsChekTraelStopLong}" 
+                                      ToolTip="Включить/ ВЫКЛ Трейлинг СТОП"
+                                       Width="131" />
+                        </StackPanel>
 
                         <TextBlock Text="Объем для робота $" 
                         ToolTip=" Максимальный объем набираемый роботом на бирже" Margin="0,0,-62,0"/>
