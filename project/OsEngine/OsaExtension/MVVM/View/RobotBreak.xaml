@@ -80,9 +80,9 @@
                                              ToolTip ="Через сколько % тянуть стоп"
                                              Margin="78,2,-32,0"/>
                         <StackPanel Orientation="Horizontal" Margin="37,0,1,0">
-                            <CheckBox Content="Вкл Трейлинг" 
+                            <CheckBox Content="Вкл Трейлинг шорт" 
                                      IsChecked="{Binding IsChekTraelStopShort}" 
-                                     ToolTip="Включить/ ВЫКЛ Трейлинг СТОП"
+                                     ToolTip="Включить/ ВЫКЛ Трейлинг СТОП в шорт"
                                       Width="119" />
                         </StackPanel>
 
@@ -143,9 +143,9 @@
                                               ToolTip ="Через сколько % тянуть стоп"
                                               Margin="78,2,-32,0"/>
                         <StackPanel Orientation="Horizontal" Margin="37,0,1,0">
-                            <CheckBox Content="Вкл Трейлинг" 
+                            <CheckBox Content="Вкл Трейлинг Лонг" 
                                       IsChecked="{Binding IsChekTraelStopLong}" 
-                                      ToolTip="Включить/ ВЫКЛ Трейлинг СТОП"
+                                      ToolTip="Включить/ ВЫКЛ Трейлинг СТОП в лонг"
                                        Width="119" />
                         </StackPanel>
 

@@ -494,7 +494,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
         private bool _isChekTraelStopLong;
 
-
         /// <summary>
         /// вкл выкл трейлинг стоп шорта 
         /// </summary>
@@ -888,16 +887,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             foreach (Position position in PositionsBots) // заходим в позицию
             {
-                // проверяем откуда трейд
-                if (position.OpenOrders != null) // если открывающий выствить тейк
+                // проверяем откуда трейд если открывающий выствить тейк
+                if (position.OpenOrders != null) 
                 {
-                    /* для этого
-                     *  берем открытую позицию
-                     *  ищем актиыные ордера на закрытия если их нет
-                     *  берем открытый обем позиции
-                     *   создаем оредр на его закрытие и отрпавляем его в позицию
-                     */
-
                     for (int i = 0; i < position.OpenOrders.Count; i++) 
                     {
                         Order curOrdOpen = position.OpenOrders[i];
@@ -915,12 +907,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                                 {
                                     volumeClose += position.OpenOrders[s].Volume;
                                 }
-                                //if (currOrdOpen.State != OrderStateType.Activ ||
-                                //    currOrdOpen.State != OrderStateType.Patrial ||
-                                //    currOrdOpen.State != OrderStateType.Pending)
-                                //{
-                                //    //
-                                //}
                             }
                             // проверяем в ордерах закрытия объема меньше чем открыто на бирже
                             if (Math.Abs(volumeClose) < Math.Abs(position.OpenVolume))
@@ -931,49 +917,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                                 // добавить лимит ордер на закрытие)
                                 SendCloseLimitOrderPosition(position , myTrade.Volume);
                             }
-
-                            //if (position.Status == PositionStatus.OPENING // позиция открыта
-                            //    && curOrdOpen.State == OrderStateType.Done) // ордер исполнен
-                            //{
-  
-                            //    if (position.OrdersForClose != null && position.OrdersForClose.Count == 0)
-                            //    {
-                            //        // добавить лимит ордер на закрытие)
-                            //        //SendCloseOrderPosition(myTrade.Volume);
-                            //    }
-                            //    // ищем актиыные ордера на закрытия
-                            //    if (position.OrdersForClose != null && position.OrdersForClose.Count > 0)
-                            //    {
-
-                            //    }
-                            //}
                         }
                     }
                 }
-                //if (position.OrdersForClose != null) // если закрывающий 
-                //{
-                //    /*
-                //    for (int i = 0; i < position.OrdersForClose.Count; i++)
-                //    {
-                //        Order curOrdOpen = position.OrdersForClose[i];
-
-                //        if (curOrdOpen.NumberMarket == myTrade.NumberOrderParent // принадлежит ордеру закрытия
-                //            && curOrdOpen.SecurityNameCode == myTrade.SecurityNameCode // наша бумага
-                //            && curOrdOpen.Volume == myTrade.Volume) // совпадает объем
-                //        {
-                //            //проверяем обем позиции, если весь закрыт выключаем
-                //            if (position.OpenVolume == 0)
-                //            {
-                //                position.PassOpenOrder = false;
-                //                position.PassCloseOrder = false;
-                //                position.Status = PositionStatus.DONE;
-                //                SendStrStatus(" Позиция закрылась по профиту");
-                //                _logger.Information("Position close, STOP open {Method} {@Order} {NumberUser}", 
-                //                                                  nameof(SendCloseOrder), curOrdOpen, curOrdOpen.NumberUser);
-                //            }
-                //        }
-                //    }*/
-                //}
             }
         }
 
