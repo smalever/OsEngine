@@ -652,34 +652,34 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             decimal finalVolumClose = 0;
             finalVolumClose = volume;// берем открытый объем 
 
-            Side side = Side.None;
-            if (finalVolumClose < 0)
+            Side sideClose = Side.None;
+            if (pos.Direction == Side.Buy)
             {
-                side = Side.Buy;
-                _logger.Information("In Position volume {Volume} {side} {Metod} ", finalVolumClose, side, nameof(FinalCloseMarketOpenVolume));
+                sideClose = Side.Sell;
+                _logger.Information("In Position volume {Volume} {side} {Metod} ", finalVolumClose, sideClose, nameof(FinalCloseMarketOpenVolume));
             }
-            if (finalVolumClose > 0)
+            if (pos.Direction == Side.Sell)
             {
-                side = Side.Sell;
-                _logger.Information("In Position volume {Volume} {side} {Metod} ", finalVolumClose, side, nameof(FinalCloseMarketOpenVolume));
+                sideClose = Side.Buy;
+                _logger.Information("In Position volume {Volume} {side} {Metod} ", finalVolumClose, sideClose, nameof(FinalCloseMarketOpenVolume));
             }
-            if (finalVolumClose == 0 || side == Side.None )
+            if (finalVolumClose == 0 || sideClose == Side.None )
             {
                 SendStrStatus(" Ошибка закрытия объема на бирже");
 
                 _logger.Error(" Error create Market orders to close " +
                     "the volume {finalVolumClose} {side} {Metod} "
-                             , finalVolumClose, side, nameof(FinalCloseMarketOpenVolume));
+                             , finalVolumClose, sideClose, nameof(FinalCloseMarketOpenVolume));
                 return;
             }
 
-            Order ordClose = CreateMarketOrder(SelectedSecurity, Price, finalVolumClose, side);
+            Order ordClose = CreateMarketOrder(SelectedSecurity, Price, finalVolumClose, sideClose);
 
             if (ordClose != null )
             {
                 GetBalansSecur();
 
-                if (side == Side.None) return;
+                if (sideClose == Side.None) return;
 
                 pos.AddNewCloseOrder(ordClose);
                 //Thread.Sleep(100);
