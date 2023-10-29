@@ -1095,7 +1095,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// рассчитать цену трейлиг стопа 
         /// </summary>
-        private void CalculateTrelingStop()
+        private void CalculateTrelingStop(Position position)
         {   
             if (IsRun == false || Price == 0 || SelectedSecurity == null) return;
 
@@ -1107,10 +1107,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     decimal priceStop = 0;
                     stepStop = StepPersentStopLong * Price / 100;
                     stepStop = Decimal.Round(stepStop, SelectedSecurity.Decimals);
-
-                    priceStop = Price - stepStop; //расчетная чена стопа 
+                    decimal entry = position.EntryPrice;
+                    priceStop = entry - stepStop; //расчетная чена стопа 
                     if (Price > PriceStopLong + stepStop)
                     {
+                        if (entry == 0) return;
+
                         PriceStopLong = Decimal.Round(priceStop, SelectedSecurity.Decimals);
                     }
                 }
@@ -1121,10 +1123,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 decimal priceStop = 0;
                 stepStop = StepPersentStopShort * Price / 100;
                 stepStop = Decimal.Round(stepStop, SelectedSecurity.Decimals);
-
-                priceStop = Price + stepStop; //расчетная чена стопа 
+                decimal entry = position.EntryPrice;
+                priceStop = entry + stepStop; //расчетная чена стопа 
                 if (IsChekTraelStopShort)
                 {
+                    if (entry == 0) return;
+
                     if (PriceStopShort == 0)
                     {
                         PriceStopShort = priceStop;
@@ -1535,9 +1539,18 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 if (Price != 0 && PriceStopLong != 0) // если н0ль - стоп отключен
                 {
+                    foreach (var pos in PositionsBots)
+                    {
+                        if(pos.Direction == Side.Buy)
+                        {
+                            if (IsChekTraelStopLong == true) CalculateTrelingStop(pos);
+                        }
+                    }
+
                     if (Price < PriceStopLong && Direction == Direction.BUY ||
                         Price < PriceStopLong && Direction == Direction.BUYSELL)
                     {
+                        
                         foreach (var pos in PositionsBots)
                         {
                             if (pos.Direction == Side.Buy)
@@ -1557,6 +1570,14 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                 if (Price != 0 && PriceStopShort != 0)
                 {
+                    foreach (var pos in PositionsBots)
+                    {
+                        if (pos.Direction == Side.Sell)
+                        {
+                            if (IsChekTraelStopShort == true) CalculateTrelingStop(pos);
+                        }
+                    }
+
                     if (Price > PriceStopShort && Direction == Direction.SELL ||
                         Price > PriceStopShort && Direction == Direction.BUYSELL)
                     {
@@ -1577,8 +1598,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     }
                 }
             }
-
-            if (IsChekTraelStopLong == true) CalculateTrelingStop();
         }
 
         /// <summary>
