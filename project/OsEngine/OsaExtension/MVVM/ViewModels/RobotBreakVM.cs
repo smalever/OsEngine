@@ -1259,8 +1259,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             if (side == Side.Buy)
             {
-                stepPrice = (TakePriceLong - TopPositionPrice) / PartsPerExit;
-                price = TopPositionPrice + stepPrice;
+                stepPrice = (TakePriceLong - BigСlusterPrice) / PartsPerExit;
+                price = BigСlusterPrice + stepPrice;
                 for (int i = 0; i < PartsPerExit; i++)
                 {
                     price = Decimal.Round(price, SelectedSecurity.Decimals);
@@ -1270,8 +1270,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
             if (side == Side.Sell)
             {
-                stepPrice = (BottomPositionPrice - TakePriceShort) / PartsPerExit;
-                price = BottomPositionPrice - stepPrice;
+                stepPrice = (BigСlusterPrice - TakePriceShort) / PartsPerExit;
+                price = BigСlusterPrice - stepPrice;
                 for (int i = 0; i < PartsPerExit; i++)
                 {
                     price = Decimal.Round(price, SelectedSecurity.Decimals);
