@@ -629,10 +629,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     FinalCloseMarketOpenVolume( pos ,pos.OpenVolume);
                 }
             }
-            if (!IsRun && !ActivOrders() && SelectSecurBalans ==0)
-            {
-                DeleteHisry();
-            }
+            //if (!IsRun && SelectSecurBalans ==0 )
+            //{
+            //    DeleteHisry();
+            //}
         }
 
         /// <summary>
@@ -2100,7 +2100,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void DeleteHisry()
         {
-            if (!ActivOrders())
+            if (!ActivOrders() && !OpenVolumePositionLong() && !OpenVolumePositionShort() )
             {
                 string fileName = @"Parametrs\Tabs\positions_" + Header + "=" + NumberTab + ".json";
                 if (File.Exists(fileName))
