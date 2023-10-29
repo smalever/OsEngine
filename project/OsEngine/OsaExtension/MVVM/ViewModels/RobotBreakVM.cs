@@ -709,36 +709,35 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private void CanselAllPositionActivOrders()
         {
             if(Server == null) return;
-            if (ActivOrders())
+            foreach (Position position in PositionsBots)
             {
-                foreach (Position position in PositionsBots)
+                List<Order> ordersAll = new List<Order>();
+                if (position.OpenActiv)
                 {
-                    List<Order> ordersAll = new List<Order>();
-                    if (position.OpenActiv)
+                    ordersAll = position.OpenOrders;// взять из позиции ордера открытия 
+                }
+                if (position.CloseActiv)
+                {
+                    ordersAll.AddRange(position.CloseOrders); // добавили ордера закрытия 
+                }
+                for (int i = 0; i < ordersAll.Count; i++)
+                {
+                    if (ordersAll[i].State == OrderStateType.Activ ||
+                        ordersAll[i].State == OrderStateType.Patrial ||
+                        ordersAll[i].State == OrderStateType.None ||
+                        ordersAll[i].State == OrderStateType.Pending)
                     {
-                        ordersAll = position.OpenOrders;// взять из позиции ордера открытия 
-                    }
-                    if (position.CloseActiv)
-                    {
-                        ordersAll.AddRange(position.CloseOrders); // добавили ордера закрытия 
-                    }
-                    for (int i = 0; i < ordersAll.Count; i++)
-                    {
-                        if (ordersAll[i].State == OrderStateType.Activ ||
-                            ordersAll[i].State == OrderStateType.Patrial ||
-                            ordersAll[i].State == OrderStateType.None ||
-                            ordersAll[i].State == OrderStateType.Pending)
-                        {
-                            Server.CancelOrder(ordersAll[i]);
-                            _logger.Information("Cancel All positions Activ Orders {Method} Order {@Order} {Number} {NumberMarket} "
-                                    , nameof(CanselAllPositionActivOrders), ordersAll[i], ordersAll[i].NumberUser, ordersAll[i].NumberMarket);
-                            SendStrStatus(" Отменили ордер на бирже");
+                        Server.CancelOrder(ordersAll[i]);
+                        _logger.Information("Cancel All positions Activ Orders {Method} Order {@Order} {Number} {NumberMarket} "
+                                , nameof(CanselAllPositionActivOrders), ordersAll[i], ordersAll[i].NumberUser, ordersAll[i].NumberMarket);
+                        SendStrStatus(" Отменили ордер на бирже");
 
-                            //Thread.Sleep(50);
-                        }
+                        //Thread.Sleep(50);
                     }
                 }
             }
+
+
         }
 
         /// <summary>
@@ -747,7 +746,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private void CanselPositionActivOrders(Position position)
         {
             if (Server == null) return;
-            if (ActivOrders())
+            if (ActivOrders(position))
             {
                 List<Order> ordersAll = new List<Order>();
                 if (position.OpenActiv)
@@ -779,19 +778,21 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// есть активные ордера
         /// </summary>
-        private bool ActivOrders()
+        private bool ActivOrders(Position position)
         {
             bool res = false;
             GetBalansSecur();
-            foreach (Position position in PositionsBots)
-            {
-                bool orderClose = position.CloseActiv;//  есть активные ордера закрытия 
-                bool orderOpen = position.OpenActiv; // активные ордера открытия 
 
-                if (orderOpen || orderClose)
-                {
-                    res = true;
-                }
+            bool orderClose = position.CloseActiv;//  есть активные ордера закрытия 
+            bool orderOpen = position.OpenActiv; // активные ордера открытия 
+
+            if (orderOpen)
+            {
+                res = true;
+            }
+            if (orderClose)
+            {
+                res = true;
             }
             return res;
         }
@@ -991,7 +992,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             if (PositionsBots!= null)
             {
                 PositionsBots.Clear();
-                DeleteHisry();
+                DeleteFileSerial();
             }
             if (BigСlusterPrice == 0)
             {
@@ -1022,7 +1023,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             if (VolumePerOrderOpen != 0  && IsRun == true) // формируем позиции
             {
-                DeleteHisry(); 
+                DeleteFileSerial(); 
 
                 if (Direction == Direction.BUY || Direction == Direction.BUYSELL)
                 {
@@ -1751,31 +1752,26 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             //выбираем номера ордеров из
             //активных сделок(есть открытый объем или активные ордера)
             List<Order> selectOrders = new List<Order>();
-            bool flag = false;
-            flag = ActivOrders();
-            if (flag)
-            {
 
-                foreach (Position position in PositionsBots)
+            foreach (Position position in PositionsBots)
+            {
+                List<Order> ordersAll = new List<Order>();
+                if (position.OpenActiv)
                 {
-                    List<Order> ordersAll = new List<Order>();
-                    if (position.OpenActiv)
+                    ordersAll = position.OpenOrders;// взять из позиции ордера открытия 
+                }
+                if (position.CloseActiv)
+                {
+                    ordersAll.AddRange(position.CloseOrders); // добавили ордера закрытия 
+                }
+                for (int i = 0; i < ordersAll.Count; i++)
+                {
+                    if (ordersAll[i].State == OrderStateType.Activ ||
+                        ordersAll[i].State == OrderStateType.Patrial ||
+                        ordersAll[i].State == OrderStateType.None ||
+                        ordersAll[i].State == OrderStateType.Pending)
                     {
-                        ordersAll = position.OpenOrders;// взять из позиции ордера открытия 
-                    }
-                    if (position.CloseActiv)
-                    {
-                        ordersAll.AddRange(position.CloseOrders); // добавили ордера закрытия 
-                    }
-                    for (int i = 0; i < ordersAll.Count; i++)
-                    {
-                        if (ordersAll[i].State == OrderStateType.Activ ||
-                            ordersAll[i].State == OrderStateType.Patrial ||
-                            ordersAll[i].State == OrderStateType.None ||
-                            ordersAll[i].State == OrderStateType.Pending)
-                        {
-                            selectOrders.Add(ordersAll[i]);
-                        }
+                        selectOrders.Add(ordersAll[i]);
                     }
                 }
             }
@@ -2109,17 +2105,16 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             ServerMaster.ServerCreateEvent -= ServerMaster_ServerCreateEvent;
             PropertyChanged -= RobotBreakVM_PropertyChanged;
-            DeleteHisry();
-
+            
             _logger.Information(" Dispose {Method}", nameof(Dispose));
 
         }
         /// <summary>
         /// удалить файл сериализвции 
         /// </summary>
-        private void DeleteHisry()
+        private void DeleteFileSerial()
         {
-            if (!ActivOrders() && !OpenVolumePositionLong() && !OpenVolumePositionShort() )
+            if (!OpenVolumePositionLong() && !OpenVolumePositionShort() )
             {
                 string fileName = @"Parametrs\Tabs\positions_" + Header + "=" + NumberTab + ".json";
                 if (File.Exists(fileName))
@@ -2130,11 +2125,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     }
                     catch (Exception e)
                     {
-                        _logger.Error("Deletion  failed: {error} {Method}", e.Message, nameof(DeleteHisry));
+                        _logger.Error("Deletion  failed: {error} {Method}", e.Message, nameof(DeleteFileSerial));
                     }
                 }
             }
-            else _logger.Error(" Activ Orders not Deletion failed {Method}", nameof(DeleteHisry));
+            else _logger.Error(" Activ Orders not Deletion failed {Method}", nameof(DeleteFileSerial));
         }
         #endregion
 
