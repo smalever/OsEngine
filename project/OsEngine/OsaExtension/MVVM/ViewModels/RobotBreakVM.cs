@@ -2112,7 +2112,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// удалить файл сериализвции 
         /// </summary>
-        private void DeleteFileSerial()
+        public void DeleteFileSerial()
         {
             if (!OpenVolumePositionLong() && !OpenVolumePositionShort() )
             {
