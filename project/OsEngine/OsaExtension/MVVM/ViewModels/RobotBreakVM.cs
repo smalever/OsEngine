@@ -1120,7 +1120,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
                     PriceStopShort = priceStop;
                 }
-                if (Price < PriceStopShort + stepStop)
+                if (Price < PriceStopShort - stepStop)
                 {
                     PriceStopShort = Decimal.Round(priceStop, SelectedSecurity.Decimals);
                 }
