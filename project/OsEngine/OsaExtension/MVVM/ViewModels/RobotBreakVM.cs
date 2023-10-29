@@ -619,7 +619,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void StopTradeLogic()
         {
-            //GetBalansSecur();
+            GetBalansSecur();
             foreach (Position pos in PositionsBots)
             {
                 CanselAllPositionActivOrders();
@@ -628,6 +628,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
                     FinalCloseMarketOpenVolume( pos ,pos.OpenVolume);
                 }
+            }
+            if (!IsRun && !ActivOrders() && SelectSecurBalans ==0)
+            {
+                DeleteHisry();
             }
         }
 
@@ -677,14 +681,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             if (ordClose != null )
             {
-                GetBalansSecur();
-
                 if (sideClose == Side.None) return;
 
                 pos.AddNewCloseOrder(ordClose);
-                //Thread.Sleep(100);
+                Thread.Sleep(100);
                 SendOrderExchange(ordClose);
-                //Thread.Sleep(100);
+                Thread.Sleep(100);
 
                 _logger.Information("Sending FINAL Market order to close " +
                 " {volume} {numberUser} {@Order} {Metod} ",
@@ -986,6 +988,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void CreateNewPosition()
         {
+            if (PositionsBots!= null)
+            {
+                PositionsBots.Clear();
+                DeleteHisry();
+            }
             if (BigСlusterPrice == 0)
             {
                 SendStrStatus(" BigСlusterPrice = 0 ");
@@ -1015,7 +1022,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             if (VolumePerOrderOpen != 0  && IsRun == true) // формируем позиции
             {
-                PositionsBots.Clear();
+                DeleteHisry(); 
 
                 if (Direction == Direction.BUY || Direction == Direction.BUYSELL)
                 {
@@ -1116,13 +1123,16 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 stepStop = Decimal.Round(stepStop, SelectedSecurity.Decimals);
 
                 priceStop = Price + stepStop; //расчетная чена стопа 
-                if (PriceStopShort == 0 && IsChekTraelStopShort )
+                if (IsChekTraelStopShort)
                 {
-                    PriceStopShort = priceStop;
-                }
-                if (Price < PriceStopShort - stepStop)
-                {
-                    PriceStopShort = Decimal.Round(priceStop, SelectedSecurity.Decimals);
+                    if (PriceStopShort == 0)
+                    {
+                        PriceStopShort = priceStop;
+                    }
+                    if (Price < PriceStopShort - stepStop)
+                    {
+                        PriceStopShort = Decimal.Round(priceStop, SelectedSecurity.Decimals);
+                    }
                 }
             }
         }
@@ -1440,11 +1450,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 GetBalansSecur();
                 // если открылась сделка выставить тейк
                 SendCloseOrder(myTrade);
-                SerializerPosition();
+                //SerializerPosition();
             }
             else                 
             _logger.Warning(" Levak ! Secur Trade {@Trade} {Security} {Method}", myTrade, myTrade.SecurityNameCode, nameof(_server_NewOrderIncomeEvent));
         }
+
 
         /// <summary>
         /// мой ордер с сервера
@@ -1456,7 +1467,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 if (myOrder.SecurityNameCode == SelectedSecurity.Name)
                 {
                     CheckMyOrder(myOrder);
-                    SerializerPosition();
+                    if (myOrder.State != OrderStateType.Fail)
+                    {
+                        SerializerPosition();
+                    }
                     GetBalansSecur();
                     _logger.Information(" New myOrder {@Order} {NumberUser} {NumberMarket} {Method}",
                                          myOrder, myOrder.NumberUser, myOrder.NumberMarket, nameof(_server_NewOrderIncomeEvent));
@@ -2076,18 +2090,32 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             ServerMaster.ServerCreateEvent -= ServerMaster_ServerCreateEvent;
             PropertyChanged -= RobotBreakVM_PropertyChanged;
-            string fileName = @"Parametrs\Tabs\positions_" + Header + "=" + NumberTab + ".json";
-            if (File.Exists(fileName))
+            DeleteHisry();
+
+            _logger.Information(" Dispose {Method}", nameof(Dispose));
+
+        }
+        /// <summary>
+        /// удалить файл сериализвции 
+        /// </summary>
+        private void DeleteHisry()
+        {
+            if (!ActivOrders())
             {
-                try
+                string fileName = @"Parametrs\Tabs\positions_" + Header + "=" + NumberTab + ".json";
+                if (File.Exists(fileName))
                 {
-                    File.Delete(fileName);
-                }
-                catch (Exception e)
-                {
-                    _logger.Information("The deletion failed: {error} {Method}", e.Message, nameof(Dispose));
+                    try
+                    {
+                        File.Delete(fileName);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.Error("Deletion  failed: {error} {Method}", e.Message, nameof(DeleteHisry));
+                    }
                 }
             }
+            else _logger.Error(" Activ Orders not Deletion failed {Method}", nameof(DeleteHisry));
         }
         #endregion
 
