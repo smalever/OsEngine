@@ -901,24 +901,29 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         {
                             // значит трейд открывающий
 
-                            decimal volumeClose = 0;
+                            decimal volumeForClose = 0;
                             for (int s = 0; s < position.OpenOrders.Count; s++)
                             {
                                 Order currOrdOpen = position.OpenOrders[i];
 
                                 if (currOrdOpen.State == OrderStateType.Activ)
                                 {
-                                    volumeClose += position.OpenOrders[s].Volume;
+                                    volumeForClose += position.OpenOrders[s].Volume;
                                 }
                             }
                             // проверяем в ордерах закрытия объема меньше чем открыто на бирже
-                            if (Math.Abs(volumeClose) < Math.Abs(position.OpenVolume))
+                            if (Math.Abs(volumeForClose) < Math.Abs(position.OpenVolume))
                             {
                                 _logger.Information("Called metod  SendCloseLimitOrderPosition" +
                                             " {Method} Order {VolumeForClose} {OpenVolumePosition} "
-                                    , nameof(SendCloseOrder), volumeClose, position.OpenVolume);
+                                    , nameof(SendCloseOrder), volumeForClose, position.OpenVolume);
                                 // добавить лимит ордер на закрытие)
-                                SendCloseLimitOrderPosition(position , myTrade.Volume);
+                                SendCloseLimitOrderPosition(position, myTrade.Volume);
+                            }
+
+                            if (!position.MyTrades.Contains(myTrade))  // если трейда еще нет в списке 
+                            {
+  
                             }
                         }
                     }
@@ -931,7 +936,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>  
         private void SendCloseLimitOrderPosition(Position position, decimal volumeClose)
         {
-  
+           
             PriceClosePos = null;
             PriceClosePos = CalculPriceClosePos(position.Direction); // расчет цен закрытия позиции
 
@@ -1293,7 +1298,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 position.SetOrder(checkOrder); // проверяем и обновляем ордер
                 // TODO:  придумать проверку и изменяем статуса позиций
-                _logger.Information(" CheckMyOrder {@order}{OrdNumberUser} {NumberMarket}{Method} ",
+                _logger.Information("CheckMyOrder {@order}{OrdNumberUser} {NumberMarket}{Method}",
                                       checkOrder, checkOrder.NumberUser, checkOrder.NumberMarket, nameof(CheckMyOrder));
             }
         }
@@ -1305,14 +1310,19 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             foreach (Position position in PositionsBots)
             {
-                position.SetTrade(newTrade);
-                _logger.Information(" ChekTradePosition {@Trade} {NumberTrade} {NumberOrderParent} {Method} "
-                    , newTrade, newTrade.NumberTrade, newTrade.NumberOrderParent, nameof(ChekTradePosition));
-
-                if (newTrade.SecurityNameCode == SelectedSecurity.Name)
+                if (!position.MyTrades.Contains(newTrade))
                 {
-                    GetBalansSecur();
-                }    
+                    position.SetTrade(newTrade);
+                    _logger.Information("ChekTradePosition {@Trade} {NumberTrade} {NumberOrderParent} {Method}"
+                                         , newTrade, newTrade.NumberTrade, newTrade.NumberOrderParent, nameof(ChekTradePosition));
+
+                    if (newTrade.SecurityNameCode == SelectedSecurity.Name)
+                    {
+                        GetBalansSecur();
+
+                        SendCloseOrder(newTrade);
+                    }
+                }
             }
         }
 
@@ -1892,6 +1902,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 e.PropertyName == "IsChekTraelStopLong" ||
 
                 e.PropertyName == "StepPersentStopShort" ||
+                //e.PropertyName == "PriceStopLong" ||
+                //e.PropertyName == "PriceStopShort" || 
                 e.PropertyName == "IsChekTraelStopShort")
             {
                 SaveParamsBot();
@@ -1936,7 +1948,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     writer.WriteLine(StepPersentStopShort);
                     writer.WriteLine(IsChekTraelStopShort);
 
-      
+                    writer.WriteLine(PriceStopShort);
+                    writer.WriteLine(PriceStopLong);
+
+
                     writer.Close();
 
                     _logger.Information("Saving parameters {Header} {Method} ", Header , nameof(SaveParamsBot));
@@ -2004,6 +2019,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     {
                         IsChekTraelStopShort = IsCh;
                     }
+
+                    PriceStopShort = GetDecimalForString(reader.ReadLine());
+                    PriceStopLong = GetDecimalForString(reader.ReadLine());
 
                     //StepType step = StepType.PUNKT;
                     //if (Enum.TryParse(reader.ReadLine(), out step))
