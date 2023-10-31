@@ -1,4 +1,6 @@
-﻿using MahApps.Metro.Controls;
+﻿using Com.Lmax.Api.MarketData;
+using MahApps.Metro.Controls;
+using Newtonsoft.Json;
 using OsEngine.Charts.CandleChart.Indicators;
 using OsEngine.Entity;
 using OsEngine.Logging;
@@ -902,28 +904,34 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                             // значит трейд открывающий
 
                             decimal volumeForClose = 0;
-                            for (int s = 0; s < position.OpenOrders.Count; s++)
-                            {
-                                Order currOrdOpen = position.OpenOrders[i];
-
-                                if (currOrdOpen.State == OrderStateType.Activ)
-                                {
-                                    volumeForClose += position.OpenOrders[s].Volume;
-                                }
-                            }
-                            // проверяем в ордерах закрытия объема меньше чем открыто на бирже
-                            if (Math.Abs(volumeForClose) < Math.Abs(position.OpenVolume))
+                            if (position.CloseOrders == null)
                             {
                                 _logger.Information("Called metod  SendCloseLimitOrderPosition" +
-                                            " {Method} Order {VolumeForClose} {OpenVolumePosition} "
-                                    , nameof(SendCloseOrder), volumeForClose, position.OpenVolume);
+                                " {Method} Order {VolumeForClose} {OpenVolumePosition} "
+                                , nameof(SendCloseOrder), volumeForClose, position.OpenVolume);
                                 // добавить лимит ордер на закрытие)
                                 SendCloseLimitOrderPosition(position, myTrade.Volume);
+                                return;
                             }
-
-                            if (!position.MyTrades.Contains(myTrade))  // если трейда еще нет в списке 
+                            if(position.CloseOrders != null)
                             {
-  
+                                for (int s = 0; s < position.CloseOrders.Count; s++) // смотрим активный объем на закрытие 
+                                {
+                                    if (position.CloseOrders[s].State == OrderStateType.Activ)
+                                    {
+                                        volumeForClose += position.CloseOrders[s].Volume;
+                                    }
+                                }
+                                // проверяем в ордерах закрытия объема меньше чем открыто на бирже
+                                if (Math.Abs(volumeForClose) < Math.Abs(position.MaxVolume))// во всех исполненых на открытие
+                                {
+                                    _logger.Information("Called metod  SendCloseLimitOrderPosition" +
+                                                           " {Method} Order {VolumeForClose} {OpenVolumePosition} "
+                                                     , nameof(SendCloseOrder), volumeForClose, position.OpenVolume);
+                                    // добавить лимит ордер на закрытие)
+                                    SendCloseLimitOrderPosition(position, myTrade.Volume);
+                                    return;
+                                }
                             }
                         }
                     }
@@ -1464,13 +1472,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                 GetBalansSecur();
                 // если открылась сделка выставить тейк
-                SendCloseOrder(myTrade);
+                //SendCloseOrder(myTrade);
                 //SerializerPosition();
             }
             else                 
             _logger.Warning(" Levak ! Secur Trade {@Trade} {Security} {Method}", myTrade, myTrade.SecurityNameCode, nameof(_server_NewOrderIncomeEvent));
         }
-
 
         /// <summary>
         /// мой ордер с сервера
@@ -1951,6 +1958,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     writer.WriteLine(PriceStopShort);
                     writer.WriteLine(PriceStopLong);
 
+                    
+                    writer.WriteLine(JsonConvert.SerializeObject(PositionsBots));
 
                     writer.Close();
 
@@ -2022,6 +2031,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                     PriceStopShort = GetDecimalForString(reader.ReadLine());
                     PriceStopLong = GetDecimalForString(reader.ReadLine());
+
+                    PositionsBots = JsonConvert.DeserializeAnonymousType(reader.ReadLine(), new ObservableCollection<Position>());
 
                     //StepType step = StepType.PUNKT;
                     //if (Enum.TryParse(reader.ReadLine(), out step))
