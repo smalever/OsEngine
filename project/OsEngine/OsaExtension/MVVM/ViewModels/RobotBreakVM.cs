@@ -1959,7 +1959,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     writer.WriteLine(PriceStopLong);
 
                     
-                    writer.WriteLine(JsonConvert.SerializeObject(PositionsBots));
+                    //writer.WriteLine(JsonConvert.SerializeObject(PositionsBots));
 
                     writer.Close();
 
@@ -2032,7 +2032,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     PriceStopShort = GetDecimalForString(reader.ReadLine());
                     PriceStopLong = GetDecimalForString(reader.ReadLine());
 
-                    PositionsBots = JsonConvert.DeserializeAnonymousType(reader.ReadLine(), new ObservableCollection<Position>());
+                    //PositionsBots = JsonConvert.DeserializeAnonymousType(reader.ReadLine(), new ObservableCollection<Position>());
 
                     //StepType step = StepType.PUNKT;
                     //if (Enum.TryParse(reader.ReadLine(), out step))
