@@ -1328,6 +1328,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void ChekTradePosition(MyTrade newTrade)
         {
+            GetBalansSecur();
+
             foreach (Position position in PositionsBots)
             {
                 if (!position.MyTrades.Contains(newTrade))
@@ -1338,8 +1340,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                     if (newTrade.SecurityNameCode == SelectedSecurity.Name)
                     {
-                        GetBalansSecur();
-
                         SendCloseOrder(newTrade);
                     }
                 }
@@ -1483,12 +1483,54 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 _logger.Warning(" Come myTrade {Method} {NumberOrderParent} {@myTrade}", nameof(_server_NewMyTradeEvent),myTrade.NumberOrderParent , myTrade);
 
                 GetBalansSecur();
-                // если открылась сделка выставить тейк
-                //SendCloseOrder(myTrade);
-                //SerializerPosition();
+                IsOnTralProfit(myTrade);
             }
             else                 
             _logger.Warning(" Levak ! Secur Trade {@Trade} {Security} {Method}", myTrade, myTrade.SecurityNameCode, nameof(_server_NewOrderIncomeEvent));
+        }
+
+
+        /// <summary>
+        /// включить трейлинг если есть ещё активные на закрытие 
+        /// </summary>
+        private void IsOnTralProfit(MyTrade myTrade)
+        {
+            foreach (Position position in PositionsBots) // заходим в позицию
+            {
+                // проверяем откуда трейд 
+                if (position.CloseOrders != null)
+                {
+                    for (int i = 0; i < position.CloseOrders.Count; i++)
+                    {
+                        Order curOrdClose = position.CloseOrders[i];
+
+                        if (curOrdClose.NumberMarket == myTrade.NumberOrderParent) // принадлежит ордеру закрытия
+                        {
+                            // значит трейд закрывающий
+                            int countOrder = position.CloseOrders.Count;
+
+                            for (int s = 0; s < countOrder ; s++) // смотрим ордера закрытия
+                            {
+                                if (position.CloseOrders[s].State == OrderStateType.Activ && countOrder > 1) // ищем актиыные  больше одного
+                                {
+                                    if (position.Direction == Side.Buy)
+                                    {
+                                        IsChekTraelStopLong = true;
+
+                                        _logger.Warning(" Enabled trailing profit Long {Method} ", nameof(IsOnTralProfit));
+                                    }
+                                    if (position.Direction == Side.Sell)
+                                    {
+                                        IsChekTraelStopShort = true;
+
+                                        _logger.Warning(" Enabled trailing profit Short {Method} ", nameof(IsOnTralProfit));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
