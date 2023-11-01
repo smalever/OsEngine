@@ -844,7 +844,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private void SendOrderExchange(Order sendOpder) 
         {
             Server.ExecuteOrder(sendOpder);
-            Thread.Sleep(50);
+            Thread.Sleep(100);
             _logger.Information("Send order Exchange {Method} Order {@Order} {NumberUser} ", nameof(SendOrderExchange), sendOpder, sendOpder.NumberUser);
 
             SendStrStatus(" Ордер отправлен на биржу");
@@ -984,6 +984,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             if (order != null && sideSet != Side.None && priceClose != 0 && volumeClose != 0)
             {  // отправить ордер в позицию
                 position.AddNewCloseOrder(order);
+                Thread.Sleep(100);
                 _logger.Information("Send Limit order for Close {Method} {priceClose} {volumeClose} {@Order} {NumberUser}",
                                         nameof(SendCloseLimitOrderPosition), priceClose, volumeClose, order, order.NumberUser);
                 //position.PassCloseOrder= false;
