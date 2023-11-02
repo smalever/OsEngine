@@ -901,11 +901,37 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void MaintainingVolumeBalance()
         {
-            /* по терйдам посчитать открытый обем
-             * по активным ордерам закрытия обем закрытия 
-             * если есть разница обемов 
-             * доставить лимитку закрытия
-             */
+            foreach (Position position in PositionsBots) // заходим в позицию
+            {
+                decimal openVolExecut = 0; // по терйдам откр объем
+                if (position.OpenOrders != null  && position.MyTrades.Count > 0)
+                {
+                    for (int i = 0; i < position.OpenOrders.Count; i++)
+                    {
+                        if (position.OpenOrders[i].MyTrades[i] == null) continue;
+                        
+                        openVolExecut += position.OpenOrders[i].MyTrades[i].Volume;
+                    }
+                }
+                decimal activCloseVol = 0; // по активным ордерам закрытия объем
+                if (position.CloseOrders != null && position.MyTrades.Count > 0)
+                {
+                    for (int i = 0;i < position.CloseOrders.Count;i++)
+                    {
+                        if (position.CloseOrders[i].State == OrderStateType.Activ)
+                        {
+                            activCloseVol += position.CloseOrders[i].Volume;
+                        }
+                    }
+                }
+                if (openVolExecut > activCloseVol) // если есть разница обемов  доставить лимитку закрытия
+                {
+                    decimal vol = Decimal.Round(openVolExecut - activCloseVol, SelectedSecurity.DecimalsVolume);
+                    _logger.Warning("Open Volume is larger than the closing orders {Method} {openVolExecut} {activCloseVol} {@position} {volum}",
+                          nameof(MaintainingVolumeBalance), openVolExecut, activCloseVol, position, vol);
+                    SendCloseLimitOrderPosition(position, vol);
+                }
+            }
         }
 
         /// <summary>
@@ -926,7 +952,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         {
                             // значит трейд открывающий
 
-                            
                             if (position.CloseOrders == null)
                             {
                                 _logger.Information(" the first Called metod  SendCloseLimitOrderPosition" +
@@ -1150,7 +1175,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             if (OpenVolumePositionLong()) // если есть открытый объем в лонг
             {
-                if (IsChekTraelStopLong == true)
+                if (IsChekTraelStopLong == true && position.Direction == Side.Buy)
                 {
                     decimal stepStop = 0;
                     decimal priceStop = 0;
@@ -1174,7 +1199,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 stepStop = Decimal.Round(stepStop, SelectedSecurity.Decimals);
                 decimal entry = position.EntryPrice;
                 priceStop = entry + stepStop; //расчетная чена стопа 
-                if (IsChekTraelStopShort)
+                if (IsChekTraelStopShort && position.Direction == Side.Sell)
                 {
                     if (entry == 0) return;
 
@@ -1620,6 +1645,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 if (trade.Time.Second % 2 == 0)
                 {
                     MonitoringStop();
+                }
+                if (trade.Time.Second % 15 == 0)
+                {
+                    MaintainingVolumeBalance();
                 }
             }
         }
