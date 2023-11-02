@@ -223,7 +223,22 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 OnPropertyChanged(nameof(Price));
             }
         }
-        private decimal _price =0;
+        private decimal _price = 0;
+
+        /// <summary>
+        ///  средняя цена позиции
+        /// </summary>
+        public decimal EntryPricePos 
+        {
+            get { return _entryPricePos; }
+            set
+            {
+                _entryPricePos = value;
+                OnPropertyChanged(nameof(EntryPricePos));
+            }
+        }
+        private decimal _entryPricePos = 0;
+
 
         /// <summary>
         /// Цена профита лонг
@@ -631,10 +646,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     FinalCloseMarketOpenVolume( pos ,pos.OpenVolume);
                 }
             }
-            //if (!IsRun && SelectSecurBalans ==0 )
-            //{
-            //    DeleteHisry();
-            //}
         }
 
         /// <summary>
@@ -883,6 +894,18 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// проверять баланс ордеров зак и откр 
+        /// </summary>
+        private void MaintainingVolumeBalance()
+        {
+            /* по терйдам посчитать открытый обем
+             * по активным ордерам закрытия обем закрытия 
+             * если есть разница обемов 
+             * доставить лимитку закрытия
+             */
         }
 
         /// <summary>
