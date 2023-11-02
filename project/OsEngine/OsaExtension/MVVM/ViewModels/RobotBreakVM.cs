@@ -908,9 +908,14 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
                     for (int i = 0; i < position.OpenOrders.Count; i++)
                     {
-                        if (position.OpenOrders[i].MyTrades[i] == null) continue;
-                        
-                        openVolExecut += position.OpenOrders[i].MyTrades[i].Volume;
+                        if (position.OpenOrders[i].MyTrades == null) continue;
+
+                        for (int j = 0; j < position.OpenOrders[i].MyTrades.Count; j++ )
+                        {
+                            if (position.OpenOrders[i].MyTrades[j] == null) continue;
+
+                            openVolExecut += position.OpenOrders[i].MyTrades[j].Volume;
+                        }  
                     }
                 }
                 decimal activCloseVol = 0; // по активным ордерам закрытия объем
@@ -1171,7 +1176,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void CalculateTrelingStop(Position position)
         {   
-            if (IsRun == false || Price == 0 || SelectedSecurity == null) return;
+            if (IsRun == false || SelectedSecurity == null) return;
 
             if (OpenVolumePositionLong()) // если есть открытый объем в лонг
             {
@@ -1646,7 +1651,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
                     MonitoringStop();
                 }
-                if (trade.Time.Second % 7 == 0)
+                if (trade.Time.Second % 11== 0)
                 {
                     MaintainingVolumeBalance();
                 }
@@ -1661,7 +1666,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             if (PositionsBots == null) return;
             if (PositionsBots.Count != 0)
             {
-                if (Price != 0 && PriceStopLong != 0) // если н0ль - стоп отключен
+                if (Price != 0 ) // если н0ль - стоп отключен
                 {
                     foreach (var pos in PositionsBots)
                     {
