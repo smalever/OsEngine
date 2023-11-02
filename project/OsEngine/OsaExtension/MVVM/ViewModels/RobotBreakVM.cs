@@ -1646,7 +1646,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
                     MonitoringStop();
                 }
-                if (trade.Time.Second % 15 == 0)
+                if (trade.Time.Second % 7 == 0)
                 {
                     MaintainingVolumeBalance();
                 }
