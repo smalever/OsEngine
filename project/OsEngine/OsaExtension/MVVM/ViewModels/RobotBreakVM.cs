@@ -978,55 +978,59 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         if (curOrdOpen.NumberMarket == myTrade.NumberOrderParent) // принадлежит ордеру открытия
                         {
                             // значит трейд открывающий
+                            if (curOrdOpen.State == OrderStateType.Done)
+                            {
+                                decimal volumeOpen = curOrdOpen.VolumeExecute;
 
-                            if (position.CloseOrders == null)
-                            {
-                                _logger.Information(" the first Called metod  SendCloseLimitOrderPosition" +
-                                " {Method}  {OpenVolumePosition} "
-                                , nameof(SendCloseOrder), position.OpenVolume);
-                                // добавить лимит ордер на закрытие)
-                                SendCloseLimitOrderPosition(position, myTrade.Volume);
-                                return;
-                            }
-                            if(position.CloseOrders != null)
-                            {
-                                int countOrdClose = position.CloseOrders.Count; // количество ордеров закрытия
-                                int countTradesOpen = 0; // количество трейдов открытия
-                                for (int coOrOp = 0; coOrOp < position.OpenOrders.Count; coOrOp++)// сколько ордеров открытия 
+                                if (position.CloseOrders == null)
                                 {
-                                    countTradesOpen += position.OpenOrders[coOrOp].MyTrades.Count;// вычмисляем количество трейдов открытия
+                                    _logger.Information(" the first Called metod  SendCloseLimitOrderPosition" +
+                                    " {Method}  {OpenVolumePosition} "
+                                    , nameof(SendCloseOrder), position.OpenVolume);
+                                    // добавить лимит ордер на закрытие)
+                                    SendCloseLimitOrderPosition(position, myTrade.Volume);
+                                    return;
                                 }
-                                if (countOrdClose < countTradesOpen)
+                                if (position.CloseOrders != null)
                                 {
-                                    decimal volumeForClose = 0;
-
-                                    for (int s = 0; s < position.CloseOrders.Count; s++) // смотрим активный объем на закрытие 
+                                    int countOrdClose = position.CloseOrders.Count; // количество ордеров закрытия
+                                    int countTradesOpen = 0; // количество трейдов открытия
+                                    for (int coOrOp = 0; coOrOp < position.OpenOrders.Count; coOrOp++)// сколько ордеров открытия 
                                     {
-                                        if (position.CloseOrders[s].State == OrderStateType.Activ)
-                                        {
-                                            volumeForClose += position.CloseOrders[s].Volume;
-                                        }
+                                        countTradesOpen += position.OpenOrders[coOrOp].MyTrades.Count;// вычмисляем количество трейдов открытия
                                     }
-                                 
-                                    // проверяем в ордерах закрытия объема меньше чем открыто на бирже
-                                    if (Math.Abs(volumeForClose) < Math.Abs(position.MaxVolume))// во всех исполненых на открытие
+                                    if (countOrdClose < countTradesOpen)
                                     {
-                                        // добавить лимит ордер на закрытие)
-                                        if (myTrade.Volume > minVolumeExecut)
+                                        decimal volumeForClose = 0;
+
+                                        for (int s = 0; s < position.CloseOrders.Count; s++) // смотрим активный объем на закрытие 
                                         {
-                                            SendCloseLimitOrderPosition(position, myTrade.Volume);
-
-                                            _logger.Information("Called metod  SendCloseLimitOrderPosition" +
-                                                                   " {Method} Order {VolumeForClose} {OpenVolumePosition} "
-                                                             , nameof(SendCloseOrder), volumeForClose, position.OpenVolume);
-                                            return;
-
+                                            if (position.CloseOrders[s].State == OrderStateType.Activ)
+                                            {
+                                                volumeForClose += position.CloseOrders[s].Volume;
+                                            }
                                         }
-                                        else
+
+                                        // проверяем в ордерах закрытия объема меньше чем открыто на бирже
+                                        if (Math.Abs(volumeForClose) < Math.Abs(position.MaxVolume))// во всех исполненых на открытие
                                         {
-                                            _logger.Error("Volum close < minVolumeExecut {Method}  {myTrade_Volume} {@Position} "
-                                                                         , nameof(SendCloseOrder), myTrade.Volume, position);
-                                            MaintainingVolumeBalance();
+                                            // добавить лимит ордер на закрытие)
+                                            if (volumeOpen > minVolumeExecut)
+                                            {
+                                                SendCloseLimitOrderPosition(position, volumeOpen);
+
+                                                _logger.Information("Called metod  SendCloseLimitOrderPosition" +
+                                                                       " {Method} Order {Volume} {OpenVolumePosition} "
+                                                                 , nameof(SendCloseOrder), volumeOpen, position.OpenVolume);
+                                                return;
+
+                                            }
+                                            else
+                                            {
+                                                _logger.Error("Volum close < minVolumeExecut {Method}  {myTrade_Volume} {@Position} "
+                                                                             , nameof(SendCloseOrder), myTrade.Volume, position);
+                                                MaintainingVolumeBalance();
+                                            }
                                         }
                                     }
                                 }
