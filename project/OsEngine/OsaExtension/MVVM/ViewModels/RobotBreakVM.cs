@@ -901,6 +901,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void MaintainingVolumeBalance()
         {
+            decimal minVolumeExecut = SelectedSecurity.MinTradeAmount;
             foreach (Position position in PositionsBots) // заходим в позицию
             {
                 decimal openVolExecut = 0; // по терйдам откр объем
@@ -929,11 +930,30 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         }
                     }
                 }
-                if (openVolExecut > activCloseVol) // если есть разница обемов  доставить лимитку закрытия
+                if (openVolExecut > activCloseVol ) // если есть разница обемов  доставить лимитку закрытия
                 {
                     decimal vol = Decimal.Round(openVolExecut - activCloseVol, SelectedSecurity.DecimalsVolume);
+                    if (vol < minVolumeExecut)
+                    {
+                        _logger.Warning(" Open VolExecut - activ Close Vol <  MinTradeAmount {Method}", nameof(MaintainingVolumeBalance));
+                        return;
+                    }
                     _logger.Warning("Open Volume is larger than the closing orders {Method} {openVolExecut} {activCloseVol} {@position} {volum}",
                           nameof(MaintainingVolumeBalance), openVolExecut, activCloseVol, position, vol);
+                    SendCloseLimitOrderPosition(position, vol);
+                }
+                if (SelectSecurBalans > activCloseVol)
+                {
+                    GetBalansSecur();
+                    decimal vol = Decimal.Round(SelectSecurBalans - activCloseVol, SelectedSecurity.DecimalsVolume);
+                    if(vol < minVolumeExecut)
+                    {
+                        _logger.Error("Volum close < minVolumeExecut {Method}  {vol} {@Position} ",
+                                                  nameof(MaintainingVolumeBalance), vol, position);
+                        return;
+                    }
+                    _logger.Warning(" Open Volume stock market larger than the closing orders  {Method} {SelectSecurBalans} {activCloseVol} {@position} {volum}",
+                          nameof(MaintainingVolumeBalance), SelectSecurBalans, activCloseVol, position, vol);
                     SendCloseLimitOrderPosition(position, vol);
                 }
             }
@@ -946,6 +966,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             foreach (Position position in PositionsBots) // заходим в позицию
             {
+                decimal minVolumeExecut = SelectedSecurity.MinTradeAmount;
+
                 // проверяем откуда трейд если открывающий выствить тейк
                 if (position.OpenOrders != null) 
                 {
@@ -985,15 +1007,27 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                                             volumeForClose += position.CloseOrders[s].Volume;
                                         }
                                     }
+                                 
                                     // проверяем в ордерах закрытия объема меньше чем открыто на бирже
                                     if (Math.Abs(volumeForClose) < Math.Abs(position.MaxVolume))// во всех исполненых на открытие
                                     {
-                                        _logger.Information("Called metod  SendCloseLimitOrderPosition" +
-                                                               " {Method} Order {VolumeForClose} {OpenVolumePosition} "
-                                                         , nameof(SendCloseOrder), volumeForClose, position.OpenVolume);
                                         // добавить лимит ордер на закрытие)
-                                        SendCloseLimitOrderPosition(position, myTrade.Volume);
-                                        return;
+                                        if (myTrade.Volume > minVolumeExecut)
+                                        {
+                                            SendCloseLimitOrderPosition(position, myTrade.Volume);
+
+                                            _logger.Information("Called metod  SendCloseLimitOrderPosition" +
+                                                                   " {Method} Order {VolumeForClose} {OpenVolumePosition} "
+                                                             , nameof(SendCloseOrder), volumeForClose, position.OpenVolume);
+                                            return;
+
+                                        }
+                                        else
+                                        {
+                                            _logger.Error("Volum close < minVolumeExecut {Method}  {myTrade_Volume} {@Position} "
+                                                                         , nameof(SendCloseOrder), myTrade.Volume, position);
+                                            MaintainingVolumeBalance();
+                                        }
                                     }
                                 }
                             }
@@ -1655,6 +1689,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
                     MaintainingVolumeBalance();
                 }
+                if (trade.Time.Second % 11 == 0) GetBalansSecur();
             }
         }
 
