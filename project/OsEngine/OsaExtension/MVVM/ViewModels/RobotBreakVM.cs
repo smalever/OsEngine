@@ -902,6 +902,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private void MaintainingVolumeBalance()
         {
             decimal minVolumeExecut = SelectedSecurity.MinTradeAmount;
+
             foreach (Position position in PositionsBots) // заходим в позицию
             {
                 decimal openVolExecut = 0; // по терйдам откр объем
