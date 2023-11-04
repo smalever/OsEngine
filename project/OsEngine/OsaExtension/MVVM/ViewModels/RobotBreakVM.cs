@@ -404,6 +404,20 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private decimal _volumePerOrderOpen = 0;
 
         /// <summary>
+        /// Oбъем купленый роботом 
+        /// </summary>
+        public decimal VolumeRobExecut
+        {
+            get => _volumeRobExecut;
+            set
+            {
+                _volumeRobExecut = value;
+                OnPropertyChanged(nameof(VolumeRobExecut));
+            }
+        }
+        private decimal _volumeRobExecut = 0;
+
+        /// <summary>
         /// цена стопов для шота
         /// </summary>
         public decimal PriceStopShort
@@ -524,6 +538,31 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
         }
         private bool _isChekTraelStopShort;
+
+        /// <summary>
+        /// проверить объем на закрытие
+        /// </summary>
+        public bool IsChekVolumeClose
+        {
+            get => _isChekVolumeClose;
+            set
+            {
+                _isChekVolumeClose = value;
+                OnPropertyChanged(nameof(IsChekVolumeClose));
+            }
+        }
+        private bool _isChekVolumeClose;
+
+        public bool IsChekMonitor
+        {
+            get => _isChekMonitor;
+            set
+            {
+                _isChekMonitor = value;
+                OnPropertyChanged(nameof(IsChekMonitor));
+            }
+        }
+        private bool _isChekMonitor;
 
         /// <summary>
         /// расстояние до трейлин стопа лонг в % 
@@ -653,6 +692,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void StopPosition( Position position)
         {
+            GetBalansSecur();
+
             CanselPositionActivOrders(position);
 
             if (position.OpenVolume != 0)
@@ -668,6 +709,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             decimal finalVolumClose = 0;
             finalVolumClose = volume;// берем открытый объем 
+
+            if (SelectSecurBalans == 0) // 
+            {
+                _logger.Warning(" SelectSecurBalans == 0 {Metod} ", nameof(FinalCloseMarketOpenVolume));
+                return;
+            }
 
             Side sideClose = Side.None;
             if (pos.Direction == Side.Buy)
@@ -905,68 +952,115 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             foreach (Position position in PositionsBots) // заходим в позицию
             {
-                decimal openVolExecut = 0; // по терйдам откр объем
-                if (position.OpenOrders != null  && position.MyTrades.Count > 0)
+                _volumeRobExecut = position.OpenVolume;
+                decimal volumOrderClose = 0; // по ордерам закрытия объем
+                if (position.CloseOrders != null && position.MyTrades.Count > 0)
+                {
+                    for (int i = 0;i < position.CloseOrders.Count;i++)
+                    {
+                        volumOrderClose += position.CloseOrders[i].Volume;
+                    }
+                }
+
+                //  на бирже открытый обем больше обема ордеров закрытия
+                // значит где-то ошибка или купили помимо робота
+                // доставить лимитку закрытия
+
+                if (SelectSecurBalans > volumOrderClose)
+                {
+                    GetBalansSecur();
+
+                    _logger.Warning(" Volume on the stock exchange > Volum order close  {Method}  {vol} {@Position} ",
+                                                     nameof(MaintainingVolumeBalance));
+
+                    if (IsChekMonitor)
+                    {
+                        decimal vol = Decimal.Round(SelectSecurBalans - volumOrderClose, SelectedSecurity.DecimalsVolume);
+                        if (vol < minVolumeExecut)
+                        {
+                            _logger.Error("Volum close < minVolumeExecut {Method}  {vol} {@Position} ",
+                                                      nameof(MaintainingVolumeBalance), vol, position);
+                            return;
+                        }
+                        _logger.Warning(" Open Volume stock market larger than the closing orders  {Method} {SelectSecurBalans} {activCloseVol} {@position} {volum}",
+                              nameof(MaintainingVolumeBalance), SelectSecurBalans, volumOrderClose, position, vol);
+                        SendCloseLimitOrderPosition(position, vol);
+                        _isChekMonitor = false;
+                    }
+                }
+            }
+        }
+
+        // вынести на морду обработку потеряного обема
+
+        private void AddCloseOrder()
+        {
+            // если есть разница обемов в открытых терйдах и
+            // обемом в ордерах на закрытие
+            // значит проебаны выставление ордеров закрытия
+            // доставить лимитку закрытия
+
+            decimal minVolumeExecut = SelectedSecurity.MinTradeAmount;
+
+            foreach (Position position in PositionsBots) // заходим в позицию
+            {
+                _volumeRobExecut = position.OpenVolume;
+
+                decimal volumeInTradesOpenOrd = 0; // по терйдам откр объем
+                if (position.OpenOrders != null && position.MyTrades.Count > 0)
                 {
                     for (int i = 0; i < position.OpenOrders.Count; i++)
                     {
                         if (position.OpenOrders[i].MyTrades == null) continue;
 
-                        for (int j = 0; j < position.OpenOrders[i].MyTrades.Count; j++ )
+                        for (int j = 0; j < position.OpenOrders[i].MyTrades.Count; j++)
                         {
                             if (position.OpenOrders[i].MyTrades[j] == null) continue;
 
-                            openVolExecut += position.OpenOrders[i].MyTrades[j].Volume;
-                        }  
-                    }
-                }
-                decimal activCloseVol = 0; // по активным ордерам закрытия объем
-                if (position.CloseOrders != null && position.MyTrades.Count > 0)
-                {
-                    for (int i = 0;i < position.CloseOrders.Count;i++)
-                    {
-                        if (position.CloseOrders[i].State == OrderStateType.Activ)
-                        {
-                            activCloseVol += position.CloseOrders[i].Volume;
+                            volumeInTradesOpenOrd += position.OpenOrders[i].MyTrades[j].Volume;
                         }
                     }
                 }
-                if (openVolExecut > activCloseVol ) // если есть разница обемов  доставить лимитку закрытия
+                decimal volumInOrderClose = 0; // по ордерам закрытия объем
+                if (position.CloseOrders != null && position.MyTrades.Count > 0)
                 {
-                    decimal vol = Decimal.Round(openVolExecut - activCloseVol, SelectedSecurity.DecimalsVolume);
-                    if (vol < minVolumeExecut)
+                    for (int i = 0; i < position.CloseOrders.Count; i++)
                     {
-                        _logger.Warning(" Open VolExecut - activ Close Vol <  MinTradeAmount {Method}", nameof(MaintainingVolumeBalance));
-                        return;
+                         volumInOrderClose += position.CloseOrders[i].Volume;
                     }
-                    _logger.Warning("Open Volume is larger than the closing orders {Method} {openVolExecut} {activCloseVol} {@position} {volum}",
-                          nameof(MaintainingVolumeBalance), openVolExecut, activCloseVol, position, vol);
-                    SendCloseLimitOrderPosition(position, vol);
                 }
-                if (SelectSecurBalans > activCloseVol)
+                if (volumeInTradesOpenOrd > volumInOrderClose )
                 {
-                    GetBalansSecur();
-                    decimal vol = Decimal.Round(SelectSecurBalans - activCloseVol, SelectedSecurity.DecimalsVolume);
-                    if(vol < minVolumeExecut)
+                    _logger.Warning(" Open Volume > Volume Close orders  Method}", nameof(AddCloseOrder));
+
+                    if (IsChekVolumeClose) // разрешено добавить включать руками
                     {
-                        _logger.Error("Volum close < minVolumeExecut {Method}  {vol} {@Position} ",
-                                                  nameof(MaintainingVolumeBalance), vol, position);
-                        return;
+                        decimal vol = Decimal.Round(volumeInTradesOpenOrd - volumInOrderClose, SelectedSecurity.DecimalsVolume);
+                        if (vol < minVolumeExecut)
+                        {
+                            _logger.Error(" Open VolExecut - Close Vol <  MinTradeAmount {Method}", nameof(AddCloseOrder));
+                            return;
+                        }
+                        _logger.Warning("Open Volume is larger than the closing orders {Method} {openVolExecut} {activCloseVol} {@position} {volum}",
+                              nameof(AddCloseOrder), volumeInTradesOpenOrd, volumInOrderClose, position, vol);
+
+                        SendCloseLimitOrderPosition(position, vol); // выставили ордер
+
+                        _isChekVolumeClose = false; // разрешее выключили 
                     }
-                    _logger.Warning(" Open Volume stock market larger than the closing orders  {Method} {SelectSecurBalans} {activCloseVol} {@position} {volum}",
-                          nameof(MaintainingVolumeBalance), SelectSecurBalans, activCloseVol, position, vol);
-                    SendCloseLimitOrderPosition(position, vol);
                 }
             }
         }
 
         /// <summary>
-        /// выставить ордер закрытия
-        /// </summary>
+                /// выставить ордер закрытия
+                /// </summary>
         private void SendCloseOrder(MyTrade myTrade)
         {
             foreach (Position position in PositionsBots) // заходим в позицию
             {
+                _volumeRobExecut = position.OpenVolume;
+
                 decimal minVolumeExecut = SelectedSecurity.MinTradeAmount;
 
                 // проверяем откуда трейд если открывающий выствить тейк
@@ -1185,6 +1279,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         
             foreach (Position position in PositionsBots)
             {
+                _volumeRobExecut = position.OpenVolume;
+
                 if (position.Direction == Side.Buy && position.OpenVolume != 0)
                 {
                     return true;
@@ -1202,6 +1298,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             foreach (Position position in PositionsBots)
             {
+                _volumeRobExecut = position.OpenVolume;
+
                 if (position.Direction == Side.Sell && position.OpenVolume != 0)
                 {
                     return true;
@@ -1424,6 +1522,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             foreach (Position position in PositionsBots)
             {
+                _volumeRobExecut = position.OpenVolume;
+
                 if (!position.MyTrades.Contains(newTrade))
                 {
                     position.SetTrade(newTrade);
@@ -1693,8 +1793,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 if (trade.Time.Second % 11== 0)
                 {
                     MaintainingVolumeBalance();
+                    AddCloseOrder();
                 }
-                if (trade.Time.Second % 11 == 0) GetBalansSecur();
+                if (trade.Time.Second % 7 == 0) GetBalansSecur();
             }
         }
 
