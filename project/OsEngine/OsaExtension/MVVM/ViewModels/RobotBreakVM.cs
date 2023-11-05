@@ -991,8 +991,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
         }
 
-        // вынести на морду обработку потеряного обема
-
         private void AddCloseOrder()
         {
             // если есть разница обемов в открытых терйдах и
@@ -1098,12 +1096,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                                     {
                                         decimal volumeForClose = 0;
 
-                                        for (int s = 0; s < position.CloseOrders.Count; s++) // смотрим активный объем на закрытие 
+                                        for (int s = 0; s < position.CloseOrders.Count; s++) // смотрим  объемы на закрытие 
                                         {
-                                            if (position.CloseOrders[s].State == OrderStateType.Activ)
-                                            {
+                                            //if (position.CloseOrders[s].State == OrderStateType.Activ)
+                                            //{
                                                 volumeForClose += position.CloseOrders[s].Volume;
-                                            }
+                                            //}
                                         }
 
                                         // проверяем в ордерах закрытия объема меньше чем открыто на бирже
@@ -1524,8 +1522,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 _volumeRobExecut = position.OpenVolume;
 
-                if (!position.MyTrades.Contains(newTrade))
-                {
+                //if (!position.MyTrades.Contains(newTrade))
+                //{
                     position.SetTrade(newTrade);
                     _logger.Information("ChekTradePosition {@Trade} {NumberTrade} {NumberOrderParent} {Method}"
                                          , newTrade, newTrade.NumberTrade, newTrade.NumberOrderParent, nameof(ChekTradePosition));
@@ -1534,7 +1532,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     {
                         SendCloseOrder(newTrade);
                     }
-                }
+                //}
             }
         }
 
@@ -1626,6 +1624,14 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         #endregion
         #region  методы сервера ===========================
+
+        /// <summary>
+        ///  измеились биды аски 
+        /// </summary>
+        private void _server_NewBidAscIncomeEvent(decimal arg1, decimal arg2, Security arg3)
+        {
+
+        }
 
         /// <summary>
         /// Создан сервер 
@@ -1881,11 +1887,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             _server.SecuritiesChangeEvent += _server_SecuritiesChangeEvent;
             _server.PortfoliosChangeEvent += _server_PortfoliosChangeEvent;
             //_server.NewBidAscIncomeEvent += _server_NewBidAscIncomeEvent;
+            _server.NewBidAscIncomeEvent += _server_NewBidAscIncomeEvent;
             _server.ConnectStatusChangeEvent += _server_ConnectStatusChangeEvent;
 
             _logger.Warning(" Connecting to the server = {ServerType} {Method} ", _server.ServerType, nameof(SubscribeToServer));
             //RobotsWindowVM.Log(Header, " Подключаемся к серверу = " + _server.ServerType);
         }
+
 
         /// <summary>
         ///  отключиться от сервера 

@@ -174,7 +174,7 @@
                         <StackPanel Orientation="Horizontal" Margin="37,0,1,0">
                             <CheckBox Content="Откр Лев объём" 
                                     IsChecked="{Binding IsChekMonitor}" 
-                                    ToolTip="Добавить в ордера закрытия разницу открытого объема на бирже"
+                                    ToolTip="Добавить в ордера закрытия разницу открытого руками объема на бирже"
                                     Width="119" />
                         </StackPanel>
 
