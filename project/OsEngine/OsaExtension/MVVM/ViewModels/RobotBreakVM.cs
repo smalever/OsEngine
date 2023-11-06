@@ -952,7 +952,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             foreach (Position position in PositionsBots) // заходим в позицию
             {
-                _volumeRobExecut = position.OpenVolume;
+                VolumeRobExecut = position.OpenVolume;
                 decimal volumOrderClose = 0; // по ордерам закрытия объем
                 if (position.CloseOrders != null && position.MyTrades.Count > 0)
                 {
@@ -972,7 +972,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                     _logger.Warning(" Volume on the stock exchange > Volum order close  {Method}  {vol} {@Position} ",
                                                      nameof(MaintainingVolumeBalance));
-
                     if (IsChekMonitor)
                     {
                         decimal vol = Decimal.Round(SelectSecurBalans - volumOrderClose, SelectedSecurity.DecimalsVolume);
@@ -985,12 +984,15 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         _logger.Warning(" Open Volume stock market larger than the closing orders  {Method} {SelectSecurBalans} {activCloseVol} {@position} {volum}",
                               nameof(MaintainingVolumeBalance), SelectSecurBalans, volumOrderClose, position, vol);
                         SendCloseLimitOrderPosition(position, vol);
-                        _isChekMonitor = false;
+                        IsChekMonitor = false;
                     }
                 }
             }
         }
 
+        /// <summary>
+        ///  костыль на потеряные ордера закрытия
+        /// </summary>
         private void AddCloseOrder()
         {
             // если есть разница обемов в открытых терйдах и
@@ -1002,7 +1004,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             foreach (Position position in PositionsBots) // заходим в позицию
             {
-                _volumeRobExecut = position.OpenVolume;
+                VolumeRobExecut = position.OpenVolume;
 
                 decimal volumeInTradesOpenOrd = 0; // по терйдам откр объем
                 if (position.OpenOrders != null && position.MyTrades.Count > 0)
@@ -1044,89 +1046,126 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                         SendCloseLimitOrderPosition(position, vol); // выставили ордер
 
-                        _isChekVolumeClose = false; // разрешее выключили 
+                        IsChekVolumeClose = false; // разрешее выключили 
                     }
                 }
             }
         }
 
         /// <summary>
-                /// выставить ордер закрытия
-                /// </summary>
-        private void SendCloseOrder(MyTrade myTrade)
+        ///  проверить открывающий ли это трейд 
+        /// </summary>
+        private bool OpenTrade(MyTrade myTrade)
         {
             foreach (Position position in PositionsBots) // заходим в позицию
-            {
-                _volumeRobExecut = position.OpenVolume;
 
-                decimal minVolumeExecut = SelectedSecurity.MinTradeAmount;
-
-                // проверяем откуда трейд если открывающий выствить тейк
-                if (position.OpenOrders != null) 
+            {   // проверяем откуда трейд если открывающий выствить тейк
+                if (position.OpenOrders != null)
                 {
-                    for (int i = 0; i < position.OpenOrders.Count; i++) 
+                    for (int i = 0; i < position.OpenOrders.Count; i++)
                     {
                         Order curOrdOpen = position.OpenOrders[i];
 
                         if (curOrdOpen.NumberMarket == myTrade.NumberOrderParent) // принадлежит ордеру открытия
                         {
                             // значит трейд открывающий
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        ///  получить объем открытый трейдом
+        /// </summary>
+        private decimal GetOpenVolume(MyTrade myTrade)
+        {
+            decimal volume = 0;
+            foreach (Position position in PositionsBots) 
+            {
+                VolumeRobExecut = position.OpenVolume;
+
+                if (position.OpenOrders != null)
+                {
+                    for (int i = 0; i < position.OpenOrders.Count; i++)
+                    {
+                        Order curOrdOpen = position.OpenOrders[i];
+
+                        if (curOrdOpen.NumberMarket == myTrade.NumberOrderParent) 
+                        {
                             if (curOrdOpen.State == OrderStateType.Done)
                             {
-                                decimal volumeOpen = curOrdOpen.VolumeExecute;
+                                volume = curOrdOpen.VolumeExecute;
+                            }
+                        }
+                    }
+                }
+            }
+            return volume;
+        }
 
-                                if (position.CloseOrders == null)
-                                {
-                                    _logger.Information(" the first Called metod  SendCloseLimitOrderPosition" +
-                                    " {Method}  {OpenVolumePosition} "
-                                    , nameof(SendCloseOrder), position.OpenVolume);
-                                    // добавить лимит ордер на закрытие)
-                                    SendCloseLimitOrderPosition(position, myTrade.Volume);
-                                    return;
-                                }
-                                if (position.CloseOrders != null)
-                                {
-                                    int countOrdClose = position.CloseOrders.Count; // количество ордеров закрытия
-                                    int countTradesOpen = 0; // количество трейдов открытия
-                                    for (int coOrOp = 0; coOrOp < position.OpenOrders.Count; coOrOp++)// сколько ордеров открытия 
-                                    {
-                                        countTradesOpen += position.OpenOrders[coOrOp].MyTrades.Count;// вычмисляем количество трейдов открытия
-                                    }
-                                    if (countOrdClose < countTradesOpen)
-                                    {
-                                        decimal volumeForClose = 0;
+        /// <summary>
+        /// выставить ордер закрытия
+        /// </summary>
+        private void SendCloseOrder(Position position , decimal volume)
+        {
+            VolumeRobExecut = position.OpenVolume;
 
-                                        for (int s = 0; s < position.CloseOrders.Count; s++) // смотрим  объемы на закрытие 
-                                        {
-                                            //if (position.CloseOrders[s].State == OrderStateType.Activ)
-                                            //{
-                                                volumeForClose += position.CloseOrders[s].Volume;
-                                            //}
-                                        }
+            decimal minVolumeExecut = SelectedSecurity.MinTradeAmount;
 
-                                        // проверяем в ордерах закрытия объема меньше чем открыто на бирже
-                                        if (Math.Abs(volumeForClose) < Math.Abs(position.MaxVolume))// во всех исполненых на открытие
-                                        {
-                                            // добавить лимит ордер на закрытие)
-                                            if (volumeOpen > minVolumeExecut)
-                                            {
-                                                SendCloseLimitOrderPosition(position, volumeOpen);
+            if (position.OpenOrders != null)
+            {
+                decimal volumeOpen = volume;
 
-                                                _logger.Information("Called metod  SendCloseLimitOrderPosition" +
-                                                                       " {Method} Order {Volume} {OpenVolumePosition} "
-                                                                 , nameof(SendCloseOrder), volumeOpen, position.OpenVolume);
-                                                return;
+                if (position.CloseOrders == null)
+                {
+                    _logger.Information(" the first Called metod  SendCloseLimitOrderPosition" +
+                    " {Method}  {OpenVolumePosition} "
+                    , nameof(SendCloseOrder), position.OpenVolume);
+                    // добавить лимит ордер на закрытие)
+                    SendCloseLimitOrderPosition(position, volumeOpen);
+                    return;
+                }
+                if (position.CloseOrders != null)
+                {
+                    int countOrdClose = position.CloseOrders.Count; // количество ордеров закрытия
+                    int countTradesOpen = 0; // количество трейдов открытия
+                    for (int coOrOp = 0; coOrOp < position.OpenOrders.Count; coOrOp++)// сколько ордеров открытия 
+                    {
+                        if (position.OpenOrders[coOrOp].MyTrades == null) continue;
 
-                                            }
-                                            else
-                                            {
-                                                _logger.Error("Volum close < minVolumeExecut {Method}  {myTrade_Volume} {@Position} "
-                                                                             , nameof(SendCloseOrder), myTrade.Volume, position);
-                                                MaintainingVolumeBalance();
-                                            }
-                                        }
-                                    }
-                                }
+                        countTradesOpen += position.OpenOrders[coOrOp].MyTrades.Count;// вычисляем количество трейдов открытия
+                    }
+                    if (countOrdClose < countTradesOpen)
+                    {
+                        decimal volumeForClose = 0;
+
+                        for (int s = 0; s < position.CloseOrders.Count; s++) // смотрим  объемы на закрытие 
+                        {
+                            volumeForClose += position.CloseOrders[s].Volume;
+                        }
+
+                        // проверяем в ордерах закрытия объема меньше чем открыто на бирже
+                        if (Math.Abs(volumeForClose) < Math.Abs(position.MaxVolume))// во всех исполненых на открытие
+                        {
+                            // добавить лимит ордер на закрытие)
+                            if (volumeOpen > minVolumeExecut)
+                            {
+                                SendCloseLimitOrderPosition(position, volumeOpen);
+
+                                _logger.Information("Called metod  SendCloseLimitOrderPosition" +
+                                                       " {Method} Order {Volume} {OpenVolumePosition} "
+                                                 , nameof(SendCloseOrder), volumeOpen, position.OpenVolume);
+                                return;
+
+                            }
+                            else
+                            {
+                                _logger.Error("Volum close < minVolumeExecut {Method}  {volumeOpen} {@Position} "
+                                                             , nameof(SendCloseOrder), volumeOpen, position);
+                                MaintainingVolumeBalance();
                             }
                         }
                     }
@@ -1520,19 +1559,23 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             foreach (Position position in PositionsBots)
             {
-                _volumeRobExecut = position.OpenVolume;
+                VolumeRobExecut = position.OpenVolume;
 
-                //if (!position.MyTrades.Contains(newTrade))
-                //{
-                    position.SetTrade(newTrade);
-                    _logger.Information("ChekTradePosition {@Trade} {NumberTrade} {NumberOrderParent} {Method}"
-                                         , newTrade, newTrade.NumberTrade, newTrade.NumberOrderParent, nameof(ChekTradePosition));
+                position.SetTrade(newTrade);
+                _logger.Information("ChekTradePosition {@Trade} {NumberTrade} {NumberOrderParent} {Method}"
+                                     , newTrade, newTrade.NumberTrade, newTrade.NumberOrderParent, nameof(ChekTradePosition));
 
-                    if (newTrade.SecurityNameCode == SelectedSecurity.Name)
+                if (newTrade.SecurityNameCode == SelectedSecurity.Name)
+                {
+                    if (OpenTrade(newTrade))
                     {
-                        SendCloseOrder(newTrade);
-                    }
-                //}
+                        decimal vol = GetOpenVolume(newTrade);
+                        if (vol != 0) 
+                        {
+                            SendCloseOrder(position, vol);
+                        }
+                    } 
+                }
             }
         }
 
@@ -1686,7 +1729,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             else                 
             _logger.Warning(" Levak ! Secur Trade {@Trade} {Security} {Method}", myTrade, myTrade.SecurityNameCode, nameof(_server_NewOrderIncomeEvent));
         }
-
 
         /// <summary>
         /// включить трейлинг если есть ещё активные на закрытие 
@@ -1893,7 +1935,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             _logger.Warning(" Connecting to the server = {ServerType} {Method} ", _server.ServerType, nameof(SubscribeToServer));
             //RobotsWindowVM.Log(Header, " Подключаемся к серверу = " + _server.ServerType);
         }
-
 
         /// <summary>
         ///  отключиться от сервера 
