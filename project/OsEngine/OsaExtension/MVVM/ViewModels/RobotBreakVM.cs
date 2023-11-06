@@ -1103,6 +1103,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     }
                 }
             }
+            _logger.Information("ChekTradePosition {@Trade} {NumberTrade} {NumberOrderParent} {volume} {Method}"
+                                     , myTrade, myTrade.NumberTrade, myTrade.NumberOrderParent, volume, nameof(GetOpenVolume));
             return volume;
         }
 
@@ -1562,7 +1564,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 VolumeRobExecut = position.OpenVolume;
 
                 position.SetTrade(newTrade);
-                _logger.Information("ChekTradePosition {@Trade} {NumberTrade} {NumberOrderParent} {Method}"
+                _logger.Information("Chek Trade Position {@Trade} {NumberTrade} {NumberOrderParent} {Method}"
                                      , newTrade, newTrade.NumberTrade, newTrade.NumberOrderParent, nameof(ChekTradePosition));
 
                 if (newTrade.SecurityNameCode == SelectedSecurity.Name)
