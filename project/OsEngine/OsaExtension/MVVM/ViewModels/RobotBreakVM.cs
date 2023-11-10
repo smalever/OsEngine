@@ -1318,7 +1318,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         
             foreach (Position position in PositionsBots)
             {
-                _volumeRobExecut = position.OpenVolume;
+                VolumeRobExecut = position.OpenVolume;
 
                 if (position.Direction == Side.Buy && position.OpenVolume != 0)
                 {
@@ -1354,43 +1354,43 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {   
             if (IsRun == false || SelectedSecurity == null) return;
 
-            if (OpenVolumePositionLong()) // если есть открытый объем в лонг
+            if (position.Direction == Side.Buy && position.OpenVolume != 0) // если есть открытый объем в лонг
             {
                 if (IsChekTraelStopLong == true && position.Direction == Side.Buy)
                 {
                     decimal stepStop = 0;
-                    decimal priceStop = 0;
+                    //decimal priceStop = 0;
                     stepStop = StepPersentStopLong * Price / 100;
                     stepStop = Decimal.Round(stepStop, SelectedSecurity.Decimals);
                     decimal entry = position.EntryPrice;
-                    priceStop = entry - stepStop; //расчетная чена стопа 
+                    //priceStop = entry - stepStop; //расчетная чена стопа 
                     if (Price > PriceStopLong + stepStop)
                     {
                         if (entry == 0) return;
-
-                        PriceStopLong = Decimal.Round(priceStop, SelectedSecurity.Decimals);
+                        decimal p = Price - stepStop;
+                        PriceStopLong = Decimal.Round(p, SelectedSecurity.Decimals);
                     }
                 }
             }
-            if (OpenVolumePositionShort())
+            if (position.Direction == Side.Sell && position.OpenVolume != 0)
             {
                 decimal stepStop = 0;
-                decimal priceStop = 0;
+                //decimal priceStop = 0;
                 stepStop = StepPersentStopShort * Price / 100;
                 stepStop = Decimal.Round(stepStop, SelectedSecurity.Decimals);
                 decimal entry = position.EntryPrice;
-                priceStop = entry + stepStop; //расчетная чена стопа 
                 if (IsChekTraelStopShort && position.Direction == Side.Sell)
                 {
                     if (entry == 0) return;
 
                     if (PriceStopShort == 0)
                     {
-                        PriceStopShort = priceStop;
+                        PriceStopShort = Price + stepStop;
                     }
                     if (Price < PriceStopShort - stepStop)
                     {
-                        PriceStopShort = Decimal.Round(priceStop, SelectedSecurity.Decimals);
+                        decimal p = Price - stepStop;
+                        PriceStopShort = Decimal.Round(p, SelectedSecurity.Decimals);
                     }
                 }
             }

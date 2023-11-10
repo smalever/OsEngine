@@ -36,7 +36,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         #region  ================================ Свойства =====================================
 
-
         public void Dispose()
         {
             ServerMaster.ServerCreateEvent -= ServerMaster_ServerCreateEvent;
@@ -510,6 +509,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             string str = text + " \n" + text2 + "\n";
             Debug.WriteLine(str);
         }
+
         /// <summary>
         /// отправить строку в статус бар
         /// </summary>
@@ -517,7 +517,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
            this.StrStatus = text;
         }
-
 
         #endregion
 
