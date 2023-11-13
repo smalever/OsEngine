@@ -1242,7 +1242,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             if (PositionsBots!= null)
             {
                 PositionsBots.Clear();
-                DeleteFileSerial();
+                //DeleteFileSerial();
             }
             if (BigСlusterPrice == 0)
             {
@@ -1337,7 +1337,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             foreach (Position position in PositionsBots)
             {
-                _volumeRobExecut = position.OpenVolume;
+                VolumeRobExecut = position.OpenVolume;
 
                 if (position.Direction == Side.Sell && position.OpenVolume != 0)
                 {
@@ -1836,7 +1836,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                 Price = trade.Price;
 
-                if (trade.Time.Second % 2 == 0)
+                if (trade.Time.Second % 3 == 0)
                 {
                     MonitoringStop();
                 }
@@ -2449,19 +2449,26 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             if (!OpenVolumePositionLong() && !OpenVolumePositionShort() )
             {
                 string fileName = @"Parametrs\Tabs\positions_" + Header + "=" + NumberTab + ".json";
-                if (File.Exists(fileName))
+                if (File.Exists(fileName) && PositionsBots.Count == 1)
                 {
-                    try
+                    foreach (var position in PositionsBots)
                     {
-                        File.Delete(fileName);
+                        if (!ActivOrders(position))
+                        {
+                            try
+                            {
+                                File.Delete(fileName);
+                            }
+                            catch (Exception e)
+                            {
+                                _logger.Error("Deletion  failed: {error} {Method}", e.Message, nameof(DeleteFileSerial));
+                            }
+                        }
                     }
-                    catch (Exception e)
-                    {
-                        _logger.Error("Deletion  failed: {error} {Method}", e.Message, nameof(DeleteFileSerial));
-                    }
+                   
                 }
+                else _logger.Error(" Activ Orders not Deletion failed {Method}", nameof(DeleteFileSerial));
             }
-            else _logger.Error(" Activ Orders not Deletion failed {Method}", nameof(DeleteFileSerial));
         }
         #endregion
 
