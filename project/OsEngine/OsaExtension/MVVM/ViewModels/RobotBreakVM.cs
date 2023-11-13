@@ -1359,7 +1359,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 if (IsChekTraelStopLong == true && position.Direction == Side.Buy)
                 {
                     decimal stepStop = 0;
-                    //decimal priceStop = 0;
+                    decimal priceStop = 0;
                     stepStop = StepPersentStopLong * Price / 100;
                     stepStop = Decimal.Round(stepStop, SelectedSecurity.Decimals);
                     decimal entry = position.EntryPrice;
@@ -1873,7 +1873,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         
                         foreach (var pos in PositionsBots)
                         {
-                            if (pos.Direction == Side.Buy)
+                            if (pos.Direction == Side.Buy && pos.OpenVolume > 0)
                             {
                                 StopPosition(pos);
                                 _logger.Warning(" Triggered Stop Long Position {@Position}  {Method}",
@@ -1903,7 +1903,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     {
                         foreach (var pos in PositionsBots)
                         {
-                            if (pos.Direction == Side.Sell)
+                            if (pos.Direction == Side.Sell && pos.OpenVolume != 0)
                             {
                                 StopPosition(pos);
                                 _logger.Warning(" Triggered Stop Short Position {@Position}  {Method}",
