@@ -2464,10 +2464,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                                 _logger.Error("Deletion  failed: {error} {Method}", e.Message, nameof(DeleteFileSerial));
                             }
                         }
+                        else _logger.Error(" Activ Orders not Deletion failed {Method}", nameof(DeleteFileSerial));
                     }
-                   
                 }
-                else _logger.Error(" Activ Orders not Deletion failed {Method}", nameof(DeleteFileSerial));
             }
         }
         #endregion
