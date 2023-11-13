@@ -950,6 +950,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             decimal minVolumeExecut = SelectedSecurity.MinTradeAmount;
 
+            //if (SelectSecurBalans == 0) return;
+
             foreach (Position position in PositionsBots) // заходим в позицию
             {
                 VolumeRobExecut = position.OpenVolume;
@@ -1000,6 +1002,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             // значит проебаны выставление ордеров закрытия
             // доставить лимитку закрытия
 
+            if (SelectSecurBalans == 0) return; // если нет открытого на бирже это метод не нужен 
+
             decimal minVolumeExecut = SelectedSecurity.MinTradeAmount;
 
             foreach (Position position in PositionsBots) // заходим в позицию
@@ -1031,7 +1035,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 }
                 if (volumeInTradesOpenOrd > volumInOrderClose )
                 {
-                    _logger.Warning(" Open Volume > Volume Close orders  Method}", nameof(AddCloseOrder));
+                    _logger.Warning(" Open Volume > Volume Close orders  {Method}", nameof(AddCloseOrder));
 
                     if (IsChekVolumeClose) // разрешено добавить включать руками
                     {
