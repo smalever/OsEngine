@@ -1676,9 +1676,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         ///  измеились биды аски 
         /// </summary>
-        private void _server_NewBidAscIncomeEvent(decimal arg1, decimal arg2, Security arg3)
+        private void _server_NewBidAscIncomeEvent(decimal ask, decimal bid, Security selectSecur)
         {
-
+            if (selectSecur != null && selectSecur.Name == SelectedSecurity.Name)
+            {
+                Price = ask;
+            }
         }
 
         /// <summary>
@@ -1837,7 +1840,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 Trade trade = trades.Last();
 
-                Price = trade.Price;
+                //Price = trade.Price;
 
                 if (trade.Time.Second % 3 == 0)
                 {
