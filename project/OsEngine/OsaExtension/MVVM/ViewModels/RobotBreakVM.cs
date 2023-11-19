@@ -1717,7 +1717,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             else if (state == "Disconnect")
             {
                 SendStrStatus(" Сервер отключен ");
-            }
+            } 
         }
 
         /// <summary>
