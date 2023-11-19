@@ -979,7 +979,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         decimal vol = Decimal.Round(SelectSecurBalans - volumOrderClose, SelectedSecurity.DecimalsVolume);
                         if (vol < minVolumeExecut)
                         {
-                            _logger.Error("Volum close < minVolumeExecut {Method}  {vol} {@Position} ",
+                            _logger.Error("Volum close < min Volume Execut {Method}  {vol} {@Position} ",
                                                       nameof(MaintainingVolumeBalance), vol, position);
                             return;
                         }
@@ -1184,7 +1184,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>  
         private void SendCloseLimitOrderPosition(Position position, decimal volumeClose)
         {
-           
             PriceClosePos = null;
             PriceClosePos = CalculPriceClosePos(position.Direction); // расчет цен закрытия позиции
 
