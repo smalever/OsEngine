@@ -688,6 +688,56 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         /// <summary>
+        /// добавить левый ордер в робота
+        /// </summary>
+        private void AddOrderPosition(Order order)
+        {
+            /* проверяем наш или левый 
+             * проверяем направление ордера и сделки
+             * добавляем в сделку 
+             */
+
+            foreach (Position position in PositionsBots)
+            {
+                List<Order> ordersAll = new List<Order>();
+
+                Order ordAdd = new Order();
+          
+                ordersAll = position.OpenOrders;// взять из позиции ордера открытия 
+                
+                ordersAll.AddRange(position.CloseOrders); // добавили ордера закрытия 
+
+                if (!ordersAll.Contains(order) && order.State == OrderStateType.Activ)
+                {
+                    if(position.Direction == Side.Buy && order.Side == Side.Buy ) 
+                    {
+                        position.AddNewOpenOrder(order);
+                        _logger.Information("Send Limit order for Open Orders {Method} {@Order} {NumberUser}",
+                                                             nameof(AddOrderPosition), order, order.NumberUser);
+                    }
+                    if(position.Direction == Side.Sell && order.Side == Side.Sell ) 
+                    {
+                        position.AddNewOpenOrder(order);
+                        _logger.Information("Send Limit order for Open Orders {Method} {@Order} {NumberUser}",
+                                                            nameof(AddOrderPosition), order, order.NumberUser);
+                    }
+                    if (position.Direction == Side.Buy && order.Side == Side.Sell)
+                    {
+                        position.AddNewCloseOrder(order);
+                        _logger.Information("Send Limit order for Close Orders {Method} {@Order} {NumberUser}",
+                                                            nameof(AddOrderPosition), order, order.NumberUser);
+                    }
+                    if(position.Direction == Side.Sell && order.Side == Side.Buy) 
+                    {
+                        position.AddNewCloseOrder(order);
+                        _logger.Information("Send Limit order for Close Orders {Method} {@Order} {NumberUser}",
+                                                           nameof(AddOrderPosition), order, order.NumberUser);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Закрыть позицию
         /// </summary>
         private void StopPosition( Position position)
@@ -989,14 +1039,14 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         IsChekMonitor = false;
                     }
                 }
-                if (MonitoringOpenVolumeExchange() && ActivOrders(position)) 
+                if (!MonitoringOpenVolumeExchange() && !ActivOrders(position)) // если нету робот не работает
                 {
-                    if (IsRun)
+                    if (IsRun) // нафига он включен
                     {
                         _logger.Warning(" there is no open volume and active orders on the exchange, the robot is turned off  {Method} {SelectSecurBalans} {@position} ",
                           nameof(MaintainingVolumeBalance), SelectSecurBalans, position );
-
-                        IsRun = false;
+                        SendStrStatus("Робот выключен");
+                        IsRun = false; // выключаем
                     }                
                 } ;
             }
@@ -1765,26 +1815,28 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }  
 
         /// <summary>
-        /// мой ордер с сервера
+        ///  пришел ордер с сервера
         /// </summary>
-        private void _server_NewOrderIncomeEvent(Order myOrder)
+        private void _server_NewOrderIncomeEvent(Order order)
         {
             if (SelectedSecurity != null)
             {
-                if (myOrder.SecurityNameCode == SelectedSecurity.Name)
+                if (order.SecurityNameCode == SelectedSecurity.Name)
                 {
-                    CheckMyOrder(myOrder);
-                    if (myOrder.State != OrderStateType.Fail)
+                    CheckMyOrder(order);
+                    AddOrderPosition(order);
+
+                    if (order.State != OrderStateType.Fail)
                     {
                         SaveParamsBot();
                     }
                     GetBalansSecur();
                     _logger.Information(" New myOrder {@Order} {NumberUser} {NumberMarket} {Method}",
-                                         myOrder, myOrder.NumberUser, myOrder.NumberMarket, nameof(_server_NewOrderIncomeEvent));
+                                         order, order.NumberUser, order.NumberMarket, nameof(_server_NewOrderIncomeEvent));
                 }
                 else
                     _logger.Information(" Levak ! Secur {@Order} {Security} {Method}",
-                        myOrder, myOrder.SecurityNameCode,nameof(_server_NewOrderIncomeEvent));
+                        order, order.SecurityNameCode,nameof(_server_NewOrderIncomeEvent));
             }
         }
 
@@ -1834,7 +1886,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     MaintainingVolumeBalance();
                     AddCloseOrder();
                 }
-                if (trade.Time.Second % 7 == 0) GetBalansSecur();
+                if (trade.Time.Second % 5 == 0) GetBalansSecur();
             }
         }
  
@@ -2409,11 +2461,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         public void Dispose()
         {   //todo: прикрутить удаление файлов настроек и сохрана 
 
+            UnSubscribeToServer();
+
             ServerMaster.ServerCreateEvent -= ServerMaster_ServerCreateEvent;
             PropertyChanged -= RobotBreakVM_PropertyChanged;
-            
-            _logger.Information(" Dispose {Method}", nameof(Dispose));
 
+            _logger.Information(" Dispose {Method}", nameof(Dispose));
         }
 
         #endregion
