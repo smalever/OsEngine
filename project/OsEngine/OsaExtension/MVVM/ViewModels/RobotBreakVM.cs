@@ -688,7 +688,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         /// <summary>
-        /// добавить левый ордер в робота
+        /// добавить сторонний ордер в робота
         /// </summary>
         private void AddOrderPosition(Order order)
         {
@@ -705,9 +705,21 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
           
                 ordersAll = position.OpenOrders;// взять из позиции ордера открытия 
                 
-                ordersAll.AddRange(position.CloseOrders); // добавили ордера закрытия 
+                if(position.CloseOrders != null)
+                {
+                    ordersAll.AddRange(position.CloseOrders); // добавили ордера закрытия 
+                }
 
-                if (!ordersAll.Contains(order) && order.State == OrderStateType.Activ)
+                bool levak = true;
+                for (int i = 0; i < ordersAll.Count; i++)
+                {
+                    if (ordersAll[i].NumberUser == order.NumberUser)
+                    {
+                        levak = false;
+                    }
+                }
+
+                if (levak && order.State == OrderStateType.Activ)
                 {
                     if(position.Direction == Side.Buy && order.Side == Side.Buy ) 
                     {
