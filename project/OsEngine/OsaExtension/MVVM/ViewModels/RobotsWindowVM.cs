@@ -238,6 +238,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 Task.Run(async () =>  // для опроса состояния позиций) 
                 {
+                   
                     DateTime dt = DateTime.Now;
                     while (dt.AddMinutes(1) > DateTime.Now)
                     {

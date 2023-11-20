@@ -1671,6 +1671,21 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             return order;
         }
 
+        /// <summary>
+        /// проверка ордеров в позициях
+        /// </summary>
+        private void CheckOrders()
+        {
+            Task.Run(async () =>  // для опроса состояния позиций) 
+            {
+                    DateTime dt = DateTime.Now;
+                    while (dt.AddMinutes(1) > DateTime.Now)
+                    {
+                        RebootStatePosition();
+                        await Task.Delay(20000);
+                    }
+            });
+        }
         #endregion
         #region  методы сервера ===========================
 
@@ -1703,7 +1718,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 if (securities[i].Name == Header)
                 {
                     SelectedSecurity = securities[i];
-                    //StartSecuritiy(securities[i]);
+                    StartSecuritiy(securities[i]);
                     break;
                 }
             }
@@ -1718,7 +1733,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             else if (state == "Disconnect")
             {
                 SendStrStatus(" Сервер отключен ");
-            } 
+            }
         }
 
         /// <summary>
@@ -1737,50 +1752,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
             else                 
             _logger.Warning(" Levak ! Secur Trade {@Trade} {Security} {Method}", myTrade, myTrade.SecurityNameCode, nameof(_server_NewOrderIncomeEvent));
-        }
-
-        /// <summary>
-        /// включить трейлинг если есть ещё активные на закрытие 
-        /// </summary>
-        private void IsOnTralProfit(MyTrade myTrade)
-        {
-            foreach (Position position in PositionsBots) // заходим в позицию
-            {
-                // проверяем откуда трейд 
-                if (position.CloseOrders != null)
-                {
-                    for (int i = 0; i < position.CloseOrders.Count; i++)
-                    {
-                        Order curOrdClose = position.CloseOrders[i];
-
-                        if (curOrdClose.NumberMarket == myTrade.NumberOrderParent) // принадлежит ордеру закрытия
-                        {
-                            // значит трейд закрывающий
-                            int countOrder = position.CloseOrders.Count;
-
-                            for (int s = 0; s < countOrder ; s++) // смотрим ордера закрытия
-                            {
-                                if (position.CloseOrders[s].State == OrderStateType.Activ && countOrder > 1) // ищем актиыные  больше одного
-                                {
-                                    if (position.Direction == Side.Buy)
-                                    {
-                                        IsChekTraelStopLong = true;
-
-                                        _logger.Warning(" Enabled trailing profit Long {Method} ", nameof(IsOnTralProfit));
-                                    }
-                                    if (position.Direction == Side.Sell)
-                                    {
-                                        IsChekTraelStopShort = true;
-
-                                        _logger.Warning(" Enabled trailing profit Short {Method} ", nameof(IsOnTralProfit));
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        }  
 
         /// <summary>
         /// мой ордер с сервера
@@ -1855,6 +1827,44 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 if (trade.Time.Second % 7 == 0) GetBalansSecur();
             }
         }
+ 
+        /// <summary>
+        ///  подключиться к серверу
+        /// </summary>
+        private void SubscribeToServer()
+        {
+            _server.NewMyTradeEvent += _server_NewMyTradeEvent;
+            _server.NewOrderIncomeEvent += _server_NewOrderIncomeEvent;
+            _server.NewTradeEvent += _NewTradeEvent;
+            _server.SecuritiesChangeEvent += _server_SecuritiesChangeEvent;
+            _server.PortfoliosChangeEvent += _server_PortfoliosChangeEvent;
+            _server.NewBidAscIncomeEvent += _server_NewBidAscIncomeEvent;
+            _server.ConnectStatusChangeEvent += _server_ConnectStatusChangeEvent;
+
+            _logger.Warning(" Connecting to the server = {ServerType} {Method} ", _server.ServerType, nameof(SubscribeToServer));
+            //RobotsWindowVM.Log(Header, " Подключаемся к серверу = " + _server.ServerType);
+        }
+
+        /// <summary>
+        ///  отключиться от сервера 
+        /// </summary>
+        private void UnSubscribeToServer()
+        {
+            _server.NewMyTradeEvent -= _server_NewMyTradeEvent;
+            _server.NewOrderIncomeEvent -= _server_NewOrderIncomeEvent;
+            _server.NewTradeEvent -= _NewTradeEvent;
+            _server.SecuritiesChangeEvent -= _server_SecuritiesChangeEvent;
+            _server.PortfoliosChangeEvent -= _server_PortfoliosChangeEvent;
+            _server.NewBidAscIncomeEvent -= _server_NewBidAscIncomeEvent;
+            _server.ConnectStatusChangeEvent -= _server_ConnectStatusChangeEvent;
+
+            _logger.Warning(" Disnnecting to server = {ServerType} {Method} ", _server.ServerType, nameof(UnSubscribeToServer));
+            //RobotsWindowVM.Log(Header, " Отключились от сервера = " + _server.ServerType);
+        }
+
+        #endregion
+
+        #region   сервисные методы ===========================
 
         /// <summary>
         /// проверяем стопы
@@ -1864,11 +1874,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             if (PositionsBots == null) return;
             if (PositionsBots.Count != 0)
             {
-                if (Price != 0 ) // если н0ль - стоп отключен
+                if (Price != 0) // если н0ль - стоп отключен
                 {
                     foreach (var pos in PositionsBots)
                     {
-                        if(pos.Direction == Side.Buy)
+                        if (pos.Direction == Side.Buy)
                         {
                             if (IsChekTraelStopLong == true) CalculateTrelingStop(pos);
                         }
@@ -1877,7 +1887,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     if (Price < PriceStopLong && Direction == Direction.BUY ||
                         Price < PriceStopLong && Direction == Direction.BUYSELL)
                     {
-                        
+
                         foreach (var pos in PositionsBots)
                         {
                             if (pos.Direction == Side.Buy && pos.OpenVolume > 0)
@@ -1928,43 +1938,47 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         /// <summary>
-        ///  подключиться к серверу
+        /// включить трейлинг если есть ещё активные на закрытие 
         /// </summary>
-        private void SubscribeToServer()
+        private void IsOnTralProfit(MyTrade myTrade)
         {
-            _server.NewMyTradeEvent += _server_NewMyTradeEvent;
-            _server.NewOrderIncomeEvent += _server_NewOrderIncomeEvent;
-            _server.NewTradeEvent += _NewTradeEvent;
-            _server.SecuritiesChangeEvent += _server_SecuritiesChangeEvent;
-            _server.PortfoliosChangeEvent += _server_PortfoliosChangeEvent;
-            //_server.NewBidAscIncomeEvent += _server_NewBidAscIncomeEvent;
-            _server.NewBidAscIncomeEvent += _server_NewBidAscIncomeEvent;
-            _server.ConnectStatusChangeEvent += _server_ConnectStatusChangeEvent;
+            foreach (Position position in PositionsBots) // заходим в позицию
+            {
+                // проверяем откуда трейд 
+                if (position.CloseOrders != null)
+                {
+                    for (int i = 0; i < position.CloseOrders.Count; i++)
+                    {
+                        Order curOrdClose = position.CloseOrders[i];
 
-            _logger.Warning(" Connecting to the server = {ServerType} {Method} ", _server.ServerType, nameof(SubscribeToServer));
-            //RobotsWindowVM.Log(Header, " Подключаемся к серверу = " + _server.ServerType);
+                        if (curOrdClose.NumberMarket == myTrade.NumberOrderParent) // принадлежит ордеру закрытия
+                        {
+                            // значит трейд закрывающий
+                            int countOrder = position.CloseOrders.Count;
+
+                            for (int s = 0; s < countOrder; s++) // смотрим ордера закрытия
+                            {
+                                if (position.CloseOrders[s].State == OrderStateType.Activ && countOrder > 1) // ищем актиыные  больше одного
+                                {
+                                    if (position.Direction == Side.Buy)
+                                    {
+                                        IsChekTraelStopLong = true;
+
+                                        _logger.Warning(" Enabled trailing profit Long {Method} ", nameof(IsOnTralProfit));
+                                    }
+                                    if (position.Direction == Side.Sell)
+                                    {
+                                        IsChekTraelStopShort = true;
+
+                                        _logger.Warning(" Enabled trailing profit Short {Method} ", nameof(IsOnTralProfit));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
-
-        /// <summary>
-        ///  отключиться от сервера 
-        /// </summary>
-        private void UnSubscribeToServer()
-        {
-            _server.NewMyTradeEvent -= _server_NewMyTradeEvent;
-            _server.NewOrderIncomeEvent -= _server_NewOrderIncomeEvent;
-            _server.NewTradeEvent -= _NewTradeEvent;
-            _server.SecuritiesChangeEvent -= _server_SecuritiesChangeEvent;
-            _server.PortfoliosChangeEvent -= _server_PortfoliosChangeEvent;
-            //_server.NewBidAscIncomeEvent -= _server_NewBidAscIncomeEvent;
-            _server.ConnectStatusChangeEvent -= _server_ConnectStatusChangeEvent;
-
-            _logger.Warning(" Disnnecting to server = {ServerType} {Method} ", _server.ServerType, nameof(UnSubscribeToServer));
-            //RobotsWindowVM.Log(Header, " Отключились от сервера = " + _server.ServerType);
-        }
-
-        #endregion
-
-        #region   сервисные методы ===========================
 
         ///<summary>
         /// взять текущий объем на бирже выбаной  бумаги
@@ -2127,9 +2141,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     if (series != null)
                     {
                         _logger.Information("StartSecuritiy security = {Security} {Method} ", series.Security.Name, nameof(StartSecuritiy));
-                        //RobotsWindowVM.Log(Header, "StartSecuritiy  security = " + series.Security.Name);
-                        // DesirializerLevels();
-                        SaveParamsBot();
+
+                        CheckOrders();
+                        //SaveParamsBot();
                         //GetOrderStatusOnBoard();
                         break;
                     }
