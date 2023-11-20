@@ -652,7 +652,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             PropertyChanged += RobotBreakVM_PropertyChanged;    
             SendStrStatus(" Ожидается подключение к бирже ");
 
-            DesirializerPosition();
+            //DesirializerPosition();
         }
 
         #region  Metods ======================================================================
@@ -1276,7 +1276,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             if (VolumePerOrderOpen != 0  && IsRun == true) // формируем позиции
             {
-                DeleteFileSerial(); 
+                //DeleteFileSerial(); 
 
                 if (Direction == Direction.BUY || Direction == Direction.BUYSELL)
                 {
@@ -1582,6 +1582,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     } 
                 }
             }
+            SaveParamsBot();
         }
 
         /// <summary>
@@ -1793,7 +1794,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     CheckMyOrder(myOrder);
                     if (myOrder.State != OrderStateType.Fail)
                     {
-                        SerializerPosition();
+                        SaveParamsBot();
                     }
                     GetBalansSecur();
                     _logger.Information(" New myOrder {@Order} {NumberUser} {NumberMarket} {Method}",
@@ -2268,7 +2269,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     writer.WriteLine(PriceStopLong);
 
                     
-                    //writer.WriteLine(JsonConvert.SerializeObject(PositionsBots));
+                    writer.WriteLine(JsonConvert.SerializeObject(PositionsBots));
 
                     writer.Close();
 
@@ -2292,8 +2293,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 return;
             }
-            
-  
+
             string servType = "";
             try
             {
@@ -2341,15 +2341,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     PriceStopShort = GetDecimalForString(reader.ReadLine());
                     PriceStopLong = GetDecimalForString(reader.ReadLine());
 
-                    //PositionsBots = JsonConvert.DeserializeAnonymousType(reader.ReadLine(), new ObservableCollection<Position>());
+                    PositionsBots = JsonConvert.DeserializeAnonymousType(reader.ReadLine(), new ObservableCollection<Position>());
 
                     //StepType step = StepType.PUNKT;
                     //if (Enum.TryParse(reader.ReadLine(), out step))
                     //{
                     //    StepType = step;
                     //}
-
-                    //Levels = JsonConvert.DeserializeAnonymousType(reader.ReadLine(), new ObservableCollection<Level>());
 
                     reader.Close();
                     _logger.Information("LoadParamsBot {Method} {Header}", nameof(LoadParamsBot), Header);
@@ -2383,6 +2381,51 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             decimal.TryParse(str, out value);
             return value;
         }
+         
+        public void Dispose()
+        {   //todo: прикрутить удаление файлов настроек и сохрана 
+
+            ServerMaster.ServerCreateEvent -= ServerMaster_ServerCreateEvent;
+            PropertyChanged -= RobotBreakVM_PropertyChanged;
+            
+            _logger.Information(" Dispose {Method}", nameof(Dispose));
+
+        }
+
+        #endregion
+
+        #endregion end metods==============================================
+
+        #region  ЗАГОТОВКИ ==============================================
+
+        /// <summary>
+        /// удалить файл сериализвции 
+        /// </summary>
+        public void DeleteFileSerial()
+        {
+            if (!OpenVolumePositionLong() && !OpenVolumePositionShort())
+            {
+                string fileName = @"Parametrs\Tabs\positions_" + Header + "=" + NumberTab + ".json";
+                if (File.Exists(fileName) && PositionsBots.Count == 1)
+                {
+                    foreach (var position in PositionsBots)
+                    {
+                        if (!ActivOrders(position))
+                        {
+                            try
+                            {
+                                File.Delete(fileName);
+                            }
+                            catch (Exception e)
+                            {
+                                _logger.Error("Deletion  failed: {error} {Method}", e.Message, nameof(DeleteFileSerial));
+                            }
+                        }
+                        else _logger.Error(" Activ Orders not Deletion failed {Method}", nameof(DeleteFileSerial));
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// сохраяие сделок в файл 
@@ -2390,7 +2433,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         public void SerializerPosition()
         {
             if (PositionsBots == null || PositionsBots.Count == 0) return;
-    
+
             if (!Directory.Exists(@"Parametrs\Tabs"))
             {
                 Directory.CreateDirectory(@"Parametrs\Tabs");
@@ -2437,49 +2480,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 }
             }
         }
-
-        public void Dispose()
-        {   //todo: прикрутить удаление файлов настроек и сохрана 
-
-            ServerMaster.ServerCreateEvent -= ServerMaster_ServerCreateEvent;
-            PropertyChanged -= RobotBreakVM_PropertyChanged;
-            
-            _logger.Information(" Dispose {Method}", nameof(Dispose));
-
-        }
-        /// <summary>
-        /// удалить файл сериализвции 
-        /// </summary>
-        public void DeleteFileSerial()
-        {
-            if (!OpenVolumePositionLong() && !OpenVolumePositionShort() )
-            {
-                string fileName = @"Parametrs\Tabs\positions_" + Header + "=" + NumberTab + ".json";
-                if (File.Exists(fileName) && PositionsBots.Count == 1)
-                {
-                    foreach (var position in PositionsBots)
-                    {
-                        if (!ActivOrders(position))
-                        {
-                            try
-                            {
-                                File.Delete(fileName);
-                            }
-                            catch (Exception e)
-                            {
-                                _logger.Error("Deletion  failed: {error} {Method}", e.Message, nameof(DeleteFileSerial));
-                            }
-                        }
-                        else _logger.Error(" Activ Orders not Deletion failed {Method}", nameof(DeleteFileSerial));
-                    }
-                }
-            }
-        }
-        #endregion
-
-        #endregion end metods==============================================
-
-        #region  ЗАГОТОВКИ ==============================================
 
         /// <summary>
         /// проверить состояние ордеров из хранилища RobotsWindowVM.Orders

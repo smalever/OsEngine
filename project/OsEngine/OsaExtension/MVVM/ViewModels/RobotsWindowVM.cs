@@ -361,7 +361,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 if (res == MessageBoxResult.Yes)
                 {
                     delRobot.Dispose();
-                    delRobot.DeleteFileSerial();
+                    //delRobot.DeleteFileSerial();
                     Robots.Remove(delRobot);
                    
                     SaveHeaderBot();
