@@ -989,6 +989,16 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         IsChekMonitor = false;
                     }
                 }
+                if (MonitoringOpenVolumeExchange() && ActivOrders(position)) 
+                {
+                    if (IsRun)
+                    {
+                        _logger.Warning(" there is no open volume and active orders on the exchange, the robot is turned off  {Method} {SelectSecurBalans} {@position} ",
+                          nameof(MaintainingVolumeBalance), SelectSecurBalans, position );
+
+                        IsRun = false;
+                    }                
+                } ;
             }
         }
 
