@@ -8,7 +8,7 @@
         xmlns:vm="clr-namespace:OsEngine.OsaExtension.MVVM.ViewModels"
         xmlns:int ="http://schemas.microsoft.com/xaml/behaviors" d:DataContext="{d:DesignInstance Type=vm:RobotsWindowVM}"
         mc:Ignorable="d" 
-        Height="920" Width="780">
+        Height="920" Width="1020">
     <mah:MetroWindow.LeftWindowCommands>
         <mah:WindowCommands>
             <StackPanel Orientation="Horizontal" VerticalAlignment="Top">

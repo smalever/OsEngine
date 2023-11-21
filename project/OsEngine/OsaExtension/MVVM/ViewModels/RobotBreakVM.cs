@@ -446,6 +446,22 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private decimal _priceStopLong = 0;
 
         /// <summary>
+        /// Oбъем ордеров на открытие позийии 
+        /// </summary>
+        public decimal VolumeOpen
+        {
+            get => _volumeOpen;
+            set
+            {
+                _volumeOpen = value;
+                OnPropertyChanged(nameof(VolumeOpen));
+            }
+        }
+        private decimal _volumeOpen = 0;
+
+        
+
+        /// <summary>
         /// направление сделок 
         /// </summary>
         public Direction Direction
@@ -1006,6 +1022,22 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         /// <summary>
+        /// взять объем ордеров на открытие в позиции робота
+        /// </summary>
+        private void GetVolumeOpen(Position position)
+       {
+            decimal volumOrdersOpen = 0; // по ордерам закрытия объем
+            if (position.OpenOrders != null )
+            {
+                for (int i = 0; i < position.OpenOrders.Count; i++)
+                {
+                    volumOrdersOpen += position.OpenOrders[i].Volume;
+                }
+            }
+            VolumeOpen = volumOrdersOpen;
+       }
+
+        /// <summary>
         /// проверять баланс ордеров зак и откр 
         /// </summary>
         private void MaintainingVolumeBalance()
@@ -1016,6 +1048,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             foreach (Position position in PositionsBots) // заходим в позицию
             {
+                GetVolumeOpen(position);
+
                 VolumeRobExecut = position.OpenVolume;
                 decimal volumOrderClose = 0; // по ордерам закрытия объем
                 if (position.CloseOrders != null && position.MyTrades.Count > 0)
@@ -2473,7 +2507,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         public void Dispose()
         {   //todo: прикрутить удаление файлов настроек и сохрана 
 
-            UnSubscribeToServer();
+            //UnSubscribeToServer();
 
             ServerMaster.ServerCreateEvent -= ServerMaster_ServerCreateEvent;
             PropertyChanged -= RobotBreakVM_PropertyChanged;

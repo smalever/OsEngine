@@ -9,7 +9,7 @@
              xmlns:models="clr-namespace:OsEngine.OsaExtension.MVVM.Models" 
              xmlns:viewmodels="clr-namespace:OsEngine.OsaExtension.MVVM.ViewModels"
              d:DataContext="{d:DesignInstance Type=viewmodels:RobotBreakVM}"
-             mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="920">
+             mc:Ignorable="d" d:DesignHeight="920" Width="1000">
     <UserControl.Resources>
         <Style TargetType="TextBlock">
             <Setter Property="MinWidth" Value="30"/>
@@ -55,14 +55,15 @@
 
             </TextBlock>-->
         </StatusBar>
-        <Grid Height="767" >
+        <Grid Height="767">
             <Grid.RowDefinitions>
                 <RowDefinition Height="660" />
-                <RowDefinition />
+                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="500"/>
-                <ColumnDefinition Width="0*"/>
+                <ColumnDefinition Width="500"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <StackPanel  Orientation="Vertical" Margin="1,1,1,1">
                 <GroupBox Header="Параметры позиции"    
@@ -169,23 +170,7 @@
                         <local:IntTextBox  Text="{Binding PartsPerExit}" Margin="78,0,-32,0" />
                         <Label Margin="47,0,2,0"/>
 
-                        <TextBlock Text="Cейчас монет на бирже" Margin="0,0,-62,0"/>
-                        <local:DecimalTextBox Text="{Binding SelectSecurBalans}" Margin="78,0,-32,0"/>
-                        <StackPanel Orientation="Horizontal" Margin="37,0,1,0">
-                            <CheckBox Content="Откр Лев объём" 
-                                    IsChecked="{Binding IsChekMonitor}" 
-                                    ToolTip="Добавить в ордера закрытия разницу открытого руками объема на бирже"
-                                    Width="119" />
-                        </StackPanel>
 
-                        <Label Content="Куплено монет роботом " Margin="0,0,-51,0"/>
-                        <local:DecimalTextBox Text="{Binding VolumeRobExecut}" Margin="78,0,-32,0"/>
-                        <StackPanel Orientation="Horizontal" Margin="37,0,1,0">
-                            <CheckBox Content="Потерян Зак Ордер" 
-                                    IsChecked="{Binding IsChekVolumeClose}" 
-                                    ToolTip="Добавить Закрыв ордер на открытый (потерянный) роботом объем  "
-                                    Width="119" />
-                        </StackPanel>
 
                         <!--<TextBlock Text="Тип шага"/>
              <ComboBox ItemsSource="{Binding StepTypes}"
@@ -194,7 +179,46 @@
 
                     </UniformGrid>
                 </GroupBox>
+
             </StackPanel>
+
+            <GroupBox Header="Cопровождение позиции" 
+                      FontSize="18" 
+                      Width="493" 
+                      Height="180"
+                      HorizontalAlignment="Left"
+                      VerticalAlignment="Top"
+                      Margin="1,1,1,1"
+                      Grid.Row ="0"
+                      Grid.Column="1">
+                <UniformGrid Columns="3"
+                             Grid.Row="1">
+                    <TextBlock Text="Cейчас монет на бирже" Margin="0,0,-62,0"/>
+                    <local:DecimalTextBox Text="{Binding SelectSecurBalans}" Margin="78,0,-32,0"/>
+                    <StackPanel Orientation="Horizontal" Margin="37,0,1,0">
+                        <CheckBox Content="Откр Лев объём" 
+                                    IsChecked="{Binding IsChekMonitor}" 
+                                    ToolTip="Добавить в ордера закрытия разницу открытого руками объема на бирже"
+                                    Width="119" />
+                    </StackPanel>
+
+                    <Label Content="Куплено монет роботом " Margin="0,0,-51,0"/>
+                    <local:DecimalTextBox Text="{Binding VolumeRobExecut}" Margin="78,0,-32,0"/>
+                    <StackPanel Orientation="Horizontal" Margin="37,0,1,0">
+                        <CheckBox Content="Потерян Зак Ордер" 
+                                    IsChecked="{Binding IsChekVolumeClose}" 
+                                    ToolTip="Добавить Закрыв ордер на открытый (потерянный) роботом объем  "
+                                    Width="119" />
+                    </StackPanel>
+                    <TextBlock Text="Ордеров на покупку монет" 
+                                ToolTip="Объем ордеров открытия в позиции" Margin="0,0,-65,0"/>
+                    <local:DecimalTextBox Text="{Binding VolumeOpen}" 
+                                             Margin="78,2,-32,0"/>
+                    <Label Margin="47,0,2,0"/>
+                </UniformGrid>
+
+            </GroupBox>
+
             <Button Grid.Row="1"
                     Margin="55,21,0,0"
               Content="{Binding IsRun, Converter={StaticResource ConverterIsRunToBool}}" 
