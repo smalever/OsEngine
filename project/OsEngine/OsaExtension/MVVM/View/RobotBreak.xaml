@@ -57,8 +57,8 @@
         </StatusBar>
         <Grid Height="767">
             <Grid.RowDefinitions>
-                <RowDefinition Height="660" />
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="607" />
+                <RowDefinition/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="500"/>
@@ -188,7 +188,7 @@
                       Height="180"
                       HorizontalAlignment="Left"
                       VerticalAlignment="Top"
-                      Margin="1,1,1,1"
+                      Margin="1,1,0,0"
                       Grid.Row ="0"
                       Grid.Column="1">
                 <UniformGrid Columns="3"
