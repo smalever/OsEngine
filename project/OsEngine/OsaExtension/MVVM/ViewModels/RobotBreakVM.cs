@@ -668,7 +668,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             PropertyChanged += RobotBreakVM_PropertyChanged;    
             SendStrStatus(" Ожидается подключение к бирже ");
 
-            //DesirializerPosition();
+            ClearCanseledOrderPosition();
         }
 
         #region  Metods ======================================================================
@@ -732,6 +732,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     if (ordersAll[i].NumberUser == order.NumberUser)
                     {
                         levak = false;
+                        if (order.State == OrderStateType.Cancel)
+                        {
+                            DeleteOrderPosition(order);
+                        }
                     }
                 }
 
@@ -760,6 +764,125 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         position.AddNewCloseOrder(order);
                         _logger.Information("Send Limit order for Close Orders {Method} {@Order} {NumberUser}",
                                                            nameof(AddOrderPosition), order, order.NumberUser);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// удаление отменённых ордер из позиции робота
+        /// </summary>
+        private void DeleteOrderPosition(Order order)
+        {
+            /* проверяем наш или левый 
+             * проверяем направление ордера и сделки
+             * удаляем из сделки 
+             */
+
+            foreach (Position position in PositionsBots)
+            {
+                List<Order> ordersAll = new List<Order>();
+
+                Order ordAdd = new Order();
+
+                ordersAll = position.OpenOrders;// взять из позиции ордера открытия 
+
+                if (position.CloseOrders != null)
+                {
+                    ordersAll.AddRange(position.CloseOrders); // добавили ордера закрытия 
+                }
+
+                bool levak = true;
+                for (int i = 0; i < ordersAll.Count; i++)
+                {
+                    if (ordersAll[i].NumberUser == order.NumberUser)
+                    {
+                        levak = false;
+                    }
+                }
+
+                if (!levak && order.State == OrderStateType.Cancel)
+                {
+                    if (position.Direction == Side.Buy && order.Side == Side.Buy)
+                    { // ордер открытия
+                        position.OpenOrders.Remove(order);
+
+                        _logger.Information("Delete order for Open Orders {Method} {@Order} {NumberUser}",
+                                                             nameof(DeleteOrderPosition), order, order.NumberUser);
+                    }
+                    if (position.Direction == Side.Sell && order.Side == Side.Sell)
+                    {// ордер открытия
+                        position.OpenOrders.Remove(order);
+                        _logger.Information("Delete Limit order for Open Orders {Method} {@Order} {NumberUser}",
+                                                            nameof(DeleteOrderPosition), order, order.NumberUser);
+                    }
+                    if (position.Direction == Side.Buy && order.Side == Side.Sell)
+                    { // ордер закрытия
+                        position.CloseOrders.Remove(order);
+                        _logger.Information("Delete Limit order for Close Orders {Method} {@Order} {NumberUser}",
+                                                            nameof(DeleteOrderPosition), order, order.NumberUser);
+                    }
+                    if (position.Direction == Side.Sell && order.Side == Side.Buy)
+                    {// ордер закрытия
+                        position.CloseOrders.Remove(order);
+
+                        _logger.Information("Delete Limit order for Close Orders {Method} {@Order} {NumberUser}",
+                                                           nameof(DeleteOrderPosition), order, order.NumberUser);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// отчистка отменённых ордер из позиции робота
+        /// </summary>
+        private void ClearCanseledOrderPosition()
+        {
+            foreach (Position position in PositionsBots)
+            {
+                List<Order> ordersAll = new List<Order>();
+
+                Order ordAdd = new Order();
+                if (position.OpenOrders != null) 
+                {
+                    ordersAll = position.OpenOrders;// взять из позиции ордера открытия 
+                }                
+
+                if (position.CloseOrders != null)
+                {
+                    ordersAll.AddRange(position.CloseOrders); // добавили ордера закрытия 
+                }
+
+                for (int i = 0; i < ordersAll.Count && ordersAll.Count > 0; i++ )
+                {
+                    if (ordersAll[i].State == OrderStateType.Cancel)
+                    {
+                        if (position.Direction == Side.Buy && ordersAll[i].Side == Side.Buy)
+                        { // ордер открытия
+                            position.OpenOrders.Remove(ordersAll[i]);
+
+                            _logger.Information("Delete order for Open Orders {Method} {@Order} {NumberUser}",
+                                                                 nameof(ClearCanseledOrderPosition), ordersAll[i], ordersAll[i].NumberUser);
+                        }
+                        if (position.Direction == Side.Sell && ordersAll[i].Side == Side.Sell)
+                        {// ордер открытия
+                            position.OpenOrders.Remove(ordersAll[i]);
+                            _logger.Information("Delete Limit order for Open Orders {Method} {@Order} {NumberUser}",
+                                                                nameof(ClearCanseledOrderPosition), ordersAll[i], ordersAll[i].NumberUser);
+                        }
+                        if (position.Direction == Side.Buy && ordersAll[i].Side == Side.Sell)
+                        { // ордер закрытия
+                            position.CloseOrders.Remove(ordersAll[i]);
+                            _logger.Information("Delete Limit order for Close Orders {Method} {@Order} {NumberUser}",
+                                                                nameof(ClearCanseledOrderPosition), ordersAll[i], ordersAll[i].NumberUser);
+                        }
+                        if (position.Direction == Side.Sell && ordersAll[i].Side == Side.Buy)
+                        {// ордер закрытия
+                            position.CloseOrders.Remove(ordersAll[i]);
+
+                            _logger.Information("Delete Limit order for Close Orders {Method} {@Order} {NumberUser}",
+                                                               nameof(ClearCanseledOrderPosition), ordersAll[i], ordersAll[i].NumberUser);
+                        }
                     }
                 }
             }
@@ -1093,6 +1216,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                           nameof(MaintainingVolumeBalance), SelectSecurBalans, position );
                         SendStrStatus("Робот выключен");
                         IsRun = false; // выключаем
+                        ClearCanseledOrderPosition();
                     }                
                 } ;
             }
@@ -2506,8 +2630,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
          
         public void Dispose()
         {   //todo: прикрутить удаление файлов настроек и сохрана 
-
-            //UnSubscribeToServer();
 
             ServerMaster.ServerCreateEvent -= ServerMaster_ServerCreateEvent;
             PropertyChanged -= RobotBreakVM_PropertyChanged;
