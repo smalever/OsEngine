@@ -834,6 +834,23 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         /// <summary>
+        /// сопровождение открытого объема 
+        /// </summary>
+        private void MaintenanOpenVolume()
+        {
+            /* позиции нет а обем открытый есть
+             * создать ордера закрытия и выставить
+             * или позиции нет а ордера на открытие есть
+             * или открытый объем и ордера открытия
+             * или открытый объем и ордера закрытия 
+             * или открытый объем и ордера на закрытие и открытие 
+             * сформировать сделку в роботе
+             * включить трейлинг  
+             */
+
+        }
+
+        /// <summary>
         /// отчистка отменённых ордер из позиции робота
         /// </summary>
         private void ClearCanseledOrderPosition()
@@ -2043,7 +2060,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             if (trades != null && trades[0].SecurityNameCode == SelectedSecurity.Name)
             {
-                Trade trade = trades.Last();
+                Trade trade = trades[0];
 
                 //Price = trade.Price;
 
