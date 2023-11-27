@@ -269,21 +269,21 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private decimal _takePriceShort;
 
         /// <summary>
-        /// Цена большого кластера 
+        /// тартовая цена наобра позиции
         /// </summary>
-        public decimal BigСlusterPrice
+        public decimal StartPriceOpenPos
         {
-            get =>_bigСlusterPrice;
+            get =>_startPriceOpenPos;
             set
             {
-                if (value != _bigСlusterPrice)
+                if (value != _startPriceOpenPos)
                 {
-                    _bigСlusterPrice = value;
-                    OnPropertyChanged(nameof(BigСlusterPrice));
+                    _startPriceOpenPos = value;
+                    OnPropertyChanged(nameof(StartPriceOpenPos));
                 }                    
             }
         }
-        private decimal _bigСlusterPrice;
+        private decimal _startPriceOpenPos;
 
         /// <summary>
         /// Верхняя цена позиции
@@ -459,8 +459,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
         private decimal _volumeOpen = 0;
 
-        
-
         /// <summary>
         /// направление сделок 
         /// </summary>
@@ -480,7 +478,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary> 
         public List<Direction> Directions { get; set; } = new List<Direction>()
         {
-            Direction.BUY, Direction.SELL, Direction.BUYSELL
+            Direction.BUY, Direction.SELL
         };
 
         /// <summary>
@@ -1137,7 +1135,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 PriceOpenPos = CalculPriceStartPos(position.Direction); // расчет цены открытия позиции
 
-                if (BigСlusterPrice == 0 || BottomPositionPrice == 0 || PriceOpenPos.Count == 0)
+                if (StartPriceOpenPos == 0 || BottomPositionPrice == 0 || PriceOpenPos.Count == 0)
                 {
                     SendStrStatus(" BigСlusterPrice или BottomPositionPrice = 0 ");
                     return;
@@ -1494,7 +1492,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 PositionsBots.Clear();
                 //DeleteFileSerial();
             }
-            if (BigСlusterPrice == 0)
+            if (StartPriceOpenPos == 0)
             {
                 SendStrStatus(" BigСlusterPrice = 0 ");
                 return;
@@ -1525,7 +1523,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 //DeleteFileSerial(); 
 
-                if (Direction == Direction.BUY || Direction == Direction.BUYSELL)
+                if (Direction == Direction.BUY) // || Direction == Direction.BUYSELL
                 {
                     positionBuy.State = PositionStateType.None;
                     positionBuy.SecurityName = SelectedSecurity.Name;
@@ -1533,7 +1531,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     //AddOpderPosition(positionBuy);
                     PositionsBots.Add(positionBuy);
                 }
-                if (Direction == Direction.SELL || Direction == Direction.BUYSELL)
+                if (Direction == Direction.SELL) // || Direction == Direction.BUYSELL
                 {
                     positionSell.State = PositionStateType.None;                    
                     positionSell.SecurityName = SelectedSecurity.Name;
@@ -1723,8 +1721,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             if (side == Side.Buy )
             {       
-                stepPrice = (BigСlusterPrice - BottomPositionPrice) / PartsPerInput;
-                price = BigСlusterPrice - stepPrice;
+                stepPrice = (StartPriceOpenPos - BottomPositionPrice) / PartsPerInput;
+                price = StartPriceOpenPos - stepPrice;
                 for (int i = 0; i < PartsPerInput; i++)
                 {
                     price = Decimal.Round(price, SelectedSecurity.Decimals);
@@ -1734,8 +1732,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
             if (side == Side.Sell)
             {
-                stepPrice = (TopPositionPrice - BigСlusterPrice) / PartsPerInput;
-                price = BigСlusterPrice + stepPrice;
+                stepPrice = (TopPositionPrice - StartPriceOpenPos) / PartsPerInput;
+                price = StartPriceOpenPos + stepPrice;
                 for (int i = 0; i < PartsPerInput; i++)
                 {
                     price = Decimal.Round(price, SelectedSecurity.Decimals);
@@ -1761,11 +1759,14 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
             decimal stepPrice = 0;
             decimal price = 0;
-
+            if (side ==Side.None) 
+            {
+                side = (Side)Direction; 
+            }
             if (side == Side.Buy)
             {
-                stepPrice = (TakePriceLong - BigСlusterPrice) / PartsPerExit;
-                price = BigСlusterPrice + stepPrice;
+                stepPrice = (TakePriceLong - StartPriceOpenPos) / PartsPerExit;
+                price = StartPriceOpenPos + stepPrice;
                 for (int i = 0; i < PartsPerExit; i++)
                 {
                     price = Decimal.Round(price, SelectedSecurity.Decimals);
@@ -1775,8 +1776,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
             if (side == Side.Sell)
             {
-                stepPrice = (BigСlusterPrice - TakePriceShort) / PartsPerExit;
-                price = BigСlusterPrice - stepPrice;
+                stepPrice = (StartPriceOpenPos - TakePriceShort) / PartsPerExit;
+                price = StartPriceOpenPos - stepPrice;
                 for (int i = 0; i < PartsPerExit; i++)
                 {
                     price = Decimal.Round(price, SelectedSecurity.Decimals);
@@ -2133,8 +2134,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         }
                     }
 
-                    if (Price < PriceStopLong && Direction == Direction.BUY ||
-                        Price < PriceStopLong && Direction == Direction.BUYSELL)
+                    if (Price < PriceStopLong && Direction == Direction.BUY) //|| Price < PriceStopLong && Direction == Direction.BUYSELL
                     {
 
                         foreach (var pos in PositionsBots)
@@ -2164,8 +2164,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         }
                     }
 
-                    if (Price > PriceStopShort && Direction == Direction.SELL ||
-                        Price > PriceStopShort && Direction == Direction.BUYSELL)
+                    if (Price > PriceStopShort && Direction == Direction.SELL) // || ice > PriceStopShort && Direction == Direction.BUYSELL
                     {
                         foreach (var pos in PositionsBots)
                         {
@@ -2511,7 +2510,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                     writer.WriteLine(TakePriceLong);
                     writer.WriteLine(TopPositionPrice);
-                    writer.WriteLine(BigСlusterPrice);
+                    writer.WriteLine(StartPriceOpenPos);
                     writer.WriteLine(Direction);
 
                     writer.WriteLine(BottomPositionPrice);
@@ -2573,7 +2572,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                     TakePriceLong = GetDecimalForString(reader.ReadLine());                    
                     TopPositionPrice = GetDecimalForString(reader.ReadLine());
-                    BigСlusterPrice = GetDecimalForString(reader.ReadLine());
+                    StartPriceOpenPos = GetDecimalForString(reader.ReadLine());
 
                     Direction direct = Direction.BUY;
                     if (Enum.TryParse(reader.ReadLine(), out direct))

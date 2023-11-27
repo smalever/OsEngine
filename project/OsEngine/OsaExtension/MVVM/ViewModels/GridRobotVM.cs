@@ -239,7 +239,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary> 
         public List<Direction> Directions { get; set; } = new List<Direction>()
         {
-            Direction.BUY, Direction.SELL, Direction.BUYSELL
+            Direction.BUY, Direction.SELL
         };
 
         /// <summary>
@@ -678,12 +678,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 levelSell.PriceLevel = currSellPrice;
                 levelBuy.PriceLevel = currBuyPrice;
 
-                if (Direction == Direction.BUY || Direction == Direction.BUYSELL)
+                if (Direction == Direction.BUY) //|| Direction == Direction.BUYSELL
                 {
                     levelBuy.TakePrice = levelBuy.PriceLevel + stepTake;
                     levels.Add(levelBuy);
                 }
-                if (Direction == Direction.SELL || Direction == Direction.BUYSELL)
+                if (Direction == Direction.SELL) // || Direction == Direction.BUYSELL
                 {
                     levelSell.TakePrice = levelSell.PriceLevel - stepTake;
                     levels.Insert(0, levelSell);
@@ -817,8 +817,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             if (StopLong != 0 && Price != 0)
             {
-                if (Price < StopLong && Direction == Direction.BUY ||
-                    Price < StopLong && Direction == Direction.BUYSELL)
+                if (Price < StopLong && Direction == Direction.BUY) // || Price < StopLong && Direction == Direction.BUYSELL
                 {
                     IsRun = false;
                     StopLong = 0;
@@ -842,8 +841,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
             if (StopShort != 0 && Price != 0)
             {
-                if (Price > StopShort && Direction == Direction.SELL ||
-                    Price > StopShort && Direction == Direction.BUYSELL)
+                if (Price > StopShort && Direction == Direction.SELL) // || Price > StopShort && Direction == Direction.BUYSELL
                 {
                     IsRun = false;
                     SaveParamsBot();

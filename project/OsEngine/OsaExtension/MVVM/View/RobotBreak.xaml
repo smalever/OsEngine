@@ -111,7 +111,7 @@
 
                         <TextBlock Text="Старт диап. набора позиция" Margin="0,0,-65,0" 
                                    ToolTip="Цена начала диапазона набора позиций"/>
-                        <local:DecimalTextBox   Text="{Binding BigСlusterPrice}" Margin="0,2,-32,0" HorizontalAlignment="Right" Width="113"/>
+                        <local:DecimalTextBox   Text="{Binding StartPriceOpenPos}" Margin="0,2,-32,0" HorizontalAlignment="Right" Width="113"/>
                         <Label Margin="47,0,2,0"/>
 
                         <TextBlock Text="Направление сделок" Margin="0,0,-65,0"/>

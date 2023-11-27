@@ -12,7 +12,6 @@ namespace OsEngine.OsaExtension.MVVM.Models
     public enum Direction
     {
         BUY,
-        SELL,
-        BUYSELL
+        SELL
     }
 }
