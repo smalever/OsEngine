@@ -1253,6 +1253,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             foreach (Position position in PositionsBots) // заходим в позицию
             {
+                if (position.Direction == Side.None)
+                {
+                    position.Direction = (Side)Direction;
+                }
                 VolumeRobExecut = position.OpenVolume;
 
                 decimal volumeInTradesOpenOrd = 0; // по терйдам откр объем
