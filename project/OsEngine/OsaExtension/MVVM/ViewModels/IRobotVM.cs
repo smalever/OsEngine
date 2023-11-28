@@ -6,7 +6,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static OsEngine.OsaExtension.MVVM.ViewModels.GridRobotVM;
 
 namespace OsEngine.OsaExtension.MVVM.ViewModels
 {

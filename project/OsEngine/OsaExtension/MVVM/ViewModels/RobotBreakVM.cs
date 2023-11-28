@@ -29,6 +29,7 @@ using System.Windows.Documents;
 using System.Windows.Forms.DataVisualization.Charting;
 using Order = OsEngine.Entity.Order;
 using Position = OsEngine.Entity.Position;
+//using Direction = OsEngine.Entity.Position;
 using Security = OsEngine.Entity.Security;
 
 namespace OsEngine.OsaExtension.MVVM.ViewModels
@@ -238,7 +239,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
         }
         private decimal _entryPricePos = 0;
-
 
         /// <summary>
         /// Цена профита лонг
@@ -462,7 +462,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// направление сделок 
         /// </summary>
-        public Direction Direction
+        public Side Direction
         {
             get => _direction;
             set
@@ -471,14 +471,15 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 OnPropertyChanged(nameof(Direction));
             }
         }
-        private Direction _direction;
+        private Side _direction;
 
         /// <summary>
         /// список  свойств направления сделок
         /// </summary> 
-        public List<Direction> Directions { get; set; } = new List<Direction>()
+        public List<Side> Directions { get; set; } = new List<Side>()
         {
-            Direction.BUY, Direction.SELL
+            //Side.Buy, 
+            Side.Buy, Side.Sell, Side.None
         };
 
         /// <summary>
@@ -846,6 +847,40 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
              * включить трейлинг  
              */
 
+            if (PositionsBots.Count == 0 && SelectSecurBalans != 0)
+            {
+                Position positionNew = new Position();
+                CalculateVolumeClose();
+                //проверяем направление сделки 
+                if (SelectSecurBalans > 0) // лонг
+                {
+                    Direction = Side.Buy;
+                    positionNew.Direction = Direction;
+                    positionNew.State = PositionStateType.Closing;
+                    positionNew.SecurityName = SelectedSecurity.Name;
+
+                    PositionsBots.Add(positionNew);
+
+                    _logger.Warning("Сreated a new long position and added PositionsBots  {Method}  {@positionNew}",
+                                                                  nameof(MaintenanOpenVolume), positionNew);
+
+                    SendCloseLimitOrderPosition(positionNew, VolumePerOrderClose);
+                }
+                if (SelectSecurBalans < 0) // шорт
+                {
+                    Direction = Side.Sell;
+                    positionNew.Direction = Direction;
+                    positionNew.State = PositionStateType.Closing;
+                    positionNew.SecurityName = SelectedSecurity.Name;
+
+                    PositionsBots.Insert(0, positionNew);
+
+                    _logger.Warning("Сreated a new short position and added PositionsBots  {Method}  {@positionNew}",
+                                                                nameof(MaintenanOpenVolume), positionNew);
+
+                    SendCloseLimitOrderPosition(positionNew, VolumePerOrderClose);
+                }
+            }
         }
 
         /// <summary>
@@ -1182,7 +1217,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             decimal minVolumeExecut = SelectedSecurity.MinTradeAmount;
 
-            //if (SelectSecurBalans == 0) return;
+            if (PositionsBots.Count == 0) MaintenanOpenVolume();
 
             foreach (Position position in PositionsBots) // заходим в позицию
             {
@@ -1434,7 +1469,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private void SendCloseLimitOrderPosition(Position position, decimal volumeClose)
         {
             PriceClosePos = null;
-            PriceClosePos = CalculPriceClosePos(position.Direction); // расчет цен закрытия позиции
+            PriceClosePos = CalculPriceClosePos(Direction); // расчет цен закрытия позиции
 
             //объем пришел сверху
             decimal priceClose = 0;
@@ -1527,7 +1562,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 //DeleteFileSerial(); 
 
-                if (Direction == Direction.BUY) // || Direction == Direction.BUYSELL
+                if (Direction == Side.Buy) // || Direction == Direction.BUYSELL
                 {
                     positionBuy.State = PositionStateType.None;
                     positionBuy.SecurityName = SelectedSecurity.Name;
@@ -1535,7 +1570,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     //AddOpderPosition(positionBuy);
                     PositionsBots.Add(positionBuy);
                 }
-                if (Direction == Direction.SELL) // || Direction == Direction.BUYSELL
+                if (Direction == Side.Sell) // || Direction == Direction.BUYSELL
                 {
                     positionSell.State = PositionStateType.None;                    
                     positionSell.SecurityName = SelectedSecurity.Name;
@@ -1708,6 +1743,41 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         /// <summary>
+        /// расчет обема закрытия по монетам на бирже (части)
+        /// </summary>
+        private void CalculateVolumeClose()
+        {
+            if (SelectedSecurity == null || Price == 0 || PartsPerExit == 0) return;
+            GetBalansSecur();
+            VolumePerOrderClose = 0;
+            decimal workLot = 0;
+            decimal baks = 0;
+            baks = SelectSecurBalans / PartsPerExit; // это в баксах
+            decimal moni = baks / Price; // в монете
+
+            workLot = Decimal.Round(moni, SelectedSecurity.DecimalsVolume);
+            decimal minVolume = SelectedSecurity.MinTradeAmount;
+            if (workLot < minVolume)
+            {
+                SendStrStatus("Объем ордера меньше допустимого");
+                _logger.Error(" Order volume < minVolume {Method}  {workLot}", nameof(CalculateVolumeClose), workLot);
+                // IsRun = false;
+                if (SelectSecurBalans != 0)
+                {
+                    VolumePerOrderClose = SelectSecurBalans;
+                    _logger.Error(" VolumePerOrderClose = SelectSecurBalans; {Method}  {SelectSecurBalans}",
+                                                            nameof(CalculateVolumeClose), SelectSecurBalans);
+                }
+            }
+            else
+            {
+                VolumePerOrderClose = workLot;
+                _logger.Information(" VolumePerOrderClose = workLot; {Method}  {workLot}",
+                                          nameof(CalculateVolumeClose), workLot);
+            }
+        }
+
+        /// <summary>
         /// расчитать стартовую цену (начала открытия позиции)
         /// </summary>
         private  List<decimal> CalculPriceStartPos(Side side)
@@ -1763,9 +1833,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
             decimal stepPrice = 0;
             decimal price = 0;
+
             if (side ==Side.None) 
             {
-                side = (Side)Direction; 
+                side = Direction; 
             }
             if (side == Side.Buy)
             {
@@ -1788,8 +1859,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     _priceClosePos.Add(price);
                     price = price - stepPrice;
                 }
-            }
-     
+            }     
             return _priceClosePos;
         }
 
@@ -2138,7 +2208,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         }
                     }
 
-                    if (Price < PriceStopLong && Direction == Direction.BUY) //|| Price < PriceStopLong && Direction == Direction.BUYSELL
+                    if (Price < PriceStopLong && Direction == Side.Buy) //|| Price < PriceStopLong && Direction == Direction.BUYSELL
                     {
 
                         foreach (var pos in PositionsBots)
@@ -2168,7 +2238,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         }
                     }
 
-                    if (Price > PriceStopShort && Direction == Direction.SELL) // || ice > PriceStopShort && Direction == Direction.BUYSELL
+                    if (Price > PriceStopShort && Direction == Side.Sell) // || ice > PriceStopShort && Direction == Direction.BUYSELL
                     {
                         foreach (var pos in PositionsBots)
                         {
@@ -2578,7 +2648,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     TopPositionPrice = GetDecimalForString(reader.ReadLine());
                     StartPriceOpenPos = GetDecimalForString(reader.ReadLine());
 
-                    Direction direct = Direction.BUY;
+                    Side direct = Side.None;
                     if (Enum.TryParse(reader.ReadLine(), out direct))
                     {
                         Direction = direct;

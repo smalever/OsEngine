@@ -926,7 +926,6 @@
     <Compile Include="OsaExtension\MVVM\Converters\ConvertersColorToSide.cs" />
     <Compile Include="OsaExtension\MVVM\Models\Action.cs" />
     <Compile Include="OsaExtension\MVVM\Models\ActionBot.cs" />
-    <Compile Include="OsaExtension\MVVM\Models\Direction.cs" />
     <Compile Include="OsaExtension\MVVM\Models\EmitClasses.cs" />
     <Compile Include="OsaExtension\MVVM\Models\Emitent.cs" />
     <Compile Include="OsaExtension\MVVM\Models\ExChenge.cs" />
@@ -938,7 +937,6 @@
     <Compile Include="OsaExtension\MVVM\ViewModels\BaseBotVM.cs" />
     <Compile Include="OsaExtension\MVVM\ViewModels\BaseVM.cs" />
     <Compile Include="OsaExtension\MVVM\ViewModels\ChangeEmitentVM.cs" />
-    <Compile Include="OsaExtension\MVVM\ViewModels\GridRobotVM.cs" />
     <Compile Include="OsaExtension\MVVM\ViewModels\IRobotVM.cs" />
     <Compile Include="OsaExtension\MVVM\ViewModels\MainWindowRobWpfVM.cs" />
     <Compile Include="OsaExtension\MVVM\ViewModels\MeshPlusVM.cs" />

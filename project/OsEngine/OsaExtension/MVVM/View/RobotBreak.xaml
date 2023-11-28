@@ -129,7 +129,6 @@
                         <Label Margin="37,0,2,0"/>
 
 
-
                         <Label Content="Цена СТОПА лонга: " Margin="0,0,-65,0"
                                ToolTip="Если цена ноль СТОП НЕ рабоает! "/>
                         <local:DecimalTextBox Text="{Binding PriceStopLong}" 
