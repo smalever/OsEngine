@@ -497,6 +497,29 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private StepType _stepType;
 
         /// <summary>
+        /// Дейстия с позициией
+        /// </summary>
+        public ActionPos ActionPosition
+        {
+            get => _actionPosition;
+            set
+            {
+                _actionPosition = value;
+                OnPropertyChanged(nameof(ActionPosition));
+            }
+        }
+        private ActionPos _actionPosition;
+
+        /// <summary>
+        /// список  действий с позицией 
+        /// </summary> 
+        public List<ActionPos> ActionPositions { get; set; } = new List<ActionPos>()
+        {
+            //Side.Buy, 
+            ActionPos.Stop, ActionPos.RollOver, ActionPos.AddVolumes
+        };
+
+        /// <summary>
         /// название портфеля (счета)
         /// </summary>
         public string StringPortfolio

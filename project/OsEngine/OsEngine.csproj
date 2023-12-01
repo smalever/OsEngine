@@ -924,7 +924,7 @@
     </Compile>
     <Compile Include="OsaExtension\MVVM\Commands\DelegateCommand.cs" />
     <Compile Include="OsaExtension\MVVM\Converters\ConvertersColorToSide.cs" />
-    <Compile Include="OsaExtension\MVVM\Models\Action.cs" />
+    <Compile Include="OsaExtension\MVVM\Models\ActionPos.cs" />
     <Compile Include="OsaExtension\MVVM\Models\ActionBot.cs" />
     <Compile Include="OsaExtension\MVVM\Models\EmitClasses.cs" />
     <Compile Include="OsaExtension\MVVM\Models\Emitent.cs" />

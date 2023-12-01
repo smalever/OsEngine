@@ -23,5 +23,6 @@ namespace OsEngine.OsaExtension.MVVM.View
         {
             InitializeComponent();
         }
+
     }
 }

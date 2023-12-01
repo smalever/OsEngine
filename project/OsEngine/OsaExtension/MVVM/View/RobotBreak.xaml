@@ -93,11 +93,12 @@
                                       Width="119" />
                         </StackPanel>
 
-                        <TextBlock Text="Цена СТОПА шортовой позиции" 
-                        ToolTip=" Цена при достиженни которой робот произведет выбраное действие)" Margin="0,0,-65,0"/>
+                        <TextBlock Text="Цена ДЕЙСТВИЯ для шорта" 
+                        ToolTip=" Цена при достиженни которой робот произведет выбраное действие Если цена ноль СТОП НЕ рабоает! " Margin="0,0,-65,0"/>
                         <local:DecimalTextBox Text="{Binding PriceStopShort}" 
                         Margin="78,2,-32,0"/>
-                        <Label Margin="47,0,2,0"/>
+                        <ComboBox ItemsSource="{Binding ActionPositions}"
+                                  SelectedItem="{Binding ActionPosition}" Margin="37,0,0,0"/>
 
                         <TextBlock Text="Верх диап. набора шорта" 
                         ToolTip=" Верхняя цена диапазона наора шортовой позиции" Margin="0,0,-65,0"/>
@@ -116,7 +117,7 @@
 
                         <TextBlock Text="Направление сделок" Margin="0,0,-65,0"/>
                         <ComboBox ItemsSource="{Binding Directions}"                        
-                                  SelectedItem="{Binding Direction}" Margin="78,2,-32,0"/>
+                                  SelectedItem="{Binding Direction}" Margin="78,2,-32,0" />
                         <Label Margin="47,0,2,0"/>
 
                         <Label Margin="2"/>
@@ -129,11 +130,12 @@
                         <Label Margin="37,0,2,0"/>
 
 
-                        <Label Content="Цена СТОПА лонга: " Margin="0,0,-65,0"
-                               ToolTip="Если цена ноль СТОП НЕ рабоает! "/>
+                        <Label Content="Цена ДЕЙСТВИЯ для лонга: " Margin="0,0,-65,0"
+                               ToolTip=" Цена при достиженни которой робот произведет выбраное действие. Если цена ноль СТОП НЕ рабоает! "/>
                         <local:DecimalTextBox Text="{Binding PriceStopLong}" 
                                               Margin="78,2,-32,0"/>
-                        <Label Margin="47,0,0,0"></Label>
+                        <ComboBox ItemsSource="{Binding ActionPositions}"
+                                  SelectedItem="{Binding ActionPosition}" Margin="37,0,0,0"/>
 
                         <Label Content="Трейлинг Стоп лонга в % " Margin="0,0,-73,0"
                                ToolTip="на каком растоянии подтягивается стоп"/>
