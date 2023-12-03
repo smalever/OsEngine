@@ -478,7 +478,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary> 
         public List<Side> Directions { get; set; } = new List<Side>()
         {
-            //Side.Buy, 
             Side.Buy, Side.Sell, Side.None
         };
 
@@ -497,7 +496,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private StepType _stepType;
 
         /// <summary>
-        /// Дейстия с позициией
+        /// Действия с позициией
         /// </summary>
         public ActionPos ActionPosition
         {
@@ -515,7 +514,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary> 
         public List<ActionPos> ActionPositions { get; set; } = new List<ActionPos>()
         {
-            //Side.Buy, 
             ActionPos.Stop, ActionPos.RollOver, ActionPos.AddVolumes
         };
 
@@ -2578,7 +2576,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 e.PropertyName == "IsChekTraelStopLong" ||
 
                 e.PropertyName == "StepPersentStopShort" ||
-                //e.PropertyName == "PriceStopLong" ||
+                e.PropertyName == "ActionPosition" ||
                 //e.PropertyName == "PriceStopShort" || 
                 e.PropertyName == "IsChekTraelStopShort")
             {
@@ -2627,8 +2625,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     writer.WriteLine(PriceStopShort);
                     writer.WriteLine(PriceStopLong);
 
-                    
-                    writer.WriteLine(JsonConvert.SerializeObject(PositionsBots));
+                    writer.WriteLine(JsonConvert.SerializeObject(PositionsBots)); // 20 line in the file
+
+                    writer.WriteLine(ActionPosition); // 21
 
                     writer.Close();
 
@@ -2701,6 +2700,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     PriceStopLong = GetDecimalForString(reader.ReadLine());
 
                     PositionsBots = JsonConvert.DeserializeAnonymousType(reader.ReadLine(), new ObservableCollection<Position>());
+
+                    ActionPos action = ActionPos.Stop;
+                    if (Enum.TryParse(reader.ReadLine(), out action))
+                    {
+                        ActionPosition = action;
+                    }
 
                     //StepType step = StepType.PUNKT;
                     //if (Enum.TryParse(reader.ReadLine(), out step))
