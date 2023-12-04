@@ -1068,8 +1068,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     }
                 }
             }
-
-
         }
 
         /// <summary>
@@ -2107,7 +2105,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 if (order.SecurityNameCode == SelectedSecurity.Name)
                 {
                     CheckMyOrder(order);
-                    AddOrderPosition(order);
+                    // AddOrderPosition(order);
 
                     if (order.State != OrderStateType.Fail)
                     {
@@ -2601,17 +2599,17 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     writer.WriteLine(IsRun);
                     writer.WriteLine(Header);
                     writer.WriteLine(ServerType);
-                    writer.WriteLine(StringPortfolio);
+                    writer.WriteLine(StringPortfolio); // 4 line
 
                     writer.WriteLine(TakePriceLong);
                     writer.WriteLine(TopPositionPrice);
                     writer.WriteLine(StartPriceOpenPos);
-                    writer.WriteLine(Direction);
+                    writer.WriteLine(Direction);        // 8 line
 
                     writer.WriteLine(BottomPositionPrice);
                     writer.WriteLine(TakePriceShort);
 
-                    writer.WriteLine(FullPositionVolume);
+                    writer.WriteLine(FullPositionVolume);// 11 line
 
                     writer.WriteLine(PartsPerInput);
                     writer.WriteLine(PartsPerExit);
