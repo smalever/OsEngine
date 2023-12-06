@@ -907,56 +907,83 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// отчистка отменённых ордер из позиции робота
         /// </summary>
-        private void ClearCanseledOrderPosition()
+        private void ClearCanseledOrderPosition()// перепроверить
         {
             foreach (Position position in PositionsBots)
             {
-                List<Order> ordersAll = new List<Order>();
-
-                Order ordAdd = new Order();
                 if (position.OpenOrders != null) 
                 {
-                    ordersAll = position.OpenOrders;// взять из позиции ордера открытия 
+                    List<Order> orders = new List<Order>();
+                    orders = position.OpenOrders; // взять из позиции ордера открытия
+                    ClearOrders (ref orders);
+                    position.OpenOrders = orders;
                 }                
 
                 if (position.CloseOrders != null)
                 {
-                    ordersAll.AddRange(position.CloseOrders); // добавили ордера закрытия 
+                    List<Order> orders = new List<Order>();
+                    orders  = position.CloseOrders; // положили ордера закрытия 
+                    ClearOrders(ref orders);
+                    position.CloseOrders = orders; // вернули ордера закрытия 
                 }
+                #region хлам
+                //for (int i = 0; i < ordersAll.Count && ordersAll.Count > 0; i++ )
+                //{
+                //    if (ordersAll[i].State == OrderStateType.Cancel)
+                //    {
+                //        if (position.Direction == Side.Buy && ordersAll[i].Side == Side.Buy)
+                //        { // ордер открытия
+                //            position.OpenOrders.Remove(ordersAll[i]);
 
-                for (int i = 0; i < ordersAll.Count && ordersAll.Count > 0; i++ )
+                //            _logger.Information("Delete order for Open Orders {Method} {@Order} {NumberUser}",
+                //                                                 nameof(ClearCanseledOrderPosition), ordersAll[i], ordersAll[i].NumberUser);
+                //        }
+                //        if (position.Direction == Side.Sell && ordersAll[i].Side == Side.Sell)
+                //        {// ордер открытия
+                //            position.OpenOrders.Remove(ordersAll[i]);
+                //            _logger.Information("Delete Limit order for Open Orders {Method} {@Order} {NumberUser}",
+                //                                                nameof(ClearCanseledOrderPosition), ordersAll[i], ordersAll[i].NumberUser);
+                //        }
+                //        if (position.Direction == Side.Buy && ordersAll[i].Side == Side.Sell)
+                //        { // ордер закрытия
+                //            position.CloseOrders.Remove(ordersAll[i]);
+                //            _logger.Information("Delete Limit order for Close Orders {Method} {@Order} {NumberUser}",
+                //                                                nameof(ClearCanseledOrderPosition), ordersAll[i], ordersAll[i].NumberUser);
+                //        }
+                //        if (position.Direction == Side.Sell && ordersAll[i].Side == Side.Buy)
+                //        {// ордер закрытия
+                //            position.CloseOrders.Remove(ordersAll[i]);
+
+                //            _logger.Information("Delete Limit order for Close Orders {Method} {@Order} {NumberUser}",
+                //                                               nameof(ClearCanseledOrderPosition), ordersAll[i], ordersAll[i].NumberUser);
+                //        }
+                //    }
+                //}
+                #endregion
+            }
+        }
+
+
+        /// <summary>
+        /// Удаляет ордера Cancel из списков ордеров 
+        /// </summary>
+        public void ClearOrders(ref List<Order> orders)
+        {
+            if (orders == null) return;
+            List<Order> newOrders = new List<Order>();
+
+            foreach (Order order in orders)
+            {
+                if (order != null
+                    && order.State != OrderStateType.Cancel)
+                    //&& order.State != OrderStateType.Done)
+                    //&& order.State != OrderStateType.Fail)
                 {
-                    if (ordersAll[i].State == OrderStateType.Cancel)
-                    {
-                        if (position.Direction == Side.Buy && ordersAll[i].Side == Side.Buy)
-                        { // ордер открытия
-                            position.OpenOrders.Remove(ordersAll[i]);
-
-                            _logger.Information("Delete order for Open Orders {Method} {@Order} {NumberUser}",
-                                                                 nameof(ClearCanseledOrderPosition), ordersAll[i], ordersAll[i].NumberUser);
-                        }
-                        if (position.Direction == Side.Sell && ordersAll[i].Side == Side.Sell)
-                        {// ордер открытия
-                            position.OpenOrders.Remove(ordersAll[i]);
-                            _logger.Information("Delete Limit order for Open Orders {Method} {@Order} {NumberUser}",
-                                                                nameof(ClearCanseledOrderPosition), ordersAll[i], ordersAll[i].NumberUser);
-                        }
-                        if (position.Direction == Side.Buy && ordersAll[i].Side == Side.Sell)
-                        { // ордер закрытия
-                            position.CloseOrders.Remove(ordersAll[i]);
-                            _logger.Information("Delete Limit order for Close Orders {Method} {@Order} {NumberUser}",
-                                                                nameof(ClearCanseledOrderPosition), ordersAll[i], ordersAll[i].NumberUser);
-                        }
-                        if (position.Direction == Side.Sell && ordersAll[i].Side == Side.Buy)
-                        {// ордер закрытия
-                            position.CloseOrders.Remove(ordersAll[i]);
-
-                            _logger.Information("Delete Limit order for Close Orders {Method} {@Order} {NumberUser}",
-                                                               nameof(ClearCanseledOrderPosition), ordersAll[i], ordersAll[i].NumberUser);
-                        }
-                    }
+                    newOrders.Add(order);
                 }
             }
+            _logger.Information("Clear Orders  {Method}", nameof(ClearOrders));
+            orders = newOrders;
         }
 
         /// <summary>
