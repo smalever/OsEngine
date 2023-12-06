@@ -1213,6 +1213,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             foreach (Position position in PositionsBots)
             {
+                if (position.OpenOrders != null)
+                {
+                    if (position.OpenOrders.Count != 0) // защита от повтороных добалений ордеров
+                    {
+                        position.OpenOrders.Clear();
+                    }
+                }
                 PriceOpenPos = CalculPriceStartPos(position.Direction); // расчет цены открытия позиции
 
                 if (StartPriceOpenPos == 0 || BottomPositionPrice == 0 || PriceOpenPos.Count == 0)
