@@ -688,7 +688,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             PropertyChanged += RobotBreakVM_PropertyChanged;    
             SendStrStatus(" Ожидается подключение к бирже ");
 
-            ClearCanseledOrderPosition();
+            ClearCanceledOrderPosition();
         }
 
         #region  Metods ======================================================================
@@ -907,7 +907,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// отчистка отменённых ордер из позиции робота
         /// </summary>
-        private void ClearCanseledOrderPosition()// перепроверить
+        private void ClearCanceledOrderPosition()// перепроверить
         {
             foreach (Position position in PositionsBots)
             {
@@ -915,7 +915,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
                     List<Order> orders = new List<Order>();
                     orders = position.OpenOrders; // взять из позиции ордера открытия
-                    ClearOrders (ref orders);
+                    ClearOrdersCancel (ref orders);
                     position.OpenOrders = orders;
                 }                
 
@@ -923,7 +923,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
                     List<Order> orders = new List<Order>();
                     orders  = position.CloseOrders; // положили ордера закрытия 
-                    ClearOrders(ref orders);
+                    ClearOrdersCancel(ref orders);
                     position.CloseOrders = orders; // вернули ордера закрытия 
                 }
                 #region хлам
@@ -963,11 +963,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
         }
 
-
         /// <summary>
         /// Удаляет ордера Cancel из списков ордеров 
         /// </summary>
-        public void ClearOrders(ref List<Order> orders)
+        public void ClearOrdersCancel(ref List<Order> orders)
         {
             if (orders == null) return;
             List<Order> newOrders = new List<Order>();
@@ -982,7 +981,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     newOrders.Add(order);
                 }
             }
-            _logger.Information("Clear Orders  {Method}", nameof(ClearOrders));
+            _logger.Information("Clear Orders cancel {Method}", nameof(ClearOrdersCancel));
             orders = newOrders;
         }
 
@@ -1312,7 +1311,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                           nameof(MaintainingVolumeBalance), SelectSecurBalans, position );
                         SendStrStatus("Робот выключен");
                         IsRun = false; // выключаем
-                        ClearCanseledOrderPosition();
+                        ClearCanceledOrderPosition();
                     }                
                 } ;
             }
