@@ -51,7 +51,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                 if (IsRun)
                 {
-                    LoadParamsBot(Header);
+                    //LoadParamsBot(Header);
                     OpenPositionLogic();
                 }
                 else
