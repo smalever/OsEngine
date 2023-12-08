@@ -690,6 +690,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             SendStrStatus(" Ожидается подключение к бирже ");
 
             ClearCanceledOrderPosition();
+            ClearFailOrderPosition();
         }
 
         #region  Metods ======================================================================
@@ -927,40 +928,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     ClearOrdersCancel(ref orders);
                     position.CloseOrders = orders; // вернули ордера закрытия 
                 }
-                #region хлам
-                //for (int i = 0; i < ordersAll.Count && ordersAll.Count > 0; i++ )
-                //{
-                //    if (ordersAll[i].State == OrderStateType.Cancel)
-                //    {
-                //        if (position.Direction == Side.Buy && ordersAll[i].Side == Side.Buy)
-                //        { // ордер открытия
-                //            position.OpenOrders.Remove(ordersAll[i]);
-
-                //            _logger.Information("Delete order for Open Orders {Method} {@Order} {NumberUser}",
-                //                                                 nameof(ClearCanseledOrderPosition), ordersAll[i], ordersAll[i].NumberUser);
-                //        }
-                //        if (position.Direction == Side.Sell && ordersAll[i].Side == Side.Sell)
-                //        {// ордер открытия
-                //            position.OpenOrders.Remove(ordersAll[i]);
-                //            _logger.Information("Delete Limit order for Open Orders {Method} {@Order} {NumberUser}",
-                //                                                nameof(ClearCanseledOrderPosition), ordersAll[i], ordersAll[i].NumberUser);
-                //        }
-                //        if (position.Direction == Side.Buy && ordersAll[i].Side == Side.Sell)
-                //        { // ордер закрытия
-                //            position.CloseOrders.Remove(ordersAll[i]);
-                //            _logger.Information("Delete Limit order for Close Orders {Method} {@Order} {NumberUser}",
-                //                                                nameof(ClearCanseledOrderPosition), ordersAll[i], ordersAll[i].NumberUser);
-                //        }
-                //        if (position.Direction == Side.Sell && ordersAll[i].Side == Side.Buy)
-                //        {// ордер закрытия
-                //            position.CloseOrders.Remove(ordersAll[i]);
-
-                //            _logger.Information("Delete Limit order for Close Orders {Method} {@Order} {NumberUser}",
-                //                                               nameof(ClearCanseledOrderPosition), ordersAll[i], ordersAll[i].NumberUser);
-                //        }
-                //    }
-                //}
-                #endregion
             }
         }
 
@@ -987,6 +954,50 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         /// <summary>
+        ///  удаление ошибочных ордеров из позиции робота
+        /// </summary>
+        private void ClearFailOrderPosition()// перепроверить
+        {
+            foreach (Position position in PositionsBots)
+            {
+                if (position.OpenOrders != null)
+                {
+                    List<Order> orders = new List<Order>();
+                    orders = position.OpenOrders; // взять из позиции ордера открытия
+                    ClearOrdersFail(ref orders);
+                    position.OpenOrders = orders;
+                }
+
+                if (position.CloseOrders != null)
+                {
+                    List<Order> orders = new List<Order>();
+                    orders = position.CloseOrders; // положили ордера закрытия 
+                    ClearOrdersFail(ref orders);
+                    position.CloseOrders = orders; // вернули ордера закрытия 
+                }
+            }
+        }
+
+        /// <summary>
+        /// Удаляет  Fail ордера из списков ордеров 
+        /// </summary>
+        public void ClearOrdersFail(ref List<Order> orders)
+        {
+            if (orders == null) return;
+            List<Order> newOrders = new List<Order>();
+
+            foreach (Order order in orders)
+            {
+                if (order != null && order.State != OrderStateType.Fail)
+                {
+                    newOrders.Add(order);
+                }
+            }
+            _logger.Information("Clear Fail Orders {Method}", nameof(ClearOrdersFail));
+            orders = newOrders;
+        }
+
+        /// <summary>
         /// Закрыть позицию
         /// </summary>
         private void StopPosition( Position position)
@@ -998,6 +1009,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             if (position.OpenVolume != 0)
             {
                 FinalCloseMarketOpenVolume(position, position.OpenVolume);
+                ClearCanceledOrderPosition();
             }
         }
 
@@ -2145,6 +2157,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     {
                         SaveParamsBot();
                     }
+                    else ClearFailOrderPosition();
+
                     GetBalansSecur();
                     _logger.Information(" New myOrder {@Order} {NumberUser} {NumberMarket} {Method}",
                                          order, order.NumberUser, order.NumberMarket, nameof(_server_NewOrderIncomeEvent));
@@ -2152,6 +2166,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 else
                     _logger.Information(" Levak ! Secur {@Order} {Security} {Method}",
                         order, order.SecurityNameCode,nameof(_server_NewOrderIncomeEvent));
+
             }
         }
 
@@ -2792,6 +2807,41 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         #endregion end metods==============================================
 
         #region  ЗАГОТОВКИ ==============================================
+
+        #region хлам
+        //for (int i = 0; i < ordersAll.Count && ordersAll.Count > 0; i++ )
+        //{
+        //    if (ordersAll[i].State == OrderStateType.Cancel)
+        //    {
+        //        if (position.Direction == Side.Buy && ordersAll[i].Side == Side.Buy)
+        //        { // ордер открытия
+        //            position.OpenOrders.Remove(ordersAll[i]);
+
+        //            _logger.Information("Delete order for Open Orders {Method} {@Order} {NumberUser}",
+        //                                                 nameof(ClearCanseledOrderPosition), ordersAll[i], ordersAll[i].NumberUser);
+        //        }
+        //        if (position.Direction == Side.Sell && ordersAll[i].Side == Side.Sell)
+        //        {// ордер открытия
+        //            position.OpenOrders.Remove(ordersAll[i]);
+        //            _logger.Information("Delete Limit order for Open Orders {Method} {@Order} {NumberUser}",
+        //                                                nameof(ClearCanseledOrderPosition), ordersAll[i], ordersAll[i].NumberUser);
+        //        }
+        //        if (position.Direction == Side.Buy && ordersAll[i].Side == Side.Sell)
+        //        { // ордер закрытия
+        //            position.CloseOrders.Remove(ordersAll[i]);
+        //            _logger.Information("Delete Limit order for Close Orders {Method} {@Order} {NumberUser}",
+        //                                                nameof(ClearCanseledOrderPosition), ordersAll[i], ordersAll[i].NumberUser);
+        //        }
+        //        if (position.Direction == Side.Sell && ordersAll[i].Side == Side.Buy)
+        //        {// ордер закрытия
+        //            position.CloseOrders.Remove(ordersAll[i]);
+
+        //            _logger.Information("Delete Limit order for Close Orders {Method} {@Order} {NumberUser}",
+        //                                               nameof(ClearCanseledOrderPosition), ordersAll[i], ordersAll[i].NumberUser);
+        //        }
+        //    }
+        //}
+        #endregion
 
         /// <summary>
         /// удалить файл сериализвции 
