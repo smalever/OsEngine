@@ -709,7 +709,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         /// <summary>
-        /// остановить торговлю закрыть Все позиции
+        /// остановить торговлю закрыть Все позиции робота
         /// </summary>
         private void StopTradeLogic()
         {
@@ -722,6 +722,24 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
                     FinalCloseMarketOpenVolume( pos ,pos.OpenVolume);
                 }
+            }
+        }
+
+        /// <summary>
+        /// отключение бота
+        /// </summary>
+        private void IsOffBot()
+        { 
+           /* если цена вышла за пределы планируемого диапазона (тейков)
+           * отработки патерна робота, лимитки на открытие надо удалить с биржи 
+           * и прекратить работу бота */
+
+            if(SelectedSecurity != null && Price!=0 )
+            {
+                if (Price > TakePriceLong || Price < TakePriceShort)
+                {
+                    StopTradeLogic();
+                } 
             }
         }
 
@@ -2163,9 +2181,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     _logger.Information(" New myOrder {@Order} {NumberUser} {NumberMarket} {Method}",
                                          order, order.NumberUser, order.NumberMarket, nameof(_server_NewOrderIncomeEvent));
                 }
-                else
-                    _logger.Information(" Levak ! Secur {@Order} {Security} {Method}",
-                        order, order.SecurityNameCode,nameof(_server_NewOrderIncomeEvent));
+                //else
+                //    _logger.Information(" Levak ! Secur {@Order} {Security} {Method}",
+                //        order, order.SecurityNameCode,nameof(_server_NewOrderIncomeEvent));
 
             }
         }
@@ -2215,6 +2233,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
                     MaintainingVolumeBalance();
                     AddCloseOrder();
+                    IsOffBot();
                 }
                 if (trade.Time.Second % 5 == 0) GetBalansSecur();
             }
