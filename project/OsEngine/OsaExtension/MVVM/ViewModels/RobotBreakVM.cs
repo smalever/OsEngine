@@ -734,9 +734,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
            * отработки патерна робота, лимитки на открытие надо удалить с биржи 
            * и прекратить работу бота */
 
-            if(SelectedSecurity != null && Price!=0 )
+            if(SelectedSecurity != null && Price!=0 && IsRun)
             {
-                if (Price > TakePriceLong || Price < TakePriceShort)
+                if (Price > TakePriceLong || Price < TakePriceShort )
                 {
                     _logger.Warning(" Bot OFF, Price > TakePriceLong || Price < TakePriceShort " +
                                     " the price has gone beyond profit  {Method}"
