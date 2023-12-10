@@ -738,6 +738,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 if (Price > TakePriceLong || Price < TakePriceShort)
                 {
+                    _logger.Warning(" Bot OFF, Price > TakePriceLong || Price < TakePriceShort " +
+                                    " the price has gone beyond profit  {Method}"
+                                                             , nameof(IsOffBot));
                     StopTradeLogic();
                 } 
             }
