@@ -607,6 +607,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private bool _sendStop = false;
 
         /// <summary>
+        /// отправлен закрывающий объем по маркету
+        /// </summary>
+        public bool _sendCloseMarket = false;
+
+        /// <summary>
         /// расстояние до трейлин стопа лонг в % 
         /// </summary>
         public decimal StepPersentStopLong
@@ -1080,12 +1085,15 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             Order ordClose = CreateMarketOrder(SelectedSecurity, Price, finalVolumClose, sideClose);
 
-            if (ordClose != null )
+            if (ordClose != null && !_sendCloseMarket )
             {
                 if (sideClose == Side.None) return;
 
                 pos.AddNewCloseOrder(ordClose);
                 Thread.Sleep(50);
+
+                _sendCloseMarket = true;
+
                 SendOrderExchange(ordClose);
                 //Thread.Sleep(100);
 
@@ -1097,6 +1105,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
             if (ordClose == null)
             {
+                _sendCloseMarket = false;
+
                 SendStrStatus(" Ошибка закрытия объема на бирже");
 
                 _logger.Error(" Error sending FINAL the Market to close the volume {@Order} {Metod} ",
@@ -1621,7 +1631,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void CreateNewPosition()
         {
-            _sendStop = false;
+            // для новой позиции
+            _sendCloseMarket = false; // разрежаем закрывать ее по маркету
+            _sendStop = false; // разрешаем отрабтку ей стопов 
+
             if (PositionsBots!= null)
             {
                 PositionsBots.Clear();
