@@ -602,6 +602,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private bool _isChekMonitor;
 
         /// <summary>
+        /// отправлен стоп
+        /// </summary>
+        private bool _sendStop = false;
+
+        /// <summary>
         /// расстояние до трейлин стопа лонг в % 
         /// </summary>
         public decimal StepPersentStopLong
@@ -1027,8 +1032,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             CanselPositionActivOrders(position);
 
-            if (position.OpenVolume != 0)
+            if (position.OpenVolume != 0 && !_sendStop)
             {
+                _sendStop = true;
+                _logger.Warning(" It worked StopPosition {@position} {Metod} "
+                                                        ,position, nameof(StopPosition));
+
                 FinalCloseMarketOpenVolume(position, position.OpenVolume);
                 ClearCanceledOrderPosition();
             }
@@ -1076,9 +1085,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 if (sideClose == Side.None) return;
 
                 pos.AddNewCloseOrder(ordClose);
-                Thread.Sleep(100);
+                Thread.Sleep(50);
                 SendOrderExchange(ordClose);
-                Thread.Sleep(100);
+                //Thread.Sleep(100);
 
                 _logger.Information("Sending FINAL Market order to close " +
                 " {volume} {numberUser} {@Order} {Metod} ",
@@ -1090,8 +1099,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 SendStrStatus(" Ошибка закрытия объема на бирже");
 
-                _logger.Error(" Error sending FINAL the Market to close the volume {@Order} {Metod} ", ordClose, nameof(FinalCloseMarketOpenVolume));
-                
+                _logger.Error(" Error sending FINAL the Market to close the volume {@Order} {Metod} ",
+                                                        ordClose, nameof(FinalCloseMarketOpenVolume));
             }
         }
 
@@ -1612,6 +1621,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void CreateNewPosition()
         {
+            _sendStop = false;
             if (PositionsBots!= null)
             {
                 PositionsBots.Clear();
@@ -2300,7 +2310,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                     if (Price < PriceStopLong && Direction == Side.Buy) //|| Price < PriceStopLong && Direction == Direction.BUYSELL
                     {
-
                         foreach (var pos in PositionsBots)
                         {
                             if (pos.Direction == Side.Buy && pos.OpenVolume > 0)

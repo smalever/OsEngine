@@ -190,8 +190,7 @@ namespace OsEngine.Entity
                     return true;
                 }
                 return false;
-            }
-        
+            }        
         }
 
         /// <summary>
