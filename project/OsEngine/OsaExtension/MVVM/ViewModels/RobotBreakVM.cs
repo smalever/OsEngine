@@ -654,9 +654,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         /// <summary>
         /// список позиций робота 
-        /// </summary>
-       
-        public static ObservableCollection<Position> PositionsBots { get; set; } = new ObservableCollection<Position>();
+        /// </summary>       
+        public  ObservableCollection<Position> PositionsBots { get; set; } = new ObservableCollection<Position>();
 
         #endregion конец свойств =============================================
 
@@ -678,7 +677,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private RobotsWindowVM _robotsWindowVM;       
 
         #endregion
-     
+
         /// <summary>
         /// конструктор для ранне  созданого и сохранеенного робота
         /// </summary>
@@ -1222,27 +1221,15 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             if (IsRun)
             {
                 OpenPositionLogic();
-                // сейчас логика запускается в свойстве вкл/выкл
-                if (PositionsBots.Count != 0)
-                {
-                    //foreach (PositionBot position in PositionsBots)
-                    //{
-                    //    position.PassOpenOrder = true;
-                    //    position.PassCloseOrder = true;
-                    //}
-                }
+         
             }
             else
             {
                 StopTradeLogic();
+
                 Task.Run(() =>
                 {
-                    //while (ActivOrders() || MonitoringOpenVolumeExchange()) // пока есть открытые обемы и ордера на бирже
-                    //{
-                    //    //StopTradeLogic();
-                    //    //Thread.Sleep(300);
-                    //    break; // test
-                    //}
+                   
                 });
             }
         }
@@ -1320,7 +1307,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// проверять баланс ордеров зак и откр 
         /// </summary>
-        private void MaintainingVolumeBalance()
+        private void MaintainingVolumeBalance(Security security)
         {
             decimal minVolumeExecut = SelectedSecurity.MinTradeAmount;
 
@@ -1339,7 +1326,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         volumOrderClose += position.CloseOrders[i].Volume;
                     }
                 }
-
                 //  на бирже открытый обем больше обема ордеров закрытия
                 // значит где-то ошибка или купили помимо робота
                 // доставить лимитку закрытия
@@ -1562,7 +1548,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                             {
                                 _logger.Error("Volum close < minVolumeExecut {Method}  {volumeOpen} {@Position} "
                                                              , nameof(SendCloseOrder), volumeOpen, position);
-                                MaintainingVolumeBalance();
+                                MaintainingVolumeBalance(SelectedSecurity);
                             }
                         }
                     }
@@ -2257,9 +2243,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
                     MonitoringStop();
                 }
-                if (trade.Time.Second % 11== 0)
+                if (trade.Time.Second % 11== 0 && trades[0].SecurityNameCode == SelectedSecurity.Name)
                 {
-                    MaintainingVolumeBalance();
+                    MaintainingVolumeBalance(SelectedSecurity);
                     AddCloseOrder();
                     IsOffBot();
                 }
