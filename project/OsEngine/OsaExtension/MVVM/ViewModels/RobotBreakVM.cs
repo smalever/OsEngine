@@ -52,11 +52,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 if (IsRun)
                 {
                     //LoadParamsBot(Header);
-                    OpenPositionLogic();
+                    //OpenPositionLogic();
                 }
                 else
                 {
-                    StopTradeLogic();
+                    //StopTradeLogic();
                 }
             }
         }
@@ -726,7 +726,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             GetBalansSecur();
             foreach (Position pos in PositionsBots)
             {
-                CanselAllPositionActivOrders();
+                CanselPositionActivOrders(pos);
 
                 if (pos.OpenVolume!=0)
                 {
@@ -1029,7 +1029,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         /// <summary>
-        /// Закрыть позицию
+        /// Закрыть позицию по стопу
         /// </summary>
         private void StopPosition( Position position)
         {
@@ -1221,6 +1221,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             SaveParamsBot();
             if (IsRun)
             {
+                OpenPositionLogic();
                 // сейчас логика запускается в свойстве вкл/выкл
                 if (PositionsBots.Count != 0)
                 {
@@ -1233,6 +1234,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
             else
             {
+                StopTradeLogic();
                 Task.Run(() =>
                 {
                     //while (ActivOrders() || MonitoringOpenVolumeExchange()) // пока есть открытые обемы и ордера на бирже
