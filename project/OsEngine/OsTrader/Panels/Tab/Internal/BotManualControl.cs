@@ -14,7 +14,6 @@ using System.Threading.Tasks;
 
 namespace OsEngine.OsTrader.Panels.Tab.Internal
 {
-
     /// <summary>
     /// Manual position support settings
     /// </summary>
