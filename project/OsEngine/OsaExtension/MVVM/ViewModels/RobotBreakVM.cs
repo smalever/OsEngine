@@ -1307,61 +1307,66 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// проверять баланс ордеров зак и откр 
         /// </summary>
-        private void MaintainingVolumeBalance(Security security)
+        private void MaintainingVolumeBalance(Security security )
         {
-            decimal minVolumeExecut = SelectedSecurity.MinTradeAmount;
+            decimal minVolumeExecut = security.MinTradeAmount;
 
             if (PositionsBots.Count == 0) MaintenanOpenVolume();
 
             foreach (Position position in PositionsBots) // заходим в позицию
             {
-                GetVolumeOpen(position);
-
-                VolumeRobExecut = position.OpenVolume;
-                decimal volumOrderClose = 0; // по ордерам закрытия объем
-                if (position.CloseOrders != null && position.MyTrades.Count > 0)
+                if (security.Name == SelectedSecurity.Name)
                 {
-                    for (int i = 0;i < position.CloseOrders.Count;i++)
-                    {
-                        volumOrderClose += position.CloseOrders[i].Volume;
-                    }
-                }
-                //  на бирже открытый обем больше обема ордеров закрытия
-                // значит где-то ошибка или купили помимо робота
-                // доставить лимитку закрытия
+                    GetVolumeOpen(position);
 
-                if (SelectSecurBalans > volumOrderClose)
-                {
-                    GetBalansSecur();
-
-                    _logger.Warning(" Volume on the stock exchange > Volum order close  {Method}  {vol} {@Position} ",
-                                                     nameof(MaintainingVolumeBalance));
-                    if (IsChekMonitor)
+                    VolumeRobExecut = position.OpenVolume;
+                    decimal volumOrderClose = 0; // по ордерам закрытия объем
+                    if (position.CloseOrders != null && position.MyTrades.Count > 0)
                     {
-                        decimal vol = Decimal.Round(SelectSecurBalans - volumOrderClose, SelectedSecurity.DecimalsVolume);
-                        if (vol < minVolumeExecut)
+                        for (int i = 0; i < position.CloseOrders.Count; i++)
                         {
-                            _logger.Error("Volum close < min Volume Execut {Method}  {vol} {@Position} ",
-                                                      nameof(MaintainingVolumeBalance), vol, position);
-                            return;
+                            volumOrderClose += position.CloseOrders[i].Volume;
                         }
-                        _logger.Warning(" Open Volume stock market larger than the closing orders  {Method} {SelectSecurBalans} {activCloseVol} {@position} {volum}",
-                              nameof(MaintainingVolumeBalance), SelectSecurBalans, volumOrderClose, position, vol);
-                        SendCloseLimitOrderPosition(position, vol);
-                        IsChekMonitor = false;
                     }
-                }
-                if (!MonitoringOpenVolumeExchange() && !ActivOrders(position)) // если нету робот не работает
-                {
-                    if (IsRun) // нафига он включен
+                    //  на бирже открытый обем больше обема ордеров закрытия
+                    // значит где-то ошибка или купили помимо робота
+                    // доставить лимитку закрытия
+
+                    if (SelectSecurBalans > volumOrderClose)
                     {
-                        _logger.Warning(" there is no open volume and active orders on the exchange, the robot is turned off  {Method} {SelectSecurBalans} {@position} ",
-                          nameof(MaintainingVolumeBalance), SelectSecurBalans, position );
-                        SendStrStatus("Робот выключен");
-                        IsRun = false; // выключаем
-                        ClearCanceledOrderPosition();
-                    }                
-                } ;
+                        GetBalansSecur();
+
+                        _logger.Warning(" Volume on the stock exchange > Volum order close  {Method}  {vol} {@Position} ",
+                                                         nameof(MaintainingVolumeBalance));
+                        if (IsChekMonitor)
+                        {
+                            decimal vol = Decimal.Round(SelectSecurBalans - volumOrderClose, SelectedSecurity.DecimalsVolume);
+                            if (vol < minVolumeExecut)
+                            {
+                                _logger.Error("Volum close < min Volume Execut {Method}  {vol} {@Position} ",
+                                                          nameof(MaintainingVolumeBalance), vol, position);
+                                return;
+                            }
+                            _logger.Warning(" Open Volume stock market larger than the closing orders  {Method} {SelectSecurBalans} {activCloseVol} {@position} {volum}",
+                                  nameof(MaintainingVolumeBalance), SelectSecurBalans, volumOrderClose, position, vol);
+                            SendCloseLimitOrderPosition(position, vol);
+                            IsChekMonitor = false;
+                        }
+                    }
+                    if (!MonitoringOpenVolumeExchange() && !ActivOrders(position)) // если нету робот не работает
+                    {
+                        if (IsRun) // нафига он включен
+                        {
+                            _logger.Warning(" there is no open volume and active orders on the exchange, the robot is turned off " +
+                                "{Header}  {Method} {SelectSecurBalans} {@position} ",
+                                Header,  nameof(MaintainingVolumeBalance), SelectSecurBalans, position);
+
+                            SendStrStatus("Робот выключен" + Header );
+                            IsRun = false; // выключаем
+                            ClearCanceledOrderPosition();
+                        }
+                    };
+                }
             }
         }
 
@@ -2242,6 +2247,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 if (trade.Time.Second % 3 == 0)
                 {
                     MonitoringStop();
+                    GetBalansSecur();
                 }
                 if (trade.Time.Second % 11== 0 && trades[0].SecurityNameCode == SelectedSecurity.Name)
                 {
@@ -2249,7 +2255,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     AddCloseOrder();
                     IsOffBot();
                 }
-                if (trade.Time.Second % 5 == 0) GetBalansSecur();
+                //if (trade.Time.Second % 5 == 0) GetBalansSecur();
             }
         }
  
