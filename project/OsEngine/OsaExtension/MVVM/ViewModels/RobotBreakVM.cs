@@ -1318,7 +1318,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 if (security.Name == SelectedSecurity.Name)
                 {
                     GetVolumeOpen(position);
-
+                    
                     VolumeRobExecut = position.OpenVolume;
                     decimal volumOrderClose = 0; // по ордерам закрытия объем
                     if (position.CloseOrders != null && position.MyTrades.Count > 0)
