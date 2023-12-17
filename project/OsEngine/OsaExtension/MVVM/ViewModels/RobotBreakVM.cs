@@ -1313,12 +1313,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             if (PositionsBots.Count == 0) MaintenanOpenVolume();
 
-            foreach (Position position in PositionsBots) // заходим в позицию
+            if (security.Name == SelectedSecurity.Name)
             {
-                if (security.Name == SelectedSecurity.Name)
+                foreach (Position position in PositionsBots) // заходим в позицию
                 {
                     GetVolumeOpen(position);
-                    
+
                     VolumeRobExecut = position.OpenVolume;
                     decimal volumOrderClose = 0; // по ордерам закрытия объем
                     if (position.CloseOrders != null && position.MyTrades.Count > 0)
@@ -1359,9 +1359,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         {
                             _logger.Warning(" there is no open volume and active orders on the exchange, the robot is turned off " +
                                 "{Header}  {Method} {SelectSecurBalans} {@position} ",
-                                Header,  nameof(MaintainingVolumeBalance), SelectSecurBalans, position);
+                                Header, nameof(MaintainingVolumeBalance), SelectSecurBalans, position);
 
-                            SendStrStatus("Робот выключен" + Header );
+                            SendStrStatus("Робот выключен" + Header);
                             IsRun = false; // выключаем
                             ClearCanceledOrderPosition();
                         }
