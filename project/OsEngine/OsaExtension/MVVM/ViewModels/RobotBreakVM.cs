@@ -2240,11 +2240,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             if (trades != null && trades[0].SecurityNameCode == SelectedSecurity.Name)
             {
-                Trade trade = trades[0];
+                Trade trade = trades[0];  //Price = trade.Price;
 
-                //Price = trade.Price;
-
-                if (trade.Time.Second % 3 == 0)
+                if (trade.Time.Second % 3 == 0) //if (trade.Time.Second % 5 == 0) GetBalansSecur();
                 {
                     MonitoringStop();
                     GetBalansSecur();
@@ -2255,7 +2253,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     AddCloseOrder();
                     IsOffBot();
                 }
-                //if (trade.Time.Second % 5 == 0) GetBalansSecur();
             }
         }
  
