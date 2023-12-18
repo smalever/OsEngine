@@ -1970,7 +1970,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 position.SetOrder(checkOrder); // проверяем и обновляем ордер
                 // TODO:  придумать проверку и изменяем статуса позиций
-                _logger.Information("CheckMyOrder {Header} {@order}{OrdNumberUser} {NumberMarket}{Method}",
+                _logger.Information("Chec kMyOrder {Header} {@order}{OrdNumberUser} {NumberMarket}{Method}",
                                   Header, checkOrder, checkOrder.NumberUser, checkOrder.NumberMarket, nameof(CheckMyOrder));
             }
         }
@@ -2500,8 +2500,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         {
                             aServer.ServerRealization.GetOrdersState(orders); // запросить статусы выбранных оредров
                             aServer.ServerRealization.ResearchTradesToOrders(orders); // и их трейдов
-                            _logger.Information(" GetOrdersState and ResearchTradesToOrders {@orders}{Method} ",
-                                                                                             orders, nameof(CheckMyOrder));
+                            _logger.Information(" GetOrdersState and ResearchTradesToOrders {Header} {@orders}{Method} ",
+                                                                                          Header, orders, nameof(RebootStatePosition));
                         }
                     }
                 }
