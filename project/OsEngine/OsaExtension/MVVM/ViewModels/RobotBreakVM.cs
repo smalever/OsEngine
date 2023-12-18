@@ -1310,6 +1310,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             decimal minVolumeExecut = SelectedSecurity.MinTradeAmount;
 
+            if (position.SecurityName == null) return;
+
             if (PositionsBots.Count == 0) MaintenanOpenVolume();
 
             GetVolumeOpen(position);
@@ -1357,7 +1359,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         "{Header}  {Method} {SelectSecurBalans} {@position} ",
                         Header, nameof(MaintainingVolumeBalance), SelectSecurBalans, position);
 
-                    SendStrStatus("Робот выключен" + Header);
+                    SendStrStatus("Робот выключен " + Header);
                     IsRun = false; // выключаем
                     ClearCanceledOrderPosition();
                 }
@@ -1483,8 +1485,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     }
                 }
             }
-            _logger.Information("ChekTradePosition {@Trade} {NumberTrade} {NumberOrderParent} {volume} {Method}"
-                                     , myTrade, myTrade.NumberTrade, myTrade.NumberOrderParent, volume, nameof(GetOpenVolume));
+            _logger.Information(" Open Volume {Header} {@Trade} {NumberTrade} {NumberOrderParent} {volume} {Method}"
+                              , Header , myTrade, myTrade.NumberTrade, myTrade.NumberOrderParent, volume, nameof(GetOpenVolume));
             return volume;
         }
 
@@ -1985,11 +1987,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 VolumeRobExecut = position.OpenVolume;
 
                 position.SetTrade(newTrade);
-                _logger.Information("Chek Trade Position {@Trade} {NumberTrade} {NumberOrderParent} {Method}"
-                                     , newTrade, newTrade.NumberTrade, newTrade.NumberOrderParent, nameof(ChekTradePosition));
 
                 if (newTrade.SecurityNameCode == SelectedSecurity.Name)
                 {
+
+                    _logger.Information("Chek Trade Position {Header} {@Trade} {NumberTrade} {NumberOrderParent} {Method}"
+                                      , Header , newTrade, newTrade.NumberTrade, newTrade.NumberOrderParent, nameof(ChekTradePosition));
                     if (OpenTrade(newTrade))
                     {
                         decimal vol = GetOpenVolume(newTrade);
@@ -2165,13 +2168,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 ChekTradePosition(myTrade);
                
-                _logger.Warning(" Come myTrade {Method} {NumberOrderParent} {@myTrade}", nameof(_server_NewMyTradeEvent),myTrade.NumberOrderParent , myTrade);
+                _logger.Warning(" Come myTrade {Header} {Method} {NumberOrderParent} {@myTrade}", Header , nameof(_server_NewMyTradeEvent),myTrade.NumberOrderParent , myTrade);
 
                 GetBalansSecur();
                 IsOnTralProfit(myTrade);
             }
             else                 
-            _logger.Warning(" Secur Trade {Header} {@Trade} {Security} {Method}", Header , myTrade, myTrade.SecurityNameCode, nameof(_server_NewMyTradeEvent));
+            _logger.Warning(" Secur Trade {Security} {@Trade}  {Method}", myTrade.SecurityNameCode, myTrade,  nameof(_server_NewMyTradeEvent));
         }  
 
         /// <summary>
@@ -2213,7 +2216,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 if (PositionsBots.Count > 0)
                 {
-                    for (int i = 0; i < PositionsBots.Count; i++)
+                    for (int i = 0; i < PositionsBots.Count ; i++)
                     {
                         MaintainingVolumeBalance(PositionsBots[i]);
                     }
@@ -2448,8 +2451,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         if (d != SelectSecurBalans)
                         {
                             SelectSecurBalans = d; // отправка значения в свойство
-                            _logger.Information(" SelectSecurBalans = {SelectSecurBalans} {Method} "
-                                                           , SelectSecurBalans, nameof(GetBalansSecur));
+                            _logger.Information(" SelectSecur Balans  {Header} = {Method} "
+                                                       , Header, SelectSecurBalans, nameof(GetBalansSecur));
                         }
                     }
                 }
