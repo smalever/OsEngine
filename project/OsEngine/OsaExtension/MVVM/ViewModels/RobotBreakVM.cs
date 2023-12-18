@@ -2451,7 +2451,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         if (d != SelectSecurBalans)
                         {
                             SelectSecurBalans = d; // отправка значения в свойство
-                            _logger.Information(" SelectSecur Balans  {Header} = {Method} "
+                            _logger.Information("Balans SelectSecur = {Header}  {Method} "
                                                        , Header, SelectSecurBalans, nameof(GetBalansSecur));
                         }
                     }
@@ -2460,7 +2460,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             //decimal balans = portfolios[0].GetPositionOnBoard()[0].Find(pos =>
             //    pos.SecurityNameCode == _securName).ValueCurrent;
             //return balans;
-
         }
 
         /// <summary>
