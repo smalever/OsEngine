@@ -49,6 +49,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 _isRun = value;
                 OnPropertyChanged(nameof(IsRun));
 
+                _logger.Information(" seting IsRun  {Header} =  {IsRun} {Method}", Header, IsRun, nameof(IsRun));
+
                 if (IsRun)
                 {
                     //LoadParamsBot(Header);
@@ -607,6 +609,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private bool _sendStop = false;
 
         /// <summary>
+        /// сработал стоп
+        /// </summary>
+        private bool _isWorkedStop =false;
+
+        /// <summary>
         /// отправлен закрывающий объем по маркету
         /// </summary>
         public bool _sendCloseMarket = false;
@@ -1097,7 +1104,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 //Thread.Sleep(100);
 
                 _logger.Information("Sending FINAL Market order to close " +
-                " {volume} {numberUser} {@Order} {Metod} ",
+                                " {volume} {numberUser} {@Order} {Metod} ",
                  finalVolumClose, ordClose.NumberUser, ordClose, nameof(FinalCloseMarketOpenVolume));
 
                 SendStrStatus(" Отправлен Маркет на закрытие объема на бирже");
@@ -1623,6 +1630,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             // для новой позиции
             _sendCloseMarket = false; // разрежаем закрывать ее по маркету
             _sendStop = false; // разрешаем отрабтку ей стопов 
+            _isWorkedStop = false; // 
 
             if (PositionsBots!= null)
             {
@@ -2331,15 +2339,17 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                     if (Price < PriceStopLong && Direction == Side.Buy) //|| Price < PriceStopLong && Direction == Direction.BUYSELL
                     {
-                        foreach (var pos in PositionsBots)
+                        for (int i = 0; i < PositionsBots.Count && !_isWorkedStop; i++)
                         {
-                            if (pos.Direction == Side.Buy && pos.OpenVolume > 0)
+                            if (PositionsBots[i].Direction == Side.Buy && PositionsBots[i].OpenVolume > 0)
                             {
-                                StopPosition(pos);
-                                _logger.Warning(" Triggered Stop Long Position {@Position}  {Method}",
-                                                                       pos, nameof(MonitoringStop));
+                                _isWorkedStop = true;
 
-                                if (pos.State == PositionStateType.Done)// отключаем стоп т.к. позиция уже закрыта
+                                StopPosition(PositionsBots[i]);
+                                _logger.Warning(" Triggered Stop Long Position  {Header} {@Position}  {Method}"
+                                                                , Header, PositionsBots[i], nameof(MonitoringStop));
+
+                                if (PositionsBots[i].State == PositionStateType.Done)// отключаем стоп т.к. позиция уже закрыта
                                 {
                                     PriceStopLong = 0;
                                 }
@@ -2360,15 +2370,17 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                     if (Price > PriceStopShort && Direction == Side.Sell) // || ice > PriceStopShort && Direction == Direction.BUYSELL
                     {
-                        foreach (var pos in PositionsBots)
+                        for (int i = 0; i < PositionsBots.Count && !_isWorkedStop; i++)
                         {
-                            if (pos.Direction == Side.Sell && pos.OpenVolume != 0)
-                            {
-                                StopPosition(pos);
-                                _logger.Warning(" Triggered Stop Short Position {@Position}  {Method}",
-                                                                            pos, nameof(MonitoringStop));
+                            _isWorkedStop = true;
 
-                                if (pos.State == PositionStateType.Done)// отключаем стоп т.к. позиция уже закрыта
+                            if (PositionsBots[i].Direction == Side.Sell && PositionsBots[i].OpenVolume != 0)
+                            {
+                                StopPosition(PositionsBots[i]);
+                                _logger.Warning(" Triggered Stop Short Position {Header} {@Position}  {Method}"
+                                                                      , Header, PositionsBots[i], nameof(MonitoringStop));
+
+                                if (PositionsBots[i].State == PositionStateType.Done)// отключаем стоп т.к. позиция уже закрыта
                                 {
                                     PriceStopShort = 0;
                                 }
