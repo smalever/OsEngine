@@ -1341,8 +1341,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             // доставить лимитку закрытия
             if (SelectSecurBalans < volumOrderClose)
             {
-                _logger.Warning(" Volume on the stock exchange < Volum order close  {Method}  {vol} {@Position} ",
-                                                nameof(MaintainingVolumeBalance), volumOrderClose, position);
+                //_logger.Warning(" Volume on the stock exchange < Volum order close  {Method}  {vol} {@Position} ",
+                //                                nameof(MaintainingVolumeBalance), volumOrderClose, position);
             }
 
             if (SelectSecurBalans > volumOrderClose)
@@ -2183,7 +2183,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void _server_NewMyTradeEvent(MyTrade myTrade)
         {
-            StartMaintainingVolumeBalance();
+            // StartMaintainingVolumeBalance();
 
             if (myTrade.SecurityNameCode == SelectedSecurity.Name)
             {
@@ -2476,8 +2476,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         if (d != SelectSecurBalans)
                         {
                             SelectSecurBalans = d; // отправка значения в свойство
-                            _logger.Information("Balans SelectSecur = {Header}  {Method} "
-                                                       , Header, SelectSecurBalans, nameof(GetBalansSecur));
+                            _logger.Information("Balans SelectSecur = {SelectSecurBalans} {Header} {Method} "
+                                                       ,SelectSecurBalans, Header, nameof(GetBalansSecur));
                         }
                     }
                 }
