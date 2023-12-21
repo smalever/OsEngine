@@ -729,7 +729,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void StopTradeLogic()
         {
-            _logger.Warning("Stop Trade Logic {Header} {Method}"
+            _logger.Information("Stop Trade Logic {Header} {Method}"
                                  , Header , nameof(StopTradeLogic));
             GetBalansSecur();
             for (int i = 0; i < PositionsBots.Count; i++)
@@ -737,7 +737,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 CanselPositionActivOrders(PositionsBots[i]);
                 if (PositionsBots[i].OpenVolume != 0)
                 {
-                    FinalCloseMarketOpenVolume(PositionsBots[i], PositionsBots[i].OpenVolume);
+                    decimal openVolume = PositionsBots[i].OpenVolume;
+                    FinalCloseMarketOpenVolume(PositionsBots[i], openVolume);
                 }
             }
             IsRun = false;
@@ -1338,6 +1339,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             //  на бирже открытый обем больше обема ордеров закрытия
             // значит где-то ошибка или купили помимо робота
             // доставить лимитку закрытия
+            if (SelectSecurBalans < volumOrderClose)
+            {
+                _logger.Warning(" Volume on the stock exchange < Volum order close  {Method}  {vol} {@Position} ",
+                                                nameof(MaintainingVolumeBalance), volumOrderClose, position);
+            }
 
             if (SelectSecurBalans > volumOrderClose)
             {
@@ -1976,12 +1982,17 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void CheckMyOrder(Order checkOrder)
         {
-            foreach (Position position in PositionsBots)
+            if (checkOrder.SecurityNameCode == SelectedSecurity.Name)
             {
-                position.SetOrder(checkOrder); // проверяем и обновляем ордер
-                // TODO:  придумать проверку и изменяем статуса позиций
-                _logger.Information("Chec kMyOrder {Header} {@order}{OrdNumberUser} {NumberMarket}{Method}",
-                                  Header, checkOrder, checkOrder.NumberUser, checkOrder.NumberMarket, nameof(CheckMyOrder));
+                if (PositionsBots == null) { return; }
+
+                for (int i = 0; i < PositionsBots.Count; i++)
+                {
+                    PositionsBots[i].SetOrder(checkOrder); // проверяем и обновляем ордер
+                                                   // TODO:  придумать проверку и изменяем статуса позиций
+                    _logger.Information("Check MyOrder {Header} {@order}{OrdNumberUser} {NumberMarket}{Method}",
+                                      Header, checkOrder, checkOrder.NumberUser, checkOrder.NumberMarket, nameof(CheckMyOrder));
+                }
             }
         }
 
