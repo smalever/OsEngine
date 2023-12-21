@@ -729,6 +729,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void StopTradeLogic()
         {
+            _logger.Warning("Stop Trade Logic {Header} {Method}"
+                                 , Header , nameof(StopTradeLogic));
             GetBalansSecur();
             for (int i = 0; i < PositionsBots.Count; i++)
             {
@@ -738,6 +740,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     FinalCloseMarketOpenVolume(PositionsBots[i], PositionsBots[i].OpenVolume);
                 }
             }
+            IsRun = false;
         }
 
         /// <summary>
