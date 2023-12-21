@@ -730,13 +730,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private void StopTradeLogic()
         {
             GetBalansSecur();
-            foreach (Position pos in PositionsBots)
+            for (int i = 0; i < PositionsBots.Count; i++)
             {
-                CanselPositionActivOrders(pos);
-
-                if (pos.OpenVolume!=0)
+                CanselPositionActivOrders(PositionsBots[i]);
+                if (PositionsBots[i].OpenVolume != 0)
                 {
-                    FinalCloseMarketOpenVolume( pos ,pos.OpenVolume);
+                    FinalCloseMarketOpenVolume(PositionsBots[i], PositionsBots[i].OpenVolume);
                 }
             }
         }
@@ -1989,26 +1988,26 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private void ChekTradePosition(MyTrade newTrade)
         {
             GetBalansSecur();
-
-            foreach (Position position in PositionsBots)
+            if (newTrade.SecurityNameCode == SelectedSecurity.Name)
             {
-                VolumeRobExecut = position.OpenVolume;
+                if (PositionsBots == null) { return; }
 
-                position.SetTrade(newTrade);
-
-                if (newTrade.SecurityNameCode == SelectedSecurity.Name)
+                for (int i = 0; i < PositionsBots.Count; i++)
                 {
+                    VolumeRobExecut = PositionsBots[i].OpenVolume;
+
+                    PositionsBots[i].SetTrade(newTrade);
 
                     _logger.Information("Chek Trade Position {Header} {@Trade} {NumberTrade} {NumberOrderParent} {Method}"
-                                      , Header , newTrade, newTrade.NumberTrade, newTrade.NumberOrderParent, nameof(ChekTradePosition));
+                            , Header, newTrade, newTrade.NumberTrade, newTrade.NumberOrderParent, nameof(ChekTradePosition));
                     if (OpenTrade(newTrade))
                     {
                         decimal vol = GetOpenVolume(newTrade);
-                        if (vol != 0) 
+                        if (vol != 0)
                         {
-                            SendCloseOrder(position, vol);
+                            SendCloseOrder(PositionsBots[i], vol);
                         }
-                    } 
+                    }
                 }
             }
             SaveParamsBot();
