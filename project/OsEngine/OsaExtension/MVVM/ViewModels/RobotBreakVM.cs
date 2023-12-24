@@ -2333,6 +2333,27 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         #region   сервисные методы ===========================
 
         /// <summary>
+        /// удалить ордера по монете
+        /// </summary>
+        public void DelAllOrdersPosition(Security security)
+        {
+            if (PositionsBots != null && PositionsBots.Count > 0)
+            {
+                if (Server != null)
+                {
+                    if (Server.ServerType == ServerType.BinanceFutures)
+                    {
+                        AServer aServer = (AServer)Server;
+
+                        aServer.ServerRealization.CancelAllOrdersToSecurity(security); // удалить ордера по монете
+                        _logger.Information(" Canceled All Orders security {Header} {@orders}{Method} "
+                                                       ,Header, security, nameof(DelAllOrdersPosition));
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// проверяем стопы
         /// </summary>
         private void MonitoringStop()
@@ -2364,7 +2385,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                                 if (PositionsBots[i].State == PositionStateType.Done)// отключаем стоп т.к. позиция уже закрыта
                                 {
-                                    PriceStopLong = 0;
+                                    StopTradeLogic();
                                 }
                             }
                         }
@@ -2395,7 +2416,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                                 if (PositionsBots[i].State == PositionStateType.Done)// отключаем стоп т.к. позиция уже закрыта
                                 {
-                                    PriceStopShort = 0;
+                                    StopTradeLogic();
                                 }
                             }
                         }
