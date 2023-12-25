@@ -732,9 +732,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             _logger.Information("Stop Trade Logic {Header} {Method}"
                                  , Header , nameof(StopTradeLogic));
             GetBalansSecur();
+
+            DeleteAllOrdersPositionExchange();
+
             for (int i = 0; i < PositionsBots.Count; i++)
             {
-                CanselPositionActivOrders(PositionsBots[i]);
                 if (PositionsBots[i].OpenVolume != 0)
                 {
                     decimal openVolume = PositionsBots[i].OpenVolume;
@@ -1044,7 +1046,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             GetBalansSecur();
 
-            CanselPositionActivOrders(position);
+            DeleteAllOrdersPositionExchange();
+
+            //CanselPositionActivOrders(position);
 
             if (position.OpenVolume != 0 && !_sendStop)
             {
@@ -1120,76 +1124,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                 _logger.Error(" Error sending FINAL the Market to close the volume {@Order} {Metod} ",
                                                         ordClose, nameof(FinalCloseMarketOpenVolume));
-            }
-        }
-
-        /// <summary>
-        /// отменяет все активные ордера во всех позициях
-        /// </summary>
-        private void CanselAllPositionActivOrders()
-        {
-            if(Server == null) return;
-            foreach (Position position in PositionsBots)
-            {
-                List<Order> ordersAll = new List<Order>();
-                if (position.OpenActiv)
-                {
-                    ordersAll = position.OpenOrders;// взять из позиции ордера открытия 
-                }
-                if (position.CloseActiv)
-                {
-                    ordersAll.AddRange(position.CloseOrders); // добавили ордера закрытия 
-                }
-                for (int i = 0; i < ordersAll.Count; i++)
-                {
-                    if (ordersAll[i].State == OrderStateType.Activ ||
-                        ordersAll[i].State == OrderStateType.Patrial ||
-                        ordersAll[i].State == OrderStateType.None ||
-                        ordersAll[i].State == OrderStateType.Pending)
-                    {
-                        Server.CancelOrder(ordersAll[i]);
-                        _logger.Information("Cancel All positions Activ Orders {Method} Order {@Order} {Number} {NumberMarket} "
-                                , nameof(CanselAllPositionActivOrders), ordersAll[i], ordersAll[i].NumberUser, ordersAll[i].NumberMarket);
-                        SendStrStatus(" Отменили ордер на бирже");
-
-                        //Thread.Sleep(50);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// отменяет активные ордера в позиции
-        /// </summary>
-        private void CanselPositionActivOrders(Position position)
-        {
-            if (Server == null) return;
-            if (ActivOrders(position))
-            {
-                List<Order> ordersAll = new List<Order>();
-                if (position.OpenActiv)
-                {
-                    ordersAll = position.OpenOrders;// взять из позиции ордера открытия 
-                }
-                if (position.CloseActiv)
-                {
-                    ordersAll.AddRange(position.CloseOrders); // добавили ордера закрытия 
-                }
-                for (int i = 0; i < ordersAll.Count; i++)
-                {
-                    if (ordersAll[i].State == OrderStateType.Activ ||
-                        ordersAll[i].State == OrderStateType.Patrial ||
-                        ordersAll[i].State == OrderStateType.None ||
-                        ordersAll[i].State == OrderStateType.Pending)
-                    {
-                        Server.CancelOrder(ordersAll[i]);
-                        _logger.Information("Cancel Activ Orders {Method} Order {@Order} {Number} {NumberMarket} "
-                                , nameof(CanselPositionActivOrders), ordersAll[i], ordersAll[i].NumberUser, ordersAll[i].NumberMarket);
-                        SendStrStatus(" Отменили ордер на бирже");
-
-                        //Thread.Sleep(50);
-                    }
-                }
             }
         }
 
@@ -2333,9 +2267,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         #region   сервисные методы ===========================
 
         /// <summary>
-        /// удалить ордера по монете
+        /// удалить все открытые ордера по монете на бирже
         /// </summary>
-        public void DelAllOrdersPosition(Security security)
+        public void DeleteAllOrdersPositionExchange()
         {
             if (PositionsBots != null && PositionsBots.Count > 0)
             {
@@ -2345,9 +2279,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     {
                         AServer aServer = (AServer)Server;
 
+                        Security security = new Security();
+                        security.Name = PositionsBots[0].SecurityName;
+
                         aServer.ServerRealization.CancelAllOrdersToSecurity(security); // удалить ордера по монете
                         _logger.Information(" Canceled All Orders security {Header} {@orders}{Method} "
-                                                       ,Header, security, nameof(DelAllOrdersPosition));
+                                                       ,Header, security, nameof(DeleteAllOrdersPositionExchange));
                     }
                 }
             }
@@ -2939,6 +2876,41 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         //    }
         //}
         #endregion
+
+        /// <summary>
+        /// отменяет все активные ордера во всех позициях
+        /// </summary>
+        private void CanselAllPositionActivOrders()
+        {
+            if (Server == null) return;
+            foreach (Position position in PositionsBots)
+            {
+                List<Order> ordersAll = new List<Order>();
+                if (position.OpenActiv)
+                {
+                    ordersAll = position.OpenOrders;// взять из позиции ордера открытия 
+                }
+                if (position.CloseActiv)
+                {
+                    ordersAll.AddRange(position.CloseOrders); // добавили ордера закрытия 
+                }
+                for (int i = 0; i < ordersAll.Count; i++)
+                {
+                    if (ordersAll[i].State == OrderStateType.Activ ||
+                        ordersAll[i].State == OrderStateType.Patrial ||
+                        ordersAll[i].State == OrderStateType.None ||
+                        ordersAll[i].State == OrderStateType.Pending)
+                    {
+                        Server.CancelOrder(ordersAll[i]);
+                        _logger.Information("Cancel All positions Activ Orders {Method} Order {@Order} {Number} {NumberMarket} "
+                                , nameof(CanselAllPositionActivOrders), ordersAll[i], ordersAll[i].NumberUser, ordersAll[i].NumberMarket);
+                        SendStrStatus(" Отменили ордер на бирже");
+
+                        //Thread.Sleep(50);
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// удалить файл сериализвции 
