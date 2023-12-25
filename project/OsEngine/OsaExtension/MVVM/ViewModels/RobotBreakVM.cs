@@ -1054,7 +1054,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 _sendStop = true;
                 _logger.Warning(" It worked StopPosition {@position} {Metod} "
-                                                        ,position, nameof(StopPosition));
+                                                     ,position, nameof(StopPosition));
 
                 FinalCloseMarketOpenVolume(position, position.OpenVolume);
                 ClearCanceledOrderPosition();
@@ -2283,8 +2283,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         security.Name = PositionsBots[0].SecurityName;
 
                         aServer.ServerRealization.CancelAllOrdersToSecurity(security); // удалить ордера по монете
-                        _logger.Information(" Canceled All Orders security {Header} {@orders}{Method} "
-                                                       ,Header, security, nameof(DeleteAllOrdersPositionExchange));
+                        _logger.Information(" Canceled All Orders security on Exchange {Header} {@orders}{Method} "
+                                                       , Header, security, nameof(DeleteAllOrdersPositionExchange));
                     }
                 }
             }
