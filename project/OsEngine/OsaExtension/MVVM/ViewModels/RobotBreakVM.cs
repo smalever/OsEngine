@@ -777,7 +777,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
              * 
              * 
              */
-            !
+            
         }
 
         /// <summary>
@@ -2522,7 +2522,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         {
                             aServer.ServerRealization.GetOrdersState(orders); // запросить статусы выбранных оредров
                             aServer.ServerRealization.ResearchTradesToOrders(orders); // и их трейдов
-                            _logger.Information(" GetOrdersState and ResearchTradesToOrders {Header} {@orders}{Method} ",
+                            if (IsChekSendTeleg) _logger.Information(" GetOrdersState and ResearchTradesToOrders {Header} {@orders}{Method} ",
                                                                                           Header, orders, nameof(RebootStatePosition));
                         }
                     }
