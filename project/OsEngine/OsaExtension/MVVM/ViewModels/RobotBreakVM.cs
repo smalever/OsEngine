@@ -2113,6 +2113,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             if (selectSecur != null && selectSecur.Name == SelectedSecurity.Name)
             {
                 Price = ask;
+                if(Price !=0 && Price  != ask && ask!=0) MonitoringStop();
             }
         }
 
@@ -2256,7 +2257,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                 if (trade.Time.Second % 3 == 0) //if (trade.Time.Second % 5 == 0) GetBalansSecur();
                 {
-                    MonitoringStop();
+                    
                     GetBalansSecur();
                 }
                 if (trade.Time.Second % 11== 0 && trades[0].SecurityNameCode == SelectedSecurity.Name)
