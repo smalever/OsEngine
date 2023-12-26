@@ -777,6 +777,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
              * 
              * 
              */
+            !
         }
 
         /// <summary>
@@ -1962,8 +1963,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 for (int i = 0; i < PositionsBots.Count; i++)
                 {
                     PositionsBots[i].SetOrder(checkOrder); // проверяем и обновляем ордер
-                                                   // TODO:  придумать проверку и изменяем статуса позиций
-                    _logger.Information("Check MyOrder {Header} {@order}{OrdNumberUser} {NumberMarket}{Method}",
+                                                           // TODO:  придумать проверку и изменяем статуса позиций
+                    if (IsChekSendTeleg) _logger.Information("Check MyOrder {Header} {@order}{OrdNumberUser} {NumberMarket}{Method}",
                                       Header, checkOrder, checkOrder.NumberUser, checkOrder.NumberMarket, nameof(CheckMyOrder));
                 }
             }
@@ -2192,7 +2193,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     else ClearFailOrderPosition();
 
                     GetBalansSecur();
-                    _logger.Information(" New myOrder  {Header}{@Order} {NumberUser} {NumberMarket} {Method}",
+                    if (IsChekSendTeleg) _logger.Information(" New myOrder  {Header}{@Order} {NumberUser} {NumberMarket} {Method}",
                                        Header, order, order.NumberUser, order.NumberMarket, nameof(_server_NewOrderIncomeEvent));
                 }
                 //else
