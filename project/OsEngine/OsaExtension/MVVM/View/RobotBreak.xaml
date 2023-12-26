@@ -38,6 +38,10 @@
             <TextBlock Text="{Binding Price}" 
                        Margin="5,3,0,0"
                        FontSize="16"/>
+            <CheckBox Content="Отправлять все логи в телеграм"
+             IsChecked="{Binding IsChekSendTeleg}"
+             ToolTip="Отправлять ВСЕ логи в телеграм бота"
+             Margin="5,0"/>
             <!--<TextBlock Text=" Статус позиции :" 
                        ToolTip=" Статус позиции"
                        Margin="5,3,0,0"

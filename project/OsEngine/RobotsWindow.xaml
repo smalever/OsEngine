@@ -27,6 +27,7 @@
                 Content="Добавить робота"
                 Command="{Binding ComandAddRobot}">
                 </Button>
+       
             </StackPanel>
 
         </mah:WindowCommands>

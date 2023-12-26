@@ -61,7 +61,7 @@ namespace OsEngine.OsaExtension.MVVM.View
             MainWindow.ProccesIsWorked = false;
             Dispose();
 
-            Thread.Sleep(10000);
+            Thread.Sleep(7000);
             Process.GetCurrentProcess().Kill();
         }
 

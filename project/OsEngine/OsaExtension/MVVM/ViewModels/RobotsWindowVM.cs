@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using OsEngine.Market.Servers;
 using Serilog;
+using System.Windows.Documents;
 
 namespace OsEngine.OsaExtension.MVVM.ViewModels
 {
