@@ -607,18 +607,18 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private bool _isChekMonitor;
 
         /// <summary>
-        /// отправльять в телегу смс
+        /// записывать все логи 
         /// </summary>
-        public bool IsChekSendTeleg
+        public bool IsChekSendAllLogs
         {
-            get => _isChekSendTeleg;
+            get => _isChekSendAllLogs;
             set
             {
-                _isChekSendTeleg = value;
-                OnPropertyChanged(nameof(IsChekSendTeleg));
+                _isChekSendAllLogs = value;
+                OnPropertyChanged(nameof(IsChekSendAllLogs));
             }
         }
-        private bool _isChekSendTeleg;
+        private bool _isChekSendAllLogs;
 
         /// <summary>
         /// отправлен стоп
@@ -746,7 +746,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void StopTradeLogic()
         {
-            if (IsChekSendTeleg) _logger.Information("Stop Trade Logic {Header} {Method}"
+            if (IsChekSendAllLogs) _logger.Information("Stop Trade Logic {Header} {Method}"
                                  , Header , nameof(StopTradeLogic));
             GetBalansSecur();
 
@@ -905,26 +905,26 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     { // ордер открытия
                         position.OpenOrders.Remove(order);
 
-                        if (IsChekSendTeleg) _logger.Information("Delete order for Open Orders {Method} {@Order} {NumberUser}",
+                        if (IsChekSendAllLogs) _logger.Information("Delete order for Open Orders {Method} {@Order} {NumberUser}",
                                                              nameof(DeleteOrderPosition), order, order.NumberUser);
                     }
                     if (position.Direction == Side.Sell && order.Side == Side.Sell)
                     {// ордер открытия
                         position.OpenOrders.Remove(order);
-                        if (IsChekSendTeleg) _logger.Information("Delete Limit order for Open Orders {Method} {@Order} {NumberUser}",
+                        if (IsChekSendAllLogs) _logger.Information("Delete Limit order for Open Orders {Method} {@Order} {NumberUser}",
                                                             nameof(DeleteOrderPosition), order, order.NumberUser);
                     }
                     if (position.Direction == Side.Buy && order.Side == Side.Sell)
                     { // ордер закрытия
                         position.CloseOrders.Remove(order);
-                        if (IsChekSendTeleg) _logger.Information("Delete Limit order for Close Orders {Method} {@Order} {NumberUser}",
+                        if (IsChekSendAllLogs) _logger.Information("Delete Limit order for Close Orders {Method} {@Order} {NumberUser}",
                                                             nameof(DeleteOrderPosition), order, order.NumberUser);
                     }
                     if (position.Direction == Side.Sell && order.Side == Side.Buy)
                     {// ордер закрытия
                         position.CloseOrders.Remove(order);
 
-                        if (IsChekSendTeleg) _logger.Information("Delete Limit order for Close Orders {Method} {@Order} {NumberUser}",
+                        if (IsChekSendAllLogs) _logger.Information("Delete Limit order for Close Orders {Method} {@Order} {NumberUser}",
                                                            nameof(DeleteOrderPosition), order, order.NumberUser);
                     }
                 }
@@ -1025,7 +1025,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     newOrders.Add(order);
                 }
             }
-            if (IsChekSendTeleg) _logger.Information("Clear Orders cancel {Method}", nameof(ClearOrdersCancel));
+            if (IsChekSendAllLogs) _logger.Information("Clear Orders cancel {Method}", nameof(ClearOrdersCancel));
             orders = newOrders;
         }
 
@@ -1069,7 +1069,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     newOrders.Add(order);
                 }
             }
-            if (IsChekSendTeleg) _logger.Information("Clear Fail Orders {Method}", nameof(ClearOrdersFail));
+            if (IsChekSendAllLogs) _logger.Information("Clear Fail Orders {Method}", nameof(ClearOrdersFail));
             orders = newOrders;
         }
 
@@ -1115,12 +1115,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             if (pos.Direction == Side.Buy)
             {
                 sideClose = Side.Sell;
-                if (IsChekSendTeleg) _logger.Information("In Position volume {Volume} {side} {Metod} ", finalVolumClose, sideClose, nameof(FinalCloseMarketOpenVolume));
+                if (IsChekSendAllLogs) _logger.Information("In Position volume {Volume} {side} {Metod} ", finalVolumClose, sideClose, nameof(FinalCloseMarketOpenVolume));
             }
             if (pos.Direction == Side.Sell)
             {
                 sideClose = Side.Buy;
-                if (IsChekSendTeleg) _logger.Information("In Position volume {Volume} {side} {Metod} ", finalVolumClose, sideClose, nameof(FinalCloseMarketOpenVolume));
+                if (IsChekSendAllLogs) _logger.Information("In Position volume {Volume} {side} {Metod} ", finalVolumClose, sideClose, nameof(FinalCloseMarketOpenVolume));
             }
             if (finalVolumClose == 0 || sideClose == Side.None )
             {
@@ -1220,7 +1220,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             Server.ExecuteOrder(sendOpder);
             //Thread.Sleep(100);
-            if (IsChekSendTeleg) _logger.Information("Send order Exchange {Method} Order {@Order} {NumberUser} ", nameof(SendOrderExchange), sendOpder, sendOpder.NumberUser);
+            if (IsChekSendAllLogs) _logger.Information("Send order Exchange {Method} Order {@Order} {NumberUser} ", nameof(SendOrderExchange), sendOpder, sendOpder.NumberUser);
 
             SendStrStatus(" Ордер отправлен на биржу");
         }
@@ -1257,7 +1257,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         position.AddNewOpenOrder(order);// отправили ордер в позицию
                         SendOrderExchange(order); // отправили ордер на биржу
                         //Thread.Sleep(50);
-                        if (IsChekSendTeleg) _logger.Information("Send Open order into position {Method} {@Order} {NumberUser}", nameof(SendOrderExchange), order, order.NumberUser);
+                        if (IsChekSendAllLogs) _logger.Information("Send Open order into position {Method} {@Order} {NumberUser}", nameof(SendOrderExchange), order, order.NumberUser);
                     }
                     else
                     {
@@ -1319,7 +1319,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 GetBalansSecur();
 
-                if (IsChekSendTeleg)
+                if (IsChekSendAllLogs)
                 {
                     _logger.Warning(" Volume on the stock exchange > Volum order close {Header} {Method}",
                                                           Header, nameof(MaintainingVolumeBalance));
@@ -1964,7 +1964,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
                     PositionsBots[i].SetOrder(checkOrder); // проверяем и обновляем ордер
                                                            // TODO:  придумать проверку и изменяем статуса позиций
-                    if (IsChekSendTeleg) _logger.Information("Check MyOrder {Header} {@order}{OrdNumberUser} {NumberMarket}{Method}",
+                    if (IsChekSendAllLogs) _logger.Information("Check MyOrder {Header} {@order}{OrdNumberUser} {NumberMarket}{Method}",
                                       Header, checkOrder, checkOrder.NumberUser, checkOrder.NumberMarket, nameof(CheckMyOrder));
                 }
             }
@@ -2168,13 +2168,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 ChekTradePosition(myTrade);
                
-                if (IsChekSendTeleg) _logger.Warning(" Come myTrade {Header} {Method} {NumberOrderParent} {@myTrade}", Header , nameof(_server_NewMyTradeEvent),myTrade.NumberOrderParent , myTrade);
+                if (IsChekSendAllLogs) _logger.Warning(" Come myTrade {Header} {Method} {NumberOrderParent} {@myTrade}", Header , nameof(_server_NewMyTradeEvent),myTrade.NumberOrderParent , myTrade);
 
                 GetBalansSecur();
                 IsOnTralProfit(myTrade);
             }
             else
-            if (IsChekSendTeleg) _logger.Warning(" Secur Trade {Security} {@Trade}  {Method}", myTrade.SecurityNameCode, myTrade,  nameof(_server_NewMyTradeEvent));
+            if (IsChekSendAllLogs) _logger.Warning(" Secur Trade {Security} {@Trade}  {Method}", myTrade.SecurityNameCode, myTrade,  nameof(_server_NewMyTradeEvent));
         }  
 
         /// <summary>
@@ -2198,7 +2198,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     else ClearFailOrderPosition();
 
                     GetBalansSecur();
-                    if (IsChekSendTeleg) _logger.Information(" New myOrder  {Header}{@Order} {NumberUser} {NumberMarket} {Method}",
+                    if (IsChekSendAllLogs) _logger.Information(" New myOrder  {Header}{@Order} {NumberUser} {NumberMarket} {Method}",
                                        Header, order, order.NumberUser, order.NumberMarket, nameof(_server_NewOrderIncomeEvent));
                 }
                 //else
@@ -2527,7 +2527,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         {
                             aServer.ServerRealization.GetOrdersState(orders); // запросить статусы выбранных оредров
                             aServer.ServerRealization.ResearchTradesToOrders(orders); // и их трейдов
-                            if (IsChekSendTeleg) _logger.Information(" GetOrdersState and ResearchTradesToOrders {Header} {@orders}{Method} ",
+                            if (IsChekSendAllLogs) _logger.Information(" GetOrdersState and ResearchTradesToOrders {Header} {@orders}{Method} ",
                                                                                           Header, orders, nameof(RebootStatePosition));
                         }
                     }
@@ -2755,11 +2755,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                     writer.WriteLine(ActionPosition); // 21
 
-                    writer.WriteLine(IsChekSendTeleg); // 22 состояние чек бокса телеги
+                    writer.WriteLine(IsChekSendAllLogs); // 22 состояние чек бокса телеги
 
                     writer.Close();
 
-                    if(IsChekSendTeleg) _logger.Information("Saving parameters {Header} {Method} "
+                    if(IsChekSendAllLogs) _logger.Information("Saving parameters {Header} {Method} "
                         , Header , nameof(SaveParamsBot));
 
                     //RobotsWindowVM.Log(Header, "SaveParamsBot  \n cохраненили  параметры ");
@@ -2840,7 +2840,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     bool chek = true;
                     if (bool.TryParse(reader.ReadLine(), out chek))
                     {
-                        IsChekSendTeleg = chek;
+                        IsChekSendAllLogs = chek;
                     }
 
                     //StepType step = StepType.PUNKT;
@@ -2888,7 +2888,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             ServerMaster.ServerCreateEvent -= ServerMaster_ServerCreateEvent;
             PropertyChanged -= RobotBreakVM_PropertyChanged;
 
-            if (IsChekSendTeleg) _logger.Information(" Dispose {Method}", nameof(Dispose));
+            if (IsChekSendAllLogs) _logger.Information(" Dispose {Method}", nameof(Dispose));
         }
 
         #endregion
