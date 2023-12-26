@@ -733,7 +733,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                                  , Header , nameof(StopTradeLogic));
             GetBalansSecur();
 
-            DeleteAllOrdersPositionExchange();
+            if (!_sendStop)
+            {
+                DeleteAllOrdersPositionExchange();
+            }
 
             for (int i = 0; i < PositionsBots.Count; i++)
             {
@@ -744,6 +747,19 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 }
             }
             IsRun = false;
+            // препроверяем монету
+        }
+
+        /// <summary>
+        /// препроверка сосотояния монеты на бирже
+        /// </summary>
+        private void RecheckingStatusCoinExchange()
+        {
+            /*
+             * запросить статус монеты
+             * 
+             * 
+             */
         }
 
         /// <summary>
@@ -1046,8 +1062,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             GetBalansSecur();
 
-            DeleteAllOrdersPositionExchange();
-
+            if(!_sendStop) 
+            {
+                DeleteAllOrdersPositionExchange();
+            }
             //CanselPositionActivOrders(position);
 
             if (position.OpenVolume != 0 && !_sendStop)
