@@ -2112,8 +2112,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             if (selectSecur != null && selectSecur.Name == SelectedSecurity.Name)
             {
-                Price = ask;
-                if(Price !=0 && Price  != ask && ask!=0) MonitoringStop();
+                if (Price != 0 && Price != ask && ask != 0)
+                {
+                    Price = ask;
+
+                    MonitoringStop();
+                }
             }
         }
 
@@ -2164,13 +2168,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 ChekTradePosition(myTrade);
                
-                _logger.Warning(" Come myTrade {Header} {Method} {NumberOrderParent} {@myTrade}", Header , nameof(_server_NewMyTradeEvent),myTrade.NumberOrderParent , myTrade);
+                if (IsChekSendTeleg) _logger.Warning(" Come myTrade {Header} {Method} {NumberOrderParent} {@myTrade}", Header , nameof(_server_NewMyTradeEvent),myTrade.NumberOrderParent , myTrade);
 
                 GetBalansSecur();
                 IsOnTralProfit(myTrade);
             }
-            else                 
-            _logger.Warning(" Secur Trade {Security} {@Trade}  {Method}", myTrade.SecurityNameCode, myTrade,  nameof(_server_NewMyTradeEvent));
+            else
+            if (IsChekSendTeleg) _logger.Warning(" Secur Trade {Security} {@Trade}  {Method}", myTrade.SecurityNameCode, myTrade,  nameof(_server_NewMyTradeEvent));
         }  
 
         /// <summary>
@@ -2337,7 +2341,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private void MonitoringStop()
         {
             if (PositionsBots == null) return;
-            if (PositionsBots.Count != 0)
+            if (PositionsBots.Count != 0 && SelectSecurBalans != 0)
             {
                 if (Price != 0) // если н0ль - стоп отключен
                 {
