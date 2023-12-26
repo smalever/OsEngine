@@ -39,7 +39,7 @@
                        Margin="5,3,0,0"
                        FontSize="16"/>
             <CheckBox Content="Писать все логи"
-             IsChecked="{Binding IsChekSendTeleg}"
+             IsChecked="{Binding IsChekSendAllLogs}"
              ToolTip="Записывать ВСЕ логи"
              Margin="5,0"/>
             <!--<TextBlock Text=" Статус позиции :" 

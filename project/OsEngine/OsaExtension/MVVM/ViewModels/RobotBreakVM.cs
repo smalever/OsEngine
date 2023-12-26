@@ -757,13 +757,16 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             for (int i = 0; i < PositionsBots.Count; i++)
             {
-                if (PositionsBots[i].OpenVolume != 0)
+                if (SelectSecurBalans != 0)
                 {
-                    decimal openVolume = PositionsBots[i].OpenVolume;
+                    decimal openVolume = SelectSecurBalans;
+
                     FinalCloseMarketOpenVolume(PositionsBots[i], openVolume);
                 }
             }
             IsRun = false;
+
+            ClearCanceledOrderPosition();
             // препроверяем монету
         }
 
@@ -1086,14 +1089,15 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
             //CanselPositionActivOrders(position);
 
-            if (position.OpenVolume != 0 && !_sendStop)
+            if (!_sendStop)
             {
                 _sendStop = true;
                 _logger.Warning(" It worked StopPosition {@position} {Metod} "
                                                      ,position, nameof(StopPosition));
 
-                FinalCloseMarketOpenVolume(position, position.OpenVolume);
-                ClearCanceledOrderPosition();
+                decimal volume = SelectSecurBalans;
+
+                FinalCloseMarketOpenVolume(position, volume);               
             }
         }
 
@@ -1115,12 +1119,14 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             if (pos.Direction == Side.Buy)
             {
                 sideClose = Side.Sell;
-                if (IsChekSendAllLogs) _logger.Information("In Position volume {Volume} {side} {Metod} ", finalVolumClose, sideClose, nameof(FinalCloseMarketOpenVolume));
+                if (IsChekSendAllLogs) _logger.Information("In Position volume {Volume} {side} {Metod} ",
+                                        finalVolumClose, sideClose, nameof(FinalCloseMarketOpenVolume));
             }
             if (pos.Direction == Side.Sell)
             {
                 sideClose = Side.Buy;
-                if (IsChekSendAllLogs) _logger.Information("In Position volume {Volume} {side} {Metod} ", finalVolumClose, sideClose, nameof(FinalCloseMarketOpenVolume));
+                if (IsChekSendAllLogs) _logger.Information("In Position volume {Volume} {side} {Metod} ",
+                                        finalVolumClose, sideClose, nameof(FinalCloseMarketOpenVolume));
             }
             if (finalVolumClose == 0 || sideClose == Side.None )
             {
@@ -2112,11 +2118,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             if (selectSecur != null && selectSecur.Name == SelectedSecurity.Name)
             {
-                if (Price != 0 && Price != ask && ask != 0)
+                if ( Price != ask && ask != 0)
                 {
                     Price = ask;
 
                     MonitoringStop();
+                    GetBalansSecur();
                 }
             }
         }
@@ -2326,10 +2333,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                         Security security = new Security();
                         security.Name = PositionsBots[0].SecurityName;
-
-                        aServer.ServerRealization.CancelAllOrdersToSecurity(security); // удалить ордера по монете
-                        _logger.Information(" Canceled All Orders security on Exchange {Header} {@orders}{Method} "
-                                                       , Header, security, nameof(DeleteAllOrdersPositionExchange));
+                        if (ActivOrders(PositionsBots[0]))
+                        {
+                            aServer.ServerRealization.CancelAllOrdersToSecurity(security); // удалить ордера по монете
+                            _logger.Information(" Canceled All Orders security on Exchange {Header} {security} {Method} "
+                                                           , Header, security.Name, nameof(DeleteAllOrdersPositionExchange));
+                        }
                     }
                 }
             }
