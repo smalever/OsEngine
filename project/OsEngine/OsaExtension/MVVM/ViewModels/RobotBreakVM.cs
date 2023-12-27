@@ -2331,13 +2331,17 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     {
                         AServer aServer = (AServer)Server;
 
-                        Security security = new Security();
-                        security.Name = PositionsBots[0].SecurityName;
-                        if (ActivOrders(PositionsBots[0]))
+                        for(int i = 0; i < PositionsBots.Count; i++)
                         {
-                            aServer.ServerRealization.CancelAllOrdersToSecurity(security); // удалить ордера по монете
-                            _logger.Information(" Canceled All Orders security on Exchange {Header} {security} {Method} "
-                                                           , Header, security.Name, nameof(DeleteAllOrdersPositionExchange));
+                            Security security = new Security();
+                            security.Name = PositionsBots[i].SecurityName;
+                            bool yes = ActivOrders(PositionsBots[i]);
+                            if (yes)
+                            {
+                                aServer.ServerRealization.CancelAllOrdersToSecurity(security); // удалить ордера по монете
+                                _logger.Information(" Canceled All Orders security on Exchange {Header} {security} {Method} "
+                                                               , Header, security.Name, nameof(DeleteAllOrdersPositionExchange));
+                            }
                         }
                     }
                 }
