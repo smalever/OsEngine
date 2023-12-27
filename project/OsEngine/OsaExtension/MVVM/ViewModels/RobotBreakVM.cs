@@ -767,6 +767,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             IsRun = false;
 
             ClearCanceledOrderPosition();
+            ClearingVariablesAfterClosing();
             // препроверяем монету
         }
 
@@ -1150,6 +1151,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 _sendCloseMarket = true;
 
                 SendOrderExchange(ordClose);
+
+                ClearingVariablesAfterClosing();
+
+                //PositionsBots.Clear();
+
                 //Thread.Sleep(100);
 
                 _logger.Information("Sending FINAL Market order to close " +
@@ -1733,46 +1739,52 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void CalculateTrelingStop(Position position)
         {   
-            if (IsRun == false || SelectedSecurity == null) return;
+            if (IsRun == false || SelectedSecurity == null && SelectSecurBalans == 0) return;
 
-            if (position.Direction == Side.Buy && position.OpenVolume != 0) // если есть открытый объем в лонг
+            if (position.Direction == Side.Buy && SelectSecurBalans > 0) // если есть открытый объем в лонг
             {
-                if (IsChekTraelStopLong == true && position.Direction == Side.Buy)
+                decimal stepStop = 0;// расстояние до стопа
+                stepStop = StepPersentStopLong * Price / 100;
+                stepStop = Decimal.Round(stepStop, SelectedSecurity.Decimals);
+                decimal entry = position.EntryPrice; // средняя цена входа роботом
+                if (Price > entry + stepStop && IsChekTraelStopLong == false && entry != 0) // включаем трейлинг стоп в лонг
                 {
-                    decimal stepStop = 0;
-                    decimal priceStop = 0;
-                    stepStop = StepPersentStopLong * Price / 100;
-                    stepStop = Decimal.Round(stepStop, SelectedSecurity.Decimals);
-                    decimal entry = position.EntryPrice;
-                    //priceStop = entry - stepStop; //расчетная чена стопа 
-                    if (Price > PriceStopLong + stepStop)
-                    {
-                        if (entry == 0) return;
-                        decimal p = Price - stepStop;
-                        PriceStopLong = Decimal.Round(p, SelectedSecurity.Decimals);
-                    }
+                    IsChekTraelStopLong = true;
+                    SendStrStatus("Включили Трейлинг профит в лонг ");
+                    _logger.Warning("Turned ON Trael Proit long {Method} "
+                                    , nameof(CalculateTrelingStop));
+                }
+
+                if (Price > PriceStopLong + stepStop && IsChekTraelStopLong)
+                {
+                    //if (entry == 0) return;
+                    decimal p = Price - stepStop;
+                    PriceStopLong = Decimal.Round(p, SelectedSecurity.Decimals);
                 }
             }
-            if (position.Direction == Side.Sell && position.OpenVolume != 0)
+            if (position.Direction == Side.Sell && SelectSecurBalans < 0 )
             {
                 decimal stepStop = 0;
-                //decimal priceStop = 0;
                 stepStop = StepPersentStopShort * Price / 100;
                 stepStop = Decimal.Round(stepStop, SelectedSecurity.Decimals);
                 decimal entry = position.EntryPrice;
-                if (IsChekTraelStopShort && position.Direction == Side.Sell)
-                {
-                    if (entry == 0) return;
 
-                    if (PriceStopShort == 0)
-                    {
-                        PriceStopShort = Price + stepStop;
-                    }
-                    if (Price < PriceStopShort - stepStop)
-                    {
-                        decimal p = Price - stepStop;
-                        PriceStopShort = Decimal.Round(p, SelectedSecurity.Decimals);
-                    }
+                if (Price < entry - stepStop && IsChekTraelStopShort == false && entry != 0) // включаем трейлинг стоп в шорт
+                {
+                    IsChekTraelStopShort = true;
+                    SendStrStatus("Включили Трейлинг профит в шорт ");
+                    _logger.Warning("Turned ON Trael Proit short {Method} "
+                                    , nameof(CalculateTrelingStop));
+                }
+
+                if (PriceStopShort == 0 && IsChekTraelStopShort)
+                {
+                    PriceStopShort = Price + stepStop;
+                }
+                if (Price < PriceStopShort - stepStop && IsChekTraelStopShort)
+                {
+                    decimal p = Price - stepStop;
+                    PriceStopShort = Decimal.Round(p, SelectedSecurity.Decimals);
                 }
             }
         }
@@ -2319,6 +2331,22 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         #region   сервисные методы ===========================
 
         /// <summary>
+        /// очистка переменных после закрытия позиции
+        /// </summary>
+        private void ClearingVariablesAfterClosing()
+        {
+            SelectSecurBalans = 0;
+            IsChekTraelStopLong = false;
+            IsChekTraelStopShort = false;
+            PriceStopLong = 0;
+            PriceStopShort = 0;
+            if (!IsRun) PositionsBots.Clear();
+
+            _logger.Information(" Clearing Value Variables {Method} "
+                , _server.ServerType, nameof(ClearingVariablesAfterClosing));
+        }
+
+        /// <summary>
         /// удалить все открытые ордера по монете на бирже
         /// </summary>
         public void DeleteAllOrdersPositionExchange()
@@ -2362,7 +2390,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     {
                         if (pos.Direction == Side.Buy)
                         {
-                            if (IsChekTraelStopLong == true) CalculateTrelingStop(pos);
+                             CalculateTrelingStop(pos);
                         }
                     }
 
@@ -2370,7 +2398,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     {
                         for (int i = 0; i < PositionsBots.Count && !_isWorkedStop; i++)
                         {
-                            if (PositionsBots[i].Direction == Side.Buy && PositionsBots[i].OpenVolume > 0)
+                            if (PositionsBots[i].Direction == Side.Buy && SelectSecurBalans > 0)
                             {
                                 _isWorkedStop = true;
 
@@ -2387,27 +2415,27 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     }
                 }
 
-                if (Price != 0 && PriceStopShort != 0)
+                if (Price != 0 )
                 {
                     foreach (var pos in PositionsBots)
                     {
                         if (pos.Direction == Side.Sell)
                         {
-                            if (IsChekTraelStopShort == true) CalculateTrelingStop(pos);
+                            CalculateTrelingStop(pos);
                         }
                     }
 
-                    if (Price > PriceStopShort && Direction == Side.Sell) // || ice > PriceStopShort && Direction == Direction.BUYSELL
+                    if (Price > PriceStopShort && Direction == Side.Sell && PriceStopShort != 0) // || ice > PriceStopShort && Direction == Direction.BUYSELL
                     {
                         for (int i = 0; i < PositionsBots.Count && !_isWorkedStop; i++)
                         {
                             _isWorkedStop = true;
 
-                            if (PositionsBots[i].Direction == Side.Sell && PositionsBots[i].OpenVolume != 0)
+                            if (PositionsBots[i].Direction == Side.Sell && SelectSecurBalans < 0)
                             {
                                 StopPosition(PositionsBots[i]);
                                 _logger.Warning(" Triggered Stop Short Position {Header} {@Position}  {Method}"
-                                                                      , Header, PositionsBots[i], nameof(MonitoringStop));
+                                                              , Header, PositionsBots[i], nameof(MonitoringStop));
 
                                 if (PositionsBots[i].State == PositionStateType.Done)// отключаем стоп т.к. позиция уже закрыта
                                 {
