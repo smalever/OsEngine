@@ -1381,40 +1381,40 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             decimal minVolumeExecut = SelectedSecurity.MinTradeAmount;
 
-            foreach (Position position in PositionsBots) // заходим в позицию
+            for(int a = 0; a < PositionsBots.Count; a++)
             {
-                if (position.Direction == Side.None)
+                if (PositionsBots[a].Direction == Side.None)
                 {
-                    position.Direction = (Side)Direction;
+                    PositionsBots[a].Direction = (Side)Direction;
                 }
-                VolumeRobExecut = position.OpenVolume;
+                VolumeRobExecut = PositionsBots[a].OpenVolume;
 
                 decimal volumeInTradesOpenOrd = 0; // по терйдам откр объем
-                if (position.OpenOrders != null && position.MyTrades.Count > 0)
+                if (PositionsBots[a].OpenOrders != null && PositionsBots[a].MyTrades.Count > 0)
                 {
-                    for (int i = 0; i < position.OpenOrders.Count; i++)
+                    for (int i = 0; i < PositionsBots[a].OpenOrders.Count; i++)
                     {
-                        if (position.OpenOrders[i].MyTrades == null) continue;
+                        if (PositionsBots[a].OpenOrders[i].MyTrades == null) continue;
 
-                        for (int j = 0; j < position.OpenOrders[i].MyTrades.Count; j++)
+                        for (int j = 0; j < PositionsBots[a].OpenOrders[i].MyTrades.Count; j++)
                         {
-                            if (position.OpenOrders[i].MyTrades[j] == null) continue;
+                            if (PositionsBots[a].OpenOrders[i].MyTrades[j] == null) continue;
 
-                            volumeInTradesOpenOrd += position.OpenOrders[i].MyTrades[j].Volume;
+                            volumeInTradesOpenOrd += PositionsBots[a].OpenOrders[i].MyTrades[j].Volume;
                         }
                     }
                 }
                 decimal volumInOrderClose = 0; // по ордерам закрытия объем
-                if (position.CloseOrders != null && position.MyTrades.Count > 0)
+                if (PositionsBots[a].CloseOrders != null && PositionsBots[a].MyTrades.Count > 0)
                 {
-                    for (int i = 0; i < position.CloseOrders.Count; i++)
+                    for (int i = 0; i < PositionsBots[a].CloseOrders.Count; i++)
                     {
-                         volumInOrderClose += position.CloseOrders[i].Volume;
+                        volumInOrderClose += PositionsBots[a].CloseOrders[i].Volume;
                     }
                 }
-                if (volumeInTradesOpenOrd > volumInOrderClose )
+                if (volumeInTradesOpenOrd > volumInOrderClose)
                 {
-                    _logger.Warning(" Open Volume > Volume Close orders  {Method}", nameof(AddCloseOrder));
+                    _logger.Warning(" Open Volume > Volume Close orders {Header} {Method}", Header, nameof(AddCloseOrder));
 
                     if (IsChekVolumeClose) // разрешено добавить включать руками
                     {
@@ -1424,15 +1424,16 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                             _logger.Error(" Open VolExecut - Close Vol <  MinTradeAmount {Method}", nameof(AddCloseOrder));
                             return;
                         }
-                        _logger.Warning("Open Volume is larger than the closing orders {Method} {openVolExecut} {activCloseVol} {@position} {volum}",
-                              nameof(AddCloseOrder), volumeInTradesOpenOrd, volumInOrderClose, position, vol);
+                        _logger.Warning("Open Volume is larger than the closing orders {Header}  {Method} {openVolExecut} {activCloseVol} {@position} {volum}",
+                                                            Header, nameof(AddCloseOrder),  volumeInTradesOpenOrd, volumInOrderClose, PositionsBots[a], vol);
 
-                        SendCloseLimitOrderPosition(position, vol); // выставили ордер
+                        SendCloseLimitOrderPosition(PositionsBots[a], vol); // выставили ордер
 
                         IsChekVolumeClose = false; // разрешее выключили 
                     }
                 }
             }
+     
         }
 
         /// <summary>
@@ -1541,10 +1542,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                                 SendCloseLimitOrderPosition(position, volumeOpen);
 
                                 _logger.Information("Called metod  SendCloseLimitOrderPosition" +
-                                                       " {Method} Order {Volume} {OpenVolumePosition} "
-                                                 , nameof(SendCloseOrder), volumeOpen, position.OpenVolume);
+                                                       " {Header} {Method} Order {Volume} {OpenVolumePosition} ",
+                                                Header,  nameof(SendCloseOrder), volumeOpen, position.OpenVolume);
                                 return;
-
                             }
                             else
                             {
@@ -1751,8 +1751,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
                     IsChekTraelStopLong = true;
                     SendStrStatus("Включили Трейлинг профит в лонг ");
-                    _logger.Warning("Turned ON Trael Proit long {Method} "
-                                    , nameof(CalculateTrelingStop));
+                    _logger.Warning("Turned ON Trael Proit long {Header} {Method} ",
+                                 Header, nameof(CalculateTrelingStop));
                 }
 
                 if (Price > PriceStopLong + stepStop && IsChekTraelStopLong)
@@ -1773,8 +1773,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
                     IsChekTraelStopShort = true;
                     SendStrStatus("Включили Трейлинг профит в шорт ");
-                    _logger.Warning("Turned ON Trael Proit short {Method} "
-                                    , nameof(CalculateTrelingStop));
+                    _logger.Warning("Turned ON Trael Proit short {Header} {Method} ",
+                                        Header, nameof(CalculateTrelingStop));
                 }
 
                 if (PriceStopShort == 0 && IsChekTraelStopShort)
@@ -2121,6 +2121,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             });
         }
         #endregion
+
         #region  методы сервера ===========================
 
         /// <summary>
@@ -2403,8 +2404,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                                 _isWorkedStop = true;
 
                                 StopPosition(PositionsBots[i]);
-                                _logger.Warning(" Triggered Stop Long Position  {Header} {@Position}  {Method}"
-                                                                , Header, PositionsBots[i], nameof(MonitoringStop));
+                                _logger.Warning(" Triggered Stop Long Position  {Header} {Price} {@Position}  {Method}",
+                                                           Header, Price, PositionsBots[i], nameof(MonitoringStop));
 
                                 if (PositionsBots[i].State == PositionStateType.Done)// отключаем стоп т.к. позиция уже закрыта
                                 {
@@ -2434,8 +2435,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                             if (PositionsBots[i].Direction == Side.Sell && SelectSecurBalans < 0)
                             {
                                 StopPosition(PositionsBots[i]);
-                                _logger.Warning(" Triggered Stop Short Position {Header} {@Position}  {Method}"
-                                                              , Header, PositionsBots[i], nameof(MonitoringStop));
+                                _logger.Warning(" Triggered Stop Short Position {Header} {Price} {@Position}  {Method}"
+                                                              , Header, Price, PositionsBots[i], nameof(MonitoringStop));
 
                                 if (PositionsBots[i].State == PositionStateType.Done)// отключаем стоп т.к. позиция уже закрыта
                                 {
