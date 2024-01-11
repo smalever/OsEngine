@@ -38,30 +38,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
     {
         #region Свойства ВСЕ =====================================================
 
-        #region Свойства для отработки обемов по монете
-
-        /// <summary>
-        /// сколько минут считать объем торгов
-        /// </summary>
-        public int N_min
-        {
-            get => _n_min;
-            set
-            {
-                _n_min = value;
-                OnPropertyChanged(nameof(N_min));
-            }
-        }
-        private int _n_min = 7;
-
-        /// <summary>
-        /// время учета трейдов
-        /// </summary>
-        private DateTime dateTradingPeriod;
-
-        #endregion конец свойств для отработки объемов по монете
-
-        #region Свойства всего робота
+        #region Свойства всего робота ===================
 
         /// <summary>
         /// название портфеля (счета)
@@ -311,7 +288,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         public ObservableCollection<string> StringPortfolios { get; set; } = new ObservableCollection<string>();
         #endregion конец свойств всего робота
 
-        #region Свойства позиции робота
+        #region Свойства позиции робота ==============================
+
         /// <summary>
         /// Действия с позициией
         /// </summary>
@@ -693,8 +671,46 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
         private decimal _stepPersentStopShort = 1;
 
+        /// <summary>
+        /// список позиций робота 
+        /// </summary>       
+        private ObservableCollection<Position> PositionsBots { get; set; } = new ObservableCollection<Position>();
 
         #endregion конец свойств позиции робота
+
+        #region Свойства для отработки обемов по монете ====================
+
+        /// <summary>
+        /// сколько минут считать объем торгов
+        /// </summary>
+        public int N_min
+        {
+            get => _n_min;
+            set
+            {
+                _n_min = value;
+                OnPropertyChanged(nameof(N_min));
+            }
+        }
+        private int _n_min = 7;
+
+        /// <summary>
+        /// время учета трейдов
+        /// </summary>
+        private DateTime dateTradingPeriod;
+
+        decimal bid_vol_tr;  // объем покупок
+        decimal ask_vol_tr; // объем продаж
+        decimal all_volum_trade_min; //все объемы за N минуту
+        decimal _avereg;
+        decimal _ratio; // коэффициент для расчета увеличения среднего объема торгов по тикам
+
+
+        #endregion конец свойств для отработки объемов по монете
+
+        #endregion конец ВСЕ свойств =============================================
+
+        #region Поля ==================================================
 
         /// <summary>
         /// список типов расчета шага 
@@ -703,15 +719,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             StepType.PUNKT, StepType.PERCENT
         };
-
-        /// <summary>
-        /// список позиций робота 
-        /// </summary>       
-        private ObservableCollection<Position> PositionsBots { get; set; } = new ObservableCollection<Position>();
-
-        #endregion конец свойств =============================================
-
-        #region Поля ==================================================
 
         /// <summary>
         /// поле логера RobotBreakVM
@@ -2358,13 +2365,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         #endregion
 
         #region   сервисные методы ===========================
-
-
-        decimal bid_vol_tr;  // объем покупок
-        decimal ask_vol_tr; // объем продаж
-        decimal all_volum_trade_min; //все объемы за N минуту
-        decimal _avereg;
-        decimal _ratio; // коэффициент для расчета увеличения среднего объема торгов по тикам
 
         /// <summary>
         /// диспечер логики робота от объема торгов по монете
