@@ -2331,6 +2331,68 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         #region   сервисные методы ===========================
 
+        private DateTime dateTrade; // время трейда
+        decimal bid_vol_tr;  // объем покупок
+        decimal ask_vol_tr; // объем продаж
+        decimal all_volum_trade_min; //все объемы за N минуту
+        int n_min; // сколько минут считать объем торгов
+
+        /// <summary>
+        /// счетчик объема торгов по тикам 
+        /// </summary>
+        private void Сount_volum_TickEvent(Trade trade) // событие новых тиков для счета объема торгов
+        {
+            if ( false) //vol_trade.ValueBool == false   если выключено
+            {
+                return;
+            }
+            DateTime time_add_n_min;
+            time_add_n_min = dateTrade.AddMinutes(n_min); // время трейда + N минут
+            if (trade.Time < time_add_n_min)
+            {
+                if (trade.Side == Side.Buy)
+                {
+                    decimal b = trade.Volume;
+                    bid_vol_tr = bid_vol_tr + b;
+                }
+                if (trade.Side == Side.Sell)
+                {
+                    decimal a = trade.Volume;
+                    ask_vol_tr = ask_vol_tr + a;
+                }
+                all_volum_trade_min = bid_vol_tr + ask_vol_tr;
+            }
+            else
+            {
+                dateTrade = trade.Time;
+                all_volum_trade_min = 0;
+                bid_vol_tr = 0;
+                ask_vol_tr = 0;
+            }
+            if (ask_vol_tr > bid_vol_tr * 2) // объем продажи больше объема покупок * 2
+            {
+                // че-то  делаем, на забор например 
+            }
+            if (all_volum_trade_min > 450)
+            {
+                // че - то  делаем
+            }
+        }
+
+        /// <summary>
+        /// расчет среднего объема торгов по тикам
+        /// </summary>
+        private void CalculationAverageVolume()
+        {
+            // берем отступ от настоящего времени
+            // берем опроеделенный промежуток времение назад
+            // собираем за это время все объемы
+            // считаем среднее
+            // пишем в переменную, сообщаем в лог
+
+
+        }
+
         /// <summary>
         /// очистка переменных после закрытия позиции
         /// </summary>
