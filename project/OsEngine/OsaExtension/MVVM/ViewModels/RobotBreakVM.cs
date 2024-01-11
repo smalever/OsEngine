@@ -681,7 +681,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         #region Свойства для отработки обемов по монете ====================
 
         /// <summary>
-        /// сколько минут считать объем торгов
+        /// сколько N минут брать в расчет средней объема 
         /// </summary>
         public int N_min
         {
@@ -699,12 +699,57 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private DateTime dateTradingPeriod;
 
-        decimal bid_vol_tr;  // объем покупок
-        decimal ask_vol_tr; // объем продаж
-        decimal all_volum_trade_min; //все объемы за N минуту
-        decimal _avereg;
-        decimal _ratio; // коэффициент для расчета увеличения среднего объема торгов по тикам
+        /// <summary>
+        /// объем покупок выбраной монеты за период
+        /// </summary>
+        public decimal BidVolumPeriod
+        {
+            get => _bidVolumPeriod;
+            set
+            {
+                _bidVolumPeriod = value;
+                OnPropertyChanged(nameof(BidVolumPeriod));
+            }
+        }
+        private decimal _bidVolumPeriod;
 
+        /// <summary>
+        /// объем продаж выбраной монеты за период
+        /// </summary>
+        public decimal AskVolumPeriod
+        {
+            get => _askVolumPeriod;
+            set
+            {
+                _askVolumPeriod = value;
+                OnPropertyChanged(nameof(AskVolumPeriod));
+            }
+        }
+        private decimal _askVolumPeriod;
+
+        /// <summary>
+        /// объемы за N минуту
+        /// </summary>
+        public decimal AllVolumPeroidMin
+        {
+            get => _allVolumPeroidMin;
+            set
+            {
+                _allVolumPeroidMin = value;
+                OnPropertyChanged(nameof(AllVolumPeroidMin));
+            }
+        }
+        private decimal _allVolumPeroidMin;
+
+        /// <summary>
+        /// средний объем торгов по тикам за N минут
+        /// </summary>
+        decimal _avereg;
+
+        /// <summary>
+        ///  коэффициент для расчета увеличения среднего объема торгов по тикам
+        /// </summary>
+        decimal _ratio; 
 
         #endregion конец свойств для отработки объемов по монете
 
@@ -2372,26 +2417,33 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private void VolumeLogicManagerTicks()
         {   // в зависимости от объема торгов перключать логику
 
-            if (ask_vol_tr > bid_vol_tr * 2) // объем продажи больше объема покупок * 2 минусовая дельта
+            if (AskVolumPeriod > BidVolumPeriod * 2) // объем продажи больше объема покупок * 2 минусовая дельта
             {
                 // че-то  делаем, на забор например 
             }
-            if (all_volum_trade_min > _avereg * _ratio)
+            if (AllVolumPeroidMin > _avereg * _ratio)
             {
                 // че - то  делаем
             }
         }
 
+
+        // берем отступ от настоящего времени
+        // берем опроеделенный промежуток времение назад
+        // собираем за это время все объемы
+        // считаем среднее
+        // пишем в переменную, сообщаем в лог
+
+
         /// <summary>
-        /// расчет среднего объема торгов по тикам
+        /// подсчет объема по тикам в N период времени
         /// </summary>
-        private void CalculationAverageVolume(Trade trade)
+        private void CalculationVolumeInTradeNperiod(Trade trade)
         {
-            // берем отступ от настоящего времени
             // берем опроеделенный промежуток времение назад
-            // собираем за это время все объемы
-            // считаем среднее
-            // пишем в переменную, сообщаем в лог
+            // собираем за это время покупки
+            // собираем за это время продажи
+            // собираем за это время все объемы          
 
             if (trade == null) return;
 
@@ -2401,21 +2453,21 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 if (trade.Side == Side.Buy)
                 {
                     decimal b = trade.Volume;
-                    bid_vol_tr = bid_vol_tr + b;
+                    BidVolumPeriod = BidVolumPeriod + b;
                 }
                 if (trade.Side == Side.Sell)
                 {
                     decimal a = trade.Volume;
-                    ask_vol_tr = ask_vol_tr + a;
+                    AskVolumPeriod = AskVolumPeriod + a;
                 }
-                all_volum_trade_min = bid_vol_tr + ask_vol_tr;
+                AllVolumPeroidMin = BidVolumPeriod + AskVolumPeriod;
             }
             else
             {
                 dateTradingPeriod = trade.Time;
-                all_volum_trade_min = 0;
-                bid_vol_tr = 0;
-                ask_vol_tr = 0;
+                AllVolumPeroidMin = 0;
+                BidVolumPeriod = 0;
+                AskVolumPeriod = 0;
             }
         }
 
