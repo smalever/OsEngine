@@ -36,7 +36,62 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 {
     public class RobotBreakVM : BaseVM, IRobotVM, IDisposable
     {
-        #region Свойства  =====================================================
+        #region Свойства ВСЕ =====================================================
+
+        #region Свойства для отработки обемов по монете
+
+        /// <summary>
+        /// сколько минут считать объем торгов
+        /// </summary>
+        public int N_min
+        {
+            get => _n_min;
+            set
+            {
+                _n_min = value;
+                OnPropertyChanged(nameof(N_min));
+            }
+        }
+        private int _n_min = 7;
+
+        /// <summary>
+        /// время учета трейдов
+        /// </summary>
+        private DateTime dateTradingPeriod;
+
+        #endregion конец свойств для отработки объемов по монете
+
+        #region Свойства всего робота
+
+        /// <summary>
+        /// название портфеля (счета)
+        /// </summary>
+        public string StringPortfolio
+        {
+            get => _stringportfolio;
+            set
+            {
+                _stringportfolio = value;
+                OnPropertyChanged(nameof(StringPortfolio));
+                // TODO: надо разобраться с загрузкой значения (без файла сох) 
+                _portfolio = GetPortfolio(_stringportfolio);
+            }
+        }
+        private string _stringportfolio = "";
+
+        /// <summary>
+        /// Объем выбраной бумаги на бирже
+        /// </summary>
+        public decimal SelectSecurBalans
+        {
+            get => _selectSecurBalans;
+            set
+            {
+                _selectSecurBalans = value;
+                OnPropertyChanged(nameof(SelectSecurBalans));
+            }
+        }
+        private decimal _selectSecurBalans;
 
         /// <summary>
         /// вкл\выкл
@@ -63,34 +118,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
         }
         private bool _isRun;
-
-        /// <summary>
-        /// расчетные цены открытия позиции 
-        /// </summary>
-        public List<decimal> PriceOpenPos
-        {
-            get => _priceOpenPos;
-            set
-            {
-                _priceOpenPos = value;
-                OnPropertyChanged(nameof(PriceOpenPos));
-            }
-        }
-        private List<decimal> _priceOpenPos = new List<decimal>();
-
-        /// <summary>
-        /// расчетные цены закрытия позиции 
-        /// </summary>
-        public List<decimal> PriceClosePos
-        {
-            get => _priceClosePos;
-            set
-            {
-                _priceClosePos = value;
-                OnPropertyChanged(nameof(PriceClosePos));
-            }
-        }
-        private List<decimal> _priceClosePos = new List<decimal>();
 
         /// <summary>
         /// заголовок вкладки робота 
@@ -228,11 +255,117 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
         }
         private decimal _price = 0;
+        /// <summary>
+        /// тип расчета шага на вход 
+        /// </summary>
+        public StepType StepType
+        {
+            get => _stepType;
+            set
+            {
+                _stepType = value;
+                OnPropertyChanged(nameof(StepType));
+            }
+        }
+        private StepType _stepType;
+
+        /// <summary>
+        /// Oбъем купленый роботом 
+        /// </summary>
+        public decimal VolumeRobExecut
+        {
+            get => _volumeRobExecut;
+            set
+            {
+                _volumeRobExecut = value;
+                OnPropertyChanged(nameof(VolumeRobExecut));
+            }
+        }
+        private decimal _volumeRobExecut = 0;
+
+        /// <summary>
+        /// направление сделок 
+        /// </summary>
+        public Side Direction
+        {
+            get => _direction;
+            set
+            {
+                _direction = value;
+                OnPropertyChanged(nameof(Direction));
+            }
+        }
+        private Side _direction;
+
+        /// <summary>
+        /// список  свойств направления сделок
+        /// </summary> 
+        public List<Side> Directions { get; set; } = new List<Side>()
+        {
+            Side.Buy, Side.Sell, Side.None
+        };
+
+        /// <summary>
+        /// список названий портфелей 
+        /// </summary>
+        public ObservableCollection<string> StringPortfolios { get; set; } = new ObservableCollection<string>();
+        #endregion конец свойств всего робота
+
+        #region Свойства позиции робота
+        /// <summary>
+        /// Действия с позициией
+        /// </summary>
+        public ActionPos ActionPosition
+        {
+            get => _actionPosition;
+            set
+            {
+                _actionPosition = value;
+                OnPropertyChanged(nameof(ActionPosition));
+            }
+        }
+        private ActionPos _actionPosition;
+
+        /// <summary>
+        /// список  действий с позицией 
+        /// </summary> 
+        public List<ActionPos> ActionPositions { get; set; } = new List<ActionPos>()
+        {
+            ActionPos.Stop, ActionPos.RollOver, ActionPos.AddVolumes
+        };
+
+        /// <summary>
+        /// расчетные цены открытия позиции 
+        /// </summary>
+        public List<decimal> PriceOpenPos
+        {
+            get => _priceOpenPos;
+            set
+            {
+                _priceOpenPos = value;
+                OnPropertyChanged(nameof(PriceOpenPos));
+            }
+        }
+        private List<decimal> _priceOpenPos = new List<decimal>();
+
+        /// <summary>
+        /// расчетные цены закрытия позиции 
+        /// </summary>
+        public List<decimal> PriceClosePos
+        {
+            get => _priceClosePos;
+            set
+            {
+                _priceClosePos = value;
+                OnPropertyChanged(nameof(PriceClosePos));
+            }
+        }
+        private List<decimal> _priceClosePos = new List<decimal>();
 
         /// <summary>
         ///  средняя цена позиции
         /// </summary>
-        public decimal EntryPricePos 
+        public decimal EntryPricePos
         {
             get { return _entryPricePos; }
             set
@@ -272,18 +405,18 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private decimal _takePriceShort;
 
         /// <summary>
-        /// тартовая цена наобра позиции
+        /// стартовая цена наобра позиции
         /// </summary>
         public decimal StartPriceOpenPos
         {
-            get =>_startPriceOpenPos;
+            get => _startPriceOpenPos;
             set
             {
                 if (value != _startPriceOpenPos)
                 {
                     _startPriceOpenPos = value;
                     OnPropertyChanged(nameof(StartPriceOpenPos));
-                }                    
+                }
             }
         }
         private decimal _startPriceOpenPos;
@@ -300,7 +433,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
                     _topPositionPrice = value;
                     OnPropertyChanged(nameof(TopPositionPrice));
-                } 
+                }
             }
         }
         private decimal _topPositionPrice = 0;
@@ -313,11 +446,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             get => _bottomPositionPrice;
             set
             {
-                if (value != _bottomPositionPrice) 
+                if (value != _bottomPositionPrice)
                 {
                     _bottomPositionPrice = value;
                     OnPropertyChanged(nameof(BottomPositionPrice));
-                }                
+                }
             }
         }
         private decimal _bottomPositionPrice = 0;
@@ -407,20 +540,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private decimal _volumePerOrderOpen = 0;
 
         /// <summary>
-        /// Oбъем купленый роботом 
-        /// </summary>
-        public decimal VolumeRobExecut
-        {
-            get => _volumeRobExecut;
-            set
-            {
-                _volumeRobExecut = value;
-                OnPropertyChanged(nameof(VolumeRobExecut));
-            }
-        }
-        private decimal _volumeRobExecut = 0;
-
-        /// <summary>
         /// цена стопов для шота
         /// </summary>
         public decimal PriceStopShort
@@ -461,95 +580,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
         }
         private decimal _volumeOpen = 0;
-
-        /// <summary>
-        /// направление сделок 
-        /// </summary>
-        public Side Direction
-        {
-            get => _direction;
-            set
-            {
-                _direction = value;
-                OnPropertyChanged(nameof(Direction));
-            }
-        }
-        private Side _direction;
-
-        /// <summary>
-        /// список  свойств направления сделок
-        /// </summary> 
-        public List<Side> Directions { get; set; } = new List<Side>()
-        {
-            Side.Buy, Side.Sell, Side.None
-        };
-
-        /// <summary>
-        /// тип расчета шага на вход 
-        /// </summary>
-        public StepType StepType
-        {
-            get => _stepType;
-            set
-            {
-                _stepType = value;
-                OnPropertyChanged(nameof(StepType));
-            }
-        }
-        private StepType _stepType;
-
-        /// <summary>
-        /// Действия с позициией
-        /// </summary>
-        public ActionPos ActionPosition
-        {
-            get => _actionPosition;
-            set
-            {
-                _actionPosition = value;
-                OnPropertyChanged(nameof(ActionPosition));
-            }
-        }
-        private ActionPos _actionPosition;
-
-        /// <summary>
-        /// список  действий с позицией 
-        /// </summary> 
-        public List<ActionPos> ActionPositions { get; set; } = new List<ActionPos>()
-        {
-            ActionPos.Stop, ActionPos.RollOver, ActionPos.AddVolumes
-        };
-
-        /// <summary>
-        /// название портфеля (счета)
-        /// </summary>
-        public string StringPortfolio
-        {
-            get => _stringportfolio;
-            set
-            {
-                _stringportfolio = value;
-                OnPropertyChanged(nameof(StringPortfolio));
-                // TODO: надо разобраться с загрузкой значения (без файла сох) 
-                _portfolio = GetPortfolio(_stringportfolio);
-            }
-        }
-        private string _stringportfolio = "";
-
-        /// <summary>
-        /// Объем выбраной бумаги на бирже
-        /// </summary>
-        public decimal SelectSecurBalans
-        {
-            get => _selectSecurBalans;
-            set
-            {
-                _selectSecurBalans = value;
-                OnPropertyChanged(nameof(SelectSecurBalans));
-            }
-        }
-        private decimal _selectSecurBalans;
-
         /// <summary>
         /// вкл выкл трейлинг стоп лонга
         /// </summary>
@@ -628,7 +658,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// сработал стоп
         /// </summary>
-        private bool _isWorkedStop =false;
+        private bool _isWorkedStop = false;
 
         /// <summary>
         /// отправлен закрывающий объем по маркету
@@ -663,6 +693,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
         private decimal _stepPersentStopShort = 1;
 
+
+        #endregion конец свойств позиции робота
+
         /// <summary>
         /// список типов расчета шага 
         /// </summary>
@@ -672,14 +705,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         };
 
         /// <summary>
-        /// список названий портфелей 
-        /// </summary>
-        public ObservableCollection<string> StringPortfolios { get; set; } = new ObservableCollection<string>();
-
-        /// <summary>
         /// список позиций робота 
         /// </summary>       
-        private   ObservableCollection<Position> PositionsBots { get; set; } = new ObservableCollection<Position>();
+        private ObservableCollection<Position> PositionsBots { get; set; } = new ObservableCollection<Position>();
 
         #endregion конец свойств =============================================
 
@@ -2331,23 +2359,43 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         #region   сервисные методы ===========================
 
-        private DateTime dateTrade; // время трейда
+
         decimal bid_vol_tr;  // объем покупок
         decimal ask_vol_tr; // объем продаж
         decimal all_volum_trade_min; //все объемы за N минуту
-        int n_min; // сколько минут считать объем торгов
+        decimal _avereg;
+        decimal _ratio; // коэффициент для расчета увеличения среднего объема торгов по тикам
 
         /// <summary>
-        /// счетчик объема торгов по тикам 
+        /// диспечер логики робота от объема торгов по монете
         /// </summary>
-        private void Сount_volum_TickEvent(Trade trade) // событие новых тиков для счета объема торгов
-        {
-            if ( false) //vol_trade.ValueBool == false   если выключено
+        private void VolumeLogicManagerTicks()
+        {   // в зависимости от объема торгов перключать логику
+
+            if (ask_vol_tr > bid_vol_tr * 2) // объем продажи больше объема покупок * 2 минусовая дельта
             {
-                return;
+                // че-то  делаем, на забор например 
             }
-            DateTime time_add_n_min;
-            time_add_n_min = dateTrade.AddMinutes(n_min); // время трейда + N минут
+            if (all_volum_trade_min > _avereg * _ratio)
+            {
+                // че - то  делаем
+            }
+        }
+
+        /// <summary>
+        /// расчет среднего объема торгов по тикам
+        /// </summary>
+        private void CalculationAverageVolume(Trade trade)
+        {
+            // берем отступ от настоящего времени
+            // берем опроеделенный промежуток времение назад
+            // собираем за это время все объемы
+            // считаем среднее
+            // пишем в переменную, сообщаем в лог
+
+            if (trade == null) return;
+
+            DateTime time_add_n_min = dateTradingPeriod.AddMinutes(N_min); // время трейда + N минут
             if (trade.Time < time_add_n_min)
             {
                 if (trade.Side == Side.Buy)
@@ -2364,33 +2412,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
             else
             {
-                dateTrade = trade.Time;
+                dateTradingPeriod = trade.Time;
                 all_volum_trade_min = 0;
                 bid_vol_tr = 0;
                 ask_vol_tr = 0;
             }
-            if (ask_vol_tr > bid_vol_tr * 2) // объем продажи больше объема покупок * 2
-            {
-                // че-то  делаем, на забор например 
-            }
-            if (all_volum_trade_min > 450)
-            {
-                // че - то  делаем
-            }
-        }
-
-        /// <summary>
-        /// расчет среднего объема торгов по тикам
-        /// </summary>
-        private void CalculationAverageVolume()
-        {
-            // берем отступ от настоящего времени
-            // берем опроеделенный промежуток времение назад
-            // собираем за это время все объемы
-            // считаем среднее
-            // пишем в переменную, сообщаем в лог
-
-
         }
 
         /// <summary>
