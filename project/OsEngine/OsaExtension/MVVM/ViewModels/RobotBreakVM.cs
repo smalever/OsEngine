@@ -3115,6 +3115,30 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         #endregion
 
         /// <summary>
+        /// вычисляет средний объем за определенный период 
+        /// </summary>
+        private void AverageVolumePeriod(int period)
+        {/*
+            if (_tabClusterSpot.VolumeClusters.Count < BarOldPeriod.ValueInt + 2) // защита от отсутствия необходимых данных
+            {
+                return;
+            }
+            decimal volumBackPeriod = 0; // объем за период, обнуляем в начале
+
+            int startIndex = _tabClusterSpot.VolumeClusters.Count - 2;
+            int endIndex = _tabClusterSpot.VolumeClusters.Count - 2 - period;
+
+            for (int i = startIndex; i > endIndex; i--)
+            {
+                HorizontalVolumeCluster clasterPeriod = _tabClusterSpot.VolumeClusters[i]; // объём  в кластере
+                HorizontalVolumeLine vol = clasterPeriod.MaxSummVolumeLine; // линия с максимальным объемом
+                volumBackPeriod += vol.VolumeSumm; // суммируем за весь период
+            }
+            decimal zn = Okruglenie(volumBackPeriod / period, 4); // вычисляем среднее и
+            AverageVolumeBaсk = zn;                              // отправляем данные в переменную например 
+        }
+
+        /// <summary>
         /// отменяет все активные ордера во всех позициях
         /// </summary>
         private void CanselAllPositionActivOrders()
@@ -3146,7 +3170,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         //Thread.Sleep(50);
                     }
                 }
-            }
+            }*/
         }
 
         /// <summary>
