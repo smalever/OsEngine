@@ -2266,6 +2266,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             if (myTrade.SecurityNameCode == SelectedSecurity.Name)
             {
+                
                 ChekTradePosition(myTrade);
                
                 if (IsChekSendAllLogs) _logger.Warning(" Come myTrade {Header} {Method} {NumberOrderParent} {@myTrade}", Header , nameof(_server_NewMyTradeEvent),myTrade.NumberOrderParent , myTrade);
@@ -2357,7 +2358,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             if (trades != null && trades[0].SecurityNameCode == SelectedSecurity.Name)
             {
+                
                 Trade trade = trades[0];  //Price = trade.Price;
+
+                CalculationVolumeInTradeNperiod(trade);
 
                 if (trade.Time.Second % 3 == 0) //if (trade.Time.Second % 5 == 0) GetBalansSecur();
                 {
@@ -2426,7 +2430,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 // че - то  делаем
             }
         }
-
 
         // берем отступ от настоящего времени
         // берем опроеделенный промежуток времение назад

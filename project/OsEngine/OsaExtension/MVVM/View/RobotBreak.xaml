@@ -63,6 +63,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="607" />
                 <RowDefinition/>
+
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="500"/>
@@ -187,15 +188,41 @@
 
             </StackPanel>
 
+            <GroupBox Header="Объёмы " 
+           FontSize="18" 
+           Width="492" 
+           Height="180"
+           HorizontalAlignment="Center"
+           VerticalAlignment="Top"
+           Margin="0,2,0,0" Grid.Column="1"
+                      Grid.Row="0">
+                <UniformGrid Columns="4"
+                  Grid.Row="1">
+                    <TextBlock Text="объём  считать N минут" Margin="0,0,-62,0"/>
+                    <local:DecimalTextBox Text="{Binding N_min}" Margin="78,0,-32,0"/>
+                    <Label Margin="40,0,0,0"/>
+                    <Label Margin="40,0,0,0"/>
+
+                    <Label Content="сейчас объём покупок" Margin="0,0,-51,0"/>
+                    <local:DecimalTextBox Text="{Binding BidVolumPeriod}" Margin="78,0,-32,0"/>
+                    <Label Margin="40,0,0,0"/>
+                    <Label Margin="40,0,0,0"/>
+                    
+                    <TextBlock Text="Всего  объёма  сейчас" 
+                     ToolTip="Объем ордеров открытия в позиции" Margin="0,0,-65,0"/>
+                    <local:DecimalTextBox Text="{Binding AllVolumPeroidMin}" 
+                                  Margin="78,2,-32,0"/>
+                    <Label Margin="47,0,2,0"/>
+                    <Label Margin="40,0,0,0"/>
+                </UniformGrid>
+
+            </GroupBox>
             <GroupBox Header="Cопровождение позиции" 
                       FontSize="18" 
-                      Width="493" 
+                      Width="492" 
                       Height="180"
-                      HorizontalAlignment="Left"
-                      VerticalAlignment="Top"
-                      Margin="1,1,0,0"
-                      Grid.Row ="0"
-                      Grid.Column="1">
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Top" Grid.Column="1" Margin="0,294,0,0">
                 <UniformGrid Columns="3"
                              Grid.Row="1">
                     <TextBlock Text="Cейчас монет на бирже" Margin="0,0,-62,0"/>
@@ -235,6 +262,12 @@
               HorizontalAlignment="Left" RenderTransformOrigin="0.5,0.162" />
 
         </Grid>
+        <Grid   Grid.Row="1"
+                Grid.Column="2">
+
+        </Grid>
+
+
     </DockPanel>
 
 </UserControl>
