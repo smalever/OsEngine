@@ -2983,6 +2983,14 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                     writer.WriteLine(IsChekSendAllLogs); // 22 состояние чек бокса телеги
 
+                    writer.WriteLine(N_min);
+
+                    writer.WriteLine(Avereg);
+
+                    writer.WriteLine(Ratio1); // 25 первый коэф превышения
+
+                    writer.WriteLine(Ratio2);
+
                     writer.Close();
 
                     if(IsChekSendAllLogs) _logger.Information("Saving parameters {Header} {Method} "
@@ -3068,6 +3076,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     {
                         IsChekSendAllLogs = chek;
                     }
+
+                    N_min = (int)GetDecimalForString(reader.ReadLine());
+                    Avereg = GetDecimalForString(reader.ReadLine());
+                    Ratio1 = GetDecimalForString(reader.ReadLine());
+                    Ratio2 = GetDecimalForString(reader.ReadLine());
 
                     //StepType step = StepType.PUNKT;
                     //if (Enum.TryParse(reader.ReadLine(), out step))
