@@ -2394,6 +2394,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                 CalculationVolumeInTradeNperiod(trades);
 
+                VolumeLogicManagerTicks();
+
                 if (trade.Time.Second % 3 == 0) //if (trade.Time.Second % 5 == 0) GetBalansSecur();
                 {
                     GetBalansSecur();
@@ -2451,11 +2453,31 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private void VolumeLogicManagerTicks()
         {   // в зависимости от объема торгов перключать логику
 
-            if (AskVolumPeriod > BidVolumPeriod * 2) // объем продажи больше объема покупок * 2 минусовая дельта
+            if (AskVolumPeriod > BidVolumPeriod * Ratio1) // объем продажи больше объема покупок
+                                                          // * 2 минусовая дельта
             {
                 // че-то  делаем, на забор например 
             }
-            if (AllVolumPeroidMin > _avereg * _ratio1)
+            if (AskVolumPeriod > BidVolumPeriod * Ratio2) // объем продажи больше объема покупок *
+                                                          // 2 минусовая дельта
+            {
+                // че-то  делаем, на забор например 
+            }
+            if (AskVolumPeriod < BidVolumPeriod * Ratio1) // объем продажи больше объема покупок *
+                                                          // плюсовая дельта
+            {
+                // че-то  делаем, на забор например 
+            }
+            if (AskVolumPeriod < BidVolumPeriod * Ratio2) // объем продажи больше объема покупок *
+                                                          // Плюсовая дельта
+            {
+                // че-то  делаем, на забор например 
+            }
+            if (AllVolumPeroidMin > Avereg * Ratio1)
+            {
+                // че - то  делаем
+            }
+            if (AllVolumPeroidMin > Avereg * Ratio2)
             {
                 // че - то  делаем
             }
@@ -2929,6 +2951,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                 e.PropertyName == "StepPersentStopShort" ||
                 e.PropertyName == "ActionPosition" ||
+                e.PropertyName == "PriceStopShort" ||
+                e.PropertyName == "N_min" ||
+                e.PropertyName == "Avereg" ||
+                e.PropertyName == "Ratio1" ||
+                e.PropertyName == "Ratio2" ||
                 //e.PropertyName == "PriceStopShort" || 
                 e.PropertyName == "IsChekTraelStopShort")
             {
