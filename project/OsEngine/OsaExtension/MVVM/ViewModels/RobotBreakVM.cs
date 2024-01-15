@@ -2574,10 +2574,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     {
                         for (int i = 0; i < PositionsBots.Count && !_isWorkedStop; i++)
                         {
-                            _isWorkedStop = true;
-
-                            if (PositionsBots[i].Direction == Side.Sell && SelectSecurBalans < 0)
+                            if (PositionsBots[i].Direction == Side.Sell && SelectSecurBalans < 0
+                                && _isWorkedStop == false && _sendCloseMarket == false)
                             {
+                                _isWorkedStop = true;
+
                                 StopPosition(PositionsBots[i]);
                                 _logger.Warning(" Triggered Stop Short Position {Header} {Price} {@Position}  {Method}"
                                                               , Header, Price, PositionsBots[i], nameof(MonitoringStop));
