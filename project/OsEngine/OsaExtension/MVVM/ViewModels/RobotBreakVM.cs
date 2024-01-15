@@ -692,7 +692,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 OnPropertyChanged(nameof(N_min));
             }
         }
-        private int _n_min = 7;
+        private int _n_min = 5;
 
         /// <summary>
         /// время учета трейдов
@@ -742,14 +742,46 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private decimal _allVolumPeroidMin;
 
         /// <summary>
-        /// средний объем торгов по тикам за N минут
+        /// средний допустимый объем торгов по тикам за N минут
         /// </summary>
-        decimal _avereg;
+        public decimal Avereg
+        {
+            get => _avereg;
+            set
+            {
+                _avereg = value;
+                OnPropertyChanged(nameof(Avereg));
+            }
+        }
+        private decimal _avereg;
 
         /// <summary>
-        ///  коэффициент для расчета увеличения среднего объема торгов по тикам
+        /// 1 коэффициент увеличения среднего объема для срабатывания
         /// </summary>
-        decimal _ratio; 
+        public decimal Ratio1
+        {
+            get => _ratio1;
+            set
+            {
+                _ratio1 = value;
+                OnPropertyChanged(nameof(Ratio1));
+            }
+        }
+        private decimal _ratio1 = 1.7m;
+
+        /// <summary>
+        /// 2 коэффициент увеличения среднего объема для срабатывания
+        /// </summary>
+        public decimal Ratio2
+        {
+            get => _ratio2;
+            set
+            {
+                _ratio2 = value;
+                OnPropertyChanged(nameof(Ratio2));
+            }
+        }
+        private decimal _ratio2 = 2.5m;
 
         #endregion конец свойств для отработки объемов по монете
 
@@ -2423,7 +2455,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 // че-то  делаем, на забор например 
             }
-            if (AllVolumPeroidMin > _avereg * _ratio)
+            if (AllVolumPeroidMin > _avereg * _ratio1)
             {
                 // че - то  делаем
             }
@@ -2474,33 +2506,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     BidVolumPeriod = 0;
                     AskVolumPeriod = 0;
                 }
-
             }
-
-            //foreach (Trade trade in trades)
-            //{
-            //    if (trade.Time < time_add_n_min)
-            //    {
-            //        if (trade.Side == Side.Buy)
-            //        {
-            //            decimal b = trade.Volume;
-            //            BidVolumPeriod = BidVolumPeriod + b;
-            //        }
-            //        if (trade.Side == Side.Sell)
-            //        {
-            //            decimal a = trade.Volume;
-            //            AskVolumPeriod = AskVolumPeriod + a;
-            //        }
-            //        AllVolumPeroidMin = BidVolumPeriod + AskVolumPeriod;
-            //    }
-            //    else
-            //    {
-            //        dateTradingPeriod = trade.Time;
-            //        AllVolumPeroidMin = 0;
-            //        BidVolumPeriod = 0;
-            //        AskVolumPeriod = 0;
-            //    }
-            //}
         }
 
         /// <summary>

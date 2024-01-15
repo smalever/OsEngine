@@ -191,7 +191,7 @@
             <GroupBox Header="Объёмы " 
            FontSize="18" 
            Width="492" 
-           Height="180"
+           Height="280"
            HorizontalAlignment="Center"
            VerticalAlignment="Top"
            Margin="0,2,0,0" Grid.Column="1"
@@ -203,17 +203,40 @@
                     <Label Margin="40,0,0,0"/>
                     <Label Margin="40,0,0,0"/>
 
-                    <Label Content="сейчас объём покупок" Margin="0,0,-51,0"/>
-                    <local:DecimalTextBox Text="{Binding BidVolumPeriod}" Margin="78,0,-119,0"/>
+                    <Label Content="сейчас объём покупок" Margin="0,0,-77,0"/>
+                    <local:DecimalTextBox Text="{Binding BidVolumPeriod}" Margin="78,0,-80,0"/>
                     <Label Margin="126,0,-19,0"/>
                     <Label Margin="29,0,0,0"/>
-                    
-                    <TextBlock Text="Всего  объёма  сейчас" 
+
+
+                    <Label Content="сейчас объём продаж" Margin="0,0,-77,0"/>
+                    <local:DecimalTextBox Text="{Binding AskVolumPeriod}" Margin="78,0,-80,0"/>
+                    <Label Margin="126,0,-19,0"/>
+                    <Label Margin="29,0,0,0"/>
+
+                    <TextBlock Text="всего  объёма  сейчас" 
                      ToolTip="Объем ордеров открытия в позиции" Margin="0,0,-65,0"/>
                     <local:DecimalTextBox Text="{Binding AllVolumPeroidMin}" 
-                                  Margin="78,2,-119,0"/>
+                                  Margin="78,2,-80,0"/>
                     <Label Margin="119,0,-29,0"/>
                     <Label Margin="40,0,0,0"/>
+
+
+                    <Label Content="если объём превысит" Margin="0,0,-77,0"/>
+                    <local:DecimalTextBox Text="{Binding Avereg}" Margin="78,0,-80,0"/>
+                    <Label Margin="126,0,-19,0"/>
+                    <Label Margin="29,0,0,0"/>
+
+                    <Label Content=" 1 превышение в %" Margin="0,0,-77,0"/>
+                    <local:DecimalTextBox Text="{Binding Ratio1}" Margin="78,0,-80,0"/>
+                    <Label Margin="126,0,-19,0"/>
+                    <Label Margin="29,0,0,0"/>
+
+                    <Label Content=" 2 превышение в %" Margin="0,0,-77,0"/>
+                    <local:DecimalTextBox Text="{Binding Ratio2}" Margin="78,0,-80,0"/>
+                    <Label Margin="126,0,-19,0"/>
+                    <Label Margin="29,0,0,0"/>
+
                 </UniformGrid>
 
             </GroupBox>
@@ -222,7 +245,7 @@
                       Width="492" 
                       Height="180"
                       HorizontalAlignment="Center"
-                      VerticalAlignment="Top" Grid.Column="1" Margin="0,294,0,0">
+                      VerticalAlignment="Top" Grid.Column="1" Margin="0,397,0,0">
                 <UniformGrid Columns="3"
                              Grid.Row="1">
                     <TextBlock Text="Cейчас монет на бирже" Margin="0,0,-62,0"/>
