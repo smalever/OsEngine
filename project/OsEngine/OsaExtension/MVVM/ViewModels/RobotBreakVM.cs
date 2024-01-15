@@ -1239,9 +1239,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                                 " {volume} {numberUser} {@Order} {Metod} ",
                  finalVolumClose, ordClose.NumberUser, ordClose, nameof(FinalCloseMarketOpenVolume));
 
-                SendStrStatus(" Отправлен Маркет на закрытие объема на бирже");
-
-                ClearingVariablesAfterClosing();
+                SendStrStatus(" Отправлен Маркет на закрытие объема на бирже");              
             }
             if (ordClose == null)
             {
@@ -2479,15 +2477,19 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void ClearingVariablesAfterClosing()
         {
-            SelectSecurBalans = 0;
-            IsChekTraelStopLong = false;
-            IsChekTraelStopShort = false;
-            PriceStopLong = 0;
-            PriceStopShort = 0;
-            if (!IsRun) PositionsBots.Clear();
+            if (PositionsBots[0].State == PositionStateType.Done ||
+                PositionsBots[0].State == PositionStateType.Deleted)
+            {
+                SelectSecurBalans = 0;
+                IsChekTraelStopLong = false;
+                IsChekTraelStopShort = false;
+                PriceStopLong = 0;
+                PriceStopShort = 0;
+                if (!IsRun) PositionsBots.Clear();
 
-            _logger.Information(" Clearing Value Variables {Method} "
-                , _server.ServerType, nameof(ClearingVariablesAfterClosing));
+                _logger.Information(" Clearing Value Variables {Method} "
+                    , _server.ServerType, nameof(ClearingVariablesAfterClosing));
+            } 
         }
 
         /// <summary>
