@@ -2394,7 +2394,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                 CalculationVolumeInTradeNperiod(trades);
 
-                VolumeLogicManagerTicks();
+                VolumeLogicManager();
 
                 if (trade.Time.Second % 3 == 0) //if (trade.Time.Second % 5 == 0) GetBalansSecur();
                 {
@@ -2450,36 +2450,59 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// диспечер логики робота от объема торгов по монете
         /// </summary>
-        private void VolumeLogicManagerTicks()
+        private void VolumeLogicManager()
         {   // в зависимости от объема торгов перключать логику
 
+            //if(IsRun == false) return;
+            if (AllVolumPeroidMin == 0 || Avereg == 0 || 
+                BidVolumPeriod == 0 || AskVolumPeriod == 0) return;
+
+            #region заготовки для дельны 
+            /*
             if (AskVolumPeriod > BidVolumPeriod * Ratio1) // объем продажи больше объема покупок
                                                           // * 2 минусовая дельта
             {
                 // че-то  делаем, на забор например 
+                _logger.Warning(" Negative delta Ratio 1 {Header} {Method} ",
+                                 Header, nameof(VolumeLogicManager));
             }
             if (AskVolumPeriod > BidVolumPeriod * Ratio2) // объем продажи больше объема покупок *
                                                           // 2 минусовая дельта
             {
                 // че-то  делаем, на забор например 
+                _logger.Warning(" Negative delta Ratio 2 {Header} {Method} ",
+                  Header, nameof(VolumeLogicManager));
             }
-            if (AskVolumPeriod < BidVolumPeriod * Ratio1) // объем продажи больше объема покупок *
+
+            if (AskVolumPeriod * Ratio1 < BidVolumPeriod) // объем продажи больше объема покупок *
                                                           // плюсовая дельта
             {
                 // че-то  делаем, на забор например 
+
+                _logger.Warning(" Positive delta Ratio 2 {Header} {Method} ",
+                                     Header, nameof(VolumeLogicManager));
             }
-            if (AskVolumPeriod < BidVolumPeriod * Ratio2) // объем продажи больше объема покупок *
+            if (AskVolumPeriod * Ratio2 < BidVolumPeriod) // объем продажи больше объема покупок *
                                                           // Плюсовая дельта
             {
                 // че-то  делаем, на забор например 
+                _logger.Warning(" Positive delta Ratio 2 {Header} {Method} ",
+                                 Header, nameof(VolumeLogicManager));
             }
+            */
+            #endregion
+
             if (AllVolumPeroidMin > Avereg * Ratio1)
             {
                 // че - то  делаем
+                _logger.Warning(" AllVolumPeroidMin > Avereg * Ratio 1 {Header} {Method} ",
+                                                    Header, nameof(VolumeLogicManager));
             }
             if (AllVolumPeroidMin > Avereg * Ratio2)
             {
                 // че - то  делаем
+                _logger.Warning(" AllVolumPeroidMin > Avereg * Ratio 2 {Header} {Method} ",
+                                                Header, nameof(VolumeLogicManager));
             }
         }
 
