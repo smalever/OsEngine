@@ -836,9 +836,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 DeleteAllOrdersPositionExchange();
             }
 
-            for (int i = 0; i < PositionsBots.Count; i++)
+            for (int i = 0; i < PositionsBots.Count && !_sendStop; i++)
             {
-                if (SelectSecurBalans != 0)
+                if (SelectSecurBalans != 0 && !_sendStop)
                 {
                     decimal openVolume = SelectSecurBalans;
 
