@@ -2360,7 +2360,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 
                 Trade trade = trades[0];  //Price = trade.Price;
 
-                CalculationVolumeInTradeNperiod(trade);
+                CalculationVolumeInTradeNperiod(trades);
 
                 if (trade.Time.Second % 3 == 0) //if (trade.Time.Second % 5 == 0) GetBalansSecur();
                 {
@@ -2439,37 +2439,68 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// подсчет объема по тикам в N период времени
         /// </summary>
-        private void CalculationVolumeInTradeNperiod(Trade trade)
+        private void CalculationVolumeInTradeNperiod(List<Trade> trades)
         {
             // берем опроеделенный промежуток времение назад
             // собираем за это время покупки
             // собираем за это время продажи
             // собираем за это время все объемы          
 
-            if (trade == null) return;
+            if (trades == null) return;
 
             DateTime time_add_n_min = dateTradingPeriod.AddMinutes(N_min); // время трейда + N минут
-            if (trade.Time < time_add_n_min)
+
+
+            for (int i = 0; i < trades.Count; i++)
             {
-                if (trade.Side == Side.Buy)
+                if (trades[i].Time < time_add_n_min)
                 {
-                    decimal b = trade.Volume;
-                    BidVolumPeriod = BidVolumPeriod + b;
+                    if (trades[i].Side == Side.Buy)
+                    {
+                        decimal b = trades[i].Volume;
+                        BidVolumPeriod = BidVolumPeriod + b;
+                    }
+                    if (trades[i].Side == Side.Sell)
+                    {
+                        decimal a = trades[i].Volume;
+                        AskVolumPeriod = AskVolumPeriod + a;
+                    }
+                    AllVolumPeroidMin = BidVolumPeriod + AskVolumPeriod;
                 }
-                if (trade.Side == Side.Sell)
+                else
                 {
-                    decimal a = trade.Volume;
-                    AskVolumPeriod = AskVolumPeriod + a;
+                    dateTradingPeriod = trades[i].Time;
+                    AllVolumPeroidMin = 0;
+                    BidVolumPeriod = 0;
+                    AskVolumPeriod = 0;
                 }
-                AllVolumPeroidMin = BidVolumPeriod + AskVolumPeriod;
+
             }
-            else
-            {
-                dateTradingPeriod = trade.Time;
-                AllVolumPeroidMin = 0;
-                BidVolumPeriod = 0;
-                AskVolumPeriod = 0;
-            }
+
+            //foreach (Trade trade in trades)
+            //{
+            //    if (trade.Time < time_add_n_min)
+            //    {
+            //        if (trade.Side == Side.Buy)
+            //        {
+            //            decimal b = trade.Volume;
+            //            BidVolumPeriod = BidVolumPeriod + b;
+            //        }
+            //        if (trade.Side == Side.Sell)
+            //        {
+            //            decimal a = trade.Volume;
+            //            AskVolumPeriod = AskVolumPeriod + a;
+            //        }
+            //        AllVolumPeroidMin = BidVolumPeriod + AskVolumPeriod;
+            //    }
+            //    else
+            //    {
+            //        dateTradingPeriod = trade.Time;
+            //        AllVolumPeroidMin = 0;
+            //        BidVolumPeriod = 0;
+            //        AskVolumPeriod = 0;
+            //    }
+            //}
         }
 
         /// <summary>

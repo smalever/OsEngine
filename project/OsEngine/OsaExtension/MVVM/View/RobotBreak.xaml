@@ -204,15 +204,15 @@
                     <Label Margin="40,0,0,0"/>
 
                     <Label Content="сейчас объём покупок" Margin="0,0,-51,0"/>
-                    <local:DecimalTextBox Text="{Binding BidVolumPeriod}" Margin="78,0,-32,0"/>
-                    <Label Margin="40,0,0,0"/>
-                    <Label Margin="40,0,0,0"/>
+                    <local:DecimalTextBox Text="{Binding BidVolumPeriod}" Margin="78,0,-119,0"/>
+                    <Label Margin="126,0,-19,0"/>
+                    <Label Margin="29,0,0,0"/>
                     
                     <TextBlock Text="Всего  объёма  сейчас" 
                      ToolTip="Объем ордеров открытия в позиции" Margin="0,0,-65,0"/>
                     <local:DecimalTextBox Text="{Binding AllVolumPeroidMin}" 
-                                  Margin="78,2,-32,0"/>
-                    <Label Margin="47,0,2,0"/>
+                                  Margin="78,2,-119,0"/>
+                    <Label Margin="119,0,-29,0"/>
                     <Label Margin="40,0,0,0"/>
                 </UniformGrid>
 
