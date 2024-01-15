@@ -807,6 +807,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         #region  Metods ======================================================================
+
         #region  методы логики ===============================================
 
         /// <summary>
@@ -1201,7 +1202,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 sideClose = Side.Sell;
                 if (IsChekSendAllLogs) _logger.Information("In Position volume {Volume} {side} {Metod} ",
-                                        finalVolumClose, sideClose, nameof(FinalCloseMarketOpenVolume));
+                                       finalVolumClose, sideClose, nameof(FinalCloseMarketOpenVolume));
             }
             if (pos.Direction == Side.Sell)
             {
@@ -1226,15 +1227,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 if (sideClose == Side.None) return;
 
                 pos.AddNewCloseOrder(ordClose);
-                Thread.Sleep(50);
+                //Thread.Sleep(50);
 
                 _sendCloseMarket = true;
 
                 SendOrderExchange(ordClose);
-
-                ClearingVariablesAfterClosing();
-
-                //PositionsBots.Clear();
 
                 //Thread.Sleep(100);
 
@@ -1243,6 +1240,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                  finalVolumClose, ordClose.NumberUser, ordClose, nameof(FinalCloseMarketOpenVolume));
 
                 SendStrStatus(" Отправлен Маркет на закрытие объема на бирже");
+
+                ClearingVariablesAfterClosing();
             }
             if (ordClose == null)
             {
@@ -1310,6 +1309,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void SendOrderExchange(Order sendOpder) 
         {
+            if(sendOpder.TypeOrder == OrderPriceType.Market ) _sendCloseMarket = true;
+
             Server.ExecuteOrder(sendOpder);
             //Thread.Sleep(100);
             if (IsChekSendAllLogs) _logger.Information("Send order Exchange {Method} Order {@Order} {NumberUser} ", nameof(SendOrderExchange), sendOpder, sendOpder.NumberUser);
@@ -2365,7 +2366,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                 if (trade.Time.Second % 3 == 0) //if (trade.Time.Second % 5 == 0) GetBalansSecur();
                 {
-                    
                     GetBalansSecur();
                 }
                 if (trade.Time.Second % 11== 0 && trades[0].SecurityNameCode == SelectedSecurity.Name)
@@ -2384,7 +2384,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             _server.NewMyTradeEvent += _server_NewMyTradeEvent;
             _server.NewOrderIncomeEvent += _server_NewOrderIncomeEvent;
-            _server.NewTradeEvent += _NewTradeEvent;
+            _server.NewTradeEvent += _NewTradeEvent;            
             _server.SecuritiesChangeEvent += _server_SecuritiesChangeEvent;
             _server.PortfoliosChangeEvent += _server_PortfoliosChangeEvent;
             _server.NewBidAscIncomeEvent += _server_NewBidAscIncomeEvent;
@@ -2542,7 +2542,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     {
                         for (int i = 0; i < PositionsBots.Count && !_isWorkedStop; i++)
                         {
-                            if (PositionsBots[i].Direction == Side.Buy && SelectSecurBalans > 0)
+                            if (PositionsBots[i].Direction == Side.Buy && SelectSecurBalans > 0 
+                                && _isWorkedStop == false && _sendCloseMarket == false)
                             {
                                 _isWorkedStop = true;
 
