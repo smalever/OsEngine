@@ -631,17 +631,17 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// отправлен стоп
         /// </summary>
-        private static bool _sendStop = false;
+        private bool _sendStop = false;
 
         /// <summary>
         /// сработал стоп
         /// </summary>
-        private static bool _isWorkedStop = false;
+        private bool _isWorkedStop = false;
 
         /// <summary>
         /// отправлен закрывающий объем по маркету
         /// </summary>
-        public static bool  _sendCloseMarket = false;
+        public bool  _sendCloseMarket = false;
 
         /// <summary>
         /// расстояние до трейлин стопа лонг в % 
@@ -790,12 +790,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// время отсрочки срабатывания превышен обема коэф 1
         /// </summary>
-        static DateTime time_add_n_min1 = DateTime.MinValue;
+        DateTime time_add_n_min1 = DateTime.MinValue;
 
         /// <summary>
         /// время отсрочки срабатывания превышен обема коэф 2
         /// </summary>
-        static DateTime time_add_n_min2 = DateTime.MinValue;
+        DateTime time_add_n_min2 = DateTime.MinValue;
 
         #endregion  конец поля отрпботки обемов =====================
 
