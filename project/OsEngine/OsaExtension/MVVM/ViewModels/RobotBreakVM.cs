@@ -603,16 +603,16 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// хз не помню )
         /// </summary>
-        public bool IsChekMonitor
-        {
-            get => _isChekMonitor;
-            set
-            {
-                _isChekMonitor = value;
-                OnPropertyChanged(nameof(IsChekMonitor));
-            }
-        }
-        private bool _isChekMonitor;
+        //public bool IsChekMonitor
+        //{
+        //    get => _isChekMonitor;
+        //    set
+        //    {
+        //        _isChekMonitor = value;
+        //        OnPropertyChanged(nameof(IsChekMonitor));
+        //    }
+        //}
+        //private bool _isChekMonitor;
 
         /// <summary>
         /// записывать все логи 
@@ -631,17 +631,17 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// отправлен стоп
         /// </summary>
-        private bool _sendStop = false;
+        private static bool _sendStop = false;
 
         /// <summary>
         /// сработал стоп
         /// </summary>
-        private bool _isWorkedStop = false;
+        private static bool _isWorkedStop = false;
 
         /// <summary>
         /// отправлен закрывающий объем по маркету
         /// </summary>
-        public bool _sendCloseMarket = false;
+        public static bool  _sendCloseMarket = false;
 
         /// <summary>
         /// расстояние до трейлин стопа лонг в % 
@@ -1422,7 +1422,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             VolumeRobExecut = position.OpenVolume;
 
             decimal volumOrderClose = 0; // по ордерам закрытия объем
-            if (position.CloseOrders != null && position.MyTrades.Count > 0)
+            if (position.CloseOrders != null )
             {
                 for (int i = 0; i < position.CloseOrders.Count; i++)
                 {
@@ -1448,7 +1448,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                                                           Header, nameof(MaintainingVolumeBalance));
                 }
 
-                if (IsChekMonitor)
+                if (IsChekVolumeClose)
                 {
                     decimal vol = Decimal.Round(SelectSecurBalans - volumOrderClose, SelectedSecurity.DecimalsVolume);
                     if (vol < minVolumeExecut)
@@ -1460,7 +1460,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     _logger.Warning(" Open Volume stock market larger than the closing orders  {Method} {SelectSecurBalans} {activCloseVol} {@position} {volum}",
                           nameof(MaintainingVolumeBalance), SelectSecurBalans, volumOrderClose, position, vol);
                     SendCloseLimitOrderPosition(position, vol);
-                    IsChekMonitor = false;
+                    IsChekVolumeClose = false;
                 }
             }
             if (!MonitoringOpenVolumeExchange() && !ActivOrders(position)) // если нету робот не работает
@@ -2447,6 +2447,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         #region   сервисные методы ===========================
 
+
+        DateTime time_add_n_min = DateTime.MinValue; // время превышения + N минут
+
         /// <summary>
         /// диспечер логики робота от объема торгов по монете
         /// </summary>
@@ -2494,29 +2497,31 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             if (AllVolumPeroidMin > Avereg * Ratio1)
             {
-                // че - то  делаем
-                DateTime time_add_n_min = DateTime.MinValue; // время превышения + N минут
-
                 if (time_add_n_min > DateTime.Now) return;
 
-                time_add_n_min = dateTradingPeriod.AddMinutes(N_min); // время сработки + N минут
+                time_add_n_min = DateTime.Now.AddMinutes(N_min-1); // время сработки + N минут
 
                 _logger.Warning(" AllVolumPeroidMin > Avereg * Ratio 1" +
-                    " {AllVolumPeroidMin} {Avereg} {Ratio1} {Header} {Method} ",
-                    AllVolumPeroidMin, Avereg, Ratio1, Header, nameof(VolumeLogicManager));
+                    " {AllVolumPeroidMin} {Avereg} {Ratio1} {time_add_n_min} {Header} {Method} ",
+                    AllVolumPeroidMin, Avereg, Ratio1, time_add_n_min, Header, nameof(VolumeLogicManager));
             }
             if (AllVolumPeroidMin > Avereg * Ratio2)
             {
-                // че - то  делаем
-                DateTime time_add_n_min = DateTime.MinValue; // время превышения + N минут
-
                 if (time_add_n_min > DateTime.Now) return;
 
-                time_add_n_min = dateTradingPeriod.AddMinutes(N_min); // время сработки + N минут
+                time_add_n_min = dateTradingPeriod.AddMinutes(N_min-1); // время сработки + N минут
 
                 _logger.Warning(" AllVolumPeroidMin > Avereg * Ratio 2" +
-                    " {AllVolumPeroidMin} {Avereg} {Ratio1} {Header} {Method} ",
-                    AllVolumPeroidMin, Avereg, Ratio2, Header, nameof(VolumeLogicManager));
+                    " {AllVolumPeroidMin} {Avereg} {Ratio1} {time_add_n_min} {Header} {Method} ",
+                    AllVolumPeroidMin, Avereg, Ratio2, time_add_n_min, Header, nameof(VolumeLogicManager));
+                
+                /* проверть направление моей сделки
+                 * проверить прибылность сделки
+                    
+                    проверить направление объемов
+                
+
+                */
             }
         }
 
@@ -2573,19 +2578,24 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void ClearingVariablesAfterClosing()
         {
-            if (PositionsBots[0].State == PositionStateType.Done ||
-                PositionsBots[0].State == PositionStateType.Deleted)
-            {
-                SelectSecurBalans = 0;
-                IsChekTraelStopLong = false;
-                IsChekTraelStopShort = false;
-                PriceStopLong = 0;
-                PriceStopShort = 0;
-                if (!IsRun) PositionsBots.Clear();
+            SelectSecurBalans = 0;
+            IsChekTraelStopLong = false;
+            IsChekTraelStopShort = false;
+            PriceStopLong = 0;
+            PriceStopShort = 0;
+            if (!IsRun) PositionsBots.Clear();
+            _sendCloseMarket = false;
+            _isWorkedStop = false;
+            _sendStop = false;
 
-                _logger.Information(" Clearing Value Variables {Method} "
-                    , _server.ServerType, nameof(ClearingVariablesAfterClosing));
-            } 
+            _logger.Information(" Clearing Value Variables {Method} ",
+                               nameof(ClearingVariablesAfterClosing));
+
+            //if (PositionsBots[0].State == PositionStateType.Done ||
+            //    PositionsBots[0].State == PositionStateType.Deleted)
+            //{
+
+            //} 
         }
 
         /// <summary>
