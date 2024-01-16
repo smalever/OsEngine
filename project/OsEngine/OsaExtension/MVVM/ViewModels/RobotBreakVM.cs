@@ -2453,7 +2453,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private void VolumeLogicManager()
         {   // в зависимости от объема торгов перключать логику
 
-            //if(IsRun == false) return;
+            if (IsRun == false) return;
             if (AllVolumPeroidMin == 0 || Avereg == 0 || 
                 BidVolumPeriod == 0 || AskVolumPeriod == 0) return;
 
@@ -2495,14 +2495,28 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             if (AllVolumPeroidMin > Avereg * Ratio1)
             {
                 // че - то  делаем
-                _logger.Warning(" AllVolumPeroidMin > Avereg * Ratio 1 {Header} {Method} ",
-                                                    Header, nameof(VolumeLogicManager));
+                DateTime time_add_n_min = DateTime.MinValue; // время превышения + N минут
+
+                if (time_add_n_min > DateTime.Now) return;
+
+                time_add_n_min = dateTradingPeriod.AddMinutes(N_min); // время сработки + N минут
+
+                _logger.Warning(" AllVolumPeroidMin > Avereg * Ratio 1" +
+                    " {AllVolumPeroidMin} {Avereg} {Ratio1} {Header} {Method} ",
+                    AllVolumPeroidMin, Avereg, Ratio1, Header, nameof(VolumeLogicManager));
             }
             if (AllVolumPeroidMin > Avereg * Ratio2)
             {
                 // че - то  делаем
-                _logger.Warning(" AllVolumPeroidMin > Avereg * Ratio 2 {Header} {Method} ",
-                                                Header, nameof(VolumeLogicManager));
+                DateTime time_add_n_min = DateTime.MinValue; // время превышения + N минут
+
+                if (time_add_n_min > DateTime.Now) return;
+
+                time_add_n_min = dateTradingPeriod.AddMinutes(N_min); // время сработки + N минут
+
+                _logger.Warning(" AllVolumPeroidMin > Avereg * Ratio 2" +
+                    " {AllVolumPeroidMin} {Avereg} {Ratio1} {Header} {Method} ",
+                    AllVolumPeroidMin, Avereg, Ratio2, Header, nameof(VolumeLogicManager));
             }
         }
 
