@@ -250,19 +250,14 @@
                              Grid.Row="1">
                     <TextBlock Text="Cейчас монет на бирже" Margin="0,0,-62,0"/>
                     <local:DecimalTextBox Text="{Binding SelectSecurBalans}" Margin="78,0,-32,0"/>
-                    <StackPanel Orientation="Horizontal" Margin="37,0,1,0">
-                        <CheckBox Content="Откр Лев объём" 
-                                    IsChecked="{Binding IsChekMonitor}" 
-                                    ToolTip="Добавить в ордера закрытия разницу открытого руками объема на бирже"
-                                    Width="119" />
-                    </StackPanel>
+                    <Label Margin="47,0,2,0"/>
 
                     <Label Content="Куплено монет роботом " Margin="0,0,-51,0"/>
                     <local:DecimalTextBox Text="{Binding VolumeRobExecut}" Margin="78,0,-32,0"/>
                     <StackPanel Orientation="Horizontal" Margin="37,0,1,0">
-                        <CheckBox Content="Потерян Зак Ордер" 
+                        <CheckBox Content="Добав Зак Ордер" 
                                     IsChecked="{Binding IsChekVolumeClose}" 
-                                    ToolTip="Добавить Закрыв ордер на открытый (потерянный) роботом объем  "
+                                    ToolTip="Добавить Закрыв ордер на открытый на бирже объём  "
                                     Width="119" />
                     </StackPanel>
                     <TextBlock Text="Ордеров на покупку монет" 

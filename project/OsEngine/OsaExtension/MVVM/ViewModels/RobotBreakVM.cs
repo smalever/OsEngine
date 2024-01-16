@@ -1488,6 +1488,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                     SendStrStatus("Робот выключен " + Header);
                     IsRun = false; // выключаем
+
+                    ClearingVariablesAfterClosing();
                     ClearCanceledOrderPosition();
                 }
             };
@@ -1728,8 +1730,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             if (order != null && sideSet != Side.None && priceClose != 0 && volumeClose != 0)
             {  // отправить ордер в позицию
                 position.AddNewCloseOrder(order);
-                //Thread.Sleep(100);
-                _logger.Information("Send Limit order for Close {Method} {priceClose} {volumeClose} {@Order} {NumberUser}",
+                Thread.Sleep(30);
+                _logger.Information("Send order for ListClose {Method} {priceClose} {volumeClose} {@Order} {NumberUser}",
                                         nameof(SendCloseLimitOrderPosition), priceClose, volumeClose, order, order.NumberUser);
                 //position.PassCloseOrder= false;
                 SendOrderExchange(order); // отправили ордер на биржу
@@ -3018,7 +3020,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 e.PropertyName == "Avereg" ||
                 e.PropertyName == "Ratio1" ||
                 e.PropertyName == "Ratio2" ||
-                //e.PropertyName == "PriceStopShort" || 
+                e.PropertyName == "IsChekSendAllLogs" ||
+                //e.PropertyName == "IsChekSendAllLogs" ||
                 e.PropertyName == "IsChekTraelStopShort")
             {
                 SaveParamsBot();
