@@ -695,11 +695,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private int _n_min = 5;
 
         /// <summary>
-        /// время учета трейдов
-        /// </summary>
-        private DateTime dateTradingPeriod;
-
-        /// <summary>
         /// объем покупок выбраной монеты за период
         /// </summary>
         public decimal BidVolumPeriod
@@ -785,9 +780,29 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         #endregion конец свойств для отработки объемов по монете
 
+        #region поля отрпботки обемов по монете ====================
+
+        /// <summary>
+        /// время учета трейдов
+        /// </summary>
+        private DateTime dateTradingPeriod;
+
+        /// <summary>
+        /// время отсрочки срабатывания превышен обема коэф 1
+        /// </summary>
+        static DateTime time_add_n_min1 = DateTime.MinValue;
+
+        /// <summary>
+        /// время отсрочки срабатывания превышен обема коэф 2
+        /// </summary>
+        static DateTime time_add_n_min2 = DateTime.MinValue;
+
+        #endregion  конец поля отрпботки обемов =====================
+
         #endregion конец ВСЕ свойств =============================================
 
         #region Поля ==================================================
+
 
         /// <summary>
         /// список типов расчета шага 
@@ -2447,9 +2462,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         #region   сервисные методы ===========================
 
-
-        DateTime time_add_n_min = DateTime.MinValue; // время превышения + N минут
-
         /// <summary>
         /// диспечер логики робота от объема торгов по монете
         /// </summary>
@@ -2497,24 +2509,27 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             if (AllVolumPeroidMin > Avereg * Ratio1)
             {
-                if (time_add_n_min > DateTime.Now) return;
+                if (time_add_n_min1 < DateTime.Now)
+                {
+                    time_add_n_min1 = DateTime.Now.AddMinutes(N_min - 1); // время сработки + N минут
 
-                time_add_n_min = DateTime.Now.AddMinutes(N_min-1); // время сработки + N минут
-
-                _logger.Warning(" AllVolumPeroidMin > Avereg * Ratio 1" +
-                    " {AllVolumPeroidMin} {Avereg} {Ratio1} {time_add_n_min} {Header} {Method} ",
-                    AllVolumPeroidMin, Avereg, Ratio1, time_add_n_min, Header, nameof(VolumeLogicManager));
+                    _logger.Warning(" AllVolumPeroidMin > Avereg * Ratio 1" +
+                        " {AllVolumPeroidMin} {Avereg} {Ratio1} {time_add_n_min} {Header} {Method} ",
+                        AllVolumPeroidMin, Avereg, Ratio1, time_add_n_min1, Header, nameof(VolumeLogicManager));
+                }
             }
             if (AllVolumPeroidMin > Avereg * Ratio2)
             {
-                if (time_add_n_min > DateTime.Now) return;
+                if (time_add_n_min2 < DateTime.Now) 
+                {
+                    time_add_n_min2 = DateTime.Now.AddMinutes(N_min - 1); // время сработки + N минут
 
-                time_add_n_min = dateTradingPeriod.AddMinutes(N_min-1); // время сработки + N минут
+                    _logger.Warning(" AllVolumPeroidMin > Avereg * Ratio 2" +
+                        " {AllVolumPeroidMin} {Avereg} {Ratio1} {time_add_n_min} {Header} {Method} ",
+                        AllVolumPeroidMin, Avereg, Ratio2, time_add_n_min2, Header, nameof(VolumeLogicManager));
 
-                _logger.Warning(" AllVolumPeroidMin > Avereg * Ratio 2" +
-                    " {AllVolumPeroidMin} {Avereg} {Ratio1} {time_add_n_min} {Header} {Method} ",
-                    AllVolumPeroidMin, Avereg, Ratio2, time_add_n_min, Header, nameof(VolumeLogicManager));
-                
+                }
+
                 /* проверть направление моей сделки
                  * проверить прибылность сделки
                     
