@@ -1731,7 +1731,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             if (order != null && sideSet != Side.None && priceClose != 0 && volumeClose != 0)
             {  // отправить ордер в позицию
                 position.AddNewCloseOrder(order);
-                Thread.Sleep(30);
+                Thread.Sleep(100);
                 _logger.Information("Send order for ListClose {Method} {priceClose} {volumeClose} {@Order} {NumberUser}",
                                         nameof(SendCloseLimitOrderPosition), priceClose, volumeClose, order, order.NumberUser);
                 //position.PassCloseOrder= false;
@@ -2407,7 +2407,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             if (trades != null && trades[0].SecurityNameCode == SelectedSecurity.Name)
             {
-                
+                GetBalansSecur();
+
                 Trade trade = trades[0];  //Price = trade.Price;
 
                 CalculationVolumeInTradeNperiod(trades);
@@ -2416,13 +2417,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                 if (trade.Time.Second % 3 == 0) //if (trade.Time.Second % 5 == 0) GetBalansSecur();
                 {
-                    GetBalansSecur();
+                    StartMaintainingVolumeBalance();                    
+                    AddCloseOrder();
                 }
                 if (trade.Time.Second % 11== 0 && trades[0].SecurityNameCode == SelectedSecurity.Name)
                 {
-                    AddCloseOrder();
                     IsOffBot();
-                    StartMaintainingVolumeBalance();
                 }
             }
         }
@@ -2599,7 +2599,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             PriceStopLong = 0;
             PriceStopShort = 0;
             if (!IsRun) PositionsBots.Clear();
-   
 
             _logger.Information(" Clearing Value Variables {Method} ",
                                nameof(ClearingVariablesAfterClosing));
