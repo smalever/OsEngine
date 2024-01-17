@@ -848,8 +848,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             PropertyChanged += RobotBreakVM_PropertyChanged;    
             SendStrStatus(" Ожидается подключение к бирже ");
-
-            ClearCanceledOrderPosition();
+            
             ClearFailOrderPosition();
         }
 
@@ -864,6 +863,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             if (IsRun)
             {
+                IsStopTrue();
                 CreateNewPosition(); // создали позиции
                 SendOpenOrderPosition();// открытие позиции
             }
@@ -894,6 +894,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
             IsRun = false;
 
+            ClearFailOrderPosition();
             ClearCanceledOrderPosition();
             ClearingVariablesAfterClosing();
             // препроверяем монету
@@ -2533,11 +2534,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 }
 
                 /* проверть направление моей сделки
-                 * проверить прибылность сделки
-                    
-                    проверить направление объемов
-                
-
+                 * проверить прибылность сделки                   
+                    проверить направление объемов 
                 */
             }
         }
@@ -2601,18 +2599,23 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             PriceStopLong = 0;
             PriceStopShort = 0;
             if (!IsRun) PositionsBots.Clear();
-            _sendCloseMarket = false;
-            _isWorkedStop = false;
-            _sendStop = false;
+   
 
             _logger.Information(" Clearing Value Variables {Method} ",
                                nameof(ClearingVariablesAfterClosing));
 
             //if (PositionsBots[0].State == PositionStateType.Done ||
-            //    PositionsBots[0].State == PositionStateType.Deleted)
-            //{
+            //    PositionsBots[0].State == PositionStateType.Deleted){}      
+        }
 
-            //} 
+        /// <summary>
+        /// разрешения на стоп
+        /// </summary>
+        private void IsStopTrue()
+        {
+            _sendCloseMarket = false;
+            _isWorkedStop = false;
+            _sendStop = false;
         }
 
         /// <summary>
