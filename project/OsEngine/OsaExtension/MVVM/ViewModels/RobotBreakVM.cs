@@ -1420,8 +1420,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             CalculateVolumeTradesOpen(); // расчет объема
 
-            foreach (Position position in PositionsBots)
+            for (int i = 0; i < PositionsBots.Count; i++)
             {
+                Position position = PositionsBots[i];
                 if (position.OpenOrders != null)
                 {
                     if (position.OpenOrders.Count != 0) // защита от повтороных добалений ордеров
@@ -1447,12 +1448,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         //Thread.Sleep(50);
                         if (IsChekSendAllLogs) _logger.Information("Send Open order into position {Method} {@Order} {NumberUser}", nameof(SendOrderExchange), order, order.NumberUser);
                     }
-                    else
-                    {
-                        //todo: разобраться с разрешениями на отправку ордеров
-                    }
                 }
-            }
+            } 
         }
 
         /// <summary>
@@ -3285,7 +3282,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             if (IsChekSendAllLogs) _logger.Information(" Dispose {Method}", nameof(Dispose));
         }
 
-        #endregion
+        #endregion сервисные конец
 
         #endregion end metods==============================================
 
