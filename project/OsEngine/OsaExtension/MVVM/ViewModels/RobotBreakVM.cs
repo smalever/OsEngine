@@ -3136,6 +3136,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                     writer.WriteLine(Ratio2);
 
+                    writer.WriteLine(AveregS);
+
+                    writer.WriteLine(Ratio1S); // 28 первый коэф превышения в  баксах
+
+                    writer.WriteLine(Ratio2S);
+
                     writer.Close();
 
                     if(IsChekSendAllLogs) _logger.Information("Saving parameters {Header} {Method} "
@@ -3226,6 +3232,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     Avereg = GetDecimalForString(reader.ReadLine());
                     Ratio1 = GetDecimalForString(reader.ReadLine());
                     Ratio2 = GetDecimalForString(reader.ReadLine());
+
+                    AveregS = (int)GetDecimalForString(reader.ReadLine());
+                    Ratio1S = (int)GetDecimalForString(reader.ReadLine());
+                    Ratio2S = (int)GetDecimalForString(reader.ReadLine());
 
                     //StepType step = StepType.PUNKT;
                     //if (Enum.TryParse(reader.ReadLine(), out step))
