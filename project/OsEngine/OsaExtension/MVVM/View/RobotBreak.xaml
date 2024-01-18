@@ -200,42 +200,40 @@
                   Grid.Row="1">
                     <TextBlock Text="объём  считать N минут" Margin="0,0,-62,0"/>
                     <local:DecimalTextBox Text="{Binding N_min}" Margin="78,0,-32,0"/>
-                    <Label Margin="40,0,0,0"/>
+                    <Label Content=""  Margin="40,0,0,0"/>
                     <Label Margin="40,0,0,0"/>
 
                     <Label Content="сейчас объём покупок" Margin="0,0,-77,0"/>
-                    <local:DecimalTextBox Text="{Binding BidVolumPeriod}" Margin="78,0,-80,0"/>
+                    <local:DecimalTextBox Text="{Binding BidVolumPeriod,StringFormat=N0}" Margin="78,0,-80,0"/>
                     <Label Margin="126,0,-19,0"/>
                     <Label Margin="29,0,0,0"/>
 
-
                     <Label Content="сейчас объём продаж" Margin="0,0,-77,0"/>
-                    <local:DecimalTextBox Text="{Binding AskVolumPeriod}" Margin="78,0,-80,0"/>
+                    <local:DecimalTextBox Text="{Binding AskVolumPeriod,StringFormat=N0}" Margin="78,0,-80,0"/>
                     <Label Margin="126,0,-19,0"/>
                     <Label Margin="29,0,0,0"/>
 
                     <TextBlock Text="всего  объёма  сейчас" 
                      ToolTip="Объем ордеров открытия в позиции" Margin="0,0,-65,0"/>
-                    <local:DecimalTextBox Text="{Binding AllVolumPeroidMin}" 
+                    <local:DecimalTextBox Text="{Binding AllVolumPeroidMin,StringFormat=N0}" 
                                   Margin="78,2,-80,0"/>
                     <Label Margin="119,0,-29,0"/>
                     <Label Margin="40,0,0,0"/>
 
-
                     <Label Content="если объём превысит" Margin="0,0,-77,0"/>
-                    <local:DecimalTextBox Text="{Binding Avereg}" Margin="78,0,-80,0"/>
-                    <Label Margin="126,0,-19,0"/>
-                    <Label Margin="29,0,0,0"/>
+                    <local:DecimalTextBox Text="{Binding Avereg,StringFormat=N0}" Margin="78,0,-80,0"/>
+                    <Label Content="в $" HorizontalAlignment="Left" Margin="85,0,0,0" Width="36"/>
+                    <local:DecimalTextBox Text="{Binding AveregS,StringFormat=N0}"  Margin="13,0,0,0"/>
 
                     <Label Content=" 1 превышение в %" Margin="0,0,-77,0"/>
                     <local:DecimalTextBox Text="{Binding Ratio1}" Margin="78,0,-80,0"/>
-                    <Label Margin="126,0,-19,0"/>
-                    <Label Margin="29,0,0,0"/>
+                    <Label Content="в $" HorizontalAlignment="Left" Margin="85,0,0,0" Width="36"/>
+                    <local:DecimalTextBox Text="{Binding Ratio1S,StringFormat=N0}"  Margin="13,0,0,0"/>
 
                     <Label Content=" 2 превышение в %" Margin="0,0,-77,0"/>
                     <local:DecimalTextBox Text="{Binding Ratio2}" Margin="78,0,-80,0"/>
-                    <Label Margin="126,0,-19,0"/>
-                    <Label Margin="29,0,0,0"/>
+                    <Label Content="в $" HorizontalAlignment="Left"  Margin="85,0,0,0" Width="40"/>
+                    <local:DecimalTextBox Text="{Binding Ratio2S,StringFormat=N0}"  Margin="13,0,0,0"/>
 
                 </UniformGrid>
 

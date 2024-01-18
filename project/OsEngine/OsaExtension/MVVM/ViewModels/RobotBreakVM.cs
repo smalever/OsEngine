@@ -751,6 +751,20 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private decimal _avereg;
 
         /// <summary>
+        /// средний допустимый объем торгов по тикам в $
+        /// </summary>
+        public int AveregS
+        {
+            get => _averegS;
+            set
+            {
+                _averegS = value;
+                OnPropertyChanged(nameof(AveregS));
+            }
+        }
+        private int _averegS;
+
+        /// <summary>
         /// 1 коэффициент увеличения среднего объема для срабатывания
         /// </summary>
         public decimal Ratio1
@@ -763,6 +777,20 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
         }
         private decimal _ratio1 = 1.7m;
+
+        /// <summary>
+        /// 1 коэффициент увеличения среднего объема для срабатывания в $
+        /// </summary>
+        public int Ratio1S
+        {
+            get => _ratio1S;
+            set
+            {
+                _ratio1S = value;
+                OnPropertyChanged(nameof(Ratio1S));
+            }
+        }
+        private int _ratio1S;
 
         /// <summary>
         /// 2 коэффициент увеличения среднего объема для срабатывания
@@ -778,6 +806,20 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
         private decimal _ratio2 = 2.5m;
 
+        /// <summary>
+        /// 2 коэффициент увеличения среднего объема для срабатывания в $
+        /// </summary>
+        public int Ratio2S
+        {
+            get => _ratio2S;
+            set
+            {
+                _ratio2S = value;
+                OnPropertyChanged(nameof(Ratio2S));
+            }
+        }
+        private int _ratio2S;
+
         #endregion конец свойств для отработки объемов по монете
 
         #region поля отрпботки обемов по монете ====================
@@ -785,7 +827,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// время учета трейдов
         /// </summary>
-        private DateTime dateTradingPeriod;
+        private DateTime dateTradingPeriod = DateTime.MinValue;
 
         /// <summary>
         /// время отсрочки срабатывания превышен обема коэф 1
@@ -944,59 +986,66 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
              * добавляем в сделку 
              */
 
-            foreach (Position position in PositionsBots)
+            for (int i = 0; i < PositionsBots.Count; i++)
             {
                 List<Order> ordersAll = new List<Order>();
 
-                Order ordAdd = new Order();
-          
-                ordersAll = position.OpenOrders;// взять из позиции ордера открытия 
-                
-                if(position.CloseOrders != null)
+                ordersAll.Clear();
+
+                //Order ordAdd = new Order();p
+
+                ordersAll = PositionsBots[i].OpenOrders;// взять из позиции ордера открытия 
+
+                if (PositionsBots[i].CloseOrders != null)
                 {
-                    ordersAll.AddRange(position.CloseOrders); // добавили ордера закрытия 
+                    ordersAll.AddRange(PositionsBots[i].CloseOrders); // добавили ордера закрытия 
                 }
 
                 bool levak = true;
-                for (int i = 0; i < ordersAll.Count; i++)
+                for (int c = 0; c < ordersAll.Count; c++)
                 {
-                    if (ordersAll[i].NumberUser == order.NumberUser)
+                    if (ordersAll[c].NumberUser == order.NumberUser)
                     {
                         levak = false;
-                        if (order.State == OrderStateType.Cancel)
-                        {
-                            DeleteOrderPosition(order);
-                        }
+                        //if (order.State == OrderStateType.Cancel)
+                        //{
+                        //    DeleteOrderPosition(order);
+                        //}
                     }
                 }
 
                 if (levak && order.State == OrderStateType.Activ)
                 {
-                    if(position.Direction == Side.Buy && order.Side == Side.Buy ) 
+                    if (PositionsBots[i].Direction == Side.Buy && order.Side == Side.Buy)
                     {
-                        position.AddNewOpenOrder(order);
+                        PositionsBots[i].AddNewOpenOrder(order);
                         _logger.Information("Send Limit order for Open Orders {Method} {@Order} {NumberUser}",
                                                              nameof(AddOrderPosition), order, order.NumberUser);
                     }
-                    if(position.Direction == Side.Sell && order.Side == Side.Sell ) 
+                    if (PositionsBots[i].Direction == Side.Sell && order.Side == Side.Sell)
                     {
-                        position.AddNewOpenOrder(order);
+                        PositionsBots[i].AddNewOpenOrder(order);
                         _logger.Information("Send Limit order for Open Orders {Method} {@Order} {NumberUser}",
                                                             nameof(AddOrderPosition), order, order.NumberUser);
                     }
-                    if (position.Direction == Side.Buy && order.Side == Side.Sell)
+                    if (PositionsBots[i].Direction == Side.Buy && order.Side == Side.Sell)
                     {
-                        position.AddNewCloseOrder(order);
+                        PositionsBots[i].AddNewCloseOrder(order);
                         _logger.Information("Send Limit order for Close Orders {Method} {@Order} {NumberUser}",
                                                             nameof(AddOrderPosition), order, order.NumberUser);
                     }
-                    if(position.Direction == Side.Sell && order.Side == Side.Buy) 
+                    if (PositionsBots[i].Direction == Side.Sell && order.Side == Side.Buy)
                     {
-                        position.AddNewCloseOrder(order);
+                        PositionsBots[i].AddNewCloseOrder(order);
                         _logger.Information("Send Limit order for Close Orders {Method} {@Order} {NumberUser}",
                                                            nameof(AddOrderPosition), order, order.NumberUser);
                     }
                 }
+            }
+
+            foreach (Position position in PositionsBots)
+            {
+
             }
         }
 
@@ -2323,8 +2372,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 GetBalansSecur();
                 IsOnTralProfit(myTrade);
             }
-            else
-            if (IsChekSendAllLogs) _logger.Warning(" Secur Trade {Security} {@Trade}  {Method}", myTrade.SecurityNameCode, myTrade,  nameof(_server_NewMyTradeEvent));
+            //else
+            //if (IsChekSendAllLogs) _logger.Warning(" Secur Trade {Security} {@Trade}  {Method}", myTrade.SecurityNameCode, myTrade,  nameof(_server_NewMyTradeEvent));
         }  
 
         /// <summary>
@@ -2339,7 +2388,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 if (order.SecurityNameCode == SelectedSecurity.Name)
                 {
                     CheckMyOrder(order);
-                    // AddOrderPosition(order);
+
+                    //AddOrderPosition(order);
 
                     if (order.State != OrderStateType.Fail)
                     {
@@ -2558,9 +2608,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             // собираем за это время все объемы          
 
             if (trades == null) return;
+            if (trades.Count == 0) return;
 
             DateTime time_add_n_min = dateTradingPeriod.AddMinutes(N_min); // время трейда + N минут
-
+            if (time_add_n_min == null || time_add_n_min == DateTime.MinValue) return;
 
             for (int i = 0; i < trades.Count; i++)
             {
