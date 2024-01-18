@@ -641,7 +641,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// отправлен закрывающий объем по маркету
         /// </summary>
-        public bool  _sendCloseMarket = false;
+        public bool _sendCloseMarket = false;
 
         /// <summary>
         /// расстояние до трейлин стопа лонг в % 
@@ -681,7 +681,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         #region Свойства для отработки обемов по монете ====================
 
         /// <summary>
-        /// сколько N минут брать в расчет средней объема 
+        /// сколько N минут считать объем
         /// </summary>
         public int N_min
         {
@@ -765,60 +765,60 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private int _averegS;
 
         /// <summary>
-        /// 1 коэффициент увеличения среднего объема для срабатывания
+        /// 1 коэффициент увеличения объема покупок для срабатывания
         /// </summary>
-        public decimal Ratio1
+        public decimal RatioBuy1
         {
-            get => _ratio1;
+            get => _ratioBuy1;
             set
             {
-                _ratio1 = value;
-                OnPropertyChanged(nameof(Ratio1));
+                _ratioBuy1 = value;
+                OnPropertyChanged(nameof(RatioBuy1));
             }
         }
-        private decimal _ratio1 = 1.7m;
+        private decimal _ratioBuy1 = 1.7m;
 
         /// <summary>
-        /// 1 коэффициент увеличения среднего объема для срабатывания в $
+        /// 1 коэффициент увеличения объема продаж для срабатывания 
         /// </summary>
-        public int Ratio1S
+        public decimal RatioSell1
         {
-            get => _ratio1S;
+            get => _ratioSell1;
             set
             {
-                _ratio1S = value;
-                OnPropertyChanged(nameof(Ratio1S));
+                _ratioSell1 = value;
+                OnPropertyChanged(nameof(RatioSell1));
             }
         }
-        private int _ratio1S;
+        private decimal _ratioSell1;
 
         /// <summary>
-        /// 2 коэффициент увеличения среднего объема для срабатывания
+        /// 2 коэффициент увеличения объема покупок для срабатывания
         /// </summary>
-        public decimal Ratio2
+        public decimal RatioBuy2
         {
-            get => _ratio2;
+            get => _ratioBuy2;
             set
             {
-                _ratio2 = value;
-                OnPropertyChanged(nameof(Ratio2));
+                _ratioBuy2 = value;
+                OnPropertyChanged(nameof(RatioBuy2));
             }
         }
-        private decimal _ratio2 = 2.5m;
+        private decimal _ratioBuy2 = 2.5m;
 
         /// <summary>
-        /// 2 коэффициент увеличения среднего объема для срабатывания в $
+        /// 2 коэффициент увеличения объема продаж для срабатывания
         /// </summary>
-        public int Ratio2S
+        public decimal RatioSell2
         {
-            get => _ratio2S;
+            get => _ratioSell2;
             set
             {
-                _ratio2S = value;
-                OnPropertyChanged(nameof(Ratio2S));
+                _ratioSell2 = value;
+                OnPropertyChanged(nameof(RatioSell2));
             }
         }
-        private int _ratio2S;
+        private decimal _ratioSell2;
 
         #endregion конец свойств для отработки объемов по монете
 
@@ -867,7 +867,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// поле содержащее VM окна отображ всех роботов
         /// </summary>
-        private RobotsWindowVM _robotsWindowVM;       
+        private RobotsWindowVM _robotsWindowVM;
 
         #endregion
 
@@ -883,14 +883,14 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             _robotsWindowVM = MainWindows;
 
             ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
-        
+
             LoadParamsBot(header);
 
             ServerMaster.ActivateAutoConnection();
 
-            PropertyChanged += RobotBreakVM_PropertyChanged;    
+            PropertyChanged += RobotBreakVM_PropertyChanged;
             SendStrStatus(" Ожидается подключение к бирже ");
-            
+
             ClearFailOrderPosition();
         }
 
@@ -905,7 +905,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             if (IsRun)
             {
-                IsStopTrue();
+                SetStopTrue();
                 CreateNewPosition(); // создали позиции
                 SendOpenOrderPosition();// открытие позиции
             }
@@ -917,7 +917,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private void StopTradeLogic()
         {
             if (IsChekSendAllLogs) _logger.Information("Stop Trade Logic {Header} {Method}"
-                                 , Header , nameof(StopTradeLogic));
+                                 , Header, nameof(StopTradeLogic));
             GetBalansSecur();
 
             if (!_sendStop)
@@ -952,27 +952,27 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
              * 
              * 
              */
-            
+
         }
 
         /// <summary>
         /// отключение бота
         /// </summary>
         private void IsOffBot()
-        { 
-           /* если цена вышла за пределы планируемого диапазона (тейков)
-           * отработки патерна робота, лимитки на открытие надо удалить с биржи 
-           * и прекратить работу бота */
+        {
+            /* если цена вышла за пределы планируемого диапазона (тейков)
+            * отработки патерна робота, лимитки на открытие надо удалить с биржи 
+            * и прекратить работу бота */
 
-            if(SelectedSecurity != null && Price!=0 && IsRun)
+            if (SelectedSecurity != null && Price != 0 && IsRun)
             {
-                if (Price > TakePriceLong || Price < TakePriceShort )
+                if (Price > TakePriceLong || Price < TakePriceShort)
                 {
                     _logger.Warning(" Bot OFF, Price > TakePriceLong || Price < TakePriceShort " +
                                     " the price has gone beyond profit  {Method}"
                                                              , nameof(IsOffBot));
                     StopTradeLogic();
-                } 
+                }
             }
         }
 
@@ -1171,18 +1171,18 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             foreach (Position position in PositionsBots)
             {
-                if (position.OpenOrders != null) 
+                if (position.OpenOrders != null)
                 {
                     List<Order> orders = new List<Order>();
                     orders = position.OpenOrders; // взять из позиции ордера открытия
-                    ClearOrdersCancel (ref orders);
+                    ClearOrdersCancel(ref orders);
                     position.OpenOrders = orders;
-                }                
+                }
 
                 if (position.CloseOrders != null)
                 {
                     List<Order> orders = new List<Order>();
-                    orders  = position.CloseOrders; // положили ордера закрытия 
+                    orders = position.CloseOrders; // положили ордера закрытия 
                     ClearOrdersCancel(ref orders);
                     position.CloseOrders = orders; // вернули ордера закрытия 
                 }
@@ -1201,8 +1201,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 if (order != null
                     && order.State != OrderStateType.Cancel)
-                    //&& order.State != OrderStateType.Done)
-                    //&& order.State != OrderStateType.Fail)
+                //&& order.State != OrderStateType.Done)
+                //&& order.State != OrderStateType.Fail)
                 {
                     newOrders.Add(order);
                 }
@@ -1258,11 +1258,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// Закрыть позицию по стопу
         /// </summary>
-        private void StopPosition( Position position)
+        private void StopPosition(Position position)
         {
             GetBalansSecur();
 
-            if(!_sendStop) 
+            if (!_sendStop)
             {
                 DeleteAllOrdersPositionExchange();
             }
@@ -1272,11 +1272,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 _sendStop = true;
                 _logger.Warning(" It worked StopPosition {@position} {Metod} "
-                                                     ,position, nameof(StopPosition));
+                                                     , position, nameof(StopPosition));
 
                 decimal volume = SelectSecurBalans;
 
-                FinalCloseMarketOpenVolume(position, volume);               
+                FinalCloseMarketOpenVolume(position, volume);
             }
         }
 
@@ -1307,7 +1307,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 if (IsChekSendAllLogs) _logger.Information("In Position volume {Volume} {side} {Metod} ",
                                         finalVolumClose, sideClose, nameof(FinalCloseMarketOpenVolume));
             }
-            if (finalVolumClose == 0 || sideClose == Side.None )
+            if (finalVolumClose == 0 || sideClose == Side.None)
             {
                 SendStrStatus(" Ошибка закрытия объема на бирже");
 
@@ -1319,7 +1319,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             Order ordClose = CreateMarketOrder(SelectedSecurity, Price, finalVolumClose, sideClose);
 
-            if (ordClose != null && !_sendCloseMarket )
+            if (ordClose != null && !_sendCloseMarket)
             {
                 if (sideClose == Side.None) return;
 
@@ -1336,7 +1336,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                                 " {volume} {numberUser} {@Order} {Metod} ",
                  finalVolumClose, ordClose.NumberUser, ordClose, nameof(FinalCloseMarketOpenVolume));
 
-                SendStrStatus(" Отправлен Маркет на закрытие объема на бирже");              
+                SendStrStatus(" Отправлен Маркет на закрытие объема на бирже");
             }
             if (ordClose == null)
             {
@@ -1386,15 +1386,17 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             SaveParamsBot();
             if (IsRun)
             {
-                OpenPositionLogic();         
+                OpenPositionLogic();
             }
             else
             {
                 StopTradeLogic();
+                SetStopTrue();
+
 
                 Task.Run(() =>
                 {
-                   
+
                 });
             }
         }
@@ -1402,9 +1404,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         ///  отправить ордер на биржу 
         /// </summary>
-        private void SendOrderExchange(Order sendOpder) 
+        private void SendOrderExchange(Order sendOpder)
         {
-            if(sendOpder.TypeOrder == OrderPriceType.Market ) _sendCloseMarket = true;
+            if (sendOpder.TypeOrder == OrderPriceType.Market) _sendCloseMarket = true;
 
             Server.ExecuteOrder(sendOpder);
             //Thread.Sleep(100);
@@ -1449,16 +1451,16 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         if (IsChekSendAllLogs) _logger.Information("Send Open order into position {Method} {@Order} {NumberUser}", nameof(SendOrderExchange), order, order.NumberUser);
                     }
                 }
-            } 
+            }
         }
 
         /// <summary>
         /// взять объем ордеров на открытие в позиции робота
         /// </summary>
         private void GetVolumeOpen(Position position)
-       {
+        {
             decimal volumOrdersOpen = 0; // по ордерам закрытия объем
-            if (position.OpenOrders != null )
+            if (position.OpenOrders != null)
             {
                 for (int i = 0; i < position.OpenOrders.Count; i++)
                 {
@@ -1466,7 +1468,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 }
             }
             VolumeOpen = volumOrdersOpen;
-       }
+        }
 
         /// <summary>
         /// проверять баланс ордеров зак и откр 
@@ -1484,7 +1486,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             VolumeRobExecut = position.OpenVolume;
 
             decimal volumOrderClose = 0; // по ордерам закрытия объем
-            if (position.CloseOrders != null )
+            if (position.CloseOrders != null)
             {
                 for (int i = 0; i < position.CloseOrders.Count; i++)
                 {
@@ -1556,7 +1558,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             decimal minVolumeExecut = SelectedSecurity.MinTradeAmount;
 
-            for(int a = 0; a < PositionsBots.Count; a++)
+            for (int a = 0; a < PositionsBots.Count; a++)
             {
                 if (PositionsBots[a].Direction == Side.None)
                 {
@@ -1600,7 +1602,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                             return;
                         }
                         _logger.Warning("Open Volume is larger than the closing orders {Header}  {Method} {openVolExecut} {activCloseVol} {@position} {volum}",
-                                                            Header, nameof(AddCloseOrder),  volumeInTradesOpenOrd, volumInOrderClose, PositionsBots[a], vol);
+                                                            Header, nameof(AddCloseOrder), volumeInTradesOpenOrd, volumInOrderClose, PositionsBots[a], vol);
 
                         SendCloseLimitOrderPosition(PositionsBots[a], vol); // выставили ордер
 
@@ -1608,7 +1610,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     }
                 }
             }
-     
+
         }
 
         /// <summary>
@@ -1642,7 +1644,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private decimal GetOpenVolume(MyTrade myTrade)
         {
             decimal volume = 0;
-            foreach (Position position in PositionsBots) 
+            foreach (Position position in PositionsBots)
             {
                 VolumeRobExecut = position.OpenVolume;
 
@@ -1652,7 +1654,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     {
                         Order curOrdOpen = position.OpenOrders[i];
 
-                        if (curOrdOpen.NumberMarket == myTrade.NumberOrderParent) 
+                        if (curOrdOpen.NumberMarket == myTrade.NumberOrderParent)
                         {
                             if (curOrdOpen.State == OrderStateType.Done)
                             {
@@ -1663,14 +1665,14 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 }
             }
             _logger.Information(" Open Volume {Header} {@Trade} {NumberTrade} {NumberOrderParent} {volume} {Method}"
-                              , Header , myTrade, myTrade.NumberTrade, myTrade.NumberOrderParent, volume, nameof(GetOpenVolume));
+                              , Header, myTrade, myTrade.NumberTrade, myTrade.NumberOrderParent, volume, nameof(GetOpenVolume));
             return volume;
         }
 
         /// <summary>
         /// выставить ордер закрытия
         /// </summary>
-        private void SendCloseOrder(Position position , decimal volume)
+        private void SendCloseOrder(Position position, decimal volume)
         {
             VolumeRobExecut = position.OpenVolume;
 
@@ -1718,7 +1720,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                                 _logger.Information("Called metod  SendCloseLimitOrderPosition" +
                                                        " {Header} {Method} Order {Volume} {OpenVolumePosition} ",
-                                                Header,  nameof(SendCloseOrder), volumeOpen, position.OpenVolume);
+                                                Header, nameof(SendCloseOrder), volumeOpen, position.OpenVolume);
                                 return;
                             }
                             else
@@ -1744,7 +1746,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             //объем пришел сверху
             decimal priceClose = 0;
             //выбираем цену закрытия
-            if (position.CloseOrders == null )
+            if (position.CloseOrders == null)
             {
                 priceClose = PriceClosePos[0];
             }
@@ -1801,7 +1803,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             _sendStop = false; // разрешаем отрабтку ей стопов 
             _isWorkedStop = false; // 
 
-            if (PositionsBots!= null)
+            if (PositionsBots != null)
             {
                 PositionsBots.Clear();
                 //DeleteFileSerial();
@@ -1817,7 +1819,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 SendStrStatus(" Есть открытый объем ");
 
                 _logger.Information("! Open Volume Exchange {Method} {Balans}", nameof(CreateNewPosition), SelectSecurBalans);
-                
+
                 #region  проверка на открытые позиции
                 MessageBoxResult result = MessageBox.Show(" Есть открытые позиции! \n Всеравно создать? ", " ВНИМАНИЕ !!! ",
                 MessageBoxButton.YesNo);
@@ -1827,13 +1829,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 }
                 #endregion
             }
-    
+
             Position positionBuy = new Position() { Direction = Side.Buy };
             Position positionSell = new Position() { Direction = Side.Sell };
-            
-            CalculateVolumeTradesOpen();            
 
-            if (VolumePerOrderOpen != 0  && IsRun == true) // формируем позиции
+            CalculateVolumeTradesOpen();
+
+            if (VolumePerOrderOpen != 0 && IsRun == true) // формируем позиции
             {
                 //DeleteFileSerial(); 
 
@@ -1841,13 +1843,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
                     positionBuy.State = PositionStateType.None;
                     positionBuy.SecurityName = SelectedSecurity.Name;
-                    
+
                     //AddOpderPosition(positionBuy);
                     PositionsBots.Add(positionBuy);
                 }
                 if (Direction == Side.Sell) // || Direction == Direction.BUYSELL
                 {
-                    positionSell.State = PositionStateType.None;                    
+                    positionSell.State = PositionStateType.None;
                     positionSell.SecurityName = SelectedSecurity.Name;
 
                     //AddOpderPosition(positionSell);
@@ -1855,7 +1857,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 }
                 //PositionsBots = positionBots;
                 SendStrStatus(" Позиция создана");
-            }            
+            }
         }
 
         /// <summary>
@@ -1863,7 +1865,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary> 
         private bool MonitoringOpenVolumeExchange()
         {
-            if(SelectedSecurity == null) return false;
+            if (SelectedSecurity == null) return false;
             decimal volume = 0;
             GetBalansSecur();
             volume = SelectSecurBalans;
@@ -1877,7 +1879,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private bool OpenVolumePositionLong()
         {
             if (SelectedSecurity == null) return false;
-        
+
             foreach (Position position in PositionsBots)
             {
                 VolumeRobExecut = position.OpenVolume;
@@ -1913,7 +1915,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// рассчитать цену трейлиг стопа 
         /// </summary>
         private void CalculateTrelingStop(Position position)
-        {   
+        {
             if (IsRun == false || SelectedSecurity == null && SelectSecurBalans == 0) return;
 
             if (position.Direction == Side.Buy && SelectSecurBalans > 0) // если есть открытый объем в лонг
@@ -1937,7 +1939,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     PriceStopLong = Decimal.Round(p, SelectedSecurity.Decimals);
                 }
             }
-            if (position.Direction == Side.Sell && SelectSecurBalans < 0 )
+            if (position.Direction == Side.Sell && SelectSecurBalans < 0)
             {
                 decimal stepStop = 0;
                 stepStop = StepPersentStopShort * Price / 100;
@@ -1969,12 +1971,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void CalculateVolumeTradesOpen()
         {
-            if (SelectedSecurity == null || Price==0 || PartsPerInput==0) return;
+            if (SelectedSecurity == null || Price == 0 || PartsPerInput == 0) return;
             GetBalansSecur();
             VolumePerOrderOpen = 0;
             decimal workLot = 0;
             decimal baks = 0;
-            baks = FullPositionVolume/ PartsPerInput; // это в баксах
+            baks = FullPositionVolume / PartsPerInput; // это в баксах
             decimal moni = baks / Price; // в монете
             workLot = Decimal.Round(moni, SelectedSecurity.DecimalsVolume);
             decimal minVolume = SelectedSecurity.MinTradeAmount;
@@ -2061,21 +2063,21 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// расчитать стартовую цену (начала открытия позиции)
         /// </summary>
-        private  List<decimal> CalculPriceStartPos(Side side)
+        private List<decimal> CalculPriceStartPos(Side side)
         {
             _priceOpenPos.Clear();
 
             if (SelectedSecurity == null)
             {
                 SendStrStatus(" еще нет бумаги ");
-                
+
                 return _priceOpenPos;
             }
             decimal stepPrice = 0;
-            decimal price =0;
+            decimal price = 0;
 
-            if (side == Side.Buy )
-            {       
+            if (side == Side.Buy)
+            {
                 stepPrice = (StartPriceOpenPos - BottomPositionPrice) / PartsPerInput;
                 price = StartPriceOpenPos - stepPrice;
                 for (int i = 0; i < PartsPerInput; i++)
@@ -2096,13 +2098,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     price = price + stepPrice;
                 }
             }
-            return  _priceOpenPos;
+            return _priceOpenPos;
         }
 
         /// <summary>
         /// расчитать цены закрытия позиции
         /// </summary>
-        private  List<decimal> CalculPriceClosePos(Side side)
+        private List<decimal> CalculPriceClosePos(Side side)
         {
             _priceClosePos = new List<decimal>();
 
@@ -2115,9 +2117,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             decimal stepPrice = 0;
             decimal price = 0;
 
-            if (side ==Side.None) 
+            if (side == Side.None)
             {
-                side = Direction; 
+                side = Direction;
             }
             if (side == Side.Buy)
             {
@@ -2140,7 +2142,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     _priceClosePos.Add(price);
                     price = price - stepPrice;
                 }
-            }     
+            }
             return _priceClosePos;
         }
 
@@ -2241,8 +2243,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 SecurityNameCode = sec.Name,
                 SecurityClassCode = sec.NameClass,
             };
-            
-            _logger.Information("Create Limit Order {Method} {@Order} {Number} ", nameof(CreateLimitOrder), order , order.NumberUser);
+
+            _logger.Information("Create Limit Order {Method} {@Order} {Number} ", nameof(CreateLimitOrder), order, order.NumberUser);
             //RobotsWindowVM.Log(Header, "SendLimitOrder\n " + " отправляем лимитку на биржу\n" + GetStringForSave(order));
             RobotsWindowVM.SendStrTextDb(" Создали ордер " + order.NumberUser);
 
@@ -2271,7 +2273,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 SecurityNameCode = sec.Name,
                 SecurityClassCode = sec.NameClass,
             };
-         
+
             RobotsWindowVM.SendStrTextDb(" CreateMarketOrder " + order.NumberUser);
             _logger.Information("Create Market Order {@Order} {Method}", order, nameof(CreateMarketOrder));
             // ("Method {Method} Exception {@Exception}", nameof(SaveHeaderBot), ex)
@@ -2287,12 +2289,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             Task.Run(async () =>  // для опроса состояния позиций) 
             {
-                    DateTime dt = DateTime.Now;
-                    while (dt.AddMinutes(1) > DateTime.Now)
-                    {
-                        RebootStatePosition();
-                        await Task.Delay(20000);
-                    }
+                DateTime dt = DateTime.Now;
+                while (dt.AddMinutes(1) > DateTime.Now)
+                {
+                    RebootStatePosition();
+                    await Task.Delay(20000);
+                }
             });
         }
         #endregion
@@ -2306,7 +2308,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             if (selectSecur != null && selectSecur.Name == SelectedSecurity.Name)
             {
-                if ( Price != ask && ask != 0)
+                if (Price != ask && ask != 0)
                 {
                     Price = ask;
 
@@ -2361,17 +2363,17 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             if (myTrade.SecurityNameCode == SelectedSecurity.Name)
             {
-                
+
                 ChekTradePosition(myTrade);
-               
-                if (IsChekSendAllLogs) _logger.Warning(" Come myTrade {Header} {Method} {NumberOrderParent} {@myTrade}", Header , nameof(_server_NewMyTradeEvent),myTrade.NumberOrderParent , myTrade);
+
+                if (IsChekSendAllLogs) _logger.Warning(" Come myTrade {Header} {Method} {NumberOrderParent} {@myTrade}", Header, nameof(_server_NewMyTradeEvent), myTrade.NumberOrderParent, myTrade);
 
                 GetBalansSecur();
                 IsOnTralProfit(myTrade);
             }
             //else
             //if (IsChekSendAllLogs) _logger.Warning(" Secur Trade {Security} {@Trade}  {Method}", myTrade.SecurityNameCode, myTrade,  nameof(_server_NewMyTradeEvent));
-        }  
+        }
 
         /// <summary>
         ///  пришел ордер с сервера
@@ -2413,7 +2415,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 if (PositionsBots.Count > 0)
                 {
-                    for (int i = 0; i < PositionsBots.Count ; i++)
+                    for (int i = 0; i < PositionsBots.Count; i++)
                     {
                         MaintainingVolumeBalance(PositionsBots[i]);
                     }
@@ -2464,16 +2466,16 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                 if (trade.Time.Second % 3 == 0) //if (trade.Time.Second % 5 == 0) GetBalansSecur();
                 {
-                    StartMaintainingVolumeBalance();                    
+                    StartMaintainingVolumeBalance();
                     AddCloseOrder();
                 }
-                if (trade.Time.Second % 11== 0 && trades[0].SecurityNameCode == SelectedSecurity.Name)
+                if (trade.Time.Second % 11 == 0 && trades[0].SecurityNameCode == SelectedSecurity.Name)
                 {
                     IsOffBot();
                 }
             }
         }
- 
+
         /// <summary>
         ///  подключиться к серверу
         /// </summary>
@@ -2481,7 +2483,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         {
             _server.NewMyTradeEvent += _server_NewMyTradeEvent;
             _server.NewOrderIncomeEvent += _server_NewOrderIncomeEvent;
-            _server.NewTradeEvent += _NewTradeEvent;            
+            _server.NewTradeEvent += _NewTradeEvent;
             _server.SecuritiesChangeEvent += _server_SecuritiesChangeEvent;
             _server.PortfoliosChangeEvent += _server_PortfoliosChangeEvent;
             _server.NewBidAscIncomeEvent += _server_NewBidAscIncomeEvent;
@@ -2518,11 +2520,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private void VolumeLogicManager()
         {   // в зависимости от объема торгов перключать логику
 
-            if (IsRun == false) return;
-            if (AllVolumPeroidMin == 0 || Avereg == 0 || 
+            if (IsRun == false || N_min == null) return;
+            if (AllVolumPeroidMin == 0 || Avereg == 0 ||
                 BidVolumPeriod == 0 || AskVolumPeriod == 0) return;
 
-            #region заготовки для дельны 
+            #region заготовки для дельты 
             /*
             if (AskVolumPeriod > BidVolumPeriod * Ratio1) // объем продажи больше объема покупок
                                                           // * 2 минусовая дельта
@@ -2557,7 +2559,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             */
             #endregion
 
-            if (AllVolumPeroidMin > Avereg * Ratio1)
+            if (AllVolumPeroidMin > Avereg * RatioBuy1)
             {
                 if (time_add_n_min1 < DateTime.Now)
                 {
@@ -2565,18 +2567,18 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                     _logger.Warning(" AllVolumPeroidMin > Avereg * Ratio 1" +
                         " {AllVolumPeroidMin} {Avereg} {Ratio1} {time_add_n_min} {Header} {Method} ",
-                        AllVolumPeroidMin, Avereg, Ratio1, time_add_n_min1, Header, nameof(VolumeLogicManager));
+                        AllVolumPeroidMin, Avereg, RatioBuy1, time_add_n_min1, Header, nameof(VolumeLogicManager));
                 }
             }
-            if (AllVolumPeroidMin > Avereg * Ratio2)
+            if (AllVolumPeroidMin > Avereg * RatioBuy2)
             {
-                if (time_add_n_min2 < DateTime.Now) 
+                if (time_add_n_min2 < DateTime.Now)
                 {
                     time_add_n_min2 = DateTime.Now.AddMinutes(N_min - 1); // время сработки + N минут
 
                     _logger.Warning(" AllVolumPeroidMin > Avereg * Ratio 2" +
                         " {AllVolumPeroidMin} {Avereg} {Ratio1} {time_add_n_min} {Header} {Method} ",
-                        AllVolumPeroidMin, Avereg, Ratio2, time_add_n_min2, Header, nameof(VolumeLogicManager));
+                        AllVolumPeroidMin, Avereg, RatioBuy2, time_add_n_min2, Header, nameof(VolumeLogicManager));
 
                 }
 
@@ -2585,6 +2587,42 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     проверить направление объемов 
                 */
             }
+
+            #region  в баксах--------------------------------------------------------
+
+            decimal allVolumPeroidS = 0;
+            decimal averegS = 0;   
+
+            if (AveregS != 0 && Price != 0 && AllVolumPeroidMin != 0)
+            {
+                allVolumPeroidS = AllVolumPeroidMin * Price;
+                averegS = AveregS * Price;
+
+                if (allVolumPeroidS > averegS * RatioBuy1)
+                {
+                    if (time_add_n_min1 < DateTime.Now)
+                    {
+                        time_add_n_min1 = DateTime.Now.AddMinutes(N_min - 1); // время сработки + N минут
+
+                        _logger.Warning(" Volume Peroid in $ * RatioBuy 1 > medium in $" +
+                            " {allVolumPeroidS} {averegS} {time_add_n_min} {Header} {Method} ",
+                            allVolumPeroidS, averegS, time_add_n_min1, Header, nameof(VolumeLogicManager));
+                    }
+                }
+                if (allVolumPeroidS > averegS * RatioBuy2)
+                {
+                    if (time_add_n_min1 < DateTime.Now)
+                    {
+                        time_add_n_min1 = DateTime.Now.AddMinutes(N_min - 1); // время сработки + N минут
+
+                        _logger.Warning("Volume Peroid in $ * RatioBuy 2 > medium in $ "  +
+                        " {allVolumPeroidS} {averegS} {time_add_n_min} {Header} {Method} ",
+                        allVolumPeroidS, averegS, time_add_n_min1, Header, nameof(VolumeLogicManager));
+                    }
+                }
+            }
+
+            #endregion конец в бакcах------------------------------------------------------------
         }
 
         // берем отступ от настоящего времени
@@ -2592,7 +2630,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         // собираем за это время все объемы
         // считаем среднее
         // пишем в переменную, сообщаем в лог
-
 
         /// <summary>
         /// подсчет объема по тикам в N период времени
@@ -2604,11 +2641,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             // собираем за это время продажи
             // собираем за это время все объемы          
 
-            if (trades == null) return;
+            if (trades == null || N_min == null) return;
             if (trades.Count == 0) return;
 
             DateTime time_add_n_min = dateTradingPeriod.AddMinutes(N_min); // время трейда + N минут
-            if (time_add_n_min == null || time_add_n_min == DateTime.MinValue) return;
+            if (time_add_n_min == null || time_add_n_min == DateTime.MinValue ) return;
 
             for (int i = 0; i < trades.Count; i++)
             {
@@ -2658,7 +2695,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// разрешения на стоп
         /// </summary>
-        private void IsStopTrue()
+        private void SetStopTrue()
         {
             _sendCloseMarket = false;
             _isWorkedStop = false;
@@ -2678,7 +2715,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     {
                         AServer aServer = (AServer)Server;
 
-                        for(int i = 0; i < PositionsBots.Count; i++)
+                        for (int i = 0; i < PositionsBots.Count; i++)
                         {
                             Security security = new Security();
                             security.Name = PositionsBots[i].SecurityName;
@@ -2709,7 +2746,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     {
                         if (pos.Direction == Side.Buy)
                         {
-                             CalculateTrelingStop(pos);
+                            CalculateTrelingStop(pos);
                         }
                     }
 
@@ -2717,7 +2754,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     {
                         for (int i = 0; i < PositionsBots.Count && !_isWorkedStop; i++)
                         {
-                            if (PositionsBots[i].Direction == Side.Buy && SelectSecurBalans > 0 
+                            if (PositionsBots[i].Direction == Side.Buy && SelectSecurBalans > 0
                                 && _isWorkedStop == false && _sendCloseMarket == false)
                             {
                                 _isWorkedStop = true;
@@ -2735,7 +2772,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     }
                 }
 
-                if (Price != 0 )
+                if (Price != 0)
                 {
                     foreach (var pos in PositionsBots)
                     {
@@ -2842,7 +2879,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         {
                             SelectSecurBalans = d; // отправка значения в свойство
                             _logger.Information("Balans SelectSecur = {SelectSecurBalans} {Header} {Method} "
-                                                       ,SelectSecurBalans, Header, nameof(GetBalansSecur));
+                                                       , SelectSecurBalans, Header, nameof(GetBalansSecur));
                         }
                     }
                 }
@@ -2857,7 +2894,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         public void RebootStatePosition()
         {
-            if (PositionsBots !=null && PositionsBots.Count > 0)
+            if (PositionsBots != null && PositionsBots.Count > 0)
             {
                 // отправляем запрос состояния ордеров и их трейдов на бирже
                 if (Server != null)
@@ -3059,7 +3096,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 e.PropertyName == "TakePriceLong" ||
                 e.PropertyName == "TakePriceShort" ||
                 e.PropertyName == "PartsPerExit" ||
-                e.PropertyName == "Direction"||
+                e.PropertyName == "Direction" ||
                 e.PropertyName == "StepPersentStopLong" ||
                 e.PropertyName == "IsChekTraelStopLong" ||
 
@@ -3068,14 +3105,17 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 e.PropertyName == "PriceStopShort" ||
                 e.PropertyName == "N_min" ||
                 e.PropertyName == "Avereg" ||
-                e.PropertyName == "Ratio1" ||
-                e.PropertyName == "Ratio2" ||
+                e.PropertyName == "AveregS" ||
+                e.PropertyName == "RatioBuy1" ||
+                e.PropertyName == "RatioBuy2" ||
+                e.PropertyName == "RatioSell1" ||
+                e.PropertyName == "RatioSell2" ||
                 e.PropertyName == "IsChekSendAllLogs" ||
                 //e.PropertyName == "IsChekSendAllLogs" ||
                 e.PropertyName == "IsChekTraelStopShort")
             {
                 SaveParamsBot();
-            } 
+            }
         }
 
         /// <summary>
@@ -3129,20 +3169,20 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                     writer.WriteLine(Avereg);
 
-                    writer.WriteLine(Ratio1); // 25 первый коэф превышения
+                    writer.WriteLine(RatioBuy1); // 25 первый коэф превышения
 
-                    writer.WriteLine(Ratio2);
+                    writer.WriteLine(RatioBuy2);
 
                     writer.WriteLine(AveregS);
 
-                    writer.WriteLine(Ratio1S); // 28 первый коэф превышения в  баксах
+                    writer.WriteLine(RatioSell1); // 28 первый коэф превышения в  баксах
 
-                    writer.WriteLine(Ratio2S);
+                    writer.WriteLine(RatioSell2);
 
                     writer.Close();
 
-                    if(IsChekSendAllLogs) _logger.Information("Saving parameters {Header} {Method} "
-                        , Header , nameof(SaveParamsBot));
+                    if (IsChekSendAllLogs) _logger.Information("Saving parameters {Header} {Method} "
+                        , Header, nameof(SaveParamsBot));
 
                     //RobotsWindowVM.Log(Header, "SaveParamsBot  \n cохраненили  параметры ");
                 }
@@ -3178,7 +3218,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     servType = reader.ReadLine(); // загружаем название сервера
                     StringPortfolio = reader.ReadLine();
 
-                    TakePriceLong = GetDecimalForString(reader.ReadLine());                    
+                    TakePriceLong = GetDecimalForString(reader.ReadLine());
                     TopPositionPrice = GetDecimalForString(reader.ReadLine());
                     StartPriceOpenPos = GetDecimalForString(reader.ReadLine());
 
@@ -3217,7 +3257,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     if (Enum.TryParse(reader.ReadLine(), out action))
                     {
                         ActionPosition = action;
-                    } 
+                    }
 
                     bool chek = true;
                     if (bool.TryParse(reader.ReadLine(), out chek))
@@ -3227,12 +3267,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                     N_min = (int)GetDecimalForString(reader.ReadLine());
                     Avereg = GetDecimalForString(reader.ReadLine());
-                    Ratio1 = GetDecimalForString(reader.ReadLine());
-                    Ratio2 = GetDecimalForString(reader.ReadLine());
+                    RatioBuy1 = GetDecimalForString(reader.ReadLine());
+                    RatioBuy2 = GetDecimalForString(reader.ReadLine());
 
                     AveregS = (int)GetDecimalForString(reader.ReadLine());
-                    Ratio1S = (int)GetDecimalForString(reader.ReadLine());
-                    Ratio2S = (int)GetDecimalForString(reader.ReadLine());
+                    RatioSell1 = GetDecimalForString(reader.ReadLine());
+                    RatioSell2 = GetDecimalForString(reader.ReadLine());
 
                     //StepType step = StepType.PUNKT;
                     //if (Enum.TryParse(reader.ReadLine(), out step))
@@ -3272,7 +3312,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             decimal.TryParse(str, out value);
             return value;
         }
-         
+
         public void Dispose()
         {   //todo: прикрутить удаление файлов настроек и сохрана 
 
@@ -3521,11 +3561,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             order.Comment = newOrder.Comment;
 
             //_logger.Information(" Copy Order {@order}{OrdNumberUser} {NumberMarket}      {@newOrder}    {NewNumberUser}     {NumberMarket} {@MyTrades}  {Method} "
-                                            //, order, order.NumberUser, order.NumberMarket, newOrder, newOrder.NumberUser, newOrder.NumberMarket, newOrder.MyTrades, nameof(CopyOrder));
+            //, order, order.NumberUser, order.NumberMarket, newOrder, newOrder.NumberUser, newOrder.NumberMarket, newOrder.MyTrades, nameof(CopyOrder));
             return order;
         }
 
-  
+
         #endregion конец  заготовки ===============================================================
 
         /// <summary>
@@ -3568,3 +3608,5 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         #endregion end Commands ====================================================
     }
 }
+
+
