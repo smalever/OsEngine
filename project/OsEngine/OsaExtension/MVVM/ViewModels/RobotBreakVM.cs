@@ -825,6 +825,23 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         #region поля отрпботки обемов по монете ====================
 
         /// <summary>
+        /// покупики больше средней 1 коэф.
+        /// </summary>
+        private bool Buy1MoreAvereg = false;
+        /// <summary>
+        /// покупики больше средней 2 коэф.
+        /// </summary>
+        private bool Buy2MoreAvereg = false;
+        /// <summary>
+        /// продажи больше средней 1 коэф.
+        /// </summary>
+        private bool Sell1MoreAvereg = false;
+        /// <summary>
+        /// продажи больше средней 2 коэф.
+        /// </summary>
+        private bool Sell2MoreAvereg = false;
+
+        /// <summary>
         /// время учета трейдов
         /// </summary>
         private DateTime dateTradingPeriod = DateTime.MinValue;
@@ -2454,6 +2471,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void _NewTradeEvent(List<Trade> trades)
         {
+            if (trades == null || trades.Count == 0) return;
             if (trades != null && trades[0].SecurityNameCode == SelectedSecurity.Name)
             {
                 GetBalansSecur();
@@ -2506,7 +2524,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             _server.NewBidAscIncomeEvent -= _server_NewBidAscIncomeEvent;
             _server.ConnectStatusChangeEvent -= _server_ConnectStatusChangeEvent;
 
-            _logger.Warning(" Disnnecting to server = {ServerType} {Method} ", _server.ServerType, nameof(UnSubscribeToServer));
+            _logger.Warning(" Disconecting to server = {ServerType} {Method} ", _server.ServerType, nameof(UnSubscribeToServer));
             //RobotsWindowVM.Log(Header, " Отключились от сервера = " + _server.ServerType);
         }
 
@@ -2520,7 +2538,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private void VolumeLogicManager()
         {   // в зависимости от объема торгов перключать логику
 
-            if (IsRun == false || N_min == null) return;
+            //if (IsRun == false || N_min == null) return;
             if (AllVolumPeroidMin == 0 || Avereg == 0 ||
                 BidVolumPeriod == 0 || AskVolumPeriod == 0) return;
 
@@ -2559,67 +2577,136 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             */
             #endregion
 
-            if (AllVolumPeroidMin > Avereg * RatioBuy1)
+            if (BidVolumPeriod > Avereg * RatioBuy1) // покупки больше средней
             {
+                Buy1MoreAvereg = true;
                 if (time_add_n_min1 < DateTime.Now)
                 {
                     time_add_n_min1 = DateTime.Now.AddMinutes(N_min - 1); // время сработки + N минут
 
-                    _logger.Warning(" AllVolumPeroidMin > Avereg * Ratio 1" +
-                        " {AllVolumPeroidMin} {Avereg} {Ratio1} {time_add_n_min} {Header} {Method} ",
-                        AllVolumPeroidMin, Avereg, RatioBuy1, time_add_n_min1, Header, nameof(VolumeLogicManager));
+                    _logger.Warning(" Bid VolumPeriod > Avereg * Ratio 1" +
+                        " {BidVolumPeriod} {Avereg} {Ratio1} {time_add_n_min} {Header} {Method} ",
+                        BidVolumPeriod, Avereg, RatioBuy1, time_add_n_min1, Header, nameof(VolumeLogicManager));
                 }
             }
-            if (AllVolumPeroidMin > Avereg * RatioBuy2)
+            else { Buy1MoreAvereg = false; }
+
+            if (BidVolumPeriod > Avereg * RatioBuy2) // покупки больше средней
             {
+                Buy2MoreAvereg = true;
                 if (time_add_n_min2 < DateTime.Now)
                 {
                     time_add_n_min2 = DateTime.Now.AddMinutes(N_min - 1); // время сработки + N минут
 
-                    _logger.Warning(" AllVolumPeroidMin > Avereg * Ratio 2" +
-                        " {AllVolumPeroidMin} {Avereg} {Ratio1} {time_add_n_min} {Header} {Method} ",
-                        AllVolumPeroidMin, Avereg, RatioBuy2, time_add_n_min2, Header, nameof(VolumeLogicManager));
-
+                    _logger.Warning(" Bid VolumPeriod > Avereg * Ratio 2" +
+                        " {BidVolumPeriod} {Avereg} {Ratio1} {time_add_n_min} {Header} {Method} ",
+                        BidVolumPeriod, Avereg, RatioBuy2, time_add_n_min2, Header, nameof(VolumeLogicManager));
                 }
-
-                /* проверть направление моей сделки
-                 * проверить прибылность сделки                   
-                    проверить направление объемов 
-                */
             }
+            else { Buy2MoreAvereg = false; }
+
+            if (AskVolumPeriod > Avereg * RatioBuy1) // продажи больше средней
+            {
+                Sell1MoreAvereg = true;
+
+                if (time_add_n_min1 < DateTime.Now)
+                {
+                    time_add_n_min1 = DateTime.Now.AddMinutes(N_min - 1); // время сработки + N минут
+
+                    _logger.Warning(" Ask VolumPeriod > Avereg * Ratio 1" +
+                        " {AskVolumPeriod} {Avereg} {Ratio1} {time_add_n_min} {Header} {Method} ",
+                        AskVolumPeriod, Avereg, RatioBuy1, time_add_n_min1, Header, nameof(VolumeLogicManager));
+                }
+            }
+            else { Sell1MoreAvereg = false; }
+
+            if (AskVolumPeriod > Avereg * RatioBuy2) // продажи больше средней
+            {
+                Sell1MoreAvereg = true;
+
+                if (time_add_n_min2 < DateTime.Now)
+                {
+                    time_add_n_min2 = DateTime.Now.AddMinutes(N_min - 1); // время сработки + N минут
+
+                    _logger.Warning(" Ask VolumPeriod > Avereg * Ratio 2" +
+                        " {AskVolumPeriod} {Avereg} {Ratio1} {time_add_n_min} {Header} {Method} ",
+                        AskVolumPeriod, Avereg, RatioBuy2, time_add_n_min2, Header, nameof(VolumeLogicManager));
+                }
+            }
+            else { Sell1MoreAvereg = false; }
 
             #region  в баксах--------------------------------------------------------
 
-            decimal allVolumPeroidS = 0;
+            decimal askVolumPeriodS = 0;
+            decimal bidVolumPeriodS = 0;
             decimal averegS = 0;   
 
-            if (AveregS != 0 && Price != 0 && AllVolumPeroidMin != 0)
+            if (AveregS != 0 && Price != 0 && BidVolumPeriod != 0 && AskVolumPeriod !=0)
             {
-                allVolumPeroidS = AllVolumPeroidMin * Price;
+                askVolumPeriodS = AskVolumPeriod * Price;
+                bidVolumPeriodS = BidVolumPeriod * Price;
+
                 averegS = AveregS * Price;
 
-                if (allVolumPeroidS > averegS * RatioBuy1)
+                if (bidVolumPeriodS > averegS * RatioBuy1) // покупки больше средней
                 {
+                    Buy1MoreAvereg = true;
+
                     if (time_add_n_min1 < DateTime.Now)
                     {
                         time_add_n_min1 = DateTime.Now.AddMinutes(N_min - 1); // время сработки + N минут
 
-                        _logger.Warning(" Volume Peroid in $ * RatioBuy 1 > medium in $" +
-                            " {allVolumPeroidS} {averegS} {time_add_n_min} {Header} {Method} ",
-                            allVolumPeroidS, averegS, time_add_n_min1, Header, nameof(VolumeLogicManager));
+                        _logger.Warning("  Bid Volume Peroid in $ * RatioBuy 1 > medium in $" +
+                            " {bidVolumPeriodS} {averegS} {time_add_n_min} {Header} {Method} ",
+                            bidVolumPeriodS, averegS, time_add_n_min1, Header, nameof(VolumeLogicManager));
                     }
                 }
-                if (allVolumPeroidS > averegS * RatioBuy2)
+                else { Buy1MoreAvereg = false; }
+
+                if (bidVolumPeriodS > averegS * RatioBuy2) // покупки больше средней
                 {
+                    Buy2MoreAvereg = true;
+
                     if (time_add_n_min1 < DateTime.Now)
                     {
                         time_add_n_min1 = DateTime.Now.AddMinutes(N_min - 1); // время сработки + N минут
 
-                        _logger.Warning("Volume Peroid in $ * RatioBuy 2 > medium in $ "  +
-                        " {allVolumPeroidS} {averegS} {time_add_n_min} {Header} {Method} ",
-                        allVolumPeroidS, averegS, time_add_n_min1, Header, nameof(VolumeLogicManager));
+                        _logger.Warning(" Bid Volume Peroid in $ * RatioBuy 2 > medium in $ "  +
+                        " {bidVolumPeriodS} {averegS} {time_add_n_min} {Header} {Method} ",
+                        bidVolumPeriodS, averegS, time_add_n_min1, Header, nameof(VolumeLogicManager));
                     }
                 }
+                else { Buy2MoreAvereg = false; }
+
+                if (askVolumPeriodS > averegS * RatioBuy1) // продажи больше средней
+                {
+                    Sell1MoreAvereg = true;
+
+                    if (time_add_n_min1 < DateTime.Now)
+                    {
+                        time_add_n_min1 = DateTime.Now.AddMinutes(N_min - 1); // время сработки + N минут
+
+                        _logger.Warning("Ask Volume Peroid in $ * RatioBuy 1 > medium in $" +
+                            " {askVolumPeriodS} {averegS} {time_add_n_min} {Header} {Method} ",
+                            askVolumPeriodS, averegS, time_add_n_min1, Header, nameof(VolumeLogicManager));
+                    }
+                }
+                else { Sell1MoreAvereg = false; }
+
+                if (askVolumPeriodS > averegS * RatioBuy2) // продажи больше средней
+                {
+                    Sell2MoreAvereg = true;
+
+                    if (time_add_n_min1 < DateTime.Now)
+                    {
+                        time_add_n_min1 = DateTime.Now.AddMinutes(N_min - 1); // время сработки + N минут
+
+                        _logger.Warning(" Ask Volume Peroid in $ * RatioBuy 2 > medium in $ " +
+                        " {askVolumPeriodS} {averegS} {time_add_n_min} {Header} {Method} ",
+                        askVolumPeriodS, averegS, time_add_n_min1, Header, nameof(VolumeLogicManager));
+                    }
+                }
+                else { Sell2MoreAvereg = false; }
             }
 
             #endregion конец в бакcах------------------------------------------------------------
