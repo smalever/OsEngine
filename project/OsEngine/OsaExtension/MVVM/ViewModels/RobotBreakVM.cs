@@ -2480,7 +2480,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                 CalculationVolumeInTradeNperiod(trades);
 
-                VolumeLogicManager();
+                SetBoolMoreVolumeAvereg();
 
                 if (trade.Time.Second % 3 == 0) //if (trade.Time.Second % 5 == 0) GetBalansSecur();
                 {
@@ -2532,13 +2532,65 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         #region   сервисные методы ===========================
 
-        /// <summary>
-        /// диспечер логики робота от объема торгов по монете
-        /// </summary>
-        private void VolumeLogicManager()
-        {   // в зависимости от объема торгов перключать логику
+        private void ManagerVolumeLogic()
+        {
+            if (IsRun == false) return;
 
-            //if (IsRun == false || N_min == null) return;
+            if (PositionsBots != null && PositionsBots.Count > 0)
+            {
+                for (int i = 0; i < PositionsBots.Count; i++)
+                {
+                    if (PositionsBots[i].Direction == Side.Buy) // направление позиции покупка
+                    {
+                        if (Buy1MoreAvereg)
+                        {
+
+                        }
+                        if (Buy2MoreAvereg)
+                        {
+
+                        }
+                        if (Sell1MoreAvereg)
+                        {
+
+                        }
+                        if (Sell2MoreAvereg)
+                        {
+
+                        }
+                    }
+
+                    if (PositionsBots[i].Direction == Side.Sell)  // направление позиции продажа   
+                    {
+                        if (Buy1MoreAvereg)
+                        {
+
+                        }
+                        if (Buy2MoreAvereg)
+                        {
+
+                        }
+                        if (Sell1MoreAvereg)
+                        {
+
+                        }
+                        if (Sell2MoreAvereg)
+                        {
+
+                        }
+                    }
+                }
+            }
+        }
+   
+
+        /// <summary>
+        /// установка значений от объема торгов по монете
+        /// </summary>
+        private void SetBoolMoreVolumeAvereg()
+        {   // что бы в зависимости от объема торгов перключать логику
+
+            if (IsRun == false || N_min == null) return;
             if (AllVolumPeroidMin == 0 || Avereg == 0 ||
                 BidVolumPeriod == 0 || AskVolumPeriod == 0) return;
 
@@ -2586,7 +2638,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                     _logger.Warning(" Bid VolumPeriod > Avereg * Ratio 1" +
                         " {BidVolumPeriod} {Avereg} {Ratio1} {time_add_n_min} {Header} {Method} ",
-                        BidVolumPeriod, Avereg, RatioBuy1, time_add_n_min1, Header, nameof(VolumeLogicManager));
+                        BidVolumPeriod, Avereg, RatioBuy1, time_add_n_min1, Header, nameof(SetBoolMoreVolumeAvereg));
                 }
             }
             else { Buy1MoreAvereg = false; }
@@ -2600,7 +2652,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                     _logger.Warning(" Bid VolumPeriod > Avereg * Ratio 2" +
                         " {BidVolumPeriod} {Avereg} {Ratio1} {time_add_n_min} {Header} {Method} ",
-                        BidVolumPeriod, Avereg, RatioBuy2, time_add_n_min2, Header, nameof(VolumeLogicManager));
+                        BidVolumPeriod, Avereg, RatioBuy2, time_add_n_min2, Header, nameof(SetBoolMoreVolumeAvereg));
                 }
             }
             else { Buy2MoreAvereg = false; }
@@ -2615,7 +2667,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                     _logger.Warning(" Ask VolumPeriod > Avereg * Ratio 1" +
                         " {AskVolumPeriod} {Avereg} {Ratio1} {time_add_n_min} {Header} {Method} ",
-                        AskVolumPeriod, Avereg, RatioBuy1, time_add_n_min1, Header, nameof(VolumeLogicManager));
+                        AskVolumPeriod, Avereg, RatioBuy1, time_add_n_min1, Header, nameof(SetBoolMoreVolumeAvereg));
                 }
             }
             else { Sell1MoreAvereg = false; }
@@ -2630,7 +2682,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                     _logger.Warning(" Ask VolumPeriod > Avereg * Ratio 2" +
                         " {AskVolumPeriod} {Avereg} {Ratio1} {time_add_n_min} {Header} {Method} ",
-                        AskVolumPeriod, Avereg, RatioBuy2, time_add_n_min2, Header, nameof(VolumeLogicManager));
+                        AskVolumPeriod, Avereg, RatioBuy2, time_add_n_min2, Header, nameof(SetBoolMoreVolumeAvereg));
                 }
             }
             else { Sell1MoreAvereg = false; }
@@ -2658,7 +2710,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                         _logger.Warning("  Bid Volume Peroid in $ * RatioBuy 1 > medium in $" +
                             " {bidVolumPeriodS} {averegS} {time_add_n_min} {Header} {Method} ",
-                            bidVolumPeriodS, averegS, time_add_n_min1, Header, nameof(VolumeLogicManager));
+                            bidVolumPeriodS, averegS, time_add_n_min1, Header, nameof(SetBoolMoreVolumeAvereg));
                     }
                 }
                 else { Buy1MoreAvereg = false; }
@@ -2673,7 +2725,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                         _logger.Warning(" Bid Volume Peroid in $ * RatioBuy 2 > medium in $ "  +
                         " {bidVolumPeriodS} {averegS} {time_add_n_min} {Header} {Method} ",
-                        bidVolumPeriodS, averegS, time_add_n_min1, Header, nameof(VolumeLogicManager));
+                        bidVolumPeriodS, averegS, time_add_n_min1, Header, nameof(SetBoolMoreVolumeAvereg));
                     }
                 }
                 else { Buy2MoreAvereg = false; }
@@ -2688,7 +2740,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                         _logger.Warning("Ask Volume Peroid in $ * RatioBuy 1 > medium in $" +
                             " {askVolumPeriodS} {averegS} {time_add_n_min} {Header} {Method} ",
-                            askVolumPeriodS, averegS, time_add_n_min1, Header, nameof(VolumeLogicManager));
+                            askVolumPeriodS, averegS, time_add_n_min1, Header, nameof(SetBoolMoreVolumeAvereg));
                     }
                 }
                 else { Sell1MoreAvereg = false; }
@@ -2703,7 +2755,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                         _logger.Warning(" Ask Volume Peroid in $ * RatioBuy 2 > medium in $ " +
                         " {askVolumPeriodS} {averegS} {time_add_n_min} {Header} {Method} ",
-                        askVolumPeriodS, averegS, time_add_n_min1, Header, nameof(VolumeLogicManager));
+                        askVolumPeriodS, averegS, time_add_n_min1, Header, nameof(SetBoolMoreVolumeAvereg));
                     }
                 }
                 else { Sell2MoreAvereg = false; }
@@ -2711,12 +2763,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             #endregion конец в бакcах------------------------------------------------------------
         }
-
-        // берем отступ от настоящего времени
-        // берем опроеделенный промежуток времение назад
-        // собираем за это время все объемы
-        // считаем среднее
-        // пишем в переменную, сообщаем в лог
 
         /// <summary>
         /// подсчет объема по тикам в N период времени
