@@ -140,7 +140,7 @@
                         <local:DecimalTextBox Text="{Binding PriceStopLong}" 
                                               Margin="78,2,-32,0"/>
                         <ComboBox ItemsSource="{Binding ActionPositionsLong}"
-                                  SelectedItem="{Binding ActionPositionLong}" Margin="37,0,0,0"/>
+                                  SelectedItem="{Binding ActionPositionLong}" Margin="37,0,0,0" SelectionChanged="ComboBox_SelectionChanged"/>
 
                         <Label Content="Трейлинг Стоп лонга в % " Margin="0,0,-73,0"
                                ToolTip="на каком растоянии подтягивается стоп"/>

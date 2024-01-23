@@ -24,5 +24,9 @@ namespace OsEngine.OsaExtension.MVVM.View
             InitializeComponent();
         }
 
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
     }
 }

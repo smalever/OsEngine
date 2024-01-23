@@ -3345,7 +3345,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 e.PropertyName == "IsChekTraelStopLong" ||
 
                 e.PropertyName == "StepPersentStopShort" ||
-                e.PropertyName == "ActionPosition" ||
+                e.PropertyName == "ActionPositionLong" ||
                 e.PropertyName == "PriceStopShort" ||
                 e.PropertyName == "N_min" ||
                 e.PropertyName == "Avereg" ||
@@ -3355,6 +3355,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 e.PropertyName == "RatioSell1" ||
                 e.PropertyName == "RatioSell2" ||
                 e.PropertyName == "IsChekSendAllLogs" ||
+                e.PropertyName == "ActionPositionShort" ||
+                e.PropertyName == "ActionPosition1Buy" ||
+                e.PropertyName == "ActionPosition2Buy" ||
+                e.PropertyName == "ActionPosition1Sell" ||
+                e.PropertyName == "ActionPosition2Sell" ||
                 //e.PropertyName == "IsChekSendAllLogs" ||
                 e.PropertyName == "IsChekTraelStopShort")
             {
@@ -3405,7 +3410,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                     writer.WriteLine(JsonConvert.SerializeObject(PositionsBots)); // 20 line in the file
 
-                    writer.WriteLine(ActionPositionLong); // 21
+                    writer.WriteLine(ActionPositionLong); // 21 действие с позицией в лонг
 
                     writer.WriteLine(IsChekSendAllLogs); // 22 состояние чек бокса телеги
 
@@ -3422,6 +3427,16 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     writer.WriteLine(RatioSell1); // 28 первый коэф превышения в  баксах
 
                     writer.WriteLine(RatioSell2);
+
+                    writer.WriteLine(ActionPositionShort); // 30 действие с позицией в шорт
+
+                    writer.WriteLine(ActionPosition1Buy); // 31 действие с позицией при 1 превышении Buy
+
+                    writer.WriteLine(ActionPosition2Buy); // 32 действие с позицией при 2 превышении Buy
+
+                    writer.WriteLine(ActionPosition1Sell); //  действие с позицией при 1 превышении Sell
+
+                    writer.WriteLine(ActionPosition2Sell); // 34 действие с позицией при 2 превышении Sell
 
                     writer.Close();
 
@@ -3517,6 +3532,36 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     AveregS = (int)GetDecimalForString(reader.ReadLine());
                     RatioSell1 = GetDecimalForString(reader.ReadLine());
                     RatioSell2 = GetDecimalForString(reader.ReadLine());
+
+                    ActionPositionShort = ActionPos.Stop;
+                    if (Enum.TryParse(reader.ReadLine(), out action))
+                    {
+                        ActionPositionShort = action;
+                    }
+
+                    ActionPosition1Buy = ActionPos.Stop;
+                    if (Enum.TryParse(reader.ReadLine(), out action))
+                    {
+                        ActionPosition1Buy = action;
+                    }
+
+                    ActionPosition2Buy = ActionPos.Stop;
+                    if (Enum.TryParse(reader.ReadLine(), out action))
+                    {
+                        ActionPosition2Buy = action;
+                    }
+
+                    ActionPosition1Sell = ActionPos.Stop;
+                    if (Enum.TryParse(reader.ReadLine(), out action))
+                    {
+                        ActionPosition1Sell = action;
+                    }
+
+                    ActionPosition2Sell = ActionPos.Stop;
+                    if (Enum.TryParse(reader.ReadLine(), out action))
+                    {
+                        ActionPosition2Sell = action;
+                    }
 
                     //StepType step = StepType.PUNKT;
                     //if (Enum.TryParse(reader.ReadLine(), out step))
