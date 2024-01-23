@@ -310,7 +310,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary> 
         public List<ActionPos> ActionPositionsLong { get; set; } = new List<ActionPos>()
         {
-            ActionPos.Stop, ActionPos.RollOver, ActionPos.AddVolumes
+            ActionPos.ShortenStop, ActionPos.Stop, ActionPos.RollOver, ActionPos.AddVolumes
         };
 
         /// <summary>
@@ -332,7 +332,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary> 
         public List<ActionPos> ActionPositionsShort { get; set; } = new List<ActionPos>()
         {
-            ActionPos.Stop, ActionPos.RollOver, ActionPos.AddVolumes
+            ActionPos.ShortenStop, ActionPos.Stop, ActionPos.RollOver, ActionPos.AddVolumes
         };
 
         /// <summary>
