@@ -12,7 +12,20 @@ namespace OsEngine.OsaExtension.MVVM.Models
     public enum ActionPos
     {
         Stop,
-        AddVolumes, // добавить объем 
-        RollOver // перевернуть позицию
+
+        /// <summary>
+        /// добавить объем 
+        /// </summary>
+        AddVolumes,
+
+        /// <summary>
+        /// перевернуть позицию
+        /// </summary>
+        RollOver, 
+
+        /// <summary>
+        /// уменьшить стоп
+        /// </summary>
+        ShortenStop 
     }
 }

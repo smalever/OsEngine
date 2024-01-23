@@ -290,27 +290,140 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         #region Свойства позиции робота ==============================
 
+        #region  свойства ActionPos ---------------------------------
         /// <summary>
-        /// Действия с позициией
+        /// Действие с позициией в лонг
         /// </summary>
-        public ActionPos ActionPosition
+        public ActionPos ActionPositionLong
         {
-            get => _actionPosition;
+            get => _actionPositionLong;
             set
             {
-                _actionPosition = value;
-                OnPropertyChanged(nameof(ActionPosition));
+                _actionPositionLong = value;
+                OnPropertyChanged(nameof(ActionPositionLong));
             }
         }
-        private ActionPos _actionPosition;
+        private ActionPos _actionPositionLong;
 
         /// <summary>
-        /// список  действий с позицией 
+        /// список  действий с позицией в лонг
         /// </summary> 
-        public List<ActionPos> ActionPositions { get; set; } = new List<ActionPos>()
+        public List<ActionPos> ActionPositionsLong { get; set; } = new List<ActionPos>()
         {
             ActionPos.Stop, ActionPos.RollOver, ActionPos.AddVolumes
         };
+
+        /// <summary>
+        /// Действие с позициией в шорт
+        /// </summary>
+        public ActionPos ActionPositionShort
+        {
+            get => _actionPositionShort;
+            set
+            {
+                _actionPositionShort = value;
+                OnPropertyChanged(nameof(ActionPositionShort));
+            }
+        }
+        private ActionPos _actionPositionShort;
+
+        /// <summary>
+        /// список  действий с позицией в шорт
+        /// </summary> 
+        public List<ActionPos> ActionPositionsShort { get; set; } = new List<ActionPos>()
+        {
+            ActionPos.Stop, ActionPos.RollOver, ActionPos.AddVolumes
+        };
+
+        /// <summary>
+        /// Действие с позициией при 1 превышении Buy
+        /// </summary>
+        public ActionPos ActionPosition1Buy
+        {
+            get => _actionPosition1Buy;
+            set
+            {
+                _actionPosition1Buy = value;
+                OnPropertyChanged(nameof(ActionPosition1Buy));
+            }
+        }
+        private ActionPos _actionPosition1Buy;
+
+        /// <summary>
+        /// список  действий с позицией при 1 превышении Buy
+        /// </summary> 
+        public List<ActionPos> ActionPositions1Buy { get; set; } = new List<ActionPos>()
+        {
+            ActionPos.ShortenStop, ActionPos.RollOver, ActionPos.Stop, ActionPos.AddVolumes
+        };
+
+        /// <summary>
+        /// Действие с позициией при 2 превышении Buy
+        /// </summary>
+        public ActionPos ActionPosition2Buy
+        {
+            get => _actionPosition2Buy;
+            set
+            {
+                _actionPosition2Buy = value;
+                OnPropertyChanged(nameof(ActionPosition2Buy));
+            }
+        }
+        private ActionPos _actionPosition2Buy;
+
+        /// <summary>
+        /// список  действий с позицией при 2 превышении Buy
+        /// </summary> 
+        public List<ActionPos> ActionPositions2Buy { get; set; } = new List<ActionPos>()
+        {
+            ActionPos.ShortenStop, ActionPos.RollOver, ActionPos.Stop, ActionPos.AddVolumes
+        };
+
+        /// <summary>
+        /// Действие с позициией при 1 превышении Sell
+        /// </summary>
+        public ActionPos ActionPosition1Sell
+        {
+            get => _actionPosition1Sell;
+            set
+            {
+                _actionPosition1Sell = value;
+                OnPropertyChanged(nameof(ActionPosition1Sell));
+            }
+        }
+        private ActionPos _actionPosition1Sell;
+
+        /// <summary>
+        /// список  действий с позицией при 1 превышении Sell
+        /// </summary> 
+        public List<ActionPos> ActionPositions1Sell { get; set; } = new List<ActionPos>()
+        {
+            ActionPos.ShortenStop, ActionPos.RollOver, ActionPos.Stop, ActionPos.AddVolumes
+        };
+
+        /// <summary>
+        /// Действие с позициией при 2 превышении Sell
+        /// </summary>
+        public ActionPos ActionPosition2Sell
+        {
+            get => _actionPosition2Sell;
+            set
+            {
+                _actionPosition2Sell = value;
+                OnPropertyChanged(nameof(ActionPosition2Sell));
+            }
+        }
+        private ActionPos _actionPosition2Sell;
+
+        /// <summary>
+        /// список  действий с позицией при 2 превышении Sell
+        /// </summary> 
+        public List<ActionPos> ActionPositions2Sell { get; set; } = new List<ActionPos>()
+        {
+            ActionPos.ShortenStop, ActionPos.RollOver, ActionPos.Stop, ActionPos.AddVolumes
+        };
+
+        #endregion --------------------------------------------------
 
         /// <summary>
         /// расчетные цены открытия позиции 
@@ -969,7 +1082,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
              * 
              * 
              */
-
         }
 
         /// <summary>
@@ -2582,7 +2694,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 }
             }
         }
-   
 
         /// <summary>
         /// установка значений от объема торгов по монете
@@ -3294,7 +3405,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                     writer.WriteLine(JsonConvert.SerializeObject(PositionsBots)); // 20 line in the file
 
-                    writer.WriteLine(ActionPosition); // 21
+                    writer.WriteLine(ActionPositionLong); // 21
 
                     writer.WriteLine(IsChekSendAllLogs); // 22 состояние чек бокса телеги
 
@@ -3389,7 +3500,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     ActionPos action = ActionPos.Stop;
                     if (Enum.TryParse(reader.ReadLine(), out action))
                     {
-                        ActionPosition = action;
+                        ActionPositionLong = action;
                     }
 
                     bool chek = true;
