@@ -310,7 +310,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary> 
         public List<ActionPos> ActionPositionsLong { get; set; } = new List<ActionPos>()
         {
-            ActionPos.ShortenStop, ActionPos.Stop, ActionPos.RollOver, ActionPos.AddVolumes
+           ActionPos.Nothing, ActionPos.ShortenStop, ActionPos.Stop, ActionPos.RollOver, ActionPos.AddVolumes
         };
 
         /// <summary>
@@ -332,7 +332,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary> 
         public List<ActionPos> ActionPositionsShort { get; set; } = new List<ActionPos>()
         {
-            ActionPos.ShortenStop, ActionPos.Stop, ActionPos.RollOver, ActionPos.AddVolumes
+            ActionPos.Nothing, ActionPos.ShortenStop, ActionPos.Stop, ActionPos.RollOver, ActionPos.AddVolumes
         };
 
         /// <summary>
@@ -354,7 +354,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary> 
         public List<ActionPos> ActionPositions1Buy { get; set; } = new List<ActionPos>()
         {
-            ActionPos.ShortenStop, ActionPos.RollOver, ActionPos.Stop, ActionPos.AddVolumes
+            ActionPos.Nothing, ActionPos.ShortenStop, ActionPos.RollOver, ActionPos.Stop, ActionPos.AddVolumes
         };
 
         /// <summary>
@@ -376,7 +376,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary> 
         public List<ActionPos> ActionPositions2Buy { get; set; } = new List<ActionPos>()
         {
-            ActionPos.ShortenStop, ActionPos.RollOver, ActionPos.Stop, ActionPos.AddVolumes
+            ActionPos.Nothing, ActionPos.ShortenStop, ActionPos.RollOver, ActionPos.Stop, ActionPos.AddVolumes
         };
 
         /// <summary>
@@ -398,7 +398,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary> 
         public List<ActionPos> ActionPositions1Sell { get; set; } = new List<ActionPos>()
         {
-            ActionPos.ShortenStop, ActionPos.RollOver, ActionPos.Stop, ActionPos.AddVolumes
+            ActionPos.Nothing, ActionPos.ShortenStop, ActionPos.RollOver, ActionPos.Stop, ActionPos.AddVolumes
         };
 
         /// <summary>
@@ -420,7 +420,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary> 
         public List<ActionPos> ActionPositions2Sell { get; set; } = new List<ActionPos>()
         {
-            ActionPos.ShortenStop, ActionPos.RollOver, ActionPos.Stop, ActionPos.AddVolumes
+            ActionPos.Nothing, ActionPos.ShortenStop, ActionPos.RollOver, ActionPos.Stop, ActionPos.AddVolumes
         };
 
         #endregion --------------------------------------------------
@@ -935,7 +935,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         #endregion конец свойств для отработки объемов по монете
 
-        #region поля отрпботки обемов по монете ====================
+        #region поля отработки объемов по монете ====================
 
         /// <summary>
         /// покупики больше средней 1 коэф.
@@ -2656,19 +2656,79 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     {
                         if (Buy1MoreAvereg)
                         {
+                            if(ActionPosition1Buy == ActionPos.Stop)
+                            {
 
+                            }
+                            if (ActionPosition1Buy == ActionPos.ShortenStop)
+                            {
+
+                            }
+                            if (ActionPosition1Buy == ActionPos.RollOver)
+                            {
+
+                            }
+                            if (ActionPosition1Buy == ActionPos.AddVolumes)
+                            {
+
+                            }
                         }
                         if (Buy2MoreAvereg)
                         {
+                            if (ActionPosition2Buy == ActionPos.Stop)
+                            {
 
+                            }
+                            if (ActionPosition2Buy == ActionPos.ShortenStop)
+                            {
+
+                            }
+                            if (ActionPosition2Buy == ActionPos.RollOver)
+                            {
+
+                            }
+                            if (ActionPosition2Buy == ActionPos.AddVolumes)
+                            {
+
+                            }
                         }
                         if (Sell1MoreAvereg)
                         {
+                            if (ActionPosition1Sell == ActionPos.Stop)
+                            {
 
+                            }
+                            if (ActionPosition1Sell == ActionPos.ShortenStop)
+                            {
+
+                            }
+                            if (ActionPosition1Sell == ActionPos.RollOver)
+                            {
+
+                            }
+                            if (ActionPosition1Sell == ActionPos.AddVolumes)
+                            {
+
+                            }
                         }
                         if (Sell2MoreAvereg)
                         {
+                            if (ActionPosition2Sell == ActionPos.Stop)
+                            {
 
+                            }
+                            if (ActionPosition2Sell == ActionPos.ShortenStop)
+                            {
+
+                            }
+                            if (ActionPosition2Sell == ActionPos.RollOver)
+                            {
+
+                            }
+                            if (ActionPosition2Sell == ActionPos.AddVolumes)
+                            {
+
+                            }
                         }
                     }
 
@@ -2676,19 +2736,79 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     {
                         if (Buy1MoreAvereg)
                         {
+                            if (ActionPosition1Buy == ActionPos.Stop)
+                            {
 
+                            }
+                            if (ActionPosition1Buy == ActionPos.ShortenStop)
+                            {
+
+                            }
+                            if (ActionPosition1Buy == ActionPos.RollOver)
+                            {
+
+                            }
+                            if (ActionPosition1Buy == ActionPos.AddVolumes)
+                            {
+
+                            }
                         }
                         if (Buy2MoreAvereg)
                         {
+                            if (ActionPosition2Buy == ActionPos.Stop)
+                            {
 
+                            }
+                            if (ActionPosition2Buy == ActionPos.ShortenStop)
+                            {
+
+                            }
+                            if (ActionPosition2Buy == ActionPos.RollOver)
+                            {
+
+                            }
+                            if (ActionPosition2Buy == ActionPos.AddVolumes)
+                            {
+
+                            }
                         }
                         if (Sell1MoreAvereg)
                         {
+                            if (ActionPosition1Sell == ActionPos.Stop)
+                            {
 
+                            }
+                            if (ActionPosition1Sell == ActionPos.ShortenStop)
+                            {
+
+                            }
+                            if (ActionPosition1Sell == ActionPos.RollOver)
+                            {
+
+                            }
+                            if (ActionPosition1Sell == ActionPos.AddVolumes)
+                            {
+
+                            }
                         }
                         if (Sell2MoreAvereg)
                         {
+                            if (ActionPosition2Sell == ActionPos.Stop)
+                            {
 
+                            }
+                            if (ActionPosition2Sell == ActionPos.ShortenStop)
+                            {
+
+                            }
+                            if (ActionPosition2Sell == ActionPos.RollOver)
+                            {
+
+                            }
+                            if (ActionPosition2Sell == ActionPos.AddVolumes)
+                            {
+
+                            }
                         }
                     }
                 }

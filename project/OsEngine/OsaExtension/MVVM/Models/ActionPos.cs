@@ -11,6 +11,11 @@ namespace OsEngine.OsaExtension.MVVM.Models
     /// </summary>
     public enum ActionPos
     {
+        /// <summary>
+        /// ничего не делать
+        /// </summary>
+        Nothing,
+
         Stop,
 
         /// <summary>
