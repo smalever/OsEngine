@@ -2660,9 +2660,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     {
                         if (Buy1MoreAvereg)
                         {
-                            if(ActionPosition1Buy == ActionPos.Stop)
+                            if(ActionPosition1Buy == ActionPos.Stop && _isWorkedStop == false)
                             {
+                                _isWorkedStop = true;
                                 StopPosition(PositionsBots[i]);
+
+                                _logger.Warning(" Send StopPosition ActionPosition 1Buy {Method} ",
+                                    nameof(ManagerSelectActionVolumeLogic));
                             }
                             if (ActionPosition1Buy == ActionPos.ShortenStop)
                             {
@@ -2679,9 +2683,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         }
                         if (Buy2MoreAvereg)
                         {
-                            if (ActionPosition2Buy == ActionPos.Stop)
+                            if (ActionPosition2Buy == ActionPos.Stop && _isWorkedStop == false)
                             {
+                                _isWorkedStop = true;
                                 StopPosition(PositionsBots[i]);
+
+                                _logger.Warning(" Send StopPosition ActionPosition 2Buy {Method} ",
+                                 nameof(ManagerSelectActionVolumeLogic));
                             }
                             if (ActionPosition2Buy == ActionPos.ShortenStop)
                             {
@@ -2698,9 +2706,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         }
                         if (Sell1MoreAvereg)
                         {
-                            if (ActionPosition1Sell == ActionPos.Stop)
+                            if (ActionPosition1Sell == ActionPos.Stop && _isWorkedStop == false)
                             {
+                                _isWorkedStop = true;
                                 StopPosition(PositionsBots[i]);
+
+                                _logger.Warning(" Send StopPosition ActionPosition 1Sell {Method} ",
+                                        nameof(ManagerSelectActionVolumeLogic));
                             }
                             if (ActionPosition1Sell == ActionPos.ShortenStop)
                             {
@@ -2717,9 +2729,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         }
                         if (Sell2MoreAvereg)
                         {
-                            if (ActionPosition2Sell == ActionPos.Stop)
+                            if (ActionPosition2Sell == ActionPos.Stop && _isWorkedStop == false)
                             {
+                                _isWorkedStop = true;
                                 StopPosition(PositionsBots[i]);
+
+                                _logger.Warning(" Send StopPosition ActionPosition 2Sell {Method} ",
+                                     nameof(ManagerSelectActionVolumeLogic));
                             }
                             if (ActionPosition2Sell == ActionPos.ShortenStop)
                             {
@@ -2740,8 +2756,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     {
                         if (Buy1MoreAvereg)
                         {
-                            if (ActionPosition1Buy == ActionPos.Stop)
+                            if (ActionPosition1Buy == ActionPos.Stop && _isWorkedStop == false)
                             {
+                                _isWorkedStop = true;
                                 StopPosition(PositionsBots[i]);
                             }
                             if (ActionPosition1Buy == ActionPos.ShortenStop)
@@ -2759,8 +2776,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         }
                         if (Buy2MoreAvereg)
                         {
-                            if (ActionPosition2Buy == ActionPos.Stop)
+                            if (ActionPosition2Buy == ActionPos.Stop && _isWorkedStop == false)
                             {
+                                _isWorkedStop = true;
                                 StopPosition(PositionsBots[i]);
                             }
                             if (ActionPosition2Buy == ActionPos.ShortenStop)
@@ -2778,8 +2796,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         }
                         if (Sell1MoreAvereg)
                         {
-                            if (ActionPosition1Sell == ActionPos.Stop)
+                            if (ActionPosition1Sell == ActionPos.Stop && _isWorkedStop == false)
                             {
+                                _isWorkedStop = true;
                                 StopPosition(PositionsBots[i]);
                             }
                             if (ActionPosition1Sell == ActionPos.ShortenStop)
@@ -2797,8 +2816,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         }
                         if (Sell2MoreAvereg)
                         {
-                            if (ActionPosition2Sell == ActionPos.Stop)
+                            if (ActionPosition2Sell == ActionPos.Stop && _isWorkedStop == false)
                             {
+                                _isWorkedStop = true;
                                 StopPosition(PositionsBots[i]);
                             }
                             if (ActionPosition2Sell == ActionPos.ShortenStop)
@@ -2886,13 +2906,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     time_add_n_min2 = DateTime.Now.AddMinutes(N_min - 1); // время сработки + N минут
 
                     _logger.Warning(" Bid VolumPeriod > Avereg * Ratio 2" +
-                        " {BidVolumPeriod} {Avereg} {Ratio1} {time_add_n_min} {Header} {Method} ",
+                        " {BidVolumPeriod} {Avereg} {RatioBuy2} {time_add_n_min} {Header} {Method} ",
                         BidVolumPeriod, Avereg, RatioBuy2, time_add_n_min2, Header, nameof(SetBoolMoreVolumeAvereg));
                 }
             }
             else { Buy2MoreAvereg = false; }
 
-            if (AskVolumPeriod > Avereg * RatioBuy1) // продажи больше средней
+            if (AskVolumPeriod > Avereg * RatioSell1) // продажи больше средней
             {
                 Sell1MoreAvereg = true;
 
@@ -2901,26 +2921,26 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     time_add_n_min1 = DateTime.Now.AddMinutes(N_min - 1); // время сработки + N минут
 
                     _logger.Warning(" Ask VolumPeriod > Avereg * Ratio 1" +
-                        " {AskVolumPeriod} {Avereg} {Ratio1} {time_add_n_min} {Header} {Method} ",
-                        AskVolumPeriod, Avereg, RatioBuy1, time_add_n_min1, Header, nameof(SetBoolMoreVolumeAvereg));
+                        " {AskVolumPeriod} {Avereg} {RatioSell1} {time_add_n_min} {Header} {Method} ",
+                        AskVolumPeriod, Avereg, RatioSell1, time_add_n_min1, Header, nameof(SetBoolMoreVolumeAvereg));
                 }
             }
             else { Sell1MoreAvereg = false; }
 
-            if (AskVolumPeriod > Avereg * RatioBuy2) // продажи больше средней
+            if (AskVolumPeriod > Avereg * RatioSell2) // продажи больше средней
             {
-                Sell1MoreAvereg = true;
+                Sell2MoreAvereg = true;
 
                 if (time_add_n_min2 < DateTime.Now)
                 {
                     time_add_n_min2 = DateTime.Now.AddMinutes(N_min - 1); // время сработки + N минут
 
                     _logger.Warning(" Ask VolumPeriod > Avereg * Ratio 2" +
-                        " {AskVolumPeriod} {Avereg} {Ratio1} {time_add_n_min} {Header} {Method} ",
-                        AskVolumPeriod, Avereg, RatioBuy2, time_add_n_min2, Header, nameof(SetBoolMoreVolumeAvereg));
+                        " {AskVolumPeriod} {Avereg} {RatioSell2} {time_add_n_min} {Header} {Method} ",
+                        AskVolumPeriod, Avereg, RatioSell2, time_add_n_min2, Header, nameof(SetBoolMoreVolumeAvereg));
                 }
             }
-            else { Sell1MoreAvereg = false; }
+            else { Sell2MoreAvereg = false; }
 
             #region  в баксах--------------------------------------------------------
 
@@ -2932,7 +2952,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 askVolumPeriodS = AskVolumPeriod * Price;
                 bidVolumPeriodS = BidVolumPeriod * Price; // биды в баксах
 
-                if (bidVolumPeriodS > AveregS * RatioBuy1) // покупки больше средней * коэф
+                if (bidVolumPeriodS > AveregS * RatioBuy1) // покупки больше средней * 1 коэф
                 {
                     Buy1MoreAvereg = true;
 
@@ -2947,7 +2967,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 }
                 else { Buy1MoreAvereg = false; }
 
-                if (bidVolumPeriodS > AveregS * RatioBuy2) // покупки больше средней
+                if (bidVolumPeriodS > AveregS * RatioBuy2) // покупки больше 2 средней
                 {
                     Buy2MoreAvereg = true;
 
@@ -2962,7 +2982,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 }
                 else { Buy2MoreAvereg = false; }
 
-                if (askVolumPeriodS > AveregS * RatioBuy1) // продажи больше средней
+                if (askVolumPeriodS > AveregS * RatioSell1) // продажи больше 1 средней
                 {
                     Sell1MoreAvereg = true;
 
@@ -2977,7 +2997,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 }
                 else { Sell1MoreAvereg = false; }
 
-                if (askVolumPeriodS > AveregS * RatioBuy2) // продажи больше средней
+                if (askVolumPeriodS > AveregS * RatioSell2) // продажи больше 2 средней
                 {
                     Sell2MoreAvereg = true;
 
@@ -3049,6 +3069,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             PriceStopLong = 0;
             PriceStopShort = 0;
             if (!IsRun) PositionsBots.Clear();
+            ActionPosition1Buy = ActionPos.Nothing;
+            ActionPosition1Sell = ActionPos.Nothing;
+            ActionPosition2Buy = ActionPos.Nothing;
+            ActionPosition2Sell = ActionPos.Nothing;
 
             _logger.Information(" Clearing Value Variables {Method} ",
                                nameof(ClearingVariablesAfterClosing));
@@ -3122,12 +3146,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                             if (PositionsBots[i].Direction == Side.Buy && SelectSecurBalans > 0
                                 && _isWorkedStop == false && _sendCloseMarket == false)
                             {
-                                if (ActionPosition1Buy == ActionPos.Stop)
+                                if (ActionPositionLong == ActionPos.Stop)
                                 {
                                     _isWorkedStop = true;
                                     StopPosition(PositionsBots[i]);
-                                    _logger.Warning(" Triggered Stop Long Position  {Header} {Price} {@Position}  {Method}",
-                                                          Header, Price, PositionsBots[i], nameof(MonitoringStop));
+                                    _logger.Warning(" Triggered Stop Long Position  {Header} {PriceStopLong} {Price} {@Position}  {Method}",
+                                                          Header, PriceStopLong, Price, PositionsBots[i], nameof(MonitoringStop));
                                 }
                                 if (PositionsBots[i].State == PositionStateType.Done)// отключаем стоп т.к. позиция уже закрыта
                                 {
@@ -3155,13 +3179,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                             if (PositionsBots[i].Direction == Side.Sell && SelectSecurBalans < 0
                                 && _isWorkedStop == false && _sendCloseMarket == false)
                             {
-                                if (ActionPosition1Buy == ActionPos.Stop)
+                                if (ActionPositionShort == ActionPos.Stop)
                                 {
                                     _isWorkedStop = true;
 
                                     StopPosition(PositionsBots[i]);
-                                    _logger.Warning(" Triggered Stop Short Position {Header} {Price} {@Position}  {Method}"
-                                                                  , Header, Price, PositionsBots[i], nameof(MonitoringStop));
+                                    _logger.Warning(" Triggered Stop Short Position {Header} {ActionPositionShort} {Price} {@Position}  {Method}"
+                                                                  , Header, ActionPositionShort, Price, PositionsBots[i], nameof(MonitoringStop));
 
                                 }
 
