@@ -2926,16 +2926,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             decimal askVolumPeriodS = 0;
             decimal bidVolumPeriodS = 0;
-            decimal averegS = 0;   
-
+            
             if (AveregS != 0 && Price != 0 && BidVolumPeriod != 0 && AskVolumPeriod !=0)
             {
                 askVolumPeriodS = AskVolumPeriod * Price;
-                bidVolumPeriodS = BidVolumPeriod * Price;
+                bidVolumPeriodS = BidVolumPeriod * Price; // биды в баксах
 
-                averegS = AveregS * Price;
-
-                if (bidVolumPeriodS > averegS * RatioBuy1) // покупки больше средней
+                if (bidVolumPeriodS > AveregS * RatioBuy1) // покупки больше средней * коэф
                 {
                     Buy1MoreAvereg = true;
 
@@ -2943,14 +2940,14 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     {
                         time_add_n_min1 = DateTime.Now.AddMinutes(N_min - 1); // время сработки + N минут
 
-                        _logger.Warning("  Bid Volume Peroid in $ * RatioBuy 1 > medium in $" +
-                            " {bidVolumPeriodS} {averegS} {time_add_n_min} {Header} {Method} ",
-                            bidVolumPeriodS, averegS, time_add_n_min1, Header, nameof(SetBoolMoreVolumeAvereg));
+                        _logger.Warning(" Bid Volume Peroid in $ * RatioBuy 1 > medium in $" +
+                            " {bidVolumPeriodS} {AveregS} {time_add_n_min} {Header} {Method} ",
+                            bidVolumPeriodS, AveregS, time_add_n_min1, Header, nameof(SetBoolMoreVolumeAvereg));
                     }
                 }
                 else { Buy1MoreAvereg = false; }
 
-                if (bidVolumPeriodS > averegS * RatioBuy2) // покупки больше средней
+                if (bidVolumPeriodS > AveregS * RatioBuy2) // покупки больше средней
                 {
                     Buy2MoreAvereg = true;
 
@@ -2959,13 +2956,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         time_add_n_min1 = DateTime.Now.AddMinutes(N_min - 1); // время сработки + N минут
 
                         _logger.Warning(" Bid Volume Peroid in $ * RatioBuy 2 > medium in $ "  +
-                        " {bidVolumPeriodS} {averegS} {time_add_n_min} {Header} {Method} ",
-                        bidVolumPeriodS, averegS, time_add_n_min1, Header, nameof(SetBoolMoreVolumeAvereg));
+                        " {bidVolumPeriodS} {AveregS} {time_add_n_min} {Header} {Method} ",
+                        bidVolumPeriodS, AveregS, time_add_n_min1, Header, nameof(SetBoolMoreVolumeAvereg));
                     }
                 }
                 else { Buy2MoreAvereg = false; }
 
-                if (askVolumPeriodS > averegS * RatioBuy1) // продажи больше средней
+                if (askVolumPeriodS > AveregS * RatioBuy1) // продажи больше средней
                 {
                     Sell1MoreAvereg = true;
 
@@ -2974,13 +2971,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         time_add_n_min1 = DateTime.Now.AddMinutes(N_min - 1); // время сработки + N минут
 
                         _logger.Warning("Ask Volume Peroid in $ * RatioBuy 1 > medium in $" +
-                            " {askVolumPeriodS} {averegS} {time_add_n_min} {Header} {Method} ",
-                            askVolumPeriodS, averegS, time_add_n_min1, Header, nameof(SetBoolMoreVolumeAvereg));
+                            " {askVolumPeriodS} {AveregS} {time_add_n_min} {Header} {Method} ",
+                            askVolumPeriodS, AveregS, time_add_n_min1, Header, nameof(SetBoolMoreVolumeAvereg));
                     }
                 }
                 else { Sell1MoreAvereg = false; }
 
-                if (askVolumPeriodS > averegS * RatioBuy2) // продажи больше средней
+                if (askVolumPeriodS > AveregS * RatioBuy2) // продажи больше средней
                 {
                     Sell2MoreAvereg = true;
 
@@ -2989,8 +2986,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         time_add_n_min1 = DateTime.Now.AddMinutes(N_min - 1); // время сработки + N минут
 
                         _logger.Warning(" Ask Volume Peroid in $ * RatioBuy 2 > medium in $ " +
-                        " {askVolumPeriodS} {averegS} {time_add_n_min} {Header} {Method} ",
-                        askVolumPeriodS, averegS, time_add_n_min1, Header, nameof(SetBoolMoreVolumeAvereg));
+                        " {askVolumPeriodS} {AveregS} {time_add_n_min} {Header} {Method} ",
+                        askVolumPeriodS, AveregS, time_add_n_min1, Header, nameof(SetBoolMoreVolumeAvereg));
                     }
                 }
                 else { Sell2MoreAvereg = false; }
