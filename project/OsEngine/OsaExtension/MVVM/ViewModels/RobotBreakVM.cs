@@ -2443,6 +2443,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                     MonitoringStop();
                     GetBalansSecur();
+                    ManagerSelectActionVolumeLogic();
                 }
             }
         }
@@ -2644,7 +2645,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         #region   сервисные методы ===========================
 
-        private void ManagerVolumeLogic()
+        /// <summary>
+        /// менеджер выбраного действия 
+        /// </summary>
+        private void ManagerSelectActionVolumeLogic()
         {
             if (IsRun == false) return;
 
@@ -2658,7 +2662,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         {
                             if(ActionPosition1Buy == ActionPos.Stop)
                             {
-
+                                StopPosition(PositionsBots[i]);
                             }
                             if (ActionPosition1Buy == ActionPos.ShortenStop)
                             {
@@ -2677,7 +2681,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         {
                             if (ActionPosition2Buy == ActionPos.Stop)
                             {
-
+                                StopPosition(PositionsBots[i]);
                             }
                             if (ActionPosition2Buy == ActionPos.ShortenStop)
                             {
@@ -2696,7 +2700,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         {
                             if (ActionPosition1Sell == ActionPos.Stop)
                             {
-
+                                StopPosition(PositionsBots[i]);
                             }
                             if (ActionPosition1Sell == ActionPos.ShortenStop)
                             {
@@ -2715,7 +2719,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         {
                             if (ActionPosition2Sell == ActionPos.Stop)
                             {
-
+                                StopPosition(PositionsBots[i]);
                             }
                             if (ActionPosition2Sell == ActionPos.ShortenStop)
                             {
@@ -2738,7 +2742,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         {
                             if (ActionPosition1Buy == ActionPos.Stop)
                             {
-
+                                StopPosition(PositionsBots[i]);
                             }
                             if (ActionPosition1Buy == ActionPos.ShortenStop)
                             {
@@ -2757,7 +2761,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         {
                             if (ActionPosition2Buy == ActionPos.Stop)
                             {
-
+                                StopPosition(PositionsBots[i]);
                             }
                             if (ActionPosition2Buy == ActionPos.ShortenStop)
                             {
@@ -2776,7 +2780,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         {
                             if (ActionPosition1Sell == ActionPos.Stop)
                             {
-
+                                StopPosition(PositionsBots[i]);
                             }
                             if (ActionPosition1Sell == ActionPos.ShortenStop)
                             {
@@ -2795,7 +2799,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         {
                             if (ActionPosition2Sell == ActionPos.Stop)
                             {
-
+                                StopPosition(PositionsBots[i]);
                             }
                             if (ActionPosition2Sell == ActionPos.ShortenStop)
                             {
@@ -3121,12 +3125,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                             if (PositionsBots[i].Direction == Side.Buy && SelectSecurBalans > 0
                                 && _isWorkedStop == false && _sendCloseMarket == false)
                             {
-                                _isWorkedStop = true;
-
-                                StopPosition(PositionsBots[i]);
-                                _logger.Warning(" Triggered Stop Long Position  {Header} {Price} {@Position}  {Method}",
-                                                           Header, Price, PositionsBots[i], nameof(MonitoringStop));
-
+                                if (ActionPosition1Buy == ActionPos.Stop)
+                                {
+                                    _isWorkedStop = true;
+                                    StopPosition(PositionsBots[i]);
+                                    _logger.Warning(" Triggered Stop Long Position  {Header} {Price} {@Position}  {Method}",
+                                                          Header, Price, PositionsBots[i], nameof(MonitoringStop));
+                                }
                                 if (PositionsBots[i].State == PositionStateType.Done)// отключаем стоп т.к. позиция уже закрыта
                                 {
                                     StopTradeLogic();
@@ -3153,11 +3158,15 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                             if (PositionsBots[i].Direction == Side.Sell && SelectSecurBalans < 0
                                 && _isWorkedStop == false && _sendCloseMarket == false)
                             {
-                                _isWorkedStop = true;
+                                if (ActionPosition1Buy == ActionPos.Stop)
+                                {
+                                    _isWorkedStop = true;
 
-                                StopPosition(PositionsBots[i]);
-                                _logger.Warning(" Triggered Stop Short Position {Header} {Price} {@Position}  {Method}"
-                                                              , Header, Price, PositionsBots[i], nameof(MonitoringStop));
+                                    StopPosition(PositionsBots[i]);
+                                    _logger.Warning(" Triggered Stop Short Position {Header} {Price} {@Position}  {Method}"
+                                                                  , Header, Price, PositionsBots[i], nameof(MonitoringStop));
+
+                                }
 
                                 if (PositionsBots[i].State == PositionStateType.Done)// отключаем стоп т.к. позиция уже закрыта
                                 {
