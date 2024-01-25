@@ -4044,7 +4044,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
         private DelegateCommand _commandStartStop;
 
-        #endregion end Commands ====================================================
+        #endregion end Commands ====================================================import numpy as np
+
     }
 }
 
