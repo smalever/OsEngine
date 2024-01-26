@@ -426,20 +426,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         #endregion --------------------------------------------------
 
         /// <summary>
-        /// расчетные цены закрытия позиции 
-        /// </summary>
-        public List<decimal> PriceClosePos
-        {
-            get => _priceClosePos;
-            set
-            {
-                _priceClosePos = value;
-                OnPropertyChanged(nameof(PriceClosePos));
-            }
-        }
-        private List<decimal> _priceClosePos = new List<decimal>();
-
-        /// <summary>
         ///  средняя цена позиции
         /// </summary>
         public decimal EntryPricePos
@@ -589,20 +575,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private int _partsPerExit = 1;
 
         /// <summary>
-        /// Oбъем на ордер закрытия (части позиции)
-        /// </summary>
-        public decimal VolumePerOrderClose
-        {
-            get => _volumePerOrderClose;
-            set
-            {
-                _volumePerOrderClose = value;
-                OnPropertyChanged(nameof(VolumePerOrderClose));
-            }
-        }
-        private decimal _volumePerOrderClose = 0;
-
-        /// <summary>
         /// Oбъем на ордер открытия (часть позиции)
         /// </summary>
         public decimal VolumePerOrderOpen
@@ -698,20 +670,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
         }
         private bool _isChekVolumeClose;
-
-        /// <summary>
-        /// хз не помню )
-        /// </summary>
-        //public bool IsChekMonitor
-        //{
-        //    get => _isChekMonitor;
-        //    set
-        //    {
-        //        _isChekMonitor = value;
-        //        OnPropertyChanged(nameof(IsChekMonitor));
-        //    }
-        //}
-        //private bool _isChekMonitor;
 
         /// <summary>
         /// записывать все логи 
@@ -960,6 +918,16 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         #endregion конец ВСЕ свойств =============================================
 
         #region Поля ==================================================
+        /// <summary>
+        /// расчетные цены закрытия позиции 
+        /// </summary>
+        private List<decimal> _priceClosePos = new List<decimal>();
+
+
+        /// <summary>
+        /// Oбъем на ордер закрытия (части позиции)
+        /// </summary>
+        private decimal _volumePerOrderClose = 0;
 
         /// <summary>
         /// расчетные цены открытия позиции 
@@ -1250,7 +1218,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             if (PositionsBots.Count == 0 && SelectSecurBalans != 0)
             {
                 Position positionNew = new Position();
-                CalculateVolumeClose();
+              
                 //проверяем направление сделки 
                 if (SelectSecurBalans > 0) // лонг
                 {
@@ -1259,12 +1227,14 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     positionNew.State = PositionStateType.Closing;
                     positionNew.SecurityName = SelectedSecurity.Name;
 
+                    decimal vol = CalculateVolumeTradesClose();
+
                     PositionsBots.Add(positionNew);
 
                     _logger.Warning("Сreated a new long position and added PositionsBots  {Method}  {@positionNew}",
                                                                   nameof(MaintenanOpenVolume), positionNew);
 
-                    SendCloseLimitOrderPosition(positionNew, VolumePerOrderClose);
+                    SendCloseLimitOrderPosition(positionNew, vol);
                 }
                 if (SelectSecurBalans < 0) // шорт
                 {
@@ -1272,13 +1242,13 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     positionNew.Direction = Direction;
                     positionNew.State = PositionStateType.Closing;
                     positionNew.SecurityName = SelectedSecurity.Name;
-
+                    decimal vol = CalculateVolumeTradesClose();
                     PositionsBots.Insert(0, positionNew);
 
                     _logger.Warning("Сreated a new short position and added PositionsBots  {Method}  {@positionNew}",
                                                                 nameof(MaintenanOpenVolume), positionNew);
 
-                    SendCloseLimitOrderPosition(positionNew, VolumePerOrderClose);
+                    SendCloseLimitOrderPosition(positionNew, vol);
                 }
             }
         }
@@ -1861,27 +1831,29 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>  
         private void SendCloseLimitOrderPosition(Position position, decimal volumeClose)
         {
-            PriceClosePos = null;
-            PriceClosePos = CalculPriceClosePos(Direction); // расчет цен закрытия позиции
+            List<decimal> _price = new List<decimal>();
+            _price = CalculPriceClosePos(Direction); // расчет цен закрытия позиции
 
             //объем пришел сверху
             decimal priceClose = 0;
             //выбираем цену закрытия
             if (position.CloseOrders == null)
             {
-                priceClose = PriceClosePos[0];
+                priceClose = _price[0];
             }
             else
             {
                 int i = position.CloseOrders.Count;
-                priceClose = PriceClosePos[i];
+                priceClose = _price[i];
             }
             Debug.WriteLine("цена на закрытие= " + priceClose);
 
-            if (priceClose == 0)
+            if (priceClose == 0 || _price.Count == 0)
             {
-                Debug.WriteLine("цена на закрытие= " + priceClose);
-                //Debug.WriteLine(" OrdersForClose.Count == 0)" );
+               //Debug.WriteLine(" OrdersForClose.Count == 0)" );
+                Debug.WriteLine(" ! Ошибка расчета цены оредара закрытия ");
+                _logger.Error(" Error price order for Close {@Method} {priceClose} " ,
+                                  nameof(SendCloseLimitOrderPosition), priceClose);
                 return;
             }
             // ордер на закрытие в обратную стороны открытия сделки
@@ -2114,71 +2086,46 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         }
 
         /// <summary>
-        /// расчет объема на ордер закрытия
+        /// расчет объема на ордер закрытия (части)
         /// </summary>
-        private void CalculateVolumeTradesClose()
+        private decimal CalculateVolumeTradesClose()
         {
-            if (SelectedSecurity == null || Price == 0 || PartsPerExit == 0) return;
-            GetBalansSecur();
-            VolumePerOrderClose = 0;
-            decimal workLot = 0;
-            decimal baks = 0;
-            baks = FullPositionVolume / PartsPerExit; // это в баксах
-            decimal moni = baks / Price; // в монете
-
-            //  взять открытый объем
-
-            if (true) // набран весь обем
+            if (SelectedSecurity != null || Price != 0 || PartsPerExit != 0)
             {
-                // todo: сделать расчет объема на ордер выхода
-            }
-            workLot = Decimal.Round(moni, SelectedSecurity.DecimalsVolume);
-            decimal minVolume = SelectedSecurity.MinTradeAmount;
-            if (workLot < minVolume)
-            {
-                SendStrStatus("Объем ордера меньше допустимого");
-                _logger.Error(" Order volume < minVolume {Method}  {workLot}", nameof(CalculateVolumeTradesClose), workLot);
-                // IsRun = false;
-            }
-            else
-            {
-                VolumePerOrderClose = workLot;
-            }
-        }
+                GetBalansSecur();
+                _volumePerOrderClose = 0;
+                decimal workLot = 0;
+                decimal baks = 0;
+                baks = FullPositionVolume / PartsPerExit; // это в баксах
+                decimal moni = baks / Price; // в монете
 
-        /// <summary>
-        /// расчет обема закрытия по монетам на бирже (части)
-        /// </summary>
-        private void CalculateVolumeClose()
-        {
-            if (SelectedSecurity == null || Price == 0 || PartsPerExit == 0) return;
-            GetBalansSecur();
-            VolumePerOrderClose = 0;
-            decimal workLot = 0;
-            decimal baks = 0;
-            baks = SelectSecurBalans / PartsPerExit; // это в баксах
-            decimal moni = baks / Price; // в монете
+                //  взять открытый объем
 
-            workLot = Decimal.Round(moni, SelectedSecurity.DecimalsVolume);
-            decimal minVolume = SelectedSecurity.MinTradeAmount;
-            if (workLot < minVolume)
-            {
-                SendStrStatus("Объем ордера меньше допустимого");
-                _logger.Error(" Order volume < minVolume {Method}  {workLot}", nameof(CalculateVolumeClose), workLot);
-                // IsRun = false;
-                if (SelectSecurBalans != 0)
+                if (true) // набран весь обем
                 {
-                    VolumePerOrderClose = SelectSecurBalans;
-                    _logger.Error(" VolumePerOrderClose = SelectSecurBalans; {Method}  {SelectSecurBalans}",
-                                                            nameof(CalculateVolumeClose), SelectSecurBalans);
+                    // todo: сделать расчет объема на ордер выхода
                 }
+                workLot = Decimal.Round(moni, SelectedSecurity.DecimalsVolume);
+                decimal minVolume = SelectedSecurity.MinTradeAmount;
+                if (workLot < minVolume)
+                {
+                    SendStrStatus("Объем ордера меньше допустимого");
+                    _logger.Error(" Order volume < minVolume {Method}  {workLot}", nameof(CalculateVolumeTradesClose), workLot);
+                    // IsRun = false;
+                    if (SelectSecurBalans != 0)
+                    {
+                        _volumePerOrderClose = SelectSecurBalans;
+                        _logger.Error(" Volume PerOrder Close = SelectSecurBalans; {Method}  {SelectSecurBalans}",
+                                                                nameof(CalculateVolumeTradesClose), SelectSecurBalans);
+                    }
+                }
+                else
+                {
+                    _volumePerOrderClose = workLot;
+                }
+                return workLot;
             }
-            else
-            {
-                VolumePerOrderClose = workLot;
-                _logger.Information(" VolumePerOrderClose = workLot; {Method}  {workLot}",
-                                          nameof(CalculateVolumeClose), workLot);
-            }
+            return _volumePerOrderClose;
         }
 
         /// <summary>
@@ -2227,7 +2174,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private List<decimal> CalculPriceClosePos(Side side)
         {
-            _priceClosePos = new List<decimal>();
+            //_priceClosePos = new List<decimal>();
 
             if (SelectedSecurity == null)
             {
@@ -2244,6 +2191,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
             if (side == Side.Buy)
             {
+                _priceClosePos.Clear();
+
                 stepPrice = (TakePriceLong - StartPriceOpenPos) / PartsPerExit;
                 price = StartPriceOpenPos + stepPrice;
                 for (int i = 0; i < PartsPerExit; i++)
@@ -2255,6 +2204,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
             if (side == Side.Sell)
             {
+                _priceClosePos.Clear();
+
                 stepPrice = (StartPriceOpenPos - TakePriceShort) / PartsPerExit;
                 price = StartPriceOpenPos - stepPrice;
                 for (int i = 0; i < PartsPerExit; i++)
