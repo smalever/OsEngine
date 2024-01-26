@@ -426,20 +426,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         #endregion --------------------------------------------------
 
         /// <summary>
-        /// расчетные цены открытия позиции 
-        /// </summary>
-        public List<decimal> PriceOpenPos
-        {
-            get => _priceOpenPos;
-            set
-            {
-                _priceOpenPos = value;
-                OnPropertyChanged(nameof(PriceOpenPos));
-            }
-        }
-        private List<decimal> _priceOpenPos = new List<decimal>();
-
-        /// <summary>
         /// расчетные цены закрытия позиции 
         /// </summary>
         public List<decimal> PriceClosePos
@@ -975,6 +961,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         #region Поля ==================================================
 
+        /// <summary>
+        /// расчетные цены открытия позиции 
+        /// </summary>
+        private List<decimal> _priceOpenPos = new List<decimal>();
 
         /// <summary>
         /// список типов расчета шага 
@@ -1561,14 +1551,16 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                         position.OpenOrders.Clear();
                     }
                 }
-                PriceOpenPos = CalculPriceStartPos(position.Direction); // расчет цены открытия позиции
 
-                if (StartPriceOpenPos == 0 || BottomPositionPrice == 0 || PriceOpenPos.Count == 0)
+                List<decimal> _prices;
+                _prices = CalculPriceStartPos(position.Direction); // расчет цены открытия позиции
+
+                if (StartPriceOpenPos == 0 || BottomPositionPrice == 0 || _prices.Count == 0)
                 {
                     SendStrStatus(" BigСlusterPrice или BottomPositionPrice = 0 ");
                     return;
                 }
-                foreach (decimal price in PriceOpenPos)
+                foreach (decimal price in _prices)
                 {
                     Order order = CreateLimitOrder(SelectedSecurity, price, VolumePerOrderOpen, position.Direction);
                     if (order != null)
