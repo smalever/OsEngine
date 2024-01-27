@@ -1500,7 +1500,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             if (sendOpder.TypeOrder == OrderPriceType.Market) _sendCloseMarket = true;
 
             Server.ExecuteOrder(sendOpder);
-            //Thread.Sleep(100);
+            Thread.Sleep(30);
             if (IsChekSendAllLogs) _logger.Information("Send order Exchange {Method} Order {@Order} {NumberUser} ", nameof(SendOrderExchange), sendOpder, sendOpder.NumberUser);
 
             SendStrStatus(" Ордер отправлен на биржу");
@@ -1874,7 +1874,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             if (order != null && sideSet != Side.None && priceClose != 0 && volumeClose != 0)
             {  // отправить ордер в позицию
                 position.AddNewCloseOrder(order);
-                Thread.Sleep(30);
+                Thread.Sleep(100);
                 _logger.Information("Send order for ListClose {Method} {priceClose} {volumeClose} {@Order} {NumberUser}",
                                         nameof(SendCloseLimitOrderPosition), priceClose, volumeClose, order, order.NumberUser);
                 //position.PassCloseOrder= false;
