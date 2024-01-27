@@ -1353,19 +1353,21 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             if (!_sendStop)
             {
-                DeleteAllOrdersPositionExchange();
-            }
-            //CanselPositionActivOrders(position);
-
-            if (!_sendStop)
-            {
                 _sendStop = true;
                 _logger.Warning(" It worked StopPosition {@position} {Metod} "
-                                                     , position, nameof(StopPosition));
+                                             , position, nameof(StopPosition));
 
                 decimal volume = SelectSecurBalans;
 
                 FinalCloseMarketOpenVolume(position, volume);
+            }
+
+            bool aktivOrders = false;
+            aktivOrders = ActivOrders(position);
+
+            if (aktivOrders) // привязка к ордерам видимым в роботе
+            {
+                DeleteAllOrdersPositionExchange();
             }
         }
 
