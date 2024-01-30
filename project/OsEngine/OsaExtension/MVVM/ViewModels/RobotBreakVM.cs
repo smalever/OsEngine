@@ -1008,11 +1008,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                                  , Header, nameof(StopTradeLogic));
             GetBalansSecur();
 
-            if (!_sendStop)
-            {
-                DeleteAllOrdersPositionExchange();
-            }
-
             for (int i = 0; i < PositionsBots.Count && !_sendStop; i++)
             {
                 if (SelectSecurBalans != 0 && !_sendStop)
@@ -1020,7 +1015,16 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     decimal openVolume = SelectSecurBalans;
 
                     FinalCloseMarketOpenVolume(PositionsBots[i], openVolume);
+                    SelectSecurBalans = 0;
+                    _sendStop = true;
                 }
+
+                bool aktivOrders = false;
+                aktivOrders = ActivOrders(PositionsBots[i]);
+
+                if (aktivOrders) // привязка к ордерам видимым в роботе
+                
+                DeleteAllOrdersPositionExchange();                
             }
             IsRun = false;
 
