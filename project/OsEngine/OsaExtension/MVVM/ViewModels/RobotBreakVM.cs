@@ -1040,8 +1040,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private void RecheckingStatusCoinExchange()
         {
             /*
-             * запросить статус монеты
-             * 
+             * запросить баланс монеты
+             * запросить активные ордера монеты
              * 
              */
         }
@@ -3023,8 +3023,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             ActionPosition2Buy = ActionPos.Nothing;
             ActionPosition2Sell = ActionPos.Nothing;
 
-            _logger.Information(" Clearing Value Variables {Method} ",
-                               nameof(ClearingVariablesAfterClosing));
+            _logger.Information(" Clearing Value Variables {Header} {Method} ",
+                                 Header, nameof(ClearingVariablesAfterClosing));
 
             //if (PositionsBots[0].State == PositionStateType.Done ||
             //    PositionsBots[0].State == PositionStateType.Deleted){}      
