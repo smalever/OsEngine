@@ -2795,7 +2795,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private void SetBoolMoreVolumeAvereg()
         {   // что бы в зависимости от объема торгов перключать логику
 
-            if (IsRun == false || N_min == null || SelectSecurBalans == 0) return;
+            if (IsRun == false || N_min == null ) return;
             if (AllVolumPeroidMin == 0 || Avereg == 0 ||
                 BidVolumPeriod == 0 || AskVolumPeriod == 0) return;
 
@@ -2840,7 +2840,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 if (time_add_n_min1 < DateTime.Now)
                 {
                     time_add_n_min1 = DateTime.Now.AddMinutes(N_min - 1); // время сработки + N минут
-
+                    if (SelectSecurBalans == 0) return;
                     _logger.Warning(" Bid VolumPeriod > Avereg * Ratio 1" +
                         " {BidVolumPeriod} {Avereg} {Ratio1} {time_add_n_min} {Header} {Method} ",
                         BidVolumPeriod, Avereg, RatioBuy1, time_add_n_min1, Header, nameof(SetBoolMoreVolumeAvereg));
@@ -2854,7 +2854,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 if (time_add_n_min2 < DateTime.Now)
                 {
                     time_add_n_min2 = DateTime.Now.AddMinutes(N_min - 1); // время сработки + N минут
-
+                    if (SelectSecurBalans == 0) return;
                     _logger.Warning(" Bid VolumPeriod > Avereg * Ratio 2" +
                         " {BidVolumPeriod} {Avereg} {RatioBuy2} {time_add_n_min} {Header} {Method} ",
                         BidVolumPeriod, Avereg, RatioBuy2, time_add_n_min2, Header, nameof(SetBoolMoreVolumeAvereg));
@@ -2869,7 +2869,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 if (time_add_n_min1 < DateTime.Now)
                 {
                     time_add_n_min1 = DateTime.Now.AddMinutes(N_min - 1); // время сработки + N минут
-
+                    if (SelectSecurBalans == 0) return;
                     _logger.Warning(" Ask VolumPeriod > Avereg * Ratio 1" +
                         " {AskVolumPeriod} {Avereg} {RatioSell1} {time_add_n_min} {Header} {Method} ",
                         AskVolumPeriod, Avereg, RatioSell1, time_add_n_min1, Header, nameof(SetBoolMoreVolumeAvereg));
@@ -2884,7 +2884,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 if (time_add_n_min2 < DateTime.Now)
                 {
                     time_add_n_min2 = DateTime.Now.AddMinutes(N_min - 1); // время сработки + N минут
-
+                    if (SelectSecurBalans == 0) return;
                     _logger.Warning(" Ask VolumPeriod > Avereg * Ratio 2" +
                         " {AskVolumPeriod} {Avereg} {RatioSell2} {time_add_n_min} {Header} {Method} ",
                         AskVolumPeriod, Avereg, RatioSell2, time_add_n_min2, Header, nameof(SetBoolMoreVolumeAvereg));
@@ -2909,7 +2909,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     if (time_add_n_min1 < DateTime.Now)
                     {
                         time_add_n_min1 = DateTime.Now.AddMinutes(N_min - 1); // время сработки + N минут
-
+                        if (SelectSecurBalans == 0) return;
                         _logger.Warning(" Bid Volume Peroid in $ * RatioBuy 1 > medium in $" +
                             " {bidVolumPeriodS} {AveregS} {time_add_n_min} {Header} {Method} ",
                             bidVolumPeriodS, AveregS, time_add_n_min1, Header, nameof(SetBoolMoreVolumeAvereg));
@@ -2924,7 +2924,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     if (time_add_n_min1 < DateTime.Now)
                     {
                         time_add_n_min1 = DateTime.Now.AddMinutes(N_min - 1); // время сработки + N минут
-
+                        if (SelectSecurBalans == 0) return;
                         _logger.Warning(" Bid Volume Peroid in $ * RatioBuy 2 > medium in $ "  +
                         " {bidVolumPeriodS} {AveregS} {time_add_n_min} {Header} {Method} ",
                         bidVolumPeriodS, AveregS, time_add_n_min1, Header, nameof(SetBoolMoreVolumeAvereg));
@@ -2939,7 +2939,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     if (time_add_n_min1 < DateTime.Now)
                     {
                         time_add_n_min1 = DateTime.Now.AddMinutes(N_min - 1); // время сработки + N минут
-
+                        if (SelectSecurBalans == 0) return;
                         _logger.Warning("Ask Volume Peroid in $ * RatioBuy 1 > medium in $" +
                             " {askVolumPeriodS} {AveregS} {time_add_n_min} {Header} {Method} ",
                             askVolumPeriodS, AveregS, time_add_n_min1, Header, nameof(SetBoolMoreVolumeAvereg));
@@ -2954,7 +2954,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     if (time_add_n_min1 < DateTime.Now)
                     {
                         time_add_n_min1 = DateTime.Now.AddMinutes(N_min - 1); // время сработки + N минут
-
+                        if (SelectSecurBalans == 0) return;
                         _logger.Warning(" Ask Volume Peroid in $ * RatioBuy 2 > medium in $ " +
                         " {askVolumPeriodS} {AveregS} {time_add_n_min} {Header} {Method} ",
                         askVolumPeriodS, AveregS, time_add_n_min1, Header, nameof(SetBoolMoreVolumeAvereg));
