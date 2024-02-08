@@ -2795,7 +2795,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private void SetBoolMoreVolumeAvereg()
         {   // что бы в зависимости от объема торгов перключать логику
 
-            if (IsRun == false || N_min == null) return;
+            if (IsRun == false || N_min == null || SelectSecurBalans == 0) return;
             if (AllVolumPeroidMin == 0 || Avereg == 0 ||
                 BidVolumPeriod == 0 || AskVolumPeriod == 0) return;
 
