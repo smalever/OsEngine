@@ -234,28 +234,28 @@
                     <Label  HorizontalAlignment="Left" Margin="85,0,0,0" Width="48"/>
                     <Label  Margin="85,0,0,0" Width="36"/>
 
-                    <Label Content="1 прев. BUY в %" Margin="0,0,-77,0"/>
+                    <Label Content="1 прев. BUY в раз" Margin="0,0,-77,0"/>
                     <local:DecimalTextBox Text="{Binding RatioBuy1}" Margin="78,0,-80,0"/>
                     <Label  Margin="85,0,0,0" Width="36"/>
                     <ComboBox ItemsSource="{Binding ActionPositions1Buy}"
                             SelectedItem="{Binding ActionPosition1Buy}" 
                              ToolTip="Выбери действие" Margin="13,0,0,0"/>
 
-                    <Label Content="2 прев. BUY в %" Margin="0,0,-77,0"/>
+                    <Label Content="2 прев. BUY в раз" Margin="0,0,-77,0"/>
                     <local:DecimalTextBox Text="{Binding RatioBuy2}" Margin="78,0,-80,0"/>
                     <Label  Margin="85,0,0,0" Width="40"/>
                     <ComboBox ItemsSource="{Binding ActionPositions2Buy}"
                            SelectedItem="{Binding ActionPosition2Buy}" 
                             ToolTip="Выбери действие" Margin="13,0,0,0"/>
 
-                    <Label Content="1 прев. SELL в %" Margin="0,0,-77,0"/>
+                    <Label Content="1 прев. SELL враз" Margin="0,0,-77,0"/>
                     <local:DecimalTextBox Text="{Binding RatioSell1}" Margin="78,0,-80,0"/>
                     <Label  Margin="85,0,0,0" Width="40"/>
                     <ComboBox ItemsSource="{Binding ActionPositions1Sell}"
                               SelectedItem="{Binding ActionPosition1Sell}"  ToolTip="Выбери действие" 
                               Margin="13,0,0,0"/>
 
-                    <Label Content="2 прев. SELL в %" Margin="0,0,-77,0"/>
+                    <Label Content="2 прев. SELL в раз" Margin="0,0,-77,0"/>
                     <local:DecimalTextBox Text="{Binding RatioSell2}" Margin="78,0,-80,0"/>
                     <Label  Margin="85,0,0,0" Width="40"/>
                     <ComboBox ItemsSource="{Binding ActionPositions2Sell}"
