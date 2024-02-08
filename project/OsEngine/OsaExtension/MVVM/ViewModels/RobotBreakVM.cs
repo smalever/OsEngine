@@ -2082,7 +2082,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             if (workLot < minVolume)
             {
                 SendStrStatus("Объем ордера меньше допустимого");
-                _logger.Error(" Order volume < minVolume {Method} {minVolume} {workLot}"
+                _logger.Error(" Order volume < minVolume {Method} Minimum {minVolume} {workLot}"
                     , nameof(CalculateVolumeTradesOpen), minVolume, workLot);
                 // IsRun = false;
             }
