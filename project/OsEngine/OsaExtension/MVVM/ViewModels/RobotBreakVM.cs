@@ -32,8 +32,6 @@ using Position = OsEngine.Entity.Position;
 //using Direction = OsEngine.Entity.Position;
 using Security = OsEngine.Entity.Security;
 
-
-
 namespace OsEngine.OsaExtension.MVVM.ViewModels
 {
     public class RobotBreakVM : BaseVM, IRobotVM, IDisposable
