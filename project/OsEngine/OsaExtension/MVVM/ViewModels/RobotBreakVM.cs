@@ -918,6 +918,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         #endregion конец ВСЕ свойств =============================================
 
         #region Поля ==================================================
+
+        /// <summary>
+        /// блокировка отправки ордеров
+        /// </summary>
+        private object orderSendLock;
+
         /// <summary>
         /// расчетные цены закрытия позиции 
         /// </summary>
@@ -955,7 +961,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// поле содержащее VM окна отображ всех роботов
         /// </summary>
-        private RobotsWindowVM _robotsWindowVM;
+        private RobotsWindowVM _robotsWindowVM ;
 
         #endregion
 
@@ -980,6 +986,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             SendStrStatus(" Ожидается подключение к бирже ");
 
             ClearFailOrderPosition();
+
+
+            orderSendLock = new object();
         }
 
         #region  Metods ======================================================================
@@ -1416,22 +1425,28 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             if (ordClose != null && !_sendCloseMarket)
             {
+                
                 if (sideClose == Side.None) return;
 
                 pos.AddNewCloseOrder(ordClose);
-                //Thread.Sleep(50);
+                //Thread.Sleep(50);               
 
-                _sendCloseMarket = true;
+                lock (orderSendLock)
+                {
+                    _sendCloseMarket = true;
 
-                SendOrderExchange(ordClose);
+                    SendOrderExchange(ordClose);
 
-                //Thread.Sleep(100);
+                    //Thread.Sleep(100);
 
-                _logger.Information("Sending FINAL Market order to close " +
-                                " {volume} {numberUser} {@Order} {Metod} ",
-                 finalVolumClose, ordClose.NumberUser, ordClose, nameof(FinalCloseMarketOpenVolume));
+                    _logger.Information("Sending FINAL Market order to close " +
+                                    " {volume} {numberUser} {@Order} {Metod} ",
+                     finalVolumClose, ordClose.NumberUser, ordClose, nameof(FinalCloseMarketOpenVolume));
 
-                SendStrStatus(" Отправлен Маркет на закрытие объема на бирже");
+                    SendStrStatus(" Отправлен Маркет на закрытие объема на бирже");
+                }
+
+    
             }
             if (ordClose == null)
             {

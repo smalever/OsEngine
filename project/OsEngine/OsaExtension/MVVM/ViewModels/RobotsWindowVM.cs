@@ -31,7 +31,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             LoadHeaderBot();
 
-            ServerMaster.ActivateAutoConnection();
+            ServerMaster.ActivateAutoConnection();            
 
         }
 
