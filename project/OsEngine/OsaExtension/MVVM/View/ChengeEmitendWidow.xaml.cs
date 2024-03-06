@@ -16,6 +16,7 @@ namespace OsEngine.OsaExtension.MVVM.View
         {
             InitializeComponent();
             DataContext = new ChangeEmitentVM(robot);
+
         }
     }
 }
