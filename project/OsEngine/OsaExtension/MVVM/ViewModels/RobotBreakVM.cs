@@ -919,6 +919,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
         #region Поля ==================================================
 
+        decimal bidVolumPeriod = 0;
+        decimal askVolumPeriod = 0;
+        decimal allVolumPeroidMin = 0;
+
         /// <summary>
         /// блокировка отправки ордеров
         /// </summary>
@@ -2849,7 +2853,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             */
             #endregion
 
-            if (BidVolumPeriod > Avereg * RatioBuy1) // покупки больше средней
+            if (bidVolumPeriod > Avereg * RatioBuy1) // покупки больше средней
             {
                 Buy1MoreAvereg = true;
                 if (time_add_n_min1 < DateTime.Now)
@@ -2858,12 +2862,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     if (SelectSecurBalans == 0) return;
                     _logger.Warning(" Bid VolumPeriod > Avereg * Ratio 1" +
                         " {BidVolumPeriod} {Avereg} {Ratio1} {time_add_n_min} {Header} {Method} ",
-                        BidVolumPeriod, Avereg, RatioBuy1, time_add_n_min1, Header, nameof(SetBoolMoreVolumeAvereg));
+                        bidVolumPeriod, Avereg, RatioBuy1, time_add_n_min1, Header, nameof(SetBoolMoreVolumeAvereg));
                 }
             }
             else { Buy1MoreAvereg = false; }
 
-            if (BidVolumPeriod > Avereg * RatioBuy2) // покупки больше средней
+            if (bidVolumPeriod > Avereg * RatioBuy2) // покупки больше средней
             {
                 Buy2MoreAvereg = true;
                 if (time_add_n_min2 < DateTime.Now)
@@ -2872,12 +2876,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     if (SelectSecurBalans == 0) return;
                     _logger.Warning(" Bid VolumPeriod > Avereg * Ratio 2" +
                         " {BidVolumPeriod} {Avereg} {RatioBuy2} {time_add_n_min} {Header} {Method} ",
-                        BidVolumPeriod, Avereg, RatioBuy2, time_add_n_min2, Header, nameof(SetBoolMoreVolumeAvereg));
+                        bidVolumPeriod, Avereg, RatioBuy2, time_add_n_min2, Header, nameof(SetBoolMoreVolumeAvereg));
                 }
             }
             else { Buy2MoreAvereg = false; }
 
-            if (AskVolumPeriod > Avereg * RatioSell1) // продажи больше средней
+            if (askVolumPeriod > Avereg * RatioSell1) // продажи больше средней
             {
                 Sell1MoreAvereg = true;
 
@@ -2887,12 +2891,12 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     if (SelectSecurBalans == 0) return;
                     _logger.Warning(" Ask VolumPeriod > Avereg * Ratio 1" +
                         " {AskVolumPeriod} {Avereg} {RatioSell1} {time_add_n_min} {Header} {Method} ",
-                        AskVolumPeriod, Avereg, RatioSell1, time_add_n_min1, Header, nameof(SetBoolMoreVolumeAvereg));
+                        askVolumPeriod, Avereg, RatioSell1, time_add_n_min1, Header, nameof(SetBoolMoreVolumeAvereg));
                 }
             }
             else { Sell1MoreAvereg = false; }
 
-            if (AskVolumPeriod > Avereg * RatioSell2) // продажи больше средней
+            if (askVolumPeriod > Avereg * RatioSell2) // продажи больше средней
             {
                 Sell2MoreAvereg = true;
 
@@ -2902,7 +2906,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     if (SelectSecurBalans == 0) return;
                     _logger.Warning(" Ask VolumPeriod > Avereg * Ratio 2" +
                         " {AskVolumPeriod} {Avereg} {RatioSell2} {time_add_n_min} {Header} {Method} ",
-                        AskVolumPeriod, Avereg, RatioSell2, time_add_n_min2, Header, nameof(SetBoolMoreVolumeAvereg));
+                        askVolumPeriod, Avereg, RatioSell2, time_add_n_min2, Header, nameof(SetBoolMoreVolumeAvereg));
                 }
             }
             else { Sell2MoreAvereg = false; }
@@ -2914,8 +2918,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             
             if (AveregS != 0 && Price != 0 && BidVolumPeriod != 0 && AskVolumPeriod !=0)
             {
-                askVolumPeriodS = AskVolumPeriod * Price;
-                bidVolumPeriodS = BidVolumPeriod * Price; // биды в баксах
+                askVolumPeriodS = askVolumPeriod * Price;
+                bidVolumPeriodS = bidVolumPeriod * Price; // биды в баксах
 
                 if (bidVolumPeriodS > AveregS * RatioBuy1) // покупки больше средней * 1 коэф
                 {
@@ -2989,10 +2993,14 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             // берем опроеделенный промежуток времение назад
             // собираем за это время покупки
             // собираем за это время продажи
-            // собираем за это время все объемы          
+            // собираем за это время все объемы 
 
             if (trades == null || N_min == null) return;
             if (trades.Count == 0) return;
+
+            bidVolumPeriod = 0;
+            askVolumPeriod = 0;
+            allVolumPeroidMin = 0;
 
             DateTime time_add_n_min = dateTradingPeriod.AddMinutes(N_min); // время трейда + N минут
             if (time_add_n_min == null || time_add_n_min == DateTime.MinValue ) return;
@@ -3003,24 +3011,66 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 {
                     if (trades[i].Side == Side.Buy)
                     {
-                        decimal b = trades[i].Volume;
-                        BidVolumPeriod = BidVolumPeriod + b;
+                        bidVolumPeriod += trades[i].Volume;
                     }
                     if (trades[i].Side == Side.Sell)
                     {
-                        decimal a = trades[i].Volume;
-                        AskVolumPeriod = AskVolumPeriod + a;
+                        askVolumPeriod += trades[i].Volume;
                     }
-                    AllVolumPeroidMin = BidVolumPeriod + AskVolumPeriod;
                 }
                 else
                 {
+                    // Если встречаем торг, который не входит в период, обновляем переменные и выходим из цикла
+                    allVolumPeroidMin = bidVolumPeriod + askVolumPeriod;
+                    BidVolumPeriod = bidVolumPeriod;
+                    AskVolumPeriod = askVolumPeriod;
+                    AllVolumPeroidMin = allVolumPeroidMin;
+
                     dateTradingPeriod = trades[i].Time;
-                    AllVolumPeroidMin = 0;
-                    BidVolumPeriod = 0;
-                    AskVolumPeriod = 0;
+                    break; // Прерываем цикл после первого обновления
+                }
+                // Если цикл завершился без выхода по break, обновляем переменные
+                if (trades.Count == i)
+                {
+                    allVolumPeroidMin = bidVolumPeriod + askVolumPeriod;
+                    BidVolumPeriod = bidVolumPeriod;
+                    AskVolumPeriod = askVolumPeriod;
+                    AllVolumPeroidMin = allVolumPeroidMin;
                 }
             }
+
+
+
+            //for (int i = 0; i < trades.Count; i++)
+            //{
+            //    if (trades[i].Time < time_add_n_min)
+            //    {
+            //        if (trades[i].Side == Side.Buy)
+            //        {
+            //            //decimal b = trades[i].Volume;
+            //            _bidVolumPeriod += trades[i].Volume;
+            //        }
+            //        if (trades[i].Side == Side.Sell)
+            //        {
+            //            //decimal a = trades[i].Volume;
+            //            _askVolumPeriod += trades[i].Volume;
+            //        }
+            //        _allVolumPeroidMin = _bidVolumPeriod + _askVolumPeriod;
+
+            //        BidVolumPeriod = _bidVolumPeriod;
+            //        AskVolumPeriod = _askVolumPeriod;
+            //        AllVolumPeroidMin = _allVolumPeroidMin;
+
+            //    }  
+
+            //    else
+            //    {
+            //        dateTradingPeriod = trades[i].Time;
+            //        AllVolumPeroidMin = 0;
+            //        BidVolumPeriod = 0;
+            //        AskVolumPeriod = 0;
+            //    }
+            //}
         }
 
         /// <summary>
