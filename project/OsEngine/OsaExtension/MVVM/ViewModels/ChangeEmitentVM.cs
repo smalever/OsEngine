@@ -120,7 +120,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 _robot.SelectedSecurity = SelectedEmitent.Security;
                 _robot.StringPortfolios = _robot.GetStringPortfolios(_robot.Server);
                 RobotsWindowVM.ChengeEmitendWidow.Close();
-
             }
         }
 
