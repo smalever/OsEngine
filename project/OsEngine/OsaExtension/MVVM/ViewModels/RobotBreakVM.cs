@@ -1146,11 +1146,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     }
                 }
             }
-
-            foreach (Position position in PositionsBots)
-            {
-
-            }
         }
 
         /// <summary>
@@ -3013,7 +3008,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     {
                         askVolumPeriod += trades[i].Volume;
                     }
-                    if (trades.Count -1 == i)
+                    if (trades.Count -1 == i && IsRun)
                     {
                         allVolumPeroidMin = bidVolumPeriod + askVolumPeriod;
                         BidVolumPeriod = bidVolumPeriod;
