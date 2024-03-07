@@ -1044,11 +1044,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             ClearFailOrderPosition();
             ClearCanceledOrderPosition();
             ClearingVariablesAfterClosing();
-            // препроверяем монету
+            // перепроверяем монету
         }
 
         /// <summary>
-        /// препроверка сосотояния монеты на бирже
+        /// перепроверка состояния монеты на бирже
         /// </summary>
         private void RecheckingStatusCoinExchange()
         {
@@ -2998,10 +2998,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             if (trades == null || N_min == null) return;
             if (trades.Count == 0) return;
 
-            bidVolumPeriod = 0;
-            askVolumPeriod = 0;
-            allVolumPeroidMin = 0;
-
             DateTime time_add_n_min = dateTradingPeriod.AddMinutes(N_min); // время трейда + N минут
             if (time_add_n_min == null || time_add_n_min == DateTime.MinValue ) return;
 
@@ -3017,25 +3013,22 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     {
                         askVolumPeriod += trades[i].Volume;
                     }
+                    if (trades.Count -1 == i)
+                    {
+                        allVolumPeroidMin = bidVolumPeriod + askVolumPeriod;
+                        BidVolumPeriod = bidVolumPeriod;
+                        AskVolumPeriod = askVolumPeriod;
+                        AllVolumPeroidMin = allVolumPeroidMin;
+                    }
                 }
+
                 else
                 {
-                    // Если встречаем торг, который не входит в период, обновляем переменные и выходим из цикла
-                    allVolumPeroidMin = bidVolumPeriod + askVolumPeriod;
-                    BidVolumPeriod = bidVolumPeriod;
-                    AskVolumPeriod = askVolumPeriod;
-                    AllVolumPeroidMin = allVolumPeroidMin;
+                    bidVolumPeriod = 0;
+                    askVolumPeriod = 0;
+                    allVolumPeroidMin = 0;
 
                     dateTradingPeriod = trades[i].Time;
-                    break; // Прерываем цикл после первого обновления
-                }
-                // Если цикл завершился без выхода по break, обновляем переменные
-                if (trades.Count == i)
-                {
-                    allVolumPeroidMin = bidVolumPeriod + askVolumPeriod;
-                    BidVolumPeriod = bidVolumPeriod;
-                    AskVolumPeriod = askVolumPeriod;
-                    AllVolumPeroidMin = allVolumPeroidMin;
                 }
             }
 
