@@ -3008,7 +3008,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     {
                         askVolumPeriod += trades[i].Volume;
                     }
-                    if (trades.Count -1 == i && IsRun)
+                    if (trades.Count -1 == i && IsRun == true)
                     {
                         allVolumPeroidMin = bidVolumPeriod + askVolumPeriod;
                         BidVolumPeriod = bidVolumPeriod;
@@ -3076,6 +3076,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             ActionPosition1Sell = ActionPos.Nothing;
             ActionPosition2Buy = ActionPos.Nothing;
             ActionPosition2Sell = ActionPos.Nothing;
+            BidVolumPeriod = 0;
+            AskVolumPeriod = 0;
+            AllVolumPeroidMin = 0;
 
             _logger.Information(" Clearing Value Variables {Header} {Method} ",
                                  Header, nameof(ClearingVariablesAfterClosing));
