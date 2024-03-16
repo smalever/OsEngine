@@ -701,7 +701,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         public bool _sendCloseMarket = false;
 
         /// <summary>
-        /// расстояние до трейлин стопа лонг в % 
+        /// расстояние до трейлинг профита в лонг  % 
         /// </summary>
         public decimal StepPersentStopLong
         {
@@ -715,7 +715,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private decimal _stepPersentStopLong = 1;
 
         /// <summary>
-        /// расстояние до трейлин стопа шорт в % 
+        /// расстояние до трейлин профита шорта в % 
         /// </summary>
         public decimal StepPersentStopShort
         {
@@ -727,6 +727,34 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             }
         }
         private decimal _stepPersentStopShort = 1;
+
+        /// <summary>
+        /// расстояние до включения трейлинг профита лонг в % 
+        /// </summary>
+        public decimal StepPersentStopLongRun
+        {
+            get => _stepPersentStopLongRun;
+            set
+            {
+                _stepPersentStopLongRun = value;
+                OnPropertyChanged(nameof(StepPersentStopLongRun));
+            }
+        }
+        private decimal _stepPersentStopLongRun = 1;
+
+        /// <summary>
+        /// расстояние до включения трейлинг профита шорта в % 
+        /// </summary>
+        public decimal StepPersentStopShortRun
+        {
+            get => _stepPersentStopShortRun;
+            set
+            {
+                _stepPersentStopShortRun = value;
+                OnPropertyChanged(nameof(StepPersentStopShortRun));
+            }
+        }
+        private decimal _stepPersentStopShortRun = 1; 
 
         /// <summary>
         /// список позиций робота 
@@ -2030,14 +2058,18 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         private void CalculateTrelingStop(Position position)
         {
             if (IsRun == false || SelectedSecurity == null && SelectSecurBalans == 0) return;
-
+         
             if (position.Direction == Side.Buy && SelectSecurBalans > 0) // если есть открытый объем в лонг
             {
                 decimal stepStop = 0;// расстояние до стопа
+                decimal stepStopRun = 0;// расстояние до включения стопа
+
+                stepStopRun = StepPersentStopLongRun * Price / 100;
                 stepStop = StepPersentStopLong * Price / 100;
                 stepStop = Decimal.Round(stepStop, SelectedSecurity.Decimals);
+
                 decimal entry = position.EntryPrice; // средняя цена входа роботом
-                if (Price > entry + stepStop && IsChekTraelStopLong == false && entry != 0) // включаем трейлинг стоп в лонг
+                if (Price > entry + stepStopRun && IsChekTraelStopLong == false && entry != 0) // включаем трейлинг стоп в лонг
                 {
                     IsChekTraelStopLong = true;
                     SendStrStatus("Включили Трейлинг профит в лонг ");
@@ -2055,11 +2087,14 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             if (position.Direction == Side.Sell && SelectSecurBalans < 0)
             {
                 decimal stepStop = 0;
+                decimal stepStopRun = 0;// расстояние до включения стопа
+
+                stepStopRun = StepPersentStopShortRun * Price / 100;
                 stepStop = StepPersentStopShort * Price / 100;
                 stepStop = Decimal.Round(stepStop, SelectedSecurity.Decimals);
                 decimal entry = position.EntryPrice;
 
-                if (Price < entry - stepStop && IsChekTraelStopShort == false && entry != 0) // включаем трейлинг стоп в шорт
+                if (Price < entry - stepStopRun && IsChekTraelStopShort == false && entry != 0) // включаем трейлинг стоп в шорт
                 {
                     IsChekTraelStopShort = true;
                     SendStrStatus("Включили Трейлинг профит в шорт ");
@@ -3026,39 +3061,38 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     dateTradingPeriod = trades[i].Time;
                 }
             }
+            /*
+            for (int i = 0; i < trades.Count; i++)
+            {
+                if (trades[i].Time < time_add_n_min)
+                {
+                    if (trades[i].Side == Side.Buy)
+                    {
+                        //decimal b = trades[i].Volume;
+                        _bidVolumPeriod += trades[i].Volume;
+                    }
+                    if (trades[i].Side == Side.Sell)
+                    {
+                        //decimal a = trades[i].Volume;
+                        _askVolumPeriod += trades[i].Volume;
+                    }
+                    _allVolumPeroidMin = _bidVolumPeriod + _askVolumPeriod;
 
+                    BidVolumPeriod = _bidVolumPeriod;
+                    AskVolumPeriod = _askVolumPeriod;
+                    AllVolumPeroidMin = _allVolumPeroidMin;
 
+                }
 
-            //for (int i = 0; i < trades.Count; i++)
-            //{
-            //    if (trades[i].Time < time_add_n_min)
-            //    {
-            //        if (trades[i].Side == Side.Buy)
-            //        {
-            //            //decimal b = trades[i].Volume;
-            //            _bidVolumPeriod += trades[i].Volume;
-            //        }
-            //        if (trades[i].Side == Side.Sell)
-            //        {
-            //            //decimal a = trades[i].Volume;
-            //            _askVolumPeriod += trades[i].Volume;
-            //        }
-            //        _allVolumPeroidMin = _bidVolumPeriod + _askVolumPeriod;
-
-            //        BidVolumPeriod = _bidVolumPeriod;
-            //        AskVolumPeriod = _askVolumPeriod;
-            //        AllVolumPeroidMin = _allVolumPeroidMin;
-
-            //    }  
-
-            //    else
-            //    {
-            //        dateTradingPeriod = trades[i].Time;
-            //        AllVolumPeroidMin = 0;
-            //        BidVolumPeriod = 0;
-            //        AskVolumPeriod = 0;
-            //    }
-            //}
+                else
+                {
+                    dateTradingPeriod = trades[i].Time;
+                    AllVolumPeroidMin = 0;
+                    BidVolumPeriod = 0;
+                    AskVolumPeriod = 0;
+                }
+            }
+            */
         }
 
         /// <summary>
@@ -3517,6 +3551,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 e.PropertyName == "ActionPosition1Sell" ||
                 e.PropertyName == "ActionPosition2Sell" ||
                 //e.PropertyName == "IsChekSendAllLogs" ||
+                e.PropertyName == "StepPersentStopLongRun" ||
+                e.PropertyName == "StepPersentStopShortRun" ||
                 e.PropertyName == "IsChekTraelStopShort")
             {
                 SaveParamsBot();
@@ -3593,6 +3629,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     writer.WriteLine(ActionPosition1Sell); //  действие с позицией при 1 превышении Sell
 
                     writer.WriteLine(ActionPosition2Sell); // 34 действие с позицией при 2 превышении Sell
+
+                    writer.WriteLine(StepPersentStopLongRun);
+
+                    writer.WriteLine(StepPersentStopShortRun);
 
                     writer.Close();
 
@@ -3718,6 +3758,10 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     {
                         ActionPosition2Sell = action;
                     }
+
+                    StepPersentStopLongRun = GetDecimalForString(reader.ReadLine());
+
+                    StepPersentStopShortRun = GetDecimalForString(reader.ReadLine());
 
                     //StepType step = StepType.PUNKT;
                     //if (Enum.TryParse(reader.ReadLine(), out step))
