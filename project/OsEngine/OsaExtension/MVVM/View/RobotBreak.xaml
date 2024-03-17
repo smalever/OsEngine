@@ -9,7 +9,7 @@
              xmlns:models="clr-namespace:OsEngine.OsaExtension.MVVM.Models" 
              xmlns:viewmodels="clr-namespace:OsEngine.OsaExtension.MVVM.ViewModels"
              d:DataContext="{d:DesignInstance Type=viewmodels:RobotBreakVM}"
-             mc:Ignorable="d" d:DesignHeight="910" Width="1000">
+             mc:Ignorable="d" d:DesignHeight="920" Width="1000">
     <UserControl.Resources>
         <Style TargetType="TextBlock">
             <Setter Property="MinWidth" Value="30"/>
@@ -59,9 +59,9 @@
 
             </TextBlock>-->
         </StatusBar>
-        <Grid Height="757">
+        <Grid Height="767">
             <Grid.RowDefinitions>
-                <RowDefinition Height="627" />
+                <RowDefinition Height="607" />
                 <RowDefinition/>
 
             </Grid.RowDefinitions>
@@ -78,8 +78,8 @@
                         FontSize="18" Width="493">
 
                     <UniformGrid Columns="3" 
-                                Margin="1,0,1,0"
-                                Grid.Row="0" Height="575" >
+                                Margin="1,0,1,1"
+                                Grid.Row="0" >
                         <TextBlock Text="Цена профита логн позиции" 
                                   ToolTip="до этой цены выставляются тейки лонга (финиш лонга)" Margin="0,0,-65,0"/>
                         <local:DecimalTextBox Text="{Binding TakePriceLong}" 
@@ -142,8 +142,8 @@
                         <ComboBox ItemsSource="{Binding ActionPositionsLong}"
                                   SelectedItem="{Binding ActionPositionLong}" Margin="37,0,0,0" SelectionChanged="ComboBox_SelectionChanged"/>
 
-                        <Label Content="Трейлинг Стоп Держать %" Margin="0,0,-73,0"
-                               ToolTip="на каком растоянии в % подтягивается стоп ЛОНГА"/>
+                        <Label Content="Трейлинг Стоп лонга в % " Margin="0,0,-73,0"
+                               ToolTip="на каком растоянии подтягивается стоп"/>
                         <local:DecimalTextBox Text="{Binding StepPersentStopLong}"
                                               ToolTip ="Через сколько % тянуть стоп"
                                               Margin="78,2,-32,0"/>
@@ -153,13 +153,6 @@
                                       ToolTip="Включить/ ВЫКЛ Трейлинг СТОП в лонг"
                                        Width="119" />
                         </StackPanel>
-
-                        <Label Content="Трейлинг Стоп лонга Вкл" Margin="0,0,-73,0"
-                               ToolTip="на каком % профита ВКЛЮЧАЕТСЯ трейлинг стоп"/>
-                        <local:DecimalTextBox Text="{Binding StepPersentStopLongRun}"
-                                              ToolTip ="Включить трейлинг стоп при прыбыли более этого профита"
-                                              Margin="78,2,-32,0"/>
-                        <Label Margin="47,0,2,0"/>
 
                         <TextBlock Text="Цена профита Шорта" 
                          ToolTip="Цена до которой расставлены тейки шорта" Margin="0,0,-37,0"/>
@@ -179,7 +172,7 @@
                         <local:IntTextBox  Text="{Binding PartsPerInput}" Margin="78,0,-32,0" />
                         <Label Margin="47,0,2,0"/>
 
-                        <TextBlock Text="Количество частей на выход" Margin="0,0,-67,0" />
+                        <TextBlock Text="Количество частей на выход" Margin="0,0,-51,0" />
                         <local:IntTextBox  Text="{Binding PartsPerExit}" Margin="78,0,-32,0" />
                         <Label Margin="47,0,2,0"/>
 
@@ -302,7 +295,7 @@
             </GroupBox>
 
             <Button Grid.Row="1"
-                    Margin="50,20,0,0"
+                    Margin="55,21,0,0"
               Content="{Binding IsRun, Converter={StaticResource ConverterIsRunToBool}}" 
               FontSize="30"
               Command="{Binding CommandStartStop}"
