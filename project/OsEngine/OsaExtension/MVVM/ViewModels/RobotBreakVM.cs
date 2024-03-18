@@ -926,7 +926,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// блокировка отправки ордеров
         /// </summary>
-        private object orderSendLock;
+        private object _orderSendLock;
 
         /// <summary>
         /// расчетные цены закрытия позиции 
@@ -991,7 +991,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             ClearFailOrderPosition();
 
 
-            orderSendLock = new object();
+            _orderSendLock = new object();
         }
 
         #region  Metods ======================================================================
@@ -1429,7 +1429,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                 pos.AddNewCloseOrder(ordClose);
                 //Thread.Sleep(50);               
 
-                lock (orderSendLock)
+                lock (_orderSendLock)
                 {
                     _sendCloseMarket = true;
 
