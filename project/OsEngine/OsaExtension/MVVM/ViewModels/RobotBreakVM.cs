@@ -3017,9 +3017,9 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// подсчет объема по тикам в N период времени
         /// </summary>
-        private void CalculationVolumeInTradeNperiod(List<Trade> trades)
+        private async Task CalculationVolumeInTradeNperiod(List<Trade> trades)
         {
-            // берем опроеделенный промежуток времение назад
+            // берем определенный промежуток времени назад
             // собираем за это время покупки
             // собираем за это время продажи
             // собираем за это время все объемы 
@@ -3032,6 +3032,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             for (int i = 0; i < trades.Count; i++)
             {
+                //Thread.Yield();
                 if (trades[i].Time < time_add_n_min)
                 {
                     if (trades[i].Side == Side.Buy)
