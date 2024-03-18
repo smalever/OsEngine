@@ -1611,7 +1611,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// проверять баланс ордеров зак и откр 
         /// </summary>
-        private void MaintainingVolumeBalance(Position position)
+        private async Task MaintainingVolumeBalance(Position position)
         {
             decimal minVolumeExecut = SelectedSecurity.MinTradeAmount;
 
