@@ -933,7 +933,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private List<decimal> _priceClosePos = new List<decimal>();
 
-
         /// <summary>
         /// Oбъем на ордер закрытия (части позиции)
         /// </summary>
@@ -2983,7 +2982,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// <summary>
         /// подсчет объема по тикам в N период времени
         /// </summary>
-        private void CalculationVolumeInTradeNperiod(List<Trade> trades)
+        private async Task CalculationVolumeInTradeNperiod(List<Trade> trades)
         {
             // берем опроеделенный промежуток времение назад
             // собираем за это время покупки
@@ -2995,9 +2994,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             DateTime time_add_n_min = dateTradingPeriod.AddMinutes(N_min); // время трейда + N минут
             if (time_add_n_min == null || time_add_n_min == DateTime.MinValue ) return;
-
+            
             for (int i = 0; i < trades.Count; i++)
             {
+                //Thread.Yield();
+
                 if (trades[i].Time < time_add_n_min)
                 {
                     if (trades[i].Side == Side.Buy)
