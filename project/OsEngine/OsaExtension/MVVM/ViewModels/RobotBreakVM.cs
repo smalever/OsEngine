@@ -1019,7 +1019,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
             ClearFailOrderPosition();
 
-
             orderSendLock = new object();
         }
 
