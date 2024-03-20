@@ -2437,11 +2437,11 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
             {
                 if (Price != ask && ask != 0)
                 {
-                    Price = ask;
+                    //Price = ask; перенес в тики
 
-                    MonitoringStop();
-                    GetBalansSecur();
-                    ManagerSelectActionVolumeLogic();
+                    //MonitoringStop();
+                    //GetBalansSecur();
+                    //ManagerSelectActionVolumeLogic();
                 }
             }
         }
@@ -2487,6 +2487,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void _server_NewMyTradeEvent(MyTrade myTrade)
         {
+            GetBalansSecur();
             // StartMaintainingVolumeBalance();
 
             if (myTrade.SecurityNameCode == SelectedSecurity.Name)
@@ -2496,11 +2497,8 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                 if (IsChekSendAllLogs) _logger.Warning(" Come myTrade {Header} {Method} {NumberOrderParent} {@myTrade}", Header, nameof(_server_NewMyTradeEvent), myTrade.NumberOrderParent, myTrade);
 
-                GetBalansSecur();
                 IsOnTralProfit(myTrade);
             }
-            //else
-            //if (IsChekSendAllLogs) _logger.Warning(" Secur Trade {Security} {@Trade}  {Method}", myTrade.SecurityNameCode, myTrade,  nameof(_server_NewMyTradeEvent));
         }
 
         /// <summary>
@@ -2508,6 +2506,7 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
         /// </summary>
         private void _server_NewOrderIncomeEvent(Order order)
         {
+            GetBalansSecur();
             if (SelectedSecurity != null)
             {
                 StartMaintainingVolumeBalance();
@@ -2528,9 +2527,6 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
                     if (IsChekSendAllLogs) _logger.Information(" New myOrder  {Header}{@Order} {NumberUser} {NumberMarket} {Method}",
                                        Header, order, order.NumberUser, order.NumberMarket, nameof(_server_NewOrderIncomeEvent));
                 }
-                //else
-                //    _logger.Information(" Levak ! Secur {@Order} {Security} {Method}",
-                //        order, order.SecurityNameCode,nameof(_server_NewOrderIncomeEvent));
             }
         }
 
@@ -2589,9 +2585,18 @@ namespace OsEngine.OsaExtension.MVVM.ViewModels
 
                 Trade trade = trades[0];  //Price = trade.Price;
 
-                CalculationVolumeInTradeNperiod(trades);
+                Trade tradePrice = trades.Last();
+                if (tradePrice != null && tradePrice.Price != 0)
+                {
+                    Price = tradePrice.Price;
 
-                SetBoolMoreVolumeAvereg();
+                    CalculationVolumeInTradeNperiod(trades);
+
+                    SetBoolMoreVolumeAvereg();
+                    MonitoringStop();
+                    //GetBalansSecur();
+                    ManagerSelectActionVolumeLogic();
+                }  
 
                 if (trade.Time.Second % 3 == 0) //if (trade.Time.Second % 5 == 0) GetBalansSecur();
                 {
